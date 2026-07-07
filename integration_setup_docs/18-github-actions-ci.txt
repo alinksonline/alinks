@@ -70,8 +70,12 @@ STEP 4 — OPTIONAL GITHUB SECRETS
   | DATABASE_URL  | Run db:migrate in CI before deploy            |
   | VERCEL_TOKEN  | CLI deploy from Actions (usually not needed)  |
   | NEON_API_KEY  | Branch database for preview envs              |
+  | CODERABBIT_API_KEY | Optional CLI review in PRs (doc 23)    |
 
   Vercel GitHub App handles deploy without VERCEL_TOKEN.
+
+  CodeRabbit GitHub App reviews PRs automatically (no secret needed).
+  Optional: .github/workflows/coderabbit-review.yml uses CODERABBIT_API_KEY.
 
 --------------------------------------------------------------------------------
 STEP 5 — OPTIONAL: MIGRATION JOB (future)
