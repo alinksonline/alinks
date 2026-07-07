@@ -17,6 +17,14 @@ if [[ -f .env ]]; then
   set +a
 fi
 
+MODE="${1:-plain}"
+BASE="${2:-main}"
+
+if [[ "$MODE" == "doctor" ]]; then
+  coderabbit doctor
+  exit 0
+fi
+
 if [[ -z "${CODERABBIT_API_KEY:-}" ]]; then
   echo "CODERABBIT_API_KEY missing. Add Agentic key (cr-...) to .env"
   echo "Create at: https://app.coderabbit.ai/settings/api-keys"
@@ -33,18 +41,12 @@ if ! coderabbit auth status 2>&1 | grep -q "signed in"; then
   fi
 fi
 
-MODE="${1:-plain}"
-BASE="${2:-main}"
-
 case "$MODE" in
   plain)
     coderabbit review --plain --base "$BASE"
     ;;
   agent)
     coderabbit review --agent --base "$BASE"
-    ;;
-  doctor)
-    coderabbit doctor
     ;;
   *)
     echo "Usage: $0 [plain|agent|doctor] [base-branch]"
