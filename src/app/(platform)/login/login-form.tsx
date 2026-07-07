@@ -2,24 +2,29 @@
 
 import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
-import { sendOtpAction, verifyOtpAction } from "@/app/actions/auth";
+import { resendOtpAction, sendOtpAction, verifyOtpAction } from "@/app/actions/auth";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/core/utils/cn";
 
-export function LoginForm({ redirectTo = "/dashboard" }: { redirectTo?: string }) {
+type LoginFormProps = {
+  redirectTo?: string;
+  initialOtpMode: "msg91" | "dev";
+};
+
+export function LoginForm({ redirectTo = "/dashboard", initialOtpMode }: LoginFormProps) {
   const router = useRouter();
   const [phone, setPhone] = useState("");
   const [otp, setOtp] = useState("");
   const [step, setStep] = useState<"phone" | "otp">("phone");
   const [error, setError] = useState<string | null>(null);
   const [isPending, startTransition] = useTransition();
-  const [devMode, setDevMode] = useState(false);
+  const [deliveryMode, setDeliveryMode] = useState<"msg91" | "dev">(initialOtpMode);
 
   const handleSendOtp = (e: React.FormEvent) => {
     e.preventDefault();
     setError(null);
-    if (phone.replace(/\D/g, "").length < 10) {
-      setError("Enter a valid 10-digit phone number");
+    if (phone.replace(/\D/g, "").length !== 10) {
+      setError("Enter a valid 10-digit mobile number");
       return;
     }
     startTransition(async () => {
@@ -28,7 +33,7 @@ export function LoginForm({ redirectTo = "/dashboard" }: { redirectTo?: string }
         setError(result.error ?? "Could not send OTP");
         return;
       }
-      setDevMode(result.devMode);
+      setDeliveryMode(result.mode);
       setStep("otp");
     });
   };
@@ -47,14 +52,7 @@ export function LoginForm({ redirectTo = "/dashboard" }: { redirectTo?: string }
     });
   };
 
-  const submitLabel =
-    step === "phone"
-      ? isPending
-        ? "Sending…"
-        : "Send OTP"
-      : isPending
-        ? "Verifying…"
-        : "Continue";
+  const last4 = phone.replace(/\D/g, "").slice(-4);
 
   return (
     <div>
@@ -67,7 +65,7 @@ export function LoginForm({ redirectTo = "/dashboard" }: { redirectTo?: string }
               step === s ? "bg-brand-purple/12 text-brand-purple" : "bg-brand-mist text-brand-ink/40",
             )}
           >
-            {s === "phone" ? "1 · Phone" : "2 · OTP"}
+            {s === "phone" ? "1 · Mobile" : "2 · OTP"}
           </span>
         ))}
       </div>
@@ -76,14 +74,14 @@ export function LoginForm({ redirectTo = "/dashboard" }: { redirectTo?: string }
         <form onSubmit={handleSendOtp} className="space-y-5">
           <div>
             <label htmlFor="phone" className="mb-2 block text-xs font-semibold uppercase tracking-wide text-brand-ink/50">
-              Phone number
+              Mobile / WhatsApp number
             </label>
             <input
               id="phone"
               type="tel"
               value={phone}
               onChange={(e) => setPhone(e.target.value)}
-              placeholder="+91 98765 43210"
+              placeholder="98765 43210"
               className="premium-input"
               required
               autoComplete="tel"
@@ -91,11 +89,24 @@ export function LoginForm({ redirectTo = "/dashboard" }: { redirectTo?: string }
           </div>
           {error && <p className="text-xs text-red-600">{error}</p>}
           <Button type="submit" variant="bronze" disabled={isPending}>
-            {submitLabel}
+            {isPending ? "Sending…" : "Send OTP"}
           </Button>
         </form>
       ) : (
         <form onSubmit={handleVerify} className="space-y-5">
+          <div className="rounded-xl border border-brand-turquoise/25 bg-brand-turquoise/5 px-4 py-3 text-sm">
+            {deliveryMode === "msg91" ? (
+              <>
+                <p className="font-semibold text-brand-ink">OTP sent to +91 ••••{last4}</p>
+                <p className="mt-1 text-xs text-brand-ink/55">Enter the code from your SMS — not a demo OTP.</p>
+              </>
+            ) : (
+              <p className="text-xs text-brand-ink/55">
+                Dev mode: use <code className="rounded bg-brand-mist px-1">DEV_OTP</code> from your local{" "}
+                <code className="rounded bg-brand-mist px-1">.env</code>
+              </p>
+            )}
+          </div>
           <div>
             <label htmlFor="otp" className="mb-2 block text-xs font-semibold uppercase tracking-wide text-brand-ink/50">
               OTP code
@@ -104,33 +115,43 @@ export function LoginForm({ redirectTo = "/dashboard" }: { redirectTo?: string }
               id="otp"
               type="text"
               inputMode="numeric"
-              maxLength={4}
-              value={otp}
-              onChange={(e) => setOtp(e.target.value)}
-              placeholder="····"
-              className="premium-input text-center text-2xl tracking-[0.5em]"
-              required
               autoComplete="one-time-code"
+              maxLength={6}
+              value={otp}
+              onChange={(e) => setOtp(e.target.value.replace(/\D/g, ""))}
+              placeholder="····"
+              className="premium-input text-center text-2xl tracking-[0.4em]"
+              required
             />
-            <p className="mt-2 text-xs text-brand-ink/45">
-              {devMode ? "Dev mode — use DEV_OTP from .env" : `SMS sent to ••••${phone.replace(/\D/g, "").slice(-4) || "····"}`}
-            </p>
           </div>
           {error && <p className="text-xs text-red-600">{error}</p>}
           <Button type="submit" variant="bronze" disabled={isPending}>
-            {submitLabel}
+            {isPending ? "Verifying…" : "Continue"}
           </Button>
-          <button
-            type="button"
-            onClick={() => {
-              setStep("phone");
-              setOtp("");
-              setError(null);
-            }}
-            className="w-full text-xs font-medium text-brand-ink/50"
-          >
-            ← Change phone number
-          </button>
+          <div className="flex gap-3">
+            <button
+              type="button"
+              onClick={() => startTransition(async () => {
+                const r = await resendOtpAction(phone);
+                if (!r.success) setError(r.error ?? "Resend failed");
+              })}
+              disabled={isPending}
+              className="flex-1 text-xs font-semibold text-brand-purple"
+            >
+              Resend OTP
+            </button>
+            <button
+              type="button"
+              onClick={() => {
+                setStep("phone");
+                setOtp("");
+                setError(null);
+              }}
+              className="flex-1 text-xs font-medium text-brand-ink/50"
+            >
+              ← Change number
+            </button>
+          </div>
         </form>
       )}
     </div>

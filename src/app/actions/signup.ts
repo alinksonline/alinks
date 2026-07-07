@@ -1,0 +1,78 @@
+"use server";
+
+import { completeOnboardingAction } from "@/app/actions/business";
+import { verifyOtpAction } from "@/app/actions/auth";
+import type { SiteTemplateId } from "@/core/types/page";
+import { isValidHandle, normalizeHandle } from "@/core/utils/slug";
+
+export type SignupPayload = {
+  phone: string;
+  otp: string;
+  businessName: string;
+  handle: string;
+  vertical: string;
+  businessPurpose: string;
+  templateId: SiteTemplateId;
+  acceptTos: boolean;
+  acceptPrivacy: boolean;
+  acceptAup: boolean;
+  acceptResponsibility: boolean;
+  acceptNoHarmfulUse: boolean;
+};
+
+const VERTICAL_TEMPLATE: Record<string, SiteTemplateId> = {
+  general: "general",
+  salon: "salon",
+  ecommerce: "ecommerce",
+  grocery: "ecommerce",
+  kirana: "ecommerce",
+  clinic: "general",
+  pharmacy: "general",
+  restaurant: "general",
+};
+
+export async function completeSignupAction(input: SignupPayload) {
+  if (!input.acceptTos || !input.acceptPrivacy || !input.acceptAup) {
+    return { success: false as const, error: "You must accept Terms, Privacy, and Acceptable Use Policy" };
+  }
+  if (!input.acceptResponsibility || !input.acceptNoHarmfulUse) {
+    return {
+      success: false as const,
+      error: "You must confirm lawful use and your responsibility for your business",
+    };
+  }
+
+  const purpose = input.businessPurpose.trim();
+  if (purpose.length < 10) {
+    return { success: false as const, error: "Describe what your business does (at least 10 characters)" };
+  }
+
+  const handle = normalizeHandle(input.handle || input.businessName);
+  if (!isValidHandle(handle)) {
+    return { success: false as const, error: "Choose a valid site handle (letters, numbers, hyphens)" };
+  }
+
+  const auth = await verifyOtpAction(input.phone, input.otp);
+  if (!auth.success) {
+    return { success: false as const, error: auth.error ?? "OTP verification failed" };
+  }
+
+  const templateId = VERTICAL_TEMPLATE[input.vertical] ?? "general";
+
+  const onboard = await completeOnboardingAction({
+    businessName: input.businessName.trim(),
+    handle,
+    vertical: input.vertical,
+    templateId,
+    businessPurpose: purpose,
+    acceptTos: input.acceptTos,
+    acceptPrivacy: input.acceptPrivacy,
+    acceptAup: input.acceptAup,
+  });
+
+  if (!onboard.success) {
+    return { success: false as const, error: onboard.error ?? "Could not create your business" };
+  }
+
+  return { success: true as const, handle: onboard.handle, role: auth.role };
+}

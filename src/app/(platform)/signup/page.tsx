@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import { AuthShell } from "@/components/platform/auth-shell";
-import { LoginForm } from "../login/login-form";
+import { SignupForm } from "@/components/platform/signup-form";
 import { getSession } from "@/platform/auth/session";
 import { isMsg91Configured } from "@/platform/sms/msg91";
 import { getBusinessForTenant } from "@/platform/business/require-business";
@@ -14,13 +14,16 @@ export default async function SignupPage() {
   }
 
   const smsOtp = isMsg91Configured();
-  const devOtp = process.env.DEV_OTP ?? "1111";
 
   return (
     <AuthShell
       mode="signup"
-      title="Start your 14-day Pro trial"
-      subtitle={smsOtp ? "phone_otp · SMS via MSG91" : `phone_otp · dev OTP ${devOtp}`}
+      title="Create your ALINKS business site"
+      subtitle={
+        smsOtp
+          ? "Verify your mobile number · SMS OTP via MSG91"
+          : "Local dev — configure MSG91 in .env for real SMS"
+      }
       footer={
         <p className="text-sm text-brand-ink/55">
           Already have an account?{" "}
@@ -30,7 +33,7 @@ export default async function SignupPage() {
         </p>
       }
     >
-      <LoginForm redirectTo="/onboarding" />
+      <SignupForm otpMode={smsOtp ? "msg91" : "dev"} />
     </AuthShell>
   );
 }

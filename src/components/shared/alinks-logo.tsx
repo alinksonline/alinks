@@ -1,3 +1,5 @@
+import Image from "next/image";
+
 /** Natural asset ratio: 5000 × 2141 */
 const LOGO_ASPECT = 5000 / 2141;
 
@@ -14,15 +16,15 @@ export function AlinksLogo({ height = 32, className, priority, variant = "light"
       ? "/assets/LOGO-for-darck-backgrounds.png"
       : "/assets/LOGO-for-light-backgrounds.png";
 
+  const width = Math.round(height * LOGO_ASPECT);
+
   return (
-    // Native img avoids Next/Image aspect-ratio warnings for CSS-sized logos
-    <img
+    <Image
       src={src}
       alt="ALINKS"
-      width={Math.round(height * LOGO_ASPECT)}
+      width={width}
       height={height}
-      decoding="async"
-      fetchPriority={priority ? "high" : "auto"}
+      priority={priority}
       className={className}
       style={{ height: `${height}px`, width: "auto" }}
     />

@@ -43,6 +43,7 @@ export async function completeOnboardingAction(input: {
   handle: string;
   vertical: string;
   templateId: SiteTemplateId;
+  businessPurpose?: string;
   acceptTos: boolean;
   acceptPrivacy: boolean;
   acceptAup: boolean;
@@ -82,6 +83,9 @@ export async function completeOnboardingAction(input: {
     await recordLegalAcceptance({ tenantId: session.userId, docType: LEGAL_DOC_TYPES.PLATFORM_PRIVACY, ...meta });
     await recordLegalAcceptance({ tenantId: session.userId, docType: LEGAL_DOC_TYPES.PLATFORM_AUP, ...meta });
 
+    const regulatedVerticals = new Set(["clinic", "pharmacy"]);
+    const gateStatus = regulatedVerticals.has(input.vertical) ? "pending_review" : "approved";
+
     const [business] = await db
       .insert(businesses)
       .values({
@@ -90,7 +94,11 @@ export async function completeOnboardingAction(input: {
         name: input.businessName.trim(),
         vertical: input.vertical,
         templateId: input.templateId,
+        verticalGateStatus: gateStatus,
         theme: template.theme,
+        seoMeta: input.businessPurpose
+          ? { signupPurpose: input.businessPurpose.trim(), signupAt: new Date().toISOString() }
+          : {},
         branding: { businessName: input.businessName.trim(), logoUrl: "", faviconUrl: "", coverUrl: "" },
       })
       .returning();

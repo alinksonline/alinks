@@ -3,6 +3,7 @@ import { redirect } from "next/navigation";
 import { AuthShell } from "@/components/platform/auth-shell";
 import { LoginForm } from "./login-form";
 import { getSession } from "@/platform/auth/session";
+import { isMsg91Configured } from "@/platform/sms/msg91";
 import { getBusinessForTenant } from "@/platform/business/require-business";
 
 export default async function LoginPage() {
@@ -13,13 +14,13 @@ export default async function LoginPage() {
     redirect(business ? "/dashboard" : "/onboarding");
   }
 
-  const devOtp = process.env.DEV_OTP ?? "1111";
+  const smsOtp = isMsg91Configured();
 
   return (
     <AuthShell
       mode="login"
       title="Sign in with phone OTP"
-      subtitle={`phase_0 · dev OTP ${devOtp}`}
+      subtitle={smsOtp ? "SMS OTP to your mobile number" : "Local dev — SMS not configured"}
       footer={
         <p className="text-sm text-brand-ink/55">
           New here?{" "}
@@ -29,7 +30,7 @@ export default async function LoginPage() {
         </p>
       }
     >
-      <LoginForm />
+      <LoginForm initialOtpMode={smsOtp ? "msg91" : "dev"} />
     </AuthShell>
   );
 }
