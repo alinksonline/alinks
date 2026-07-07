@@ -1,4 +1,6 @@
 import type { ReactNode } from "react";
+
+export const dynamic = "force-dynamic";
 import { AdminNav } from "@/components/admin/admin-nav";
 import { requireSuperadmin } from "@/platform/auth/session";
 
