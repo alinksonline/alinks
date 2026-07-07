@@ -1,0 +1,98 @@
+================================================================================
+07 — GOOGLE OAUTH + SHEETS (Tenant Data)
+================================================================================
+
+GOAL
+  Tenants connect THEIR Google account so customer/order/booking PII
+  writes to THEIR Google Sheet — never platform Postgres.
+
+WHEN TO SET UP
+  Phase 1+ after signup and dashboard shell work.
+  NOT required for landing page or phone OTP login.
+
+--------------------------------------------------------------------------------
+STEP 1 — GOOGLE CLOUD PROJECT
+--------------------------------------------------------------------------------
+  1. https://console.cloud.google.com
+  2. New project: ALINKS Production
+  3. APIs & Services → Enable:
+       - Google Sheets API
+       - Google Drive API
+
+--------------------------------------------------------------------------------
+STEP 2 — OAUTH CONSENT SCREEN
+--------------------------------------------------------------------------------
+  1. APIs & Services → OAuth consent screen
+  2. User Type: External (or Internal if Workspace only)
+  3. App name: ALINKS
+  4. Support email: artixforcoding@gmail.com
+  5. Scopes (minimum):
+       https://www.googleapis.com/auth/spreadsheets
+       https://www.googleapis.com/auth/drive.file
+  6. Test users: add your Gmail while in Testing mode
+
+--------------------------------------------------------------------------------
+STEP 3 — OAUTH CLIENT ID
+--------------------------------------------------------------------------------
+  1. Credentials → Create Credentials → OAuth client ID
+  2. Type: Web application
+  3. Authorized redirect URIs:
+       http://localhost:3000/api/auth/google/callback
+       https://alinks.online/api/auth/google/callback
+       https://app.alinks.online/api/auth/google/callback
+
+  4. Save Client ID and Client Secret → Vercel env (when wired):
+       GOOGLE_CLIENT_ID=...
+       GOOGLE_CLIENT_SECRET=...
+
+  Note: Code may use GOOGLE_SERVICE_ACCOUNT_JSON for server-side ops —
+  check src/tenant/storage/ when implementing.
+
+--------------------------------------------------------------------------------
+STEP 4 — TENANT CONNECT FLOW (product)
+--------------------------------------------------------------------------------
+  Dashboard → Integrations → Connect Google
+
+  1. Tenant clicks Connect
+  2. OAuth consent → tenant approves
+  3. ALINKS stores encrypted refresh token in platform Postgres
+  4. ALINKS creates or links Spreadsheet for orders/customers
+  5. PII rows write to Sheet only
+
+  Legal checkbox (see legal/16-TOUCHPOINT-CHECKBOX-TEXT.txt):
+    "I understand customer data will be stored in MY Google Account"
+
+--------------------------------------------------------------------------------
+STEP 5 — SERVICE ACCOUNT (optional / server automation)
+--------------------------------------------------------------------------------
+  If using service account instead of per-tenant OAuth:
+    1. Create service account in Google Cloud
+    2. Download JSON key
+    3. Vercel env: GOOGLE_SERVICE_ACCOUNT_JSON=(entire JSON one line)
+    4. Share each tenant Sheet with service account email
+
+  Per-tenant OAuth is preferred for BYO data ownership.
+
+--------------------------------------------------------------------------------
+STEP 6 — DEV WITHOUT GOOGLE
+--------------------------------------------------------------------------------
+  .env:
+    STORAGE_DEV_MODE=true
+
+  Uses DevSheetsAdapter (local file storage) — see src/tenant/storage/
+
+--------------------------------------------------------------------------------
+DATA RULES (locked architecture)
+--------------------------------------------------------------------------------
+  Platform Postgres: tenant config, OAuth token refs, NO customer PII
+  Google Sheets:     customer, order, booking, patient rows
+  Tenant Supabase:     optional BYO alternative (Phase 4 — doc 11)
+
+--------------------------------------------------------------------------------
+VERIFY
+--------------------------------------------------------------------------------
+  [ ] OAuth redirect returns to dashboard without error
+  [ ] Test order row appears in tenant Sheet
+  [ ] Platform DB has no customer phone/email in tenants table
+
+================================================================================

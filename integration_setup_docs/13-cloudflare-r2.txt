@@ -1,0 +1,61 @@
+================================================================================
+13 — CLOUDFLARE R2 (Tenant Uploads — Phase 2+)
+================================================================================
+
+GOAL
+  Store tenant images (logos, product photos) on Cloudflare R2.
+  Alternative to local /public/uploads in dev.
+
+CREDENTIALS
+  cloudflaretokens.txt already has:
+    CLOUDFLARE_R2_ACCESS_KEY_ID
+    CLOUDFLARE_R2_SECRET_ACCESS_KEY
+    CLOUDFLARE_R2_ENDPOINT
+
+--------------------------------------------------------------------------------
+STEP 1 — CREATE R2 BUCKET
+--------------------------------------------------------------------------------
+  1. Cloudflare Dashboard → R2 → Create bucket
+  2. Name: alinks-uploads
+  3. Location: APAC
+
+--------------------------------------------------------------------------------
+STEP 2 — API TOKEN / KEYS
+--------------------------------------------------------------------------------
+  R2 → Manage R2 API Tokens → Create token
+  Permissions: Object Read & Write on alinks-uploads
+
+  Update cloudflaretokens.txt (never commit):
+    CLOUDFLARE_R2_ACCESS_KEY_ID=...
+    CLOUDFLARE_R2_SECRET_ACCESS_KEY=...
+    CLOUDFLARE_R2_ENDPOINT=https://<accountid>.r2.cloudflarestorage.com
+
+--------------------------------------------------------------------------------
+STEP 3 — PUBLIC ACCESS (optional CDN)
+--------------------------------------------------------------------------------
+  R2 → bucket → Settings → Public access
+  Or connect custom domain: uploads.alinks.online
+
+  next.config.mjs already allows:
+    **.r2.cloudflarestorage.com
+
+--------------------------------------------------------------------------------
+STEP 4 — VERCEL ENV (when upload pipeline ships)
+--------------------------------------------------------------------------------
+  R2_ACCESS_KEY_ID=...
+  R2_SECRET_ACCESS_KEY=...
+  R2_BUCKET=alinks-uploads
+  R2_ENDPOINT=...
+
+--------------------------------------------------------------------------------
+DEV FALLBACK
+--------------------------------------------------------------------------------
+  Local dev uses /public/uploads/ (gitignored except .gitkeep)
+
+--------------------------------------------------------------------------------
+VERIFY
+--------------------------------------------------------------------------------
+  [ ] Upload logo in editor → URL serves from R2
+  [ ] Image loads on tenant public site
+
+================================================================================

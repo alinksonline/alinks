@@ -2,7 +2,7 @@ const lines: { prompt?: boolean; text: string; color?: string }[] = [
   { text: "$ alinks route --handle demo" },
   { text: "→ surface: tenant_site", color: "text-tech-green" },
   { text: "→ storage: google_sheets", color: "text-tech-green" },
-  { text: "→ tier: pro · checkout: enabled", color: "text-tech-amber" },
+  { text: "→ tier: pro · checkout: enabled", color: "text-brand-turquoise-light" },
   { text: "" },
   { text: "$ alinks write-queue status" },
   { text: "pending: 0 · failed: 0 · latency_p99: 42ms", color: "text-zinc-400" },

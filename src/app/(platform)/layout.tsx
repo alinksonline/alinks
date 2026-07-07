@@ -1,7 +1,8 @@
-import { Inter, JetBrains_Mono } from "next/font/google";
+import { Plus_Jakarta_Sans, JetBrains_Mono } from "next/font/google";
 import type { ReactNode } from "react";
+import { MobileAppShell } from "@/components/shared/mobile-app-shell";
 
-const inter = Inter({
+const jakarta = Plus_Jakarta_Sans({
   subsets: ["latin"],
   variable: "--font-sans",
   display: "swap",
@@ -13,11 +14,10 @@ const jetbrainsMono = JetBrains_Mono({
   display: "swap",
 });
 
-/** Platform surface shell — auth enforced in (authenticated) subgroup only */
 export default function PlatformLayout({ children }: { children: ReactNode }) {
   return (
-    <div className={`${inter.variable} ${jetbrainsMono.variable} min-h-screen bg-slate-50 font-sans antialiased`}>
-      {children}
+    <div className={`${jakarta.variable} ${jetbrainsMono.variable} font-sans antialiased`}>
+      <MobileAppShell variant="platform">{children}</MobileAppShell>
     </div>
   );
 }

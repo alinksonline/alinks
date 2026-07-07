@@ -1,0 +1,286 @@
+================================================================================
+09 — PHONEPE PAYMENT GATEWAY (FULL APPLICATION + INTEGRATION GUIDE)
+================================================================================
+
+GOAL
+  Optional second payment gateway alongside Razorpay.
+  PhonePe PG surfaces UPI (including PhonePe app and Google Pay via UPI intent).
+
+WHEN YOU NEED PHONEPE
+--------------------------------------------------------------------------------
+  REQUIRED?  No — Razorpay alone covers UPI, cards, GPay, PhonePe app.
+
+  APPLY IF:
+    - Razorpay partner approval is delayed
+    - You want dual-gateway failover
+    - Tenants specifically request PhonePe PG branding
+    - You want extra partner commission stream (~0.20% per PhonePe docs)
+
+  Baseline: apply BOTH Razorpay + PhonePe in Phase 0 (long onboarding).
+
+GOOGLE PAY NOTE
+--------------------------------------------------------------------------------
+  You do NOT apply to Google Pay directly.
+  GPay appears as UPI option inside PhonePe PG or Razorpay checkout.
+
+================================================================================
+PART 1 — BEFORE YOU APPLY (PREREQUISITES)
+================================================================================
+
+SAME AS RAZORPAY — KEEP DOCUMENTS READY
+--------------------------------------------------------------------------------
+  [ ] Artix Pvt Ltd incorporation cert (preferred)
+  [ ] Company PAN
+  [ ] GSTIN certificate (recommended)
+  [ ] Company bank account + cancelled cheque
+  [ ] Director PAN + Aadhaar
+  [ ] MOA/AOA, board resolution
+  [ ] Live website: https://alinks.online
+  [ ] Product demo or screenshots
+  [ ] MSME Udyam (helpful for SMB narrative)
+
+ENTITY REQUIREMENT
+--------------------------------------------------------------------------------
+  PhonePe partner program targets:
+    - SaaS platforms (ALINKS = Technology Partner)
+    - Digital agencies
+    - E-commerce consultants
+    - ERP/CRM vendors
+
+  Pvt Ltd strongly preferred over sole proprietorship for partner approval.
+
+================================================================================
+PART 2 — PHONEPE PARTNER PROGRAM APPLICATION (STEP BY STEP)
+================================================================================
+
+SIGNUP URL
+--------------------------------------------------------------------------------
+  Primary:  https://www.phonepe.com/business-solutions/payment-gateway/partner-program/register
+  Info:     https://business.phonepe.com/partner-program
+
+STEP 1 — OPEN REGISTRATION PAGE
+--------------------------------------------------------------------------------
+  1. Visit partner registration URL above
+  2. Click "Become a Partner Now" or "Get Started For Free"
+  3. You land on PhonePe PG partner signup form
+
+STEP 2 — FILL REGISTRATION FORM
+--------------------------------------------------------------------------------
+  Typical fields (exact form may vary):
+
+  Full name:           [Founder / authorised signatory name]
+  Email:               artixforcoding@gmail.com (or company email)
+  Mobile:              +91 [10-digit Indian number]
+  Company name:        Artix Private Limited
+  Company website:     https://alinks.online
+  Business type:       SaaS / Technology Platform
+  City:                [Your city — e.g. Vijayawada / Hyderabad / Bangalore]
+
+  Partner type — choose based on form options:
+    Technology Partner  ← ALINKS (embed PG in platform)
+    NOT Service Partner (unless you only refer, not embed)
+
+  Business description (copy-paste ready):
+    "ALINKS is an India-first SaaS platform that helps small businesses build
+     mobile mini-websites with online catalog, appointments, and checkout.
+     We want to offer PhonePe Payment Gateway to our Pro-tier tenants so their
+     end-customers can pay via UPI, cards, and wallets. Tenants are merchants
+     of record; Artix embeds checkout and facilitates onboarding. We expect to
+     onboard salons, clinics, kirana stores, and restaurants across India."
+
+  Expected merchant volume:  honest estimate (e.g. 50–500 merchants in 12 months)
+  Expected transaction volume: start conservative
+
+STEP 3 — SUBMIT AND WAIT FOR OUTREACH
+--------------------------------------------------------------------------------
+  After signup:
+    "A business representative will reach out to help you complete onboarding."
+
+  What happens next:
+    1. PhonePe sales/partner team emails or calls within 1–7 business days
+    2. They schedule onboarding call
+    3. You present ALINKS product demo (have app.alinks.online ready)
+    4. They request company documents (list below)
+    5. Partner agreement / terms shared
+    6. After approval → partner dashboard access + referral link
+
+  If no response in 7 days:
+    - Reply to any PhonePe confirmation email
+    - Contact via PhonePe business support channels
+    - Mention: "Technology Partner application for SaaS platform ALINKS"
+
+STEP 4 — PARTNER KYC DOCUMENTS (PREPARE ZIP FOLDER)
+--------------------------------------------------------------------------------
+  PhonePe will typically ask for:
+
+  Company documents:
+    [ ] Certificate of Incorporation
+    [ ] Company PAN card
+    [ ] GST registration certificate
+    [ ] Cancelled cheque (company bank account)
+    [ ] Address proof (registered office)
+
+  Authorised signatory:
+    [ ] PAN card
+    [ ] Aadhaar (may be required)
+    [ ] Photo
+
+  Product evidence:
+    [ ] https://alinks.online live
+    [ ] Dashboard screenshot (app.alinks.online)
+    [ ] Sample tenant mini-site (e.g. alinks.online/demo)
+    [ ] Architecture diagram (optional — ALINKS checkout flow)
+
+STEP 5 — PARTNER AGREEMENT & COMMISSION
+--------------------------------------------------------------------------------
+  Per PhonePe partner program (public info):
+    - Commission: ~0.20% on transactions by referred merchants
+    - Merchants may get promotional pricing (e.g. 0% first 3 months — confirm on call)
+    - Monthly automated commission payout to partner bank account
+
+  Confirm exact terms on your partner call — do not assume rates.
+
+STEP 6 — RECEIVE REFERRAL LINK
+--------------------------------------------------------------------------------
+  After onboarding complete:
+    PhonePe emails referral link to registered address.
+
+  Use this to:
+    - Manually onboard early tenants (beta)
+    - Test merchant KYC flow
+
+  Production goal: PhonePe PG API embedded in ALINKS (not manual referral).
+
+================================================================================
+PART 3 — ONBOARD TENANTS AS PHONEPE MERCHANTS
+================================================================================
+
+MANUAL PATH (BETA — BEFORE API INTEGRATION)
+--------------------------------------------------------------------------------
+  1. Share PhonePe partner referral link with tenant
+  2. Tenant signs up on PhonePe PG
+  3. Tenant completes their own KYC (PAN, bank, business proof)
+  4. PhonePe activates merchant account (often ~3 days per PhonePe marketing)
+  5. Tenant provides Merchant ID + Salt keys to ALINKS dashboard
+     (OR ALINKS stores via partner API when implemented)
+
+EMBEDDED PATH (PRODUCTION — ALINKS DASHBOARD)
+--------------------------------------------------------------------------------
+  ALINKS dashboard → Payments → Enable → KYC wizard collects:
+    - Business legal name
+    - PAN
+    - Bank account + IFSC
+    - GSTIN (if registered)
+    - Business category
+    - Address
+    - Authorised signatory details
+
+  Artix submits to PhonePe partner API on tenant's behalf.
+  Tenant accepts legal checkbox (legal/16-TOUCHPOINT-CHECKBOX-TEXT.txt).
+
+  Money flow:
+    Customer pays on tenant mini-site
+      → PhonePe PG processes
+      → Settlement to tenant bank (minus PG fee ~2% + GST)
+      → Artix earns partner commission
+
+================================================================================
+PART 4 — TECHNICAL INTEGRATION (AFTER PARTNER APPROVAL)
+================================================================================
+
+ENV VARS (future — add to Vercel when wired)
+--------------------------------------------------------------------------------
+  PHONEPE_MERCHANT_ID=MERCHANTxxx        ← Artix partner merchant ID
+  PHONEPE_SALT_KEY=xxxx
+  PHONEPE_SALT_INDEX=1
+  PHONEPE_ENV=production                 ← or UAT for sandbox
+
+  Per-tenant credentials stored encrypted in platform Postgres (not .env).
+
+API DOCS
+--------------------------------------------------------------------------------
+  PhonePe PG developer docs (provided after partner onboarding):
+    - Standard Pay API
+    - Payment status API
+    - Refund API
+    - Callback / webhook verification
+
+WEBHOOK URL (production)
+--------------------------------------------------------------------------------
+  https://alinks.online/api/webhooks/phonepe
+
+  Implement when billing ships — mirror Razorpay webhook hub pattern.
+
+CHECKOUT UX
+--------------------------------------------------------------------------------
+  Unified ALINKS Checkout component (baseline):
+    - Try Razorpay first OR PhonePe based on tenant config / failover
+    - UPI intent on mobile → opens PhonePe / GPay / Paytm app
+    - Show "Powered by PhonePe" per partner branding rules
+
+CODE LOCATIONS (when implemented)
+--------------------------------------------------------------------------------
+  src/platform/payments/phonepe.ts          (new)
+  src/platform/payments/razorpay.ts         (existing)
+  src/app/api/webhooks/phonepe/route.ts     (new)
+
+================================================================================
+PART 5 — PHONEPE VS RAZORPAY — DECISION GUIDE
+================================================================================
+
+  | Question                          | Answer                           |
+  |-----------------------------------|----------------------------------|
+  | Need both?                        | Apply both; launch with Razorpay |
+  | GPay without either?              | Impossible for websites          |
+  | Which is faster to approve?       | Varies — apply both early        |
+  | Tenant opens own account?         | No — Artix partner model only    |
+  | COD?                              | No PG needed — tenant setting    |
+  | SaaS subscription billing?        | Use Razorpay (doc 08 Flow A)     |
+
+================================================================================
+PART 6 — LEGAL & COMPLIANCE
+================================================================================
+  Same gates as Razorpay (legal/04-PAYMENT-FACILITATION-ADDENDUM.txt):
+    [ ] Tenant is seller of record
+    [ ] Artix facilitates only — not payment aggregator (lawyer confirms)
+    [ ] KYC data purpose-limited under DPDP
+    [ ] GST on tenant sales = tenant responsibility
+    [ ] TCS / 194-O = CA + lawyer review
+    [ ] No card data on Artix servers — hosted checkout only
+
+================================================================================
+PART 7 — APPLICATION TIMELINE (REALISTIC)
+================================================================================
+  Day 0:      Submit partner registration form
+  Day 1–7:    PhonePe business rep contacts you
+  Week 2:     Document submission + partner call
+  Week 3–6:   Partner agreement signed
+  Week 6+:    Referral link issued; API access for integration
+  Week 8+:    First tenant merchant live on PhonePe PG
+
+  Run in PARALLEL with Razorpay partner application (doc 08 Part 3).
+
+================================================================================
+TROUBLESHOOTING
+================================================================================
+  | Problem                     | Fix                                           |
+  |-----------------------------|-----------------------------------------------|
+  | No callback after signup    | Wait 7 days; follow up via registration email |
+  | Rejected — sole prop        | Incorporate Pvt Ltd; reapply                  |
+  | Missing GST                 | Register GST or explain pre-revenue stage     |
+  | Tenant KYC slow             | Use referral link; ensure DLT/docs complete   |
+  | Webhook signature fail      | Verify SALT_KEY + SALT_INDEX match dashboard  |
+
+================================================================================
+VERIFY CHECKLIST
+================================================================================
+  [ ] Partner registration submitted at phonepe.com/partner-program/register
+  [ ] Business representative call completed
+  [ ] Partner agreement signed
+  [ ] Referral link received by email
+  [ ] Test merchant onboarded via referral link
+  [ ] Test UPI payment succeeds in sandbox/UAT
+  [ ] Webhook callback verified
+  [ ] Commission visible in partner dashboard
+
+================================================================================

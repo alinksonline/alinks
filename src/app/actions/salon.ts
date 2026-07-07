@@ -9,6 +9,7 @@ import { businesses, checkoutSessions, salonPackages, tenants } from "@/platform
 import { getSession } from "@/platform/auth/session";
 import { assertBusinessOwnership } from "@/platform/business/require-business";
 import { SALON_PACKAGE_TEMPLATES } from "@/tenant/salon/package-templates";
+import { completeBookingPayment } from "@/platform/payments/complete-payment";
 import { createDevOrderId, createRazorpayOrder, isRazorpayConfigured } from "@/platform/payments/razorpay";
 import { writeToTenantStorage } from "@/tenant/storage/write-service";
 
@@ -118,7 +119,13 @@ export async function createBookingAction(input: {
       .returning();
 
     const razorpayOrder = await createRazorpayOrder(amountPaise, session.id);
-    const razorpayOrderId = razorpayOrder?.id ?? createDevOrderId();
+    const razorpayConfigured = isRazorpayConfigured();
+    const razorpayOrderId = razorpayOrder.ok ? razorpayOrder.orderId : createDevOrderId();
+
+    if (razorpayConfigured && !razorpayOrder.ok) {
+      return { success: false as const, error: razorpayOrder.error };
+    }
+
     await db.update(checkoutSessions).set({ razorpayOrderId }).where(eq(checkoutSessions.id, session.id));
 
     return {
@@ -127,7 +134,8 @@ export async function createBookingAction(input: {
       sessionId: session.id,
       razorpayOrderId,
       amountPaise,
-      devMode: !isRazorpayConfigured(),
+      devMode: !razorpayConfigured,
+      businessName: row.business.name,
       pendingBooking: {
         businessId: row.business.id,
         bookingId,
@@ -163,25 +171,13 @@ export async function completeDevBookingPaymentAction(input: {
     const db = getPlatformDb();
     if (!db) return { success: false as const, error: "Database not connected" };
 
-    await db
-      .update(checkoutSessions)
-      .set({ status: "paid", completedAt: new Date() })
-      .where(eq(checkoutSessions.id, input.sessionId));
-
-    await writeToTenantStorage(input.pendingBooking.businessId, "Appointments", {
-      bookingId: input.pendingBooking.bookingId,
-      packageId: input.pendingBooking.packageId,
-      packageName: input.pendingBooking.packageName,
-      price: input.pendingBooking.price,
-      slotDate: input.pendingBooking.slotDate,
-      slotTime: input.pendingBooking.slotTime,
-      customerName: input.pendingBooking.customerName,
-      customerPhone: input.pendingBooking.customerPhone,
-      paymentStatus: "paid",
-      createdAt: new Date().toISOString(),
+    const completed = await completeBookingPayment({
+      sessionId: input.sessionId,
+      pendingBooking: input.pendingBooking,
     });
+    if (!completed.ok) return { success: false as const, error: completed.error };
 
-    return { success: true as const, bookingId: input.pendingBooking.bookingId };
+    return { success: true as const, bookingId: completed.bookingId };
   } catch (e) {
     return { success: false as const, error: e instanceof Error ? e.message : "Payment failed" };
   }

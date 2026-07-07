@@ -1,0 +1,142 @@
+================================================================================
+17 — TENANT CUSTOM DOMAINS (Pro / Enterprise)
+================================================================================
+
+GOAL
+  Let Pro+ tenants use their own domain (e.g. shop.priyabeauty.com) while keeping
+  [handle].alinks.online always live (dual-URL rule — baseline Q024).
+
+PLATFORM DNS ALREADY SET (Artix)
+  See doc 03-cloudflare-dns-alinks-online.txt:
+    *.alinks.online  → wildcard tenant subdomains
+    custom.alinks.online → CNAME target for tenant custom domains (when shipped)
+
+WHEN TO SET UP
+  Phase 2+ after TenantRouter + dashboard DNS instructions UI ship.
+  Not required for Phase 0 launch on alinks.online.
+
+--------------------------------------------------------------------------------
+ARCHITECTURE OPTIONS
+--------------------------------------------------------------------------------
+  Option A — Vercel Custom Domains (simpler at low scale)
+    Each tenant domain added to Vercel project alinks
+    Middleware resolves host → tenant handle
+
+  Option B — Cloudflare for SaaS (recommended at scale)
+    Custom Hostnames on alinks.online zone
+    Tenant CNAME → custom.alinks.online
+    Cloudflare issues SSL per hostname
+
+  Baseline engineering note: Cloudflare for SaaS OR Vercel custom domains.
+
+--------------------------------------------------------------------------------
+STEP 1 — TENANT ENTERS DOMAIN IN DASHBOARD
+--------------------------------------------------------------------------------
+  1. Tenant → Dashboard → Settings → Custom Domain
+  2. Enter: shop.priyabeauty.com (subdomain recommended)
+     Avoid apex (priyabeauty.com) if tenant already uses it for email/website
+  3. ALINKS generates unique verification token per tenant
+
+--------------------------------------------------------------------------------
+STEP 2 — TXT VERIFICATION (tenant DNS)
+--------------------------------------------------------------------------------
+  ALINKS dashboard shows copy-paste values:
+
+  | Type | Name              | Value                          |
+  |------|-------------------|--------------------------------|
+  | TXT  | _alinks-verify    | alinks-verify=[unique-token]   |
+
+  For subdomain shop.priyabeauty.com:
+    Host may be: _alinks-verify.shop  (depends on registrar UI)
+
+  Purpose: proves tenant owns domain before routing traffic.
+
+  ALINKS polls DNS every ~5 min → status "Pending" or "Connected ✓"
+
+--------------------------------------------------------------------------------
+STEP 3 — CNAME FOR TRAFFIC (recommended)
+--------------------------------------------------------------------------------
+  | Type  | Name | Value                 |
+  |-------|------|-----------------------|
+  | CNAME | shop | custom.alinks.online  |
+
+  Tenant adds at their registrar (Hostinger, GoDaddy, Cloudflare, etc.)
+  Proxy OFF if tenant uses Cloudflare for their zone (grey cloud).
+
+--------------------------------------------------------------------------------
+STEP 4 — APEX DOMAIN (optional, harder)
+--------------------------------------------------------------------------------
+  Only if tenant insists on priyabeauty.com (no subdomain):
+
+  | Type | Name | Value                    |
+  |------|------|--------------------------|
+  | A    | @    | [ALINKS edge IP from UI] |
+  | TXT  | @    | alinks-verify=[token]    |
+
+  Warn tenant: apex may break existing email (MX records) or main website.
+
+--------------------------------------------------------------------------------
+STEP 5 — PLATFORM SIDE (Artix admin)
+--------------------------------------------------------------------------------
+  Vercel path:
+    1. Vercel → alinks → Settings → Domains → Add
+    2. Add: shop.priyabeauty.com
+    3. Wait for SSL (Let's Encrypt)
+
+  Cloudflare for SaaS path:
+    1. Cloudflare → alinks.online → SSL/TLS → Custom Hostnames
+    2. Add hostname: shop.priyabeauty.com
+    3. Origin: alinks.online / Vercel
+    4. SSL: Full
+
+  Platform DB:
+    businesses.customDomain = shop.priyabeauty.com
+    businesses.customDomainVerified = true
+
+--------------------------------------------------------------------------------
+STEP 6 — MIDDLEWARE ROUTING
+--------------------------------------------------------------------------------
+  Code: src/middleware.ts, src/platform/routing/resolve-request.ts
+
+  Request host shop.priyabeauty.com
+    → surface: tenant-site
+    → urlMode: custom-domain
+    → tenantHandle: resolved from DB lookup on customDomain
+
+  Canonical SEO: prefer custom domain when verified (baseline Q024).
+
+--------------------------------------------------------------------------------
+STEP 7 — SSL
+--------------------------------------------------------------------------------
+  Auto via Vercel or Cloudflare for SaaS after DNS propagates.
+  Tenant does nothing beyond DNS records.
+
+  Verify:
+    curl -I https://shop.priyabeauty.com
+    → 200, valid certificate
+
+--------------------------------------------------------------------------------
+TIER GATING
+--------------------------------------------------------------------------------
+  Basic: custom domain blocked (see src/core/utils/tier-gates.ts)
+  Pro / Enterprise: included
+
+--------------------------------------------------------------------------------
+TROUBLESHOOTING
+--------------------------------------------------------------------------------
+  | Symptom              | Fix                                                |
+  |----------------------|----------------------------------------------------|
+  | TXT not found        | Wait propagation; check host name at registrar     |
+  | SSL pending          | CNAME must point to custom.alinks.online correctly |
+  | Wrong tenant site    | Check customDomain column matches host             |
+  | 404 on custom domain | Domain not added on Vercel / Custom Hostname       |
+
+--------------------------------------------------------------------------------
+VERIFY
+--------------------------------------------------------------------------------
+  [ ] TXT verification passes in dashboard
+  [ ] https://shop.priyabeauty.com shows correct tenant site
+  [ ] https://[handle].alinks.online still works (dual URL)
+  [ ] Canonical meta tags use custom domain when active
+
+================================================================================

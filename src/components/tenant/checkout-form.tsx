@@ -4,6 +4,9 @@ import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import type { CartItem } from "@/core/types/commerce";
 import { completeDevPaymentAction, createCheckoutSessionAction } from "@/app/actions/commerce";
+import { openRazorpayCheckout, verifyPaymentViaApi } from "@/lib/razorpay-checkout";
+
+const RAZORPAY_KEY_ID = process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID ?? "";
 
 export function CheckoutForm({
   handle,
@@ -69,11 +72,52 @@ export function CheckoutForm({
             return;
           }
 
-          setMessage("Razorpay checkout would open here in production.");
+          if (!RAZORPAY_KEY_ID) {
+            setMessage("Payment gateway is not configured on the client.");
+            return;
+          }
+
+          if (!result.razorpayOrderId || !result.sessionId || !result.pendingOrder) {
+            setMessage("Could not start payment. Try again.");
+            return;
+          }
+
+          try {
+            await openRazorpayCheckout({
+              keyId: RAZORPAY_KEY_ID,
+              orderId: result.razorpayOrderId,
+              amountPaise: result.amountPaise,
+              name: result.businessName ?? "ALINKS Store",
+              description: `Order ${result.orderId}`,
+              prefill: { name, contact: phone },
+              onDismiss: () => setMessage("Payment cancelled."),
+              onFailure: (err) => setMessage(err),
+              onSuccess: async (payment) => {
+                const verified = await verifyPaymentViaApi({
+                  razorpay_order_id: payment.razorpay_order_id,
+                  razorpay_payment_id: payment.razorpay_payment_id,
+                  razorpay_signature: payment.razorpay_signature,
+                  sessionId: result.sessionId,
+                  paymentMethod: method === "card" ? "card" : "upi",
+                  pendingOrder: result.pendingOrder,
+                });
+
+                if (!verified.success) {
+                  setMessage(verified.error ?? "Payment verification failed");
+                  return;
+                }
+
+                setMessage(`Payment successful! Order ${verified.orderId ?? result.orderId} saved.`);
+                router.push(`/${handle}/store`);
+              },
+            });
+          } catch (err) {
+            setMessage(err instanceof Error ? err.message : "Could not open payment");
+          }
         });
       }}
     >
-      <div className="rounded-lg border bg-white p-4 text-sm">
+      <div className="premium-card-soft p-4 text-sm">
         {items.map((i) => (
           <p key={i.productId}>
             {i.name} × {i.qty} — ₹{i.price * i.qty}
@@ -82,14 +126,14 @@ export function CheckoutForm({
         <p className="mt-2 font-bold">Total: ₹{total}</p>
       </div>
 
-      <input className="w-full rounded-lg border px-3 py-2" placeholder="Your name" value={name} onChange={(e) => setName(e.target.value)} required />
-      <input className="w-full rounded-lg border px-3 py-2" placeholder="Phone" value={phone} onChange={(e) => setPhone(e.target.value)} required />
-      <input className="w-full rounded-lg border px-3 py-2" placeholder="Address (optional)" value={address} onChange={(e) => setAddress(e.target.value)} />
+      <input className="premium-input" placeholder="Your name" value={name} onChange={(e) => setName(e.target.value)} required />
+      <input className="premium-input" placeholder="Phone" value={phone} onChange={(e) => setPhone(e.target.value)} required />
+      <input className="premium-input" placeholder="Address (optional)" value={address} onChange={(e) => setAddress(e.target.value)} />
 
       <div className="flex flex-wrap gap-2">
         <label className="flex items-center gap-2 rounded-lg border px-3 py-2 text-sm">
           <input type="radio" checked={method === "upi"} onChange={() => setMethod("upi")} />
-          UPI {devMode && "(simulated)"}
+          UPI / GPay / PhonePe {devMode && "(simulated)"}
         </label>
         <label className="flex items-center gap-2 rounded-lg border px-3 py-2 text-sm">
           <input type="radio" checked={method === "card"} onChange={() => setMethod("card")} />
@@ -108,7 +152,7 @@ export function CheckoutForm({
         I agree to the store checkout terms and privacy notice.
       </label>
 
-      <button type="submit" disabled={isPending || items.length === 0} className="w-full rounded-lg bg-emerald-600 py-3 font-bold text-white disabled:opacity-50">
+      <button type="submit" disabled={isPending || items.length === 0} className="premium-btn-bronze disabled:opacity-50">
         {isPending ? "Processing…" : method === "cod" ? "Place COD order" : `Pay ₹${total}`}
       </button>
 

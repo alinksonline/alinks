@@ -1,37 +1,37 @@
 import Link from "next/link";
-import { AlinksLogo } from "@/components/shared/alinks-logo";
+import { ThemeAwareLogo } from "@/components/shared/theme-aware-logo";
 
 export function MarketingFooter() {
   return (
-    <footer className="border-t border-tech-border bg-tech-panel text-zinc-400">
-      <div className="marketing-container flex flex-col gap-10 py-12 sm:gap-12 sm:py-16 md:flex-row md:justify-between">
-        <div className="min-w-0">
-          <AlinksLogo height={26} variant="dark" />
-          <p className="mt-4 max-w-xs font-mono text-xs leading-relaxed">
-            ALINKS · Artix platform layer
-            <br />
-            India-first multi-tenant SMB infrastructure
-          </p>
-        </div>
-        <div className="grid grid-cols-2 gap-8 font-mono text-xs sm:flex sm:gap-16">
+    <footer className="border-t border-brand-ink/[0.06] bg-brand-surface pb-[calc(2rem+env(safe-area-inset-bottom))] pt-10">
+      <div className="app-container">
+        <ThemeAwareLogo height={24} />
+        <p className="mt-4 max-w-xs text-sm leading-relaxed text-brand-ink/55">
+          ALINKS by Artix — India-first mini-website platform for small businesses.
+        </p>
+
+        <div className="mt-8 grid grid-cols-2 gap-6 text-sm">
           <div>
-            <p className="text-[10px] uppercase tracking-widest text-zinc-600">routes</p>
-            <ul className="mt-4 space-y-2">
-              <li><Link href="/signup" className="hover:text-tech-cyan">/signup</Link></li>
-              <li><Link href="/demo" className="hover:text-tech-cyan">/demo</Link></li>
+            <p className="font-mono text-[10px] uppercase tracking-wider text-brand-ink/40">Product</p>
+            <ul className="mt-3 space-y-2 text-brand-ink/70">
+              <li><Link href="/signup">Sign up</Link></li>
+              <li><Link href="/demo">Demo</Link></li>
+              <li><Link href="#pricing">Pricing</Link></li>
             </ul>
           </div>
           <div>
-            <p className="text-[10px] uppercase tracking-widest text-zinc-600">legal</p>
-            <ul className="mt-4 space-y-2">
-              <li><Link href="/terms" className="hover:text-tech-cyan">/terms</Link></li>
-              <li><Link href="/privacy" className="hover:text-tech-cyan">/privacy</Link></li>
+            <p className="font-mono text-[10px] uppercase tracking-wider text-brand-ink/40">Legal</p>
+            <ul className="mt-3 space-y-2 text-brand-ink/70">
+              <li><Link href="/terms">Terms</Link></li>
+              <li><Link href="/privacy">Privacy</Link></li>
+              <li><Link href="/aup">AUP</Link></li>
             </ul>
           </div>
         </div>
-      </div>
-      <div className="border-t border-tech-border py-5 text-center font-mono text-[10px] text-zinc-600 sm:py-6">
-        © {new Date().getFullYear()} Artix · build 0.1.0
+
+        <p className="mt-10 text-center font-mono text-[10px] text-brand-ink/35">
+          © {new Date().getFullYear()} Artix
+        </p>
       </div>
     </footer>
   );

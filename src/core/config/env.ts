@@ -30,12 +30,16 @@ const envSchema = z.object({
   NEXT_PUBLIC_MARKETING_HOST: z.string(),
   RAZORPAY_KEY_ID: z.string().optional(),
   RAZORPAY_KEY_SECRET: z.string().optional(),
+  NEXT_PUBLIC_RAZORPAY_KEY_ID: z.string().optional(),
   RAZORPAY_WEBHOOK_SECRET: z.string().optional(),
   UPSTASH_REDIS_REST_URL: z.string().url().optional(),
   UPSTASH_REDIS_REST_TOKEN: z.string().optional(),
   GOOGLE_SERVICE_ACCOUNT_JSON: z.string().optional(),
   STORAGE_DEV_MODE: z.enum(["true", "false"]).optional(),
   OPENROUTER_API_KEY: z.string().optional(),
+  MSG91_AUTH_KEY: z.string().optional(),
+  MSG91_OTP_TEMPLATE_ID: z.string().optional(),
+  MSG91_SENDER_ID: z.string().optional(),
 });
 
 export type Env = z.infer<typeof envSchema>;
@@ -58,11 +62,15 @@ export function getEnv(): Env {
     NEXT_PUBLIC_MARKETING_HOST: process.env.NEXT_PUBLIC_MARKETING_HOST?.trim() || rootDomain,
     RAZORPAY_KEY_ID: process.env.RAZORPAY_KEY_ID,
     RAZORPAY_KEY_SECRET: process.env.RAZORPAY_KEY_SECRET,
+    NEXT_PUBLIC_RAZORPAY_KEY_ID: process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID,
     RAZORPAY_WEBHOOK_SECRET: process.env.RAZORPAY_WEBHOOK_SECRET,
     UPSTASH_REDIS_REST_URL: process.env.UPSTASH_REDIS_REST_URL,
     UPSTASH_REDIS_REST_TOKEN: process.env.UPSTASH_REDIS_REST_TOKEN,
     GOOGLE_SERVICE_ACCOUNT_JSON: process.env.GOOGLE_SERVICE_ACCOUNT_JSON,
     STORAGE_DEV_MODE: process.env.STORAGE_DEV_MODE,
     OPENROUTER_API_KEY: process.env.OPENROUTER_API_KEY,
+    MSG91_AUTH_KEY: process.env.MSG91_AUTH_KEY,
+    MSG91_OTP_TEMPLATE_ID: process.env.MSG91_OTP_TEMPLATE_ID,
+    MSG91_SENDER_ID: process.env.MSG91_SENDER_ID,
   });
 }

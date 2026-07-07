@@ -1,0 +1,143 @@
+================================================================================
+21 — MSG91 TRANSACTIONAL SMS (Bookings, Orders, Reminders)
+================================================================================
+
+GOAL
+  Send one-off SMS to end customers: booking confirmations, payment receipts,
+  appointment reminders. Separate from tenant login OTP (doc 14).
+
+DATA RULE (locked)
+  Phone number sent to MSG91 for one message — NOT stored by Artix after send.
+  See ALINKS_BASELINE.txt Q005 / privacy policy.
+
+WHEN TO SET UP
+  Phase 2+ when appointments and commerce notifications ship.
+  Requires DLT registration (India TRAI).
+
+--------------------------------------------------------------------------------
+DIFFERENCE FROM DOC 14
+--------------------------------------------------------------------------------
+  Doc 14 — SMS OTP: tenant/superadmin LOGIN verification
+  Doc 21 — TRANSACTIONAL: end-customer notifications (booking, order, reminder)
+
+  Same MSG91 account can serve both with different DLT templates.
+
+--------------------------------------------------------------------------------
+STEP 1 — MSG91 ACCOUNT (if not already from doc 14)
+--------------------------------------------------------------------------------
+  1. https://msg91.com → Sign up
+  2. Complete KYC and business verification
+  3. Request Sender ID (6 characters, e.g. ALINKS)
+  4. DLT registration:
+       - Register on DLT portal (Jio/Vi/Airtel aggregator)
+       - Map Sender ID to approved message templates
+       - India-only requirement for commercial SMS
+
+--------------------------------------------------------------------------------
+STEP 2 — CREATE TEMPLATES (DLT)
+--------------------------------------------------------------------------------
+  Examples (wording must match DLT-approved text exactly):
+
+  | Template ID   | Use case              | Sample body                                      |
+  |---------------|-----------------------|--------------------------------------------------|
+  | OTP_TMPL_xxx  | Login OTP (doc 14)    | Your ALINKS OTP is ##OTP##. Valid 10 min.       |
+  | BOOK_TMPL_xxx | Booking confirmed     | Booking confirmed at ##SHOP## on ##DATE##. Ref ##ID## |
+  | REM_TMPL_xxx  | Appointment reminder  | Reminder: appointment at ##SHOP## tomorrow ##TIME## |
+
+  Variables (##VAR##) must match MSG91 API payload fields.
+
+--------------------------------------------------------------------------------
+STEP 3 — API CREDENTIALS (SHARED WITH LOGIN OTP)
+--------------------------------------------------------------------------------
+  Same MSG91 account as doc 14.
+
+  Already configured for login:
+    Template name:  AlinkOTP
+    Env vars:       MSG91_AUTH_KEY, MSG91_OTP_TEMPLATE_ID
+
+  Add separate templates for transactional (create in MSG91 → SMS → Templates):
+    MSG91_BOOKING_TEMPLATE_ID=...       ← booking confirmed
+    MSG91_REMINDER_TEMPLATE_ID=...      ← appointment reminder
+    MSG91_SENDER_ID=ALINKS              ← 6-char DLT sender ID
+
+  Add to Vercel → Sensitive.
+
+--------------------------------------------------------------------------------
+STEP 4 — SEND FLOW (product)
+--------------------------------------------------------------------------------
+  1. Customer completes booking/checkout on tenant public site
+  2. ALINKS appends row to tenant Google Sheet (doc 07)
+  3. ALINKS calls MSG91 Flow API with:
+       mobile: customer phone (10 digits, +91)
+       template_id: BOOK_TMPL_xxx
+       variables: shop name, date, reference id
+  4. MSG91 delivers SMS
+  5. ALINKS does NOT persist customer phone in platform Postgres
+
+  WhatsApp alternative (baseline): Tap & Blast uses wa.me links — no API needed.
+
+--------------------------------------------------------------------------------
+STEP 5 — MSG91 API EXAMPLE (reference)
+--------------------------------------------------------------------------------
+  POST https://control.msg91.com/api/v5/flow/
+  Headers:
+    authkey: $MSG91_AUTH_KEY
+    Content-Type: application/json
+
+  Body (structure varies by template — check MSG91 docs):
+    {
+      "template_id": "BOOK_TMPL_xxx",
+      "recipients": [
+        {
+          "mobiles": "919876543210",
+          "SHOP": "Priya Salon",
+          "DATE": "8 Jul 2026",
+          "ID": "BK-1234"
+        }
+      ]
+    }
+
+--------------------------------------------------------------------------------
+STEP 6 — RATE LIMITS AND RETRIES
+--------------------------------------------------------------------------------
+  - Max 1 confirmation SMS per booking
+  - Reminders: 24h and 1h before appointment (baseline clinic flow)
+  - Failed send: log to write_queue / notification_log — no PII retention
+  - Do not retry more than 3 times per message
+
+--------------------------------------------------------------------------------
+STEP 7 — WHATSAPP (no API — MVP)
+--------------------------------------------------------------------------------
+  Basic tier "Order on WhatsApp":
+    Pre-filled wa.me link with cart text — tenant's WhatsApp number
+    No MSG91 or Meta API required
+
+  Pro Tap & Blast:
+    Share cards + deep links — see alinks-tap-blast-sharing skill
+
+--------------------------------------------------------------------------------
+LEGAL
+--------------------------------------------------------------------------------
+  Tenant privacy policy must mention SMS notifications.
+  Customer opt-in at booking/checkout checkbox.
+  See legal/16-TOUCHPOINT-CHECKBOX-TEXT.txt
+
+--------------------------------------------------------------------------------
+TROUBLESHOOTING
+--------------------------------------------------------------------------------
+  | Symptom              | Fix                                                |
+  |----------------------|----------------------------------------------------|
+  | DLT template reject  | Exact match DLT registered text                    |
+  | SMS not delivered    | Check DLT entity ID + sender ID mapping            |
+  | 401 from MSG91       | Verify MSG91_AUTH_KEY                              |
+  | Wrong variable names | Match ##VAR## in template vs API payload           |
+
+--------------------------------------------------------------------------------
+VERIFY
+--------------------------------------------------------------------------------
+  [ ] Test booking triggers SMS within 30s
+  [ ] Phone not stored in platform Postgres after send
+  [ ] Reminder cron fires at correct time
+  [ ] DLT compliance documented for audit
+
+================================================================================

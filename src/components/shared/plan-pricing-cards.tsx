@@ -39,7 +39,7 @@ export function PlanPricingCards({
         <div
           className={cn(
             "inline-flex w-full max-w-xs rounded border p-1 sm:w-auto",
-            isDark ? "border-tech-border bg-tech-panel" : "border-stone-200 bg-white",
+            isDark ? "border-brand-cream/10 bg-brand-ink/80" : "border-brand-ink/10 bg-white",
           )}
         >
           {BILLING_CYCLES.map((option) => (
@@ -51,11 +51,11 @@ export function PlanPricingCards({
                 "flex-1 rounded px-4 py-2.5 font-mono text-[10px] uppercase tracking-wider transition-all sm:flex-none sm:px-5",
                 cycle === option
                   ? isDark
-                    ? "bg-tech-cyan/20 text-tech-cyan"
-                    : "bg-zinc-900 text-white"
+                    ? "bg-brand-purple/20 text-brand-turquoise-light"
+                    : "bg-brand-ink text-white"
                   : isDark
-                    ? "text-zinc-500 hover:text-zinc-300"
-                    : "text-stone-500 hover:text-stone-900",
+                    ? "text-brand-cream/50 hover:text-brand-cream"
+                    : "text-brand-ink/50 hover:text-brand-ink",
               )}
             >
               {option}
@@ -69,7 +69,7 @@ export function PlanPricingCards({
         )}
       </div>
 
-      <div className="mt-8 grid grid-cols-1 gap-4 sm:mt-10 sm:grid-cols-2 sm:gap-5 lg:grid-cols-3">
+      <div className="mt-8 grid grid-cols-1 gap-4">
         {SUBSCRIPTION_TIERS.map((tier) => {
           const details = PLAN_DETAILS[tier];
           const perMonth = getPerMonthPrice(tier, cycle);
@@ -85,25 +85,24 @@ export function PlanPricingCards({
                 "flex min-w-0 flex-col rounded-lg border p-5 sm:p-6",
                 isDark
                   ? cn(
-                      "bg-tech-panel",
-                      isPro ? "border-tech-cyan/40 shadow-glow" : "border-tech-border",
+                      "bg-brand-ink/60 backdrop-blur-sm",
+                      isPro ? "border-brand-turquoise/40 shadow-accent" : "border-brand-cream/10",
                     )
-                  : cn("bg-white", isPro ? "border-cyan-300 shadow-md" : "border-stone-200"),
-                isCurrent && "ring-2 ring-tech-cyan",
-                tier === "enterprise" && "sm:col-span-2 lg:col-span-1",
+                  : cn("bg-white", isPro ? "border-brand-purple/30 shadow-accent" : "border-brand-ink/10"),
+                isCurrent && "ring-2 ring-brand-turquoise",
               )}
             >
               <div className="flex flex-wrap items-start justify-between gap-2">
                 <div>
-                  <p className={cn("font-mono text-[10px] uppercase", isDark ? "text-tech-cyan" : "text-cyan-600")}>
+                  <p className={cn("font-mono text-[10px] uppercase", isDark ? "text-brand-turquoise-light" : "text-brand-purple")}>
                     tier.{tier}
                   </p>
-                  <h3 className={cn("mt-1 font-mono text-lg font-semibold", isDark ? "text-white" : "text-zinc-900")}>
+                  <h3 className={cn("mt-1 font-display text-lg font-semibold", isDark ? "text-brand-cream" : "text-brand-ink")}>
                     {details.label}
                   </h3>
                 </div>
                 {isPro && variant === "marketing" && (
-                  <span className="rounded border border-tech-cyan/30 px-2 py-0.5 font-mono text-[9px] text-tech-cyan">
+                  <span className="rounded-full border border-brand-turquoise/30 bg-brand-purple/20 px-2 py-0.5 font-mono text-[9px] text-brand-turquoise-light">
                     popular
                   </span>
                 )}
@@ -115,7 +114,7 @@ export function PlanPricingCards({
                     ₹{formatInr(listPrice)}
                   </p>
                 )}
-                <p className={cn("font-mono text-3xl font-semibold sm:text-4xl", isDark ? "text-white" : "text-zinc-900")}>
+                <p className={cn("font-display text-3xl font-bold", isDark ? "text-brand-cream" : "text-brand-ink")}>
                   ₹{formatInr(perMonth)}
                   <span className={cn("text-sm font-normal", isDark ? "text-zinc-500" : "text-stone-400")}>/mo</span>
                 </p>
@@ -129,7 +128,7 @@ export function PlanPricingCards({
               <ul className={cn("mt-5 flex-1 space-y-2 font-mono text-[11px] sm:text-xs", isDark ? "text-zinc-400" : "text-stone-600")}>
                 {details.highlights.map((item) => (
                   <li key={item} className="flex gap-2 break-words">
-                    <span className={isDark ? "text-tech-green" : "text-emerald-600"}>✓</span>
+                    <span className={isDark ? "text-brand-turquoise-light" : "text-brand-turquoise"}>✓</span>
                     {item}
                   </li>
                 ))}
@@ -137,18 +136,8 @@ export function PlanPricingCards({
 
               {variant === "marketing" ? (
                 <Link href="/signup" className="mt-6 block sm:mt-8">
-                  <Button
-                    className={cn(
-                      "w-full py-3 font-mono text-[10px] uppercase tracking-wider",
-                      isPro
-                        ? "border border-tech-cyan/40 bg-tech-cyan/15 text-tech-cyan hover:bg-tech-cyan/25"
-                        : isDark
-                          ? "border border-tech-border bg-tech-bg text-zinc-300 hover:bg-zinc-900"
-                          : "bg-stone-100 text-zinc-900 hover:bg-stone-200",
-                    )}
-                    variant={isPro ? "primary" : "secondary"}
-                  >
-                    provision →
+                  <Button variant={isPro ? "bronze" : "ghost"} className={isDark && !isPro ? "!border-brand-cream/15 !text-brand-cream" : ""}>
+                    {isPro ? "Start Pro trial" : "Get started"}
                   </Button>
                 </Link>
               ) : (

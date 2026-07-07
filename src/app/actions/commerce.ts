@@ -12,6 +12,7 @@ import { assertBusinessOwnership } from "@/platform/business/require-business";
 import { getPlatformDb } from "@/platform/db/client";
 import { businesses, checkoutSessions, tenants } from "@/platform/db/schema";
 import { recordLegalAcceptance } from "@/platform/legal/acceptances";
+import { completeStorePayment } from "@/platform/payments/complete-payment";
 import { createDevOrderId, createRazorpayOrder, isRazorpayConfigured } from "@/platform/payments/razorpay";
 import { writeToTenantStorage } from "@/tenant/storage/write-service";
 import crypto from "crypto";
@@ -142,7 +143,12 @@ export async function createCheckoutSessionAction(input: {
       .returning();
 
     const razorpayOrder = await createRazorpayOrder(amountPaise, session.id);
-    const razorpayOrderId = razorpayOrder?.id ?? createDevOrderId();
+    const razorpayConfigured = isRazorpayConfigured();
+    const razorpayOrderId = razorpayOrder.ok ? razorpayOrder.orderId : createDevOrderId();
+
+    if (razorpayConfigured && !razorpayOrder.ok) {
+      return { success: false as const, error: razorpayOrder.error };
+    }
 
     await db
       .update(checkoutSessions)
@@ -156,7 +162,8 @@ export async function createCheckoutSessionAction(input: {
       razorpayOrderId,
       amountPaise,
       paymentMethod: input.paymentMethod,
-      devMode: !isRazorpayConfigured(),
+      devMode: !razorpayConfigured,
+      businessName: row.business.name,
       pendingOrder: {
         businessId: row.business.id,
         orderId,
@@ -196,25 +203,14 @@ export async function completeDevPaymentAction(input: {
       return { success: false as const, error: "Invalid session" };
     }
 
-    await db
-      .update(checkoutSessions)
-      .set({ status: "paid", completedAt: new Date() })
-      .where(eq(checkoutSessions.id, input.sessionId));
-
-    await writeToTenantStorage(input.pendingOrder.businessId, "Orders", {
-      orderId: input.pendingOrder.orderId,
-      total: input.pendingOrder.total,
+    const completed = await completeStorePayment({
+      sessionId: input.sessionId,
+      pendingOrder: input.pendingOrder,
       paymentMethod: input.paymentMethod,
-      paymentStatus: "paid",
-      customerName: input.pendingOrder.customerName,
-      customerPhone: input.pendingOrder.customerPhone,
-      customerAddress: input.pendingOrder.customerAddress,
-      items: JSON.stringify(input.pendingOrder.items),
-      razorpaySessionId: input.sessionId,
-      createdAt: new Date().toISOString(),
     });
+    if (!completed.ok) return { success: false as const, error: completed.error };
 
-    return { success: true as const, orderId: input.pendingOrder.orderId };
+    return { success: true as const, orderId: completed.orderId };
   } catch (e) {
     return { success: false as const, error: e instanceof Error ? e.message : "Payment failed" };
   }

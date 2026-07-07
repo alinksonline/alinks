@@ -3,6 +3,7 @@ import { cookies } from "next/headers";
 import { eq } from "drizzle-orm";
 import { redirect } from "next/navigation";
 import { getEnv } from "@/core/config/env";
+import { isMsg91Configured, sendLoginOtp, verifyLoginOtp } from "@/platform/sms/msg91";
 import type { Session, SessionRole } from "@/core/types/auth";
 import { getPlatformDb } from "@/platform/db/client";
 import { sessions, tenants } from "@/platform/db/schema";
@@ -115,9 +116,31 @@ export async function destroySession(): Promise<void> {
   cookies().delete(SESSION_COOKIE);
 }
 
+export async function sendOtp(phone: string): Promise<{ ok: boolean; devMode?: boolean; error?: string }> {
+  const env = getEnv();
+  const normalized = normalizePhone(phone);
+  if (normalized.length !== 10) {
+    return { ok: false, error: "Enter a valid 10-digit phone number" };
+  }
+
+  if (isMsg91Configured()) {
+    return sendLoginOtp(phone);
+  }
+
+  if (env.NODE_ENV === "production") {
+    return { ok: false, error: "SMS login is not configured yet." };
+  }
+
+  return { ok: true, devMode: true };
+}
+
 export async function verifyOtp(phone: string, otp: string): Promise<{ ok: boolean; role?: SessionRole; error?: string }> {
   const env = getEnv();
-  if (otp !== env.DEV_OTP) {
+
+  if (isMsg91Configured()) {
+    const sms = await verifyLoginOtp(phone, otp);
+    if (!sms.ok) return { ok: false, error: sms.error ?? "Invalid OTP" };
+  } else if (env.NODE_ENV === "production" || otp !== env.DEV_OTP) {
     return { ok: false, error: "Invalid OTP" };
   }
   if (!getPlatformDb()) {

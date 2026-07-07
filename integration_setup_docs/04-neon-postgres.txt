@@ -1,0 +1,98 @@
+================================================================================
+04 — NEON POSTGRES (Platform Database)
+================================================================================
+
+GOAL
+  Platform Postgres for tenants, sessions, billing metadata, config.
+  NOT for customer PII — that goes to tenant Google Sheets / BYO Supabase.
+
+WHAT STORES HERE
+  - tenants, sessions, businesses, pages
+  - legal acceptances, billing metadata
+  - write queue, share links, staff, etc.
+
+--------------------------------------------------------------------------------
+STEP 1 — CREATE NEON PROJECT
+--------------------------------------------------------------------------------
+  1. https://neon.tech → Sign up (GitHub ok)
+  2. New Project:
+       Name:     alinks-platform
+       Region:   AWS ap-south-1 (Mumbai) if available, else Singapore
+       Postgres: 16
+
+  3. Create database: alinks_platform
+
+--------------------------------------------------------------------------------
+STEP 2 — CONNECTION STRING
+--------------------------------------------------------------------------------
+  Neon Console → Connection Details
+
+  Use DIRECT connection for migrations:
+    postgresql://user:pass@ep-xxx.ap-southeast-1.aws.neon.tech/alinks_platform?sslmode=require
+
+  Use POOLED connection for Vercel serverless (recommended for production):
+    postgresql://user:pass@ep-xxx-pooler.ap-southeast-1.aws.neon.tech/alinks_platform?sslmode=require
+
+--------------------------------------------------------------------------------
+STEP 3 — LOCAL .env
+--------------------------------------------------------------------------------
+  cp .env.example .env
+
+  DATABASE_URL=postgresql://...neon.tech/alinks_platform?sslmode=require
+
+--------------------------------------------------------------------------------
+STEP 4 — MIGRATE AND SEED
+--------------------------------------------------------------------------------
+  cd ALINKS
+  npm run db:migrate
+  npm run db:seed
+
+  Optional GUI:
+    npm run db:studio
+
+--------------------------------------------------------------------------------
+STEP 5 — VERCEL PRODUCTION
+--------------------------------------------------------------------------------
+  Vercel → alinks → Settings → Environment Variables
+
+  Name:  DATABASE_URL
+  Value: (Neon pooled connection string)
+  Environments: Production, Preview, Development
+
+  Redeploy after adding (or push any commit).
+
+--------------------------------------------------------------------------------
+STEP 6 — VERIFY SESSIONS TABLE
+--------------------------------------------------------------------------------
+  After migrate, these tables must exist:
+    tenants, sessions, businesses, pages, ...
+
+  Test production signup:
+    https://alinks.online/signup
+    Phone: any 10 digits
+    OTP:   1111 (until real SMS — see 14-sms-otp-production.txt)
+
+--------------------------------------------------------------------------------
+ALTERNATIVES
+--------------------------------------------------------------------------------
+  Homebrew local:  LOCAL_DEV_SETUP.txt Option B
+  Supabase:        Separate project for platform DB only (not tenant BYO)
+
+--------------------------------------------------------------------------------
+TROUBLESHOOTING
+--------------------------------------------------------------------------------
+  | Error                         | Fix                                   |
+  |-------------------------------|---------------------------------------|
+  | Database not connected        | DATABASE_URL missing in Vercel env    |
+  | ECONNREFUSED 127.0.0.1:5432   | Production still using localhost URL  |
+  | relation "sessions" missing   | npm run db:migrate                    |
+  | SSL required                  | Add ?sslmode=require to connection    |
+
+--------------------------------------------------------------------------------
+VERIFY
+--------------------------------------------------------------------------------
+  [ ] npm run db:migrate succeeds locally
+  [ ] https://alinks.online/api/health → {"ok":true}
+  [ ] Signup OTP completes without "database not configured"
+
+================================================================================

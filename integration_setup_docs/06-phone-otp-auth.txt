@@ -1,0 +1,88 @@
+================================================================================
+06 — PHONE OTP AUTH
+================================================================================
+
+GOAL
+  Tenant + superadmin login via Indian phone number + OTP.
+
+CURRENT STATE (Phase 0)
+  - Dev bypass: any 10-digit phone + fixed OTP (DEV_OTP=1111)
+  - Sessions stored in platform Postgres (sessions table)
+  - No SMS provider wired yet
+
+NOT PLANNED AS PRIMARY LOGIN
+  - Google Sign-In for tenants (Google OAuth is for Sheets — doc 07)
+
+--------------------------------------------------------------------------------
+STEP 1 — LOCAL DEV
+--------------------------------------------------------------------------------
+  .env:
+    SUPERADMIN_PHONE=9876543210     ← last 10 digits matched
+    DEV_OTP=1111
+    DATABASE_URL=...                ← required
+
+  Test:
+    http://localhost:3000/signup
+    http://localhost:3000/login
+
+  Superadmin phone → role superadmin → /superadmin
+  Any other phone  → role tenant    → /onboarding or /dashboard
+
+--------------------------------------------------------------------------------
+STEP 2 — PRODUCTION (Phase 0 interim)
+--------------------------------------------------------------------------------
+  Vercel env:
+    SUPERADMIN_PHONE=your_real_phone
+    DEV_OTP=1111                    ← TEMPORARY; remove before public launch
+    DATABASE_URL=neon_url
+
+  Until SMS is live, OTP 1111 works for all phones (dev only pattern).
+
+--------------------------------------------------------------------------------
+STEP 3 — PRODUCTION SMS (Phase 1 — see doc 14)
+--------------------------------------------------------------------------------
+  Replace DEV_OTP bypass with:
+    MSG91 (India) or Firebase Auth phone or Twilio India
+
+  Flow:
+    1. User enters phone → API sends SMS OTP
+    2. User enters OTP → verifyOtpAction → createSession
+    3. Cookie alinks_session set (httpOnly, 7 days)
+
+--------------------------------------------------------------------------------
+STEP 4 — TRIAL SIGNUP RULES (product)
+--------------------------------------------------------------------------------
+  14-day Pro trial requires at signup:
+    - Phone OTP (verified)
+    - Business name
+    - Vertical selection
+
+  No forever-free tier.
+
+--------------------------------------------------------------------------------
+CODE LOCATIONS
+--------------------------------------------------------------------------------
+  src/platform/auth/session.ts     createSession, verifyOtp, getSession
+  src/app/actions/auth.ts        verifyOtpAction server action
+  src/app/(platform)/signup/     signup page
+  src/app/(platform)/login/      login page
+
+--------------------------------------------------------------------------------
+TROUBLESHOOTING
+--------------------------------------------------------------------------------
+  | Error                              | Fix                              |
+  |------------------------------------|----------------------------------|
+  | Application error digest 3284725310| DATABASE_URL missing on Vercel   |
+  | Invalid OTP                        | Use DEV_OTP value from env       |
+  | Redirect loop                      | Clear cookies; check sessions DB |
+  | Superadmin not working             | Match SUPERADMIN_PHONE exactly   |
+
+--------------------------------------------------------------------------------
+VERIFY
+--------------------------------------------------------------------------------
+  [ ] Signup → onboarding redirect
+  [ ] Login → dashboard (if business exists)
+  [ ] Superadmin phone → /superadmin
+  [ ] Logout clears session
+
+================================================================================

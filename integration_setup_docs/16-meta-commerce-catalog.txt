@@ -1,0 +1,140 @@
+================================================================================
+16 — META COMMERCE CATALOG (Facebook Shop + Instagram Shop)
+================================================================================
+
+GOAL
+  Sync tenant product catalog to Meta Commerce Manager so products appear in
+  Facebook Shop and Instagram Shop. ALINKS exposes a JSON product feed per tenant.
+
+WHEN TO SET UP
+  Phase 2+ after tenant has published site + products in catalog.
+  Pro tier commerce feature.
+
+CURRENT CODE
+  Feed URL:  https://alinks.online/api/meta/catalog/[handle]
+  Dashboard: /dashboard/integrations/meta
+  Route:     src/app/api/meta/catalog/[handle]/route.ts
+
+--------------------------------------------------------------------------------
+PREREQUISITES
+--------------------------------------------------------------------------------
+  [ ] Tenant site is published (isPublished = true)
+  [ ] Meta catalog enabled for business (metaCatalogEnabled = true in dashboard)
+  [ ] Products exist in tenant catalog (Google Sheets or dev adapter)
+  [ ] Product images have public URLs (R2 or /public/uploads — see doc 13)
+
+--------------------------------------------------------------------------------
+STEP 1 — META BUSINESS ACCOUNT
+--------------------------------------------------------------------------------
+  1. https://business.facebook.com → Create or use existing Business Manager
+  2. Add Business Portfolio for Artix / ALINKS if managing multiple tenants
+  3. Each tenant typically uses THEIR OWN Business Manager (recommended)
+
+--------------------------------------------------------------------------------
+STEP 2 — COMMERCE MANAGER
+--------------------------------------------------------------------------------
+  1. Business Settings → Data Sources → Catalogs → Add → Create Catalog
+  2. Catalog type: E-commerce products
+  3. Name: e.g. "Priya Salon — ALINKS"
+  4. Connect to Facebook Page and Instagram Business account (tenant's)
+
+--------------------------------------------------------------------------------
+STEP 3 — GET ALINKS FEED URL
+--------------------------------------------------------------------------------
+  1. Tenant logs into ALINKS dashboard
+  2. Go to: Dashboard → Integrations → Meta Catalog
+  3. Copy the Catalog feed URL shown on screen:
+       https://alinks.online/api/meta/catalog/priya-salon
+     (handle varies per tenant)
+
+  4. Test in browser (must return JSON with data array):
+       curl https://alinks.online/api/meta/catalog/demo
+
+  Expected shape:
+    {
+      "data": [
+        {
+          "id": "...",
+          "title": "Product name",
+          "description": "...",
+          "availability": "in stock",
+          "condition": "new",
+          "price": "499 INR",
+          "link": "https://alinks.online/priya-salon/store",
+          "image_link": "https://...",
+          "brand": "Business name"
+        }
+      ]
+    }
+
+  If 404 "Catalog not enabled":
+    - Publish site first
+    - Enable meta catalog in dashboard settings
+
+--------------------------------------------------------------------------------
+STEP 4 — ADD DATA SOURCE IN META
+--------------------------------------------------------------------------------
+  1. Commerce Manager → Catalog → Data Sources → Add Items
+  2. Choose: Data feed
+  3. Upload method: Scheduled fetch (URL)
+  4. Feed URL: paste ALINKS catalog URL from Step 3
+  5. Currency: INR
+  6. Schedule: every 1 hour (or daily for low-change catalogs)
+  7. Save and run initial fetch
+
+--------------------------------------------------------------------------------
+STEP 5 — MAP FIELDS (if Meta asks)
+--------------------------------------------------------------------------------
+  ALINKS feed already uses Meta-friendly field names:
+    id, title, description, availability, condition, price, link, image_link, brand
+
+  If validation errors:
+    - image_link must be HTTPS and publicly reachable
+    - price must include currency (e.g. "499 INR")
+    - link must point to live product or store page
+
+--------------------------------------------------------------------------------
+STEP 6 — CONNECT SHOP TO FACEBOOK / INSTAGRAM
+--------------------------------------------------------------------------------
+  1. Commerce Manager → Shops → Add Shop
+  2. Link catalog from Step 2
+  3. Connect Facebook Page → enable Shop tab
+  4. Connect Instagram → Shopping → tag products in posts
+
+--------------------------------------------------------------------------------
+STEP 7 — ONGOING SYNC
+--------------------------------------------------------------------------------
+  Meta polls the feed URL on schedule. When tenant updates products in ALINKS:
+    - Changes appear after next Meta fetch (up to 1 hour)
+    - Force refresh: Commerce Manager → Data Sources → Fetch Now
+
+  No Meta API keys stored in ALINKS for basic feed model — tenant configures Meta UI.
+
+--------------------------------------------------------------------------------
+FUTURE ENHANCEMENT (not implemented yet)
+--------------------------------------------------------------------------------
+  Meta Graph API + OAuth for automatic catalog push (no manual feed URL).
+  Would require:
+    META_APP_ID, META_APP_SECRET, tenant OAuth token
+  Baseline: feed URL is sufficient for MVP.
+
+--------------------------------------------------------------------------------
+TROUBLESHOOTING
+--------------------------------------------------------------------------------
+  | Symptom                    | Fix                                              |
+  |----------------------------|--------------------------------------------------|
+  | 404 Catalog not enabled    | Publish site + enable metaCatalogEnabled         |
+  | Empty data array           | Add products in tenant catalog                   |
+  | Meta rejects image_link    | Use HTTPS public URL; check R2/CDN (doc 13)      |
+  | Wrong prices               | Verify catalog source (Sheets vs dev adapter)    |
+  | Feed URL 503               | DATABASE_URL missing on Vercel (doc 04)          |
+
+--------------------------------------------------------------------------------
+VERIFY
+--------------------------------------------------------------------------------
+  [ ] curl feed URL returns JSON with products
+  [ ] Meta Commerce Manager shows successful fetch
+  [ ] Products visible in Facebook Shop / Instagram Shopping
+  [ ] New product in ALINKS appears after next scheduled fetch
+
+================================================================================

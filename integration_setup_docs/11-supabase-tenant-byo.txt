@@ -1,0 +1,52 @@
+================================================================================
+11 — SUPABASE BYO (Phase 4 — Tenant Optional PII Store)
+================================================================================
+
+GOAL
+  Pro/Enterprise tenants can use THEIR Supabase project instead of Google Sheets
+  for customer/order/booking data.
+
+NOT THE SAME AS PLATFORM DB
+  - Platform Postgres (Neon): Artix tenant config only
+  - Tenant Supabase: customer PII — tenant owns and pays
+
+--------------------------------------------------------------------------------
+STEP 1 — PRODUCT RULES
+--------------------------------------------------------------------------------
+  - Optional add-on (Phase 4)
+  - Tenant creates Supabase project
+  - Tenant provides project URL + anon/service key in dashboard
+  - ALINKS StorageAdapter switches from Sheets to Supabase
+
+  See: legal/06-DATA-STORAGE-ADDENDUM-GOOGLE-SUPABASE.txt
+
+--------------------------------------------------------------------------------
+STEP 2 — TENANT SETUP (self-service)
+--------------------------------------------------------------------------------
+  1. Tenant → supabase.com → New project
+  2. Run ALINKS-provided schema SQL (when shipped)
+  3. Dashboard → Integrations → Supabase
+  4. Enter:
+       SUPABASE_URL=https://xxx.supabase.co
+       SUPABASE_SERVICE_ROLE_KEY=...  (encrypted at rest in platform DB)
+
+--------------------------------------------------------------------------------
+STEP 3 — PLATFORM DB TABLE
+--------------------------------------------------------------------------------
+  supabase_connectors table (already in schema)
+  Stores connection metadata per tenant — not customer rows.
+
+--------------------------------------------------------------------------------
+STEP 4 — CODE
+--------------------------------------------------------------------------------
+  src/tenant/storage/supabase-adapter.ts
+  src/tenant/storage/get-adapter.ts  → picks Sheets vs Supabase
+
+--------------------------------------------------------------------------------
+VERIFY
+--------------------------------------------------------------------------------
+  [ ] Test booking row in tenant Supabase, not platform Postgres
+  [ ] Disconnect returns tenant to Sheets mode
+  [ ] RLS policies on tenant Supabase (tenant responsibility)
+
+================================================================================

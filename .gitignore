@@ -17,6 +17,8 @@
 # misc
 .DS_Store
 *.pem
+rzp-key.csv
+*.key.csv
 
 # debug
 npm-debug.log*
@@ -26,6 +28,7 @@ yarn-error.log*
 # env
 .env
 .env*.local
+.secrets/
 
 # typescript
 *.tsbuildinfo

@@ -16,6 +16,7 @@
     "test:watch": "vitest",
     "review": "bash scripts/coderabbit-review.sh plain",
     "review:agent": "bash scripts/coderabbit-review.sh agent",
+    "review:uncommitted": "bash scripts/coderabbit-review.sh uncommitted",
     "review:doctor": "bash scripts/coderabbit-review.sh doctor"
   },
   "dependencies": {

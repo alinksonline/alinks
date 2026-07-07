@@ -43,13 +43,16 @@ fi
 
 case "$MODE" in
   plain)
-    coderabbit review --plain --base "$BASE"
+    coderabbit review --plain --base "$BASE" --api-key "$CODERABBIT_API_KEY"
     ;;
   agent)
-    coderabbit review --agent --base "$BASE"
+    coderabbit review --agent --base "$BASE" --api-key "$CODERABBIT_API_KEY"
+    ;;
+  uncommitted)
+    coderabbit review --plain --type uncommitted --api-key "$CODERABBIT_API_KEY"
     ;;
   *)
-    echo "Usage: $0 [plain|agent|doctor] [base-branch]"
+    echo "Usage: $0 [plain|agent|doctor|uncommitted] [base-branch]"
     exit 1
     ;;
 esac

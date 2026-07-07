@@ -21,10 +21,10 @@ export default async function LoginPage() {
       title="Sign in with phone OTP"
       subtitle={`phase_0 · dev OTP ${devOtp}`}
       footer={
-        <p className="font-mono text-xs text-zinc-500">
+        <p className="text-sm text-brand-ink/55">
           New here?{" "}
-          <Link href="/signup" className="text-tech-cyan transition hover:text-white">
-            Start trial →
+          <Link href="/signup" className="font-semibold text-brand-purple">
+            Start trial
           </Link>
         </p>
       }

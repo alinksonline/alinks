@@ -1,0 +1,124 @@
+================================================================================
+03 — CLOUDFLARE DNS (alinks.online)
+================================================================================
+
+GOAL
+  Point alinks.online to Vercel, verify domain ownership, enable SSL.
+
+DOMAIN
+  Registrar: Hostinger (where you bought alinks.online)
+  DNS:       Cloudflare
+  Zone ID:   c57f835d0f4b0730f6c7ea98ff0d70e7
+
+CREDENTIALS
+  File: /Users/benjaminanand/Development/SOFTWARE/cloudflaretokens.txt
+  Use:  CLOUDFLARE_DNS_TOKEN  (User token with Zone DNS Edit on alinks.online)
+
+--------------------------------------------------------------------------------
+STEP 1 — NAMESERVERS AT HOSTINGER
+--------------------------------------------------------------------------------
+  1. Log in Hostinger → Domains → alinks.online → DNS / Nameservers
+  2. Set Custom nameservers to Cloudflare (from Cloudflare dashboard):
+       damien.ns.cloudflare.com
+       dns.cloudflare.com
+     (or whatever Cloudflare shows for the zone)
+  3. Wait up to 24h for propagation (usually < 1h)
+
+--------------------------------------------------------------------------------
+STEP 2 — CLOUDFLARE ZONE
+--------------------------------------------------------------------------------
+  1. Cloudflare dashboard → Add site → alinks.online
+  2. Plan: Free is fine
+  3. Confirm zone is Active
+
+--------------------------------------------------------------------------------
+STEP 3 — DNS RECORDS FOR VERCEL (DNS ONLY — PROXY OFF)
+--------------------------------------------------------------------------------
+  Vercel dashboard → Domains → alinks.online shows exact values.
+  Typical production set:
+
+  | Type  | Name | Content                              | Proxy   |
+  |-------|------|--------------------------------------|---------|
+  | CNAME | @    | 45d0c4cb9702d2d2.vercel-dns-017.com  | OFF     |
+  | CNAME | www  | 45d0c4cb9702d2d2.vercel-dns-017.com  | OFF     |
+  | CNAME | app  | 45d0c4cb9702d2d2.vercel-dns-017.com  | OFF     |
+  | CNAME | api  | 45d0c4cb9702d2d2.vercel-dns-017.com  | OFF     |
+  | CNAME | *    | 45d0c4cb9702d2d2.vercel-dns-017.com  | OFF     |
+
+  Proxy OFF = grey cloud / DNS only. Required for Vercel SSL + verification.
+
+  NOTE: CNAME value changes per Vercel project — always copy from Vercel UI.
+
+--------------------------------------------------------------------------------
+STEP 4 — TXT VERIFICATION (domain on another Vercel account)
+--------------------------------------------------------------------------------
+  When Vercel shows "Verification Needed":
+
+  1. Copy TXT value from Vercel → Domains → alinks.online
+     Example format:
+       vc-domain-verify=alinks.online,8b9f11a5e3d35c9a7756
+
+  2. Cloudflare → DNS → Add record:
+       Type:    TXT
+       Name:    _vercel
+       Content: (paste exact value from Vercel)
+       Proxy:   OFF
+
+  3. For www and app subdomains, Vercel may require ADDITIONAL TXT records
+     on the same _vercel name (multiple TXT records allowed):
+       vc-domain-verify=www.alinks.online,<hash>
+       vc-domain-verify=app.alinks.online,<hash>
+
+  4. Vercel → Domains → Refresh
+
+  5. After verified, you may delete TXT records (optional).
+
+  Verify propagation:
+    dig TXT _vercel.alinks.online @1.1.1.1
+
+--------------------------------------------------------------------------------
+STEP 5 — SSL MODE
+--------------------------------------------------------------------------------
+  Cloudflare → alinks.online → SSL/TLS → Overview
+  Set: Full (not Flexible)
+
+  Vercel handles origin cert; Cloudflare encrypts visitor → edge.
+
+--------------------------------------------------------------------------------
+STEP 6 — API UPDATES (scriptable)
+--------------------------------------------------------------------------------
+  Load token:
+    source ~/.grok/skills/cloudflare-universal/scripts/load-credentials.sh
+    # or export CLOUDFLARE_DNS_TOKEN from cloudflaretokens.txt
+
+  List records:
+    curl -s -H "Authorization: Bearer $CLOUDFLARE_DNS_TOKEN" \
+      "https://api.cloudflare.com/client/v4/zones/c57f835d0f4b0730f6c7ea98ff0d70e7/dns_records"
+
+--------------------------------------------------------------------------------
+ARCHITECTURE (ALINKS routing)
+--------------------------------------------------------------------------------
+  alinks.online           → marketing landing + path tenants /[handle]
+  app.alinks.online       → tenant dashboard (platform)
+  [handle].alinks.online  → Pro tenant subdomain (wildcard *)
+  www.alinks.online       → redirect/alias to apex
+
+--------------------------------------------------------------------------------
+TROUBLESHOOTING
+--------------------------------------------------------------------------------
+  | Symptom              | Fix                                                |
+  |----------------------|----------------------------------------------------|
+  | DEPLOYMENT_NOT_FOUND | Verify domain in Vercel; fix TXT code (exact match)|
+  | 525 SSL error        | Cloudflare SSL = Full; proxy OFF on CNAMEs         |
+  | Wrong TXT            | Copy fresh value from Vercel UI (codes change)     |
+  | Still on old IP      | Remove old A records pointing to Hostinger/tunnel  |
+
+--------------------------------------------------------------------------------
+VERIFY
+--------------------------------------------------------------------------------
+  [ ] dig TXT _vercel.alinks.online shows Vercel verification string
+  [ ] https://alinks.online → 200 (ALINKS landing)
+  [ ] https://app.alinks.online/login → 200
+  [ ] Vercel Domains shows green checkmarks
+
+================================================================================

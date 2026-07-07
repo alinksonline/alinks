@@ -3,6 +3,9 @@
 import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { completeDevBookingPaymentAction, createBookingAction } from "@/app/actions/salon";
+import { openRazorpayCheckout, verifyPaymentViaApi } from "@/lib/razorpay-checkout";
+
+const RAZORPAY_KEY_ID = process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID ?? "";
 
 export function BookingForm({
   handle,
@@ -46,7 +49,7 @@ export function BookingForm({
             return;
           }
 
-          if (!payNow || !result.devMode) {
+          if (!payNow) {
             setMessage(`Booking confirmed! ID: ${result.bookingId}`);
             router.push(`/${handle}`);
             return;
@@ -63,6 +66,49 @@ export function BookingForm({
             } else {
               setMessage(paid.error);
             }
+            return;
+          }
+
+          if (!RAZORPAY_KEY_ID) {
+            setMessage("Payment gateway is not configured on the client.");
+            return;
+          }
+
+          if (!result.razorpayOrderId || !result.sessionId || !result.pendingBooking) {
+            setMessage("Could not start payment. Try again.");
+            return;
+          }
+
+          try {
+            await openRazorpayCheckout({
+              keyId: RAZORPAY_KEY_ID,
+              orderId: result.razorpayOrderId,
+              amountPaise: result.amountPaise,
+              name: result.businessName ?? "ALINKS Salon",
+              description: selected?.name ?? "Salon booking",
+              prefill: { name, contact: phone },
+              onDismiss: () => setMessage("Payment cancelled."),
+              onFailure: (err) => setMessage(err),
+              onSuccess: async (payment) => {
+                const verified = await verifyPaymentViaApi({
+                  razorpay_order_id: payment.razorpay_order_id,
+                  razorpay_payment_id: payment.razorpay_payment_id,
+                  razorpay_signature: payment.razorpay_signature,
+                  sessionId: result.sessionId,
+                  pendingBooking: result.pendingBooking,
+                });
+
+                if (!verified.success) {
+                  setMessage(verified.error ?? "Payment verification failed");
+                  return;
+                }
+
+                setMessage(`Paid & booked! ID: ${verified.bookingId ?? result.bookingId}`);
+                router.push(`/${handle}`);
+              },
+            });
+          } catch (err) {
+            setMessage(err instanceof Error ? err.message : "Could not open payment");
           }
         });
       }}

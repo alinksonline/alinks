@@ -1,0 +1,82 @@
+================================================================================
+01 — GITHUB SETUP
+================================================================================
+
+GOAL
+  Store code, enable CI, trigger Vercel auto-deploy on push to main.
+
+REPO
+  https://github.com/artixforcoding/alinks
+
+--------------------------------------------------------------------------------
+STEP 1 — INITIAL SETUP (already done)
+--------------------------------------------------------------------------------
+  git init
+  git remote add origin https://github.com/artixforcoding/alinks.git
+  git branch -M main
+  git push -u origin main
+
+--------------------------------------------------------------------------------
+STEP 2 — GITIGNORE (secrets stay local)
+--------------------------------------------------------------------------------
+  Never commit:
+    .env
+    .env*.local
+    cloudflaretokens.txt
+    .vercel/
+
+  Safe to commit:
+    .env.example
+    integration_setup_docs/
+
+--------------------------------------------------------------------------------
+STEP 3 — GITHUB ACTIONS CI
+--------------------------------------------------------------------------------
+  File: .github/workflows/ci.yml
+
+  On every push/PR to main:
+    npm ci
+    npm run test
+    npm run lint
+    npm run build
+
+  View runs: GitHub → Actions tab
+
+--------------------------------------------------------------------------------
+STEP 4 — BRANCH WORKFLOW
+--------------------------------------------------------------------------------
+  main        → production (Vercel auto-deploy)
+  feature/*   → optional preview deploys on Vercel
+
+  Typical flow:
+    git checkout -b feature/my-change
+    git add .
+    git commit -m "describe change"
+    git push origin feature/my-change
+    → open PR → merge to main → Vercel deploys
+
+--------------------------------------------------------------------------------
+STEP 5 — GITHUB SECRETS (optional)
+--------------------------------------------------------------------------------
+  Repo → Settings → Secrets and variables → Actions
+
+  Only needed if you add deploy scripts that call APIs:
+    VERCEL_TOKEN          → full-account token (not the limited vck_ token)
+    DATABASE_URL          → for migration job in CI (optional)
+
+  Vercel GitHub App connection handles deploy without VERCEL_TOKEN.
+
+--------------------------------------------------------------------------------
+STEP 6 — COLLABORATORS
+--------------------------------------------------------------------------------
+  Repo → Settings → Collaborators
+  Add team members with write access.
+
+--------------------------------------------------------------------------------
+VERIFY
+--------------------------------------------------------------------------------
+  [ ] git push origin main succeeds
+  [ ] GitHub Actions CI green
+  [ ] Vercel shows new deployment after push (see 02-vercel.txt)
+
+================================================================================

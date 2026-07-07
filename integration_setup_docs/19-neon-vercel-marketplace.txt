@@ -1,0 +1,95 @@
+================================================================================
+19 — NEON + VERCEL MARKETPLACE INTEGRATION
+================================================================================
+
+GOAL
+  Connect Neon Postgres to Vercel in one click — auto-injects DATABASE_URL
+  into Production, Preview, and Development environments.
+
+ALTERNATIVE
+  Manual DATABASE_URL setup: see 04-neon-postgres.txt Step 5
+
+--------------------------------------------------------------------------------
+STEP 1 — OPEN VERCEL INTEGRATION
+--------------------------------------------------------------------------------
+  1. https://vercel.com/integrations/neon
+     OR Vercel Dashboard → alinks → Storage → Connect Database → Neon
+  2. Click "Add Integration"
+  3. Select Vercel team: alinks
+  4. Select project: alinks
+
+--------------------------------------------------------------------------------
+STEP 2 — CREATE OR LINK NEON PROJECT
+--------------------------------------------------------------------------------
+  Option A — Create new Neon project via integration:
+    Name:     alinks-platform
+    Region:   ap-south-1 (Mumbai) or ap-southeast-1 (Singapore)
+    Database: alinks_platform
+
+  Option B — Link existing Neon project:
+    Choose project created in doc 04-neon-postgres.txt
+
+--------------------------------------------------------------------------------
+STEP 3 — ENV VARS AUTO-INJECTED
+--------------------------------------------------------------------------------
+  Integration adds to Vercel automatically:
+    DATABASE_URL          (pooled — use for serverless)
+    DATABASE_URL_UNPOOLED (direct — use for migrations)
+
+  Verify:
+    Vercel → alinks → Settings → Environment Variables
+    DATABASE_URL should show "Neon" integration source
+
+--------------------------------------------------------------------------------
+STEP 4 — RUN MIGRATIONS
+--------------------------------------------------------------------------------
+  Marketplace does NOT run Drizzle migrations automatically.
+
+  From your Mac (use direct/unpooled URL):
+    export DATABASE_URL="postgresql://...-pooler...?sslmode=require"
+    # For migrate, prefer unpooled if integration provides DATABASE_URL_UNPOOLED:
+    export DATABASE_URL="$DATABASE_URL_UNPOOLED"
+    npm run db:migrate
+    npm run db:seed
+
+  Or pull Vercel env locally:
+    vercel env pull .env.local
+    npm run db:migrate
+
+--------------------------------------------------------------------------------
+STEP 5 — PREVIEW BRANCHES (optional)
+--------------------------------------------------------------------------------
+  Neon integration can create branch databases per Vercel preview deploy.
+  Useful for testing PRs without touching production data.
+
+  Enable in integration settings if you want isolated preview DBs.
+
+--------------------------------------------------------------------------------
+STEP 6 — REDEPLOY
+--------------------------------------------------------------------------------
+  After integration connects:
+    git push origin main
+    OR Vercel → Deployments → Redeploy
+
+  Test:
+    https://alinks.online/api/health → {"ok":true}
+    https://alinks.online/signup → OTP flow completes
+
+--------------------------------------------------------------------------------
+TROUBLESHOOTING
+--------------------------------------------------------------------------------
+  | Symptom                  | Fix                                           |
+  |--------------------------|-----------------------------------------------|
+  | Still "DB unavailable"   | Redeploy after env injection                  |
+  | Migration fails on pooler| Use DATABASE_URL_UNPOOLED for db:migrate      |
+  | Wrong database name      | Ensure database is alinks_platform not postgres|
+  | Connection limit         | Use pooled URL in Vercel production env       |
+
+--------------------------------------------------------------------------------
+VERIFY
+--------------------------------------------------------------------------------
+  [ ] Vercel env shows DATABASE_URL from Neon integration
+  [ ] /api/health returns ok on production
+  [ ] Signup creates session row in Neon sessions table
+
+================================================================================

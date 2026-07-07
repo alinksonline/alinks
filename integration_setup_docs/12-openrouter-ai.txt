@@ -1,0 +1,45 @@
+================================================================================
+12 — OPENROUTER AI (SEO + Content — Optional)
+================================================================================
+
+GOAL
+  AI-generated product descriptions, SEO titles, meta descriptions.
+  Credit-limited per tier.
+
+--------------------------------------------------------------------------------
+STEP 1 — OPENROUTER ACCOUNT
+--------------------------------------------------------------------------------
+  1. https://openrouter.ai → Sign up
+  2. Keys → Create API key
+  3. Add credits
+
+--------------------------------------------------------------------------------
+STEP 2 — ENV
+--------------------------------------------------------------------------------
+  OPENROUTER_API_KEY=sk-or-v1-...
+
+  Local .env + Vercel (Sensitive)
+
+--------------------------------------------------------------------------------
+STEP 3 — USAGE LIMITS
+--------------------------------------------------------------------------------
+  Config: src/core/config/ai-limits.ts
+  Tracking: ai_usage table in platform Postgres
+  UI: /dashboard/ai
+
+  Without key: mock AI responses (dev mode)
+
+--------------------------------------------------------------------------------
+STEP 4 — API ROUTE
+--------------------------------------------------------------------------------
+  POST /api/ai/generate
+  Requires authenticated session.
+
+--------------------------------------------------------------------------------
+VERIFY
+--------------------------------------------------------------------------------
+  [ ] /superadmin/system shows OPENROUTER_API_KEY: set
+  [ ] Generate SEO title from dashboard AI panel
+  [ ] Usage counter increments
+
+================================================================================

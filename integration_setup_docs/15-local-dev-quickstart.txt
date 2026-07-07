@@ -1,0 +1,91 @@
+================================================================================
+15 — LOCAL DEV QUICKSTART
+================================================================================
+
+GOAL
+  Run ALINKS on http://localhost:3000 with signup, demo tenant, and dashboard.
+
+PREREQUISITES
+  - Node.js 20+
+  - npm
+  - Git
+
+--------------------------------------------------------------------------------
+STEP 1 — CLONE AND INSTALL
+--------------------------------------------------------------------------------
+  cd /Users/benjaminanand/Development/SOFTWARE/ALINKS
+  npm install
+
+--------------------------------------------------------------------------------
+STEP 2 — ENV FILE
+--------------------------------------------------------------------------------
+  cp .env.example .env
+
+  Minimum for local dev:
+    DATABASE_URL=postgresql://alinks_user@localhost:5432/alinks_platform
+      OR use Neon (see 04-neon-postgres.txt)
+
+    SUPERADMIN_PHONE=9999999999        ← your 10-digit phone → superadmin role
+    DEV_OTP=1111                       ← local only; never in production
+
+    NEXT_PUBLIC_APP_URL=http://localhost:3000
+    NEXT_PUBLIC_ROOT_DOMAIN=localhost:3000
+    NEXT_PUBLIC_PLATFORM_HOST=app.localhost:3000
+    NEXT_PUBLIC_MARKETING_HOST=localhost:3000
+
+--------------------------------------------------------------------------------
+STEP 3 — DATABASE
+--------------------------------------------------------------------------------
+  Option A (Neon cloud): see 04-neon-postgres.txt
+  Option B (Homebrew Postgres on Mac):
+
+    brew install postgresql@16
+    brew services start postgresql@16
+    createuser -s alinks_user 2>/dev/null || true
+    createdb alinks_platform 2>/dev/null || true
+
+  Then migrate + seed:
+    npm run db:migrate
+    npm run db:seed
+
+--------------------------------------------------------------------------------
+STEP 4 — START DEV SERVER
+--------------------------------------------------------------------------------
+  npm run dev
+
+  If you see 500 / chunk errors:
+    lsof -ti:3000 | xargs kill -9
+    rm -rf .next
+    npm run dev
+
+  Open: http://localhost:3000
+
+--------------------------------------------------------------------------------
+STEP 5 — LOGIN / SIGNUP TEST
+--------------------------------------------------------------------------------
+  Signup:  http://localhost:3000/signup
+  Login:   http://localhost:3000/login
+  Phone:   number matching SUPERADMIN_PHONE (or any 10 digits for tenant)
+  OTP:     1111  (DEV_OTP)
+
+  Superadmin: http://localhost:3000/superadmin
+  Demo tenant site: http://localhost:3000/demo
+
+--------------------------------------------------------------------------------
+STEP 6 — VERIFY BUILD
+--------------------------------------------------------------------------------
+  npm run test
+  npm run lint
+  npm run build
+
+--------------------------------------------------------------------------------
+TROUBLESHOOTING
+--------------------------------------------------------------------------------
+  | Symptom                          | Fix                                      |
+  |----------------------------------|------------------------------------------|
+  | 500 on /signup chunks            | rm -rf .next && restart dev              |
+  | Database not connected           | Set DATABASE_URL; npm run db:migrate     |
+  | sessions table missing           | npm run db:migrate                       |
+  | Wrong port                       | Use :3000 not :3001                      |
+
+================================================================================

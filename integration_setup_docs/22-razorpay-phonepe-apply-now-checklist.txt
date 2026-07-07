@@ -1,0 +1,129 @@
+================================================================================
+22 — RAZORPAY + PHONEPE: APPLY-NOW CHECKLIST (ACTION ORDER)
+================================================================================
+
+Use this as your single to-do list. Full detail in doc 08 and doc 09.
+
+================================================================================
+WEEK 1 — DOCUMENTS + ACCOUNTS (DO THIS FIRST)
+================================================================================
+
+GATHER DOCUMENTS (scan to PDF folder on Mac)
+  [ ] PAN (personal or company)
+  [ ] Aadhaar
+  [ ] Bank cancelled cheque (business account)
+  [ ] MSME Udyam OR GST cert OR incorporation cert
+  [ ] https://alinks.online live with Terms + Privacy pages
+  [ ] 2-minute screen recording of signup → dashboard flow
+
+IF PVT LTD NOT READY YET
+  [ ] Apply Razorpay merchant in proprietor name for TEST + small beta
+  [ ] Start Pvt Ltd incorporation in parallel (baseline Week 8–12)
+  [ ] Re-apply / transfer to company name before public launch
+
+================================================================================
+DAY 1 — RAZORPAY MERCHANT (ARTIX SAAS BILLING)
+================================================================================
+  URL: https://dashboard.razorpay.com/signup
+
+  [ ] Sign up with artixforcoding@gmail.com
+  [ ] Business type: SaaS
+  [ ] Website: https://alinks.online
+  [ ] Submit KYC documents
+  [ ] Generate TEST API keys → add to .env
+  [ ] Create subscription plans: Basic ₹599, Pro ₹1599, Enterprise ₹6999
+  [ ] Add webhook URL: https://alinks.online/api/webhooks/razorpay
+
+  → Full steps: 08-razorpay-billing.txt PART 2
+
+================================================================================
+DAY 1 — RAZORPAY PARTNER (TENANT CHECKOUT)
+================================================================================
+  URL: https://razorpay.com/partners/ → Become a Partner
+       (choose Technology Partner / SaaS)
+
+  [ ] Sign up as partner (same email as merchant)
+  [ ] Description: embed PG for SMB tenants on ALINKS mini-sites
+  [ ] Submit partner KYC when requested
+  [ ] Book Onboarding API sales call:
+       https://razorpay.com/partners/onboarding-apis/ → Contact Sales
+  [ ] Ask for Razorpay Route (tenant settlement to their bank)
+
+  → Full steps: 08-razorpay-billing.txt PART 3
+
+================================================================================
+DAY 1 — PHONEPE PARTNER
+================================================================================
+  URL: https://www.phonepe.com/business-solutions/payment-gateway/partner-program/register
+
+  [ ] Fill partner registration form
+  [ ] Company: Artix Private Limited (or proprietor if not incorporated)
+  [ ] Partner type: Technology Partner
+  [ ] Website: https://alinks.online
+  [ ] Wait for business rep call (1–7 days)
+  [ ] Send document ZIP when asked
+  [ ] Save referral link from email when approved
+
+  → Full steps: 09-phonepe-partner.txt PART 2
+
+================================================================================
+WEEK 2–4 — WHILE WAITING FOR APPROVAL
+================================================================================
+  [ ] Integrate Razorpay TEST mode in ALINKS (keys in Vercel)
+  [ ] Test card payment locally
+  [ ] Lawyer review: legal/04-PAYMENT-FACILITATION-ADDENDUM.txt
+  [ ] CA consult: GST on SaaS, TCS/194-O for marketplace model
+  [ ] Build tenant KYC form in dashboard (PAN, bank, GSTIN fields)
+  [ ] Add payment enablement checkbox (legal/16-TOUCHPOINT-CHECKBOX-TEXT.txt)
+
+================================================================================
+WHEN RAZORPAY LIVE — GO LIVE CHECKLIST
+================================================================================
+  [ ] Switch to LIVE API keys on Vercel
+  [ ] RAZORPAY_WEBHOOK_SECRET set
+  [ ] Test real ₹1 subscription charge (refund after)
+  [ ] Partner dashboard: invite 1 test tenant as sub-merchant
+  [ ] Test tenant checkout with UPI on demo site
+
+================================================================================
+WHEN PHONEPE APPROVED — GO LIVE CHECKLIST
+================================================================================
+  [ ] Receive referral link
+  [ ] Onboard 1 test tenant merchant
+  [ ] Complete PhonePe PG API integration
+  [ ] Webhook: https://alinks.online/api/webhooks/phonepe
+  [ ] Test UPI payment end-to-end
+
+================================================================================
+WHAT TO SAY ON PARTNER SALES CALLS (BOTH RAZORPAY + PHONEPE)
+================================================================================
+
+  "We are ALINKS — a SaaS mini-website builder for Indian small businesses.
+   Tenants are salons, clinics, kirana stores, restaurants. They sell products
+   and services on mobile-first sites we host. We want to embed payment gateway
+   onboarding inside our dashboard so tenants never leave our platform. Tenants
+   are merchants of record; payments settle to their bank. We need partner APIs
+   for sub-merchant KYC and commission on transaction volume. Live product at
+   alinks.online, dashboard at app.alinks.online."
+
+================================================================================
+YOU DO NOT NEED SEPARATE APPLICATIONS FOR
+================================================================================
+  ✗ Google Pay     → comes via UPI in Razorpay / PhonePe checkout
+  ✗ NPCI / UPI     → licensed only through Razorpay or PhonePe
+  ✗ Paytm          → UPI app option inside checkout
+  ✗ BHIM           → UPI app option inside checkout
+
+================================================================================
+SUPPORT LINKS
+================================================================================
+  Razorpay signup:     https://dashboard.razorpay.com/signup
+  Razorpay partners:   https://razorpay.com/partners/
+  Razorpay onboarding: https://razorpay.com/partners/onboarding-apis/
+  PhonePe partners:    https://business.phonepe.com/partner-program
+  PhonePe register:    https://www.phonepe.com/business-solutions/payment-gateway/partner-program/register
+
+  ALINKS legal:        legal/04-PAYMENT-FACILITATION-ADDENDUM.txt
+  ALINKS env vars:     05-vercel-environment-variables.txt
+
+================================================================================

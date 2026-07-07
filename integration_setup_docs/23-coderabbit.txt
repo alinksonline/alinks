@@ -1,0 +1,198 @@
+================================================================================
+23 — CODERABBIT (AI PR REVIEWS + LOCAL CLI)
+================================================================================
+
+GOAL
+  Automated AI code review on GitHub pull requests + optional local pre-commit
+  reviews via CodeRabbit CLI.
+
+REPO
+  https://github.com/artixforcoding/alinks
+
+NOT PART OF ALINKS RUNTIME
+  CodeRabbit does NOT run inside Next.js/Vercel. It reviews code via:
+    1. GitHub App (PR comments) — primary
+    2. CLI (local / CI) — uses Agentic API key
+
+================================================================================
+PART 1 — GITHUB APP (PR REVIEWS ON PUSH)
+================================================================================
+
+STEP 1 — LOGIN
+--------------------------------------------------------------------------------
+  1. https://app.coderabbit.ai/login
+  2. Login with GitHub (artixforcoding account)
+  3. Authorize CodeRabbit app
+
+STEP 2 — INSTALL ON REPO
+--------------------------------------------------------------------------------
+  1. Select organization/account: artixforcoding
+  2. Repository access: "Only select repositories" → alinks
+  3. Click Install & Authorize
+
+STEP 3 — REPO CONFIG (committed)
+--------------------------------------------------------------------------------
+  File in repo root: .coderabbit.yaml
+  CodeRabbit reads config from the PR branch under review.
+
+STEP 4 — TRIGGER FIRST REVIEW
+--------------------------------------------------------------------------------
+  1. Push a branch: git checkout -b test/coderabbit
+  2. Make a small change, push, open PR on GitHub
+  3. CodeRabbit auto-reviews (auto_review.enabled: true in .coderabbit.yaml)
+  4. Or comment on PR: @coderabbitai review
+
+STEP 5 — USEFUL PR COMMANDS
+--------------------------------------------------------------------------------
+  @coderabbitai review          → manual review
+  @coderabbitai summary         → PR summary
+  @coderabbitai pause           → pause auto reviews
+  @coderabbitai resume          → resume auto reviews
+
+================================================================================
+PART 2 — AGENTIC API KEY (CLI + AUTOMATION)
+================================================================================
+
+KEY TYPES (IMPORTANT — two different keys)
+--------------------------------------------------------------------------------
+  | Key type        | Created at              | Works for              |
+  |-----------------|-------------------------|------------------------|
+  | User API key    | Settings → API Keys     | REST API, reports only |
+  | Agentic API key | Settings → API Keys     | CLI + agent automation |
+
+  CLI error if wrong type:
+    "User API keys are not supported for the CLI.
+     Please generate an agentic API key"
+
+  FIX: https://app.coderabbit.ai/settings/api-keys
+       → Generate **Agentic API key** (not User API key)
+       → May require Usage-based Add-on enabled first
+
+REQUIREMENTS FOR CLI
+  - Agentic API key (starts with cr-)
+  - Usage-based Add-on may be required for heavy CLI usage
+
+NEVER COMMIT THE KEY
+  Store in:
+    Local:  ALINKS/.env → CODERABBIT_API_KEY=cr-...  (gitignored)
+    CI:     GitHub → Settings → Secrets → CODERABBIT_API_KEY
+
+--------------------------------------------------------------------------------
+INSTALL CLI (Mac)
+--------------------------------------------------------------------------------
+  brew install coderabbit
+  # or: curl -fsSL https://cli.coderabbit.ai/install.sh | sh
+
+--------------------------------------------------------------------------------
+AUTHENTICATE (local)
+--------------------------------------------------------------------------------
+  export CODERABBIT_API_KEY="cr-..."   # from .env
+
+  coderabbit auth login --api-key "$CODERABBIT_API_KEY"
+  coderabbit auth status
+  coderabbit doctor
+
+--------------------------------------------------------------------------------
+RUN LOCAL REVIEW
+--------------------------------------------------------------------------------
+  cd ALINKS
+
+  # Uncommitted changes
+  coderabbit review --plain
+
+  # Agent/JSON output (for Cursor, Codex, etc.)
+  coderabbit review --agent
+
+  # Against main branch
+  coderabbit review --plain --base main
+
+  Short alias: cr review --plain
+
+--------------------------------------------------------------------------------
+GITHUB ACTIONS (optional headless)
+--------------------------------------------------------------------------------
+  Add secret: CODERABBIT_API_KEY
+
+  Example step in workflow:
+    - run: |
+        curl -fsSL https://cli.coderabbit.ai/install.sh | sh
+        coderabbit auth login --api-key "${{ secrets.CODERABBIT_API_KEY }}"
+        coderabbit review --plain --base main
+
+  See: https://docs.coderabbit.ai/cli/headless-cli-integration
+
+================================================================================
+PART 3 — CURSOR / AGENT WORKFLOW
+================================================================================
+
+  1. Make changes in ALINKS
+  2. Run: coderabbit review --agent
+  3. Fix critical findings only
+  4. Re-run review before push
+  5. Open PR → GitHub App reviews again on PR
+
+  Natural language in Cursor: "Run cr review --agent and fix critical issues"
+
+================================================================================
+TROUBLESHOOTING
+================================================================================
+  | Symptom                    | Fix                                        |
+  |----------------------------|--------------------------------------------|
+  | No PR review               | Install GitHub App on artixforcoding/alinks|
+  | User API key rejected      | Create Agentic API key in dashboard        |
+  | CLI auth fails             | coderabbit doctor; re-run auth login       |
+  | Rate limited               | Upgrade plan or enable usage-based add-on  |
+  | Wrong org billing          | API key tied to org that created it        |
+
+================================================================================
+SECURITY
+================================================================================
+  - Rotate key if exposed in chat or logs
+  - Do not commit cr-... keys to GitHub
+  - .env and GitHub Secrets only
+
+================================================================================
+VERIFY
+================================================================================
+  [x] GitHub App installed on artixforcoding/alinks (coderabbitai[bot] on PR #1)
+  [x] .coderabbit.yaml in repo (merge to main for OSS config to apply)
+  [ ] CODERABBIT_API_KEY = Agentic key in .env + GitHub Actions secret
+  [ ] coderabbit auth status shows authenticated
+  [ ] npm run review runs on local changes
+  [x] PR on GitHub gets CodeRabbit comment
+
+================================================================================
+ALINKS DEV WORKFLOW (USE THIS EVERY PR)
+================================================================================
+  1. Create branch from main
+  2. Make changes
+  3. npm run test && npm run lint && npm run build
+  4. npm run review          (optional — needs Agentic key)
+  5. git push && open PR
+  6. Wait for coderabbitai[bot] + CI green
+  7. Fix inline comments, comment @coderabbitai review to re-run
+  8. Merge
+
+  npm scripts:
+    npm run review            → diff vs main (plain text)
+    npm run review:agent      → JSON for Cursor/agents
+    npm run review:uncommitted → working tree only
+    npm run review:doctor     → CLI health check
+
+  Live PR: https://github.com/artixforcoding/alinks/pull/1
+
+================================================================================
+ONE-TIME: AGENTIC API KEY (for local + CI CLI)
+================================================================================
+  Your .env may have a User API key — CLI rejects it.
+
+  1. https://app.coderabbit.ai/settings/api-keys
+  2. Enable Usage-based Add-on if prompted
+  3. Generate **Agentic API key** (not User API key)
+  4. Local:  ALINKS/.env → CODERABBIT_API_KEY=cr-...
+  5. GitHub: artixforcoding/alinks → Settings → Secrets → CODERABBIT_API_KEY
+  6. Test:   npm run review:doctor && npm run review
+
+  GitHub App reviews work WITHOUT this key. CLI is optional but useful pre-push.
+
+================================================================================

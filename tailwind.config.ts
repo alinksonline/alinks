@@ -1,6 +1,7 @@
 import type { Config } from "tailwindcss";
 
 const config: Config = {
+  darkMode: "class",
   content: [
     "./src/pages/**/*.{js,ts,jsx,tsx,mdx}",
     "./src/components/**/*.{js,ts,jsx,tsx,mdx}",
@@ -8,34 +9,50 @@ const config: Config = {
   ],
   theme: {
     extend: {
+      maxWidth: {
+        app: "430px",
+      },
       fontFamily: {
         sans: ["var(--font-sans)", "system-ui", "sans-serif"],
+        display: ["var(--font-display)", "var(--font-sans)", "system-ui", "sans-serif"],
         mono: ["var(--font-mono)", "ui-monospace", "monospace"],
       },
       colors: {
         brand: {
-          bronze: "#9a6b2e",
-          ink: "#1c1917",
-          cream: "#faf9f7",
-          mist: "#f5f4f1",
-        },
-        tech: {
-          bg: "#08080c",
-          panel: "#0f1017",
-          border: "#1e2030",
-          muted: "#6b7280",
-          cyan: "#22d3ee",
-          green: "#34d399",
-          amber: "#fbbf24",
+          purple: "rgb(var(--color-brand-purple) / <alpha-value>)",
+          "purple-light": "rgb(var(--color-brand-purple-light) / <alpha-value>)",
+          "purple-dark": "rgb(var(--color-brand-purple-dark) / <alpha-value>)",
+          turquoise: "rgb(var(--color-brand-turquoise) / <alpha-value>)",
+          "turquoise-light": "rgb(var(--color-brand-turquoise-light) / <alpha-value>)",
+          "turquoise-dark": "rgb(var(--color-brand-turquoise-dark) / <alpha-value>)",
+          ink: "rgb(var(--color-brand-ink) / <alpha-value>)",
+          cream: "rgb(var(--color-brand-cream) / <alpha-value>)",
+          mist: "rgb(var(--color-brand-mist) / <alpha-value>)",
+          surface: "rgb(var(--color-brand-surface) / <alpha-value>)",
+          bronze: "rgb(var(--color-brand-purple) / <alpha-value>)",
+          "bronze-light": "rgb(var(--color-brand-purple-light) / <alpha-value>)",
+          "bronze-dark": "rgb(var(--color-brand-purple-dark) / <alpha-value>)",
         },
       },
       boxShadow: {
-        glow: "0 0 40px -8px rgba(34, 211, 238, 0.35)",
-        panel: "0 0 0 1px rgba(255,255,255,0.06), 0 24px 48px -24px rgba(0,0,0,0.8)",
+        card: "var(--shadow-card)",
+        soft: "var(--shadow-soft)",
+        accent: "var(--shadow-accent)",
+        bronze: "var(--shadow-accent)",
+        premium: "var(--shadow-device)",
       },
       backgroundImage: {
-        "tech-grid":
-          "linear-gradient(to right, rgba(255,255,255,0.04) 1px, transparent 1px), linear-gradient(to bottom, rgba(255,255,255,0.04) 1px, transparent 1px)",
+        "brand-gradient":
+          "linear-gradient(135deg, rgb(var(--color-brand-purple)) 0%, rgb(var(--color-brand-turquoise)) 100%)",
+      },
+      borderRadius: {
+        "2.5xl": "1.25rem",
+      },
+      minHeight: {
+        dvh: "100dvh",
+      },
+      height: {
+        dvh: "100dvh",
       },
     },
   },

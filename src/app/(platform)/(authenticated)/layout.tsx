@@ -20,15 +20,15 @@ export default async function AuthenticatedPlatformLayout({ children }: { childr
   const locale = (tenant?.locale ?? "en") as AppLocale;
 
   return (
-    <>
+    <div className="pb-tab-safe">
       <PlatformNav role={session.role} locale={locale} />
-      <div className="mx-auto flex max-w-6xl justify-end px-4 py-2">
+      <div className="app-container py-2">
         <BusinessSwitcher
           businesses={businesses.map((b) => ({ id: b.id, name: b.name, handle: b.handle }))}
           activeId={tenant?.activeBusinessId}
         />
       </div>
       {children}
-    </>
+    </div>
   );
 }

@@ -1,0 +1,117 @@
+================================================================================
+05 — VERCEL ENVIRONMENT VARIABLES (complete reference)
+================================================================================
+
+GOAL
+  All env vars ALINKS reads — set in Vercel dashboard per environment.
+
+WHERE
+  https://vercel.com/alinks/alinks/settings/environment-variables
+
+--------------------------------------------------------------------------------
+PRODUCTION VALUES (alinks.online)
+--------------------------------------------------------------------------------
+  NEXT_PUBLIC_APP_URL=https://alinks.online
+  NEXT_PUBLIC_ROOT_DOMAIN=alinks.online
+  NEXT_PUBLIC_PLATFORM_HOST=app.alinks.online
+  NEXT_PUBLIC_MARKETING_HOST=alinks.online
+
+--------------------------------------------------------------------------------
+LOCAL DEV VALUES
+--------------------------------------------------------------------------------
+  NEXT_PUBLIC_APP_URL=http://localhost:3000
+  NEXT_PUBLIC_ROOT_DOMAIN=localhost:3000
+  NEXT_PUBLIC_PLATFORM_HOST=app.localhost:3000
+  NEXT_PUBLIC_MARKETING_HOST=localhost:3000
+
+--------------------------------------------------------------------------------
+REQUIRED FOR LIVE AUTH (Phase 0)
+--------------------------------------------------------------------------------
+  DATABASE_URL
+    Neon pooled Postgres URL (see 04-neon-postgres.txt)
+
+  SUPERADMIN_PHONE
+    Your 10-digit phone — grants superadmin role on OTP login
+    Example: 9999999999
+
+  DEV_OTP
+    Local dev only: 1111
+    REMOVE from Vercel production when MSG91 is live (doc 14)
+
+--------------------------------------------------------------------------------
+MSG91 (login OTP — production)
+--------------------------------------------------------------------------------
+  MSG91_AUTH_KEY=...
+  MSG91_OTP_TEMPLATE_ID=...     ← AlinkOTP template ID from MSG91 dashboard
+  MSG91_SENDER_ID=              ← optional
+
+  See 14-sms-otp-production.txt
+
+--------------------------------------------------------------------------------
+RAZORPAY (Phase 1 — subscriptions + checkout)
+--------------------------------------------------------------------------------
+  RAZORPAY_KEY_ID=rzp_live_xxx or rzp_test_xxx
+  RAZORPAY_KEY_SECRET=...
+  NEXT_PUBLIC_RAZORPAY_KEY_ID=rzp_test_xxx   (same KEY_ID — frontend modal only)
+  RAZORPAY_WEBHOOK_SECRET=whsec_...
+
+  See 08-razorpay-billing.txt
+
+--------------------------------------------------------------------------------
+REDIS (Phase 2 — optional until cache layer)
+--------------------------------------------------------------------------------
+  UPSTASH_REDIS_REST_URL=https://xxx.upstash.io
+  UPSTASH_REDIS_REST_TOKEN=...
+
+  See 10-upstash-redis.txt
+
+--------------------------------------------------------------------------------
+GOOGLE (Phase 1+ — Sheets integration)
+--------------------------------------------------------------------------------
+  GOOGLE_SERVICE_ACCOUNT_JSON={"type":"service_account",...}
+    OR OAuth client credentials via future dashboard flow
+    See 07-google-oauth-sheets.txt
+
+--------------------------------------------------------------------------------
+AI (optional)
+--------------------------------------------------------------------------------
+  OPENROUTER_API_KEY=sk-or-...
+
+  See 12-openrouter-ai.txt
+
+--------------------------------------------------------------------------------
+STORAGE DEV
+--------------------------------------------------------------------------------
+  STORAGE_DEV_MODE=true
+    Local dev only — uses file-based sheet adapter instead of Google
+
+--------------------------------------------------------------------------------
+NODE_ENV
+--------------------------------------------------------------------------------
+  Set automatically by Vercel (production). Do not override.
+
+--------------------------------------------------------------------------------
+HOW TO ADD VIA CLI
+--------------------------------------------------------------------------------
+  unset VERCEL_TOKEN
+  vercel env add DATABASE_URL production --value "postgresql://..." --yes
+  vercel env add DATABASE_URL preview --value "..." --yes
+
+  Redeploy: git push or vercel --prod
+
+--------------------------------------------------------------------------------
+SECURITY RULES
+--------------------------------------------------------------------------------
+  - Never commit .env to GitHub
+  - Use .vercelignore for .env on CLI deploys
+  - Mark secrets Sensitive in Vercel (DEV_OTP, Razorpay, API keys)
+  - NEXT_PUBLIC_* vars are visible in browser — no secrets there
+
+--------------------------------------------------------------------------------
+VERIFY
+--------------------------------------------------------------------------------
+  [ ] Production build succeeds after env set
+  [ ] /superadmin/system shows DATABASE_URL: set
+  [ ] Signup works on alinks.online
+
+================================================================================

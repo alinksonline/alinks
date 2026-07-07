@@ -1,0 +1,105 @@
+================================================================================
+02 — VERCEL SETUP
+================================================================================
+
+GOAL
+  Host Next.js app, auto-deploy from GitHub, SSL on custom domain.
+
+PROJECT
+  Team:     alinks
+  Project:  alinks
+  URL:      https://alinks.vercel.app
+  Custom:   https://alinks.online
+
+--------------------------------------------------------------------------------
+STEP 1 — CONNECT GITHUB
+--------------------------------------------------------------------------------
+  1. Log in: https://vercel.com  (artixforcoding account)
+  2. Add New → Project → Import Git Repository
+  3. Select: artixforcoding/alinks
+  4. Framework: Next.js (auto-detected)
+  5. Deploy
+
+  Result: every git push to main triggers production deploy.
+
+--------------------------------------------------------------------------------
+STEP 2 — LOCAL CLI LINK (optional)
+--------------------------------------------------------------------------------
+  npm i -g vercel
+  vercel login
+  cd ALINKS
+  vercel link
+    → links to project alinks/alinks
+    → creates .vercel/ (gitignored)
+
+  Manual deploy:
+    vercel --prod
+
+  IMPORTANT: unset stale tokens before CLI commands:
+    unset VERCEL_TOKEN
+
+--------------------------------------------------------------------------------
+STEP 3 — CUSTOM DOMAINS
+--------------------------------------------------------------------------------
+  Dashboard → alinks → Settings → Domains
+
+  Add:
+    alinks.online
+    www.alinks.online
+    app.alinks.online
+
+  If domain was on another Vercel account:
+    → Vercel shows TXT verification at _vercel.alinks.online
+    → Add TXT in Cloudflare (see 03-cloudflare-dns-alinks-online.txt)
+    → Click Refresh in Vercel dashboard
+
+  Apex CNAME target (project-specific, from Vercel UI):
+    45d0c4cb9702d2d2.vercel-dns-017.com
+
+--------------------------------------------------------------------------------
+STEP 4 — ENVIRONMENT VARIABLES
+--------------------------------------------------------------------------------
+  See 05-vercel-environment-variables.txt for full list.
+
+  Minimum for live signup:
+    DATABASE_URL  (Neon — see 04-neon-postgres.txt)
+
+--------------------------------------------------------------------------------
+STEP 5 — SSL
+--------------------------------------------------------------------------------
+  Vercel issues Let's Encrypt certs automatically after domain verifies.
+  No Hostinger SSL needed when hosting on Vercel.
+
+  With Cloudflare proxy OFF (DNS only / grey cloud):
+    SSL terminates at Vercel.
+
+  Cloudflare SSL mode: Full (see 03-cloudflare-dns-alinks-online.txt)
+
+--------------------------------------------------------------------------------
+STEP 6 — PREVIEW DEPLOYMENTS
+--------------------------------------------------------------------------------
+  Every PR branch gets a unique URL:
+    https://alinks-git-<branch>-alinks.vercel.app
+
+  Set Preview env vars same as Production for DATABASE_URL if testing auth.
+
+--------------------------------------------------------------------------------
+TROUBLESHOOTING
+--------------------------------------------------------------------------------
+  | Error                    | Fix                                           |
+  |--------------------------|-----------------------------------------------|
+  | DEPLOYMENT_NOT_FOUND     | Domain DNS ok but not verified in Vercel      |
+  | Build fails on sitemap   | Set NEXT_PUBLIC_* env vars (see doc 05)       |
+  | Database not connected   | Add DATABASE_URL to Vercel env                |
+  | 403 domain add           | Complete TXT verification first               |
+  | CLI "not authorized"     | unset VERCEL_TOKEN; vercel login again        |
+
+--------------------------------------------------------------------------------
+VERIFY
+--------------------------------------------------------------------------------
+  [ ] https://alinks.vercel.app returns 200
+  [ ] https://alinks.online returns 200 (after domain verify)
+  [ ] Git push deploys within ~1 min
+  [ ] SSL padlock shows in browser
+
+================================================================================

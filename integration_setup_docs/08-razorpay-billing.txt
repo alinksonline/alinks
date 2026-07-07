@@ -1,0 +1,381 @@
+================================================================================
+08 — RAZORPAY (FULL APPLICATION + INTEGRATION GUIDE)
+================================================================================
+
+GOAL
+  ALINKS needs Razorpay for TWO separate money flows:
+
+  Flow A — SaaS billing (tenant pays Artix):
+    Basic ₹599/mo, Pro ₹1599/mo, Enterprise ₹6999/mo
+    Artix is merchant of record.
+
+  Flow B — Tenant commerce (customer pays tenant via ALINKS checkout):
+    UPI (Google Pay, PhonePe app, Paytm, BHIM), cards, netbanking
+    Tenant is seller of record; money settles to tenant bank.
+    Requires Razorpay Partner Program + Route / sub-merchant APIs.
+
+GOOGLE PAY
+  No separate Google Pay merchant API. GPay appears as a UPI option inside
+  Razorpay Checkout — customer taps GPay → UPI app opens.
+
+================================================================================
+PART 1 — BEFORE YOU APPLY (PREREQUISITES)
+================================================================================
+
+WHAT ENTITY TO USE
+--------------------------------------------------------------------------------
+  | Stage              | Entity allowed          | Notes                        |
+  |--------------------|-------------------------|------------------------------|
+  | Beta / dev         | Sole proprietorship     | Limited subscriptions only   |
+  | Public launch      | Artix Private Limited   | Strongly recommended         |
+  | Partner program    | Pvt Ltd preferred       | Razorpay may reject sole prop|
+  | Sub-merchant model | Pvt Ltd + lawyer review | Payment facilitation addendum|
+
+  Baseline plan: incorporate Artix Pvt Ltd before public launch (Week 8–12).
+  You CAN open Razorpay in proprietor name now for test + small beta.
+
+DOCUMENTS TO KEEP READY (scan PDF/JPG)
+--------------------------------------------------------------------------------
+  For proprietor / individual:
+    [ ] PAN card (personal or business)
+    [ ] Aadhaar (linked to PAN)
+    [ ] Cancelled cheque or bank statement (business or current account)
+    [ ] Address proof (utility bill / rent agreement)
+    [ ] Business proof: MSME Udyam certificate, shop act, or GST certificate
+    [ ] Website URL live: https://alinks.online
+    [ ] Product screenshot or demo video
+
+  For Pvt Ltd (add these):
+    [ ] Certificate of Incorporation (CIN)
+    [ ] PAN card in company name
+    [ ] MOA + AOA
+    [ ] Board resolution authorising Razorpay signup
+    [ ] Company bank account cancelled cheque
+    [ ] GSTIN certificate (if GST registered — recommended for SaaS 18%)
+    [ ] DIN of directors
+
+GST NOTE
+--------------------------------------------------------------------------------
+  SaaS subscriptions to tenants: GST ~18% (SAC code — confirm with CA).
+  You can start Razorpay KYC before GST, but register GST before scaling.
+  See legal/17-LAWYER-TASK-LIST.txt
+
+WEBSITE REQUIREMENTS
+--------------------------------------------------------------------------------
+  Razorpay reviews your site during KYC. Ensure alinks.online has:
+    [ ] Terms of Service page
+    [ ] Privacy Policy page
+    [ ] Contact email (artixforcoding@gmail.com or company email)
+    [ ] Clear product description (mini-website SaaS for Indian SMBs)
+    [ ] Refund policy for subscriptions
+
+================================================================================
+PART 2 — APPLY FOR RAZORPAY MERCHANT ACCOUNT (FLOW A — SAAS BILLING)
+================================================================================
+
+This is Artix's own account to collect ALINKS subscription fees from tenants.
+
+STEP 1 — SIGN UP
+--------------------------------------------------------------------------------
+  1. Go to: https://dashboard.razorpay.com/signup
+     OR https://accounts.razorpay.com/auth/?intent=signup&product=payment_gateway
+  2. Enter:
+       Email:     artixforcoding@gmail.com (or company email)
+       Mobile:    your Indian phone (+91)
+       Password:  strong unique password
+  3. Verify email + mobile OTP
+
+STEP 2 — BUSINESS DETAILS
+--------------------------------------------------------------------------------
+  Fill the onboarding form honestly:
+
+  Business name:     Artix Private Limited  (or "Artix" if proprietorship)
+  Business type:     Software / SaaS / Technology
+  Category:          Software as a Service (SaaS)
+  Sub-category:      Business productivity / website builder
+
+  Business description (copy-paste ready):
+    "ALINKS is a multi-tenant SaaS platform that helps Indian small businesses
+     create mobile-first mini-websites with booking, catalog, and WhatsApp ordering.
+     We charge monthly subscriptions (Basic, Pro, Enterprise) to business owners
+     who use our dashboard at app.alinks.online."
+
+  Website:           https://alinks.online
+  Expected volume:   Start low (e.g. ₹50,000–2,00,000/month) — adjust honestly
+  Average ticket:    ₹599 – ₹6,999 per transaction (subscription)
+
+STEP 3 — SUBMIT KYC
+--------------------------------------------------------------------------------
+  Dashboard → Account & Settings → Business Details → Complete KYC
+
+  Upload:
+    - PAN
+    - Business proof (GST / MSME / incorporation cert)
+    - Bank account proof (cancelled cheque)
+    - Address proof
+    - Signatory photo (sometimes required)
+
+  Activation time: typically 2–7 business days (can be faster).
+
+STEP 4 — START IN TEST MODE (IMMEDIATELY)
+--------------------------------------------------------------------------------
+  Before live KYC completes, Test Mode works for development.
+
+  Dashboard → toggle "Test Mode" ON (top bar)
+
+  Settings → API Keys → Generate Test Key
+    RAZORPAY_KEY_ID=rzp_test_xxxxxxxx
+    RAZORPAY_KEY_SECRET=xxxxxxxx
+
+  Add to local .env and Vercel (mark Sensitive).
+
+STEP 5 — GO LIVE (AFTER KYC APPROVED)
+--------------------------------------------------------------------------------
+  1. Dashboard → toggle Test Mode OFF
+  2. Settings → API Keys → Generate Live Key
+     RAZORPAY_KEY_ID=rzp_live_xxxxxxxx
+     RAZORPAY_KEY_SECRET=xxxxxxxx
+  3. Never expose KEY_SECRET in browser or GitHub.
+
+STEP 6 — CREATE SUBSCRIPTION PLANS (SAAS TIERS)
+--------------------------------------------------------------------------------
+  Dashboard → Subscriptions → Plans → Create Plan
+
+  | Plan name   | Amount   | Billing   | ALINKS tier  |
+  |-------------|----------|-----------|--------------|
+  | ALINKS Basic| ₹599     | Monthly   | Basic        |
+  | ALINKS Pro  | ₹1599    | Monthly   | Pro          |
+  | ALINKS Ent  | ₹6999    | Monthly   | Enterprise   |
+
+  Optional annual plans (baseline pricing):
+    Basic annual equiv: ₹499/mo billed yearly
+    Pro annual equiv:   ₹1499/mo billed yearly
+
+  Product rule: 14-day Pro trial — no card at signup; charge from Day 15.
+
+STEP 7 — WEBHOOKS (SAAS BILLING)
+--------------------------------------------------------------------------------
+  Dashboard → Settings → Webhooks → Add New Webhook
+
+  URL: https://alinks.online/api/webhooks/razorpay
+
+  Events to enable:
+    payment.captured
+    subscription.activated
+    subscription.charged
+    subscription.cancelled
+    subscription.halted
+    invoice.paid
+
+  Copy Webhook Secret → Vercel env:
+    RAZORPAY_WEBHOOK_SECRET=whsec_xxxx
+
+  Code: src/platform/payments/razorpay.ts → verifyRazorpaySignature()
+
+================================================================================
+PART 3 — APPLY FOR RAZORPAY PARTNER PROGRAM (FLOW B — TENANT CHECKOUT)
+================================================================================
+
+This is what lets ALINKS onboard tenants as sub-merchants so THEIR customers
+can pay via Razorpay checkout on tenant mini-sites. Artix earns partner commission.
+
+WHICH PARTNER TYPE TO CHOOSE
+--------------------------------------------------------------------------------
+  ALINKS = Technology Partner (SaaS provider)
+
+  NOT Service Partner (agencies/freelancers who manually refer clients).
+
+  Technology Partner = embed payments inside your platform via APIs.
+
+SIGNUP URL
+--------------------------------------------------------------------------------
+  https://accounts.razorpay.com/auth/?redirecturl=https%3A%2F%2Fdashboard.razorpay.com%2Fapp%2Fpartners&auth_intent=signup&user_type=partner&x-country-code=IN
+
+  OR: https://razorpay.com/partners/ → "Become a Partner" → Sign Up
+
+STEP 1 — PARTNER REGISTRATION FORM
+--------------------------------------------------------------------------------
+  Use SAME email as merchant account if possible (easier linking).
+
+  Fields you will fill:
+
+  Company name:        Artix Private Limited
+  Partner type:        Technology Partner
+  Business category:   SaaS / E-commerce enablement
+  Website:             https://alinks.online
+  Number of clients:   Start with estimate (e.g. 10–100 in year 1)
+
+  Description (copy-paste ready):
+    "ALINKS is a SaaS website builder for Indian SMBs (salons, clinics, kirana,
+     restaurants). We want to embed Razorpay Payment Gateway so our Pro tenants
+     can accept UPI, cards, and wallets on their mini-sites without opening their
+     own Razorpay account. Tenants are sellers of record; we facilitate onboarding
+     and checkout via our platform. We need Partner APIs for sub-merchant onboarding
+     and Razorpay Route for settlement to tenant bank accounts."
+
+STEP 2 — PARTNER KYC (SEPARATE FROM MERCHANT KYC)
+--------------------------------------------------------------------------------
+  Partner dashboard may request:
+    - Company incorporation documents
+    - Director PAN
+    - GST certificate
+    - Brief on your integration plan
+    - Live product demo or staging URL
+
+  Timeline: 1–4 weeks for partner approval (varies).
+
+STEP 3 — REQUEST ONBOARDING APIs (CRITICAL FOR ALINKS UX)
+--------------------------------------------------------------------------------
+  For tenants to complete KYC INSIDE ALINKS dashboard (not on razorpay.com):
+
+  1. Go to: https://razorpay.com/partners/onboarding-apis/
+  2. Click "Talk to sales" / "Contact Sales"
+  3. Fill form:
+       Name, phone, company: Artix / ALINKS
+       Message: "SaaS platform embedding PG onboarding for SMB tenants"
+  4. Razorpay sales team schedules call
+  5. After approval, you get access to Onboarding API docs:
+       https://razorpay.com/docs/partners/onboarding-api/
+
+  Without Onboarding APIs: tenants must sign up on Razorpay separately (worse UX).
+  With Onboarding APIs: KYC happens inside ALINKS → much better conversion.
+
+STEP 4 — RAZORPAY ROUTE (TENANT SETTLEMENT SPLITS)
+--------------------------------------------------------------------------------
+  Route lets customer payment settle directly to tenant bank (minus PG fee).
+
+  Request Route activation via partner account manager or:
+    Dashboard → Partner → discuss "Route" / "Linked Accounts"
+
+  Flow:
+    Customer pays ₹500 on tenant kirana site
+      → Razorpay captures payment
+      → Route transfers to tenant linked account / bank
+      → Artix partner commission credited separately
+
+  Docs: https://razorpay.com/docs/payments/route/
+
+STEP 5 — ONBOARD TENANTS AS SUB-MERCHANTS
+--------------------------------------------------------------------------------
+  Option A — Manual (early beta):
+    Partner Dashboard → Affiliate Accounts → + Add New Clients
+    Enter tenant email → Send Invite → Assist with KYC
+
+  Option B — API (production):
+    Onboarding API creates sub-merchant from ALINKS dashboard KYC form
+
+  Option C — Referral link (lowest effort):
+    Partner Dashboard → Share Referral Link → send to tenant
+
+  Tenant KYC fields ALINKS collects (dashboard wizard):
+    - Business legal name
+    - PAN
+    - Bank account + IFSC
+    - GSTIN (optional)
+    - Business address
+    - Category (retail, services, healthcare, etc.)
+    - Aadhaar (if Razorpay requires)
+
+  Tenant must accept checkbox (legal/16-TOUCHPOINT-CHECKBOX-TEXT.txt):
+    "I authorise ALINKS to submit my KYC to Razorpay/PhonePe for onboarding"
+
+  Activation: typically 24–72 hours after KYC submitted.
+
+STEP 6 — PARTNER COMMISSION
+--------------------------------------------------------------------------------
+  Artix earns fixed % on tenant transaction volume (paid by Razorpay, not tenant).
+  View earnings: Partner Dashboard → Commissions
+
+  Service partner referral link model: ~0.1% on affiliate transactions.
+  Technology partner terms: negotiated on partner call.
+
+================================================================================
+PART 4 — TECHNICAL INTEGRATION (AFTER KEYS APPROVED)
+================================================================================
+
+ENV VARS (see also doc 05)
+--------------------------------------------------------------------------------
+  RAZORPAY_KEY_ID=rzp_live_xxx        ← Artix master account OR partner key
+  RAZORPAY_KEY_SECRET=xxx
+  RAZORPAY_WEBHOOK_SECRET=whsec_xxx
+
+LOCAL .env + Vercel → mark all Sensitive.
+
+TENANT CHECKOUT FLOW
+--------------------------------------------------------------------------------
+  1. Customer adds to cart on tenant public site
+  2. ALINKS server: createRazorpayOrder() — src/platform/payments/razorpay.ts
+  3. Razorpay Checkout.js opens (hosted — never touch card numbers on Artix servers)
+  4. Customer pays via UPI / card / GPay / PhonePe app
+  5. Webhook payment.captured → write order to tenant Google Sheet
+  6. Show confirmation to customer
+
+TEST PAYMENT (TEST MODE)
+--------------------------------------------------------------------------------
+  Test card:  4111 1111 1111 1111, any future expiry, any CVV
+  Test UPI:   success@razorpay (see Razorpay test docs)
+  Verify webhook received in dashboard → Webhooks → Logs
+
+COD
+--------------------------------------------------------------------------------
+  Cash on Delivery = tenant toggle only. No Razorpay involved.
+  Tenant bears all COD risk (legal/04-PAYMENT-FACILITATION-ADDENDUM.txt).
+
+================================================================================
+PART 5 — LEGAL & COMPLIANCE (BEFORE ENABLING TENANT CHECKOUT)
+================================================================================
+  [ ] Payment Facilitation Addendum drafted — legal/04-PAYMENT-FACILITATION-ADDENDUM.txt
+  [ ] Lawyer confirms: partner umbrella exemption vs RBI PA licence
+  [ ] CA confirms: GST TCS marketplace rules, Section 194-O TDS if Artix is ECO
+  [ ] Tenant checkbox for KYC consent at payment enablement
+  [ ] "Powered by Razorpay" badge on checkout per branding rules
+  [ ] PCI: use hosted checkout only — never store card data
+
+================================================================================
+PART 6 — APPLICATION TIMELINE (REALISTIC)
+================================================================================
+  Day 0:     Sign up merchant account + partner account (same day)
+  Day 1–3:   Submit KYC documents
+  Day 3–7:   Merchant account live (test + live keys)
+  Week 2–4:  Partner program approved
+  Week 4+:   Onboarding API sales call + Route activation
+  Week 6+:   First tenant sub-merchant live
+
+  Start BOTH applications in Phase 0 — partner onboarding is slow.
+
+================================================================================
+TROUBLESHOOTING
+================================================================================
+  | Problem                        | Fix                                      |
+  |--------------------------------|------------------------------------------|
+  | KYC rejected                   | Re-submit clearer docs; use Pvt Ltd name |
+  | Partner application pending    | Email partners@razorpay.com with use case|
+  | Need Onboarding APIs           | Must contact sales — not self-serve      |
+  | isRazorpayConfigured() false   | Add KEY_ID + KEY_SECRET to Vercel        |
+  | Webhook signature fail         | Use correct WEBHOOK_SECRET for that URL  |
+  | Test payment works, live fails | Complete live KYC; switch to live keys   |
+  | Tenant KYC stuck               | Partner dashboard → check activation status|
+
+SUPPORT CONTACTS
+--------------------------------------------------------------------------------
+  Razorpay Support:  https://razorpay.com/support/
+  Partner queries:   via Partner Dashboard or sales contact from onboarding call
+
+================================================================================
+VERIFY CHECKLIST
+================================================================================
+  MERCHANT (Flow A):
+    [ ] Live KYC approved
+    [ ] Subscription plans created
+    [ ] Test subscription payment succeeds
+    [ ] Webhook subscription.charged received
+
+  PARTNER (Flow B):
+    [ ] Partner dashboard accessible
+    [ ] Onboarding API sales call completed
+    [ ] Route / linked accounts enabled
+    [ ] First test sub-merchant activated
+    [ ] Test checkout on tenant demo site with UPI
+    [ ] Settlement visible in tenant Razorpay account
+
+================================================================================

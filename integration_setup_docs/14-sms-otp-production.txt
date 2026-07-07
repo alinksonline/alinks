@@ -1,0 +1,121 @@
+================================================================================
+14 — SMS OTP PRODUCTION (MSG91 — AlinkOTP)
+================================================================================
+
+GOAL
+  Send real SMS OTP to Indian phone numbers for login/signup.
+  Replace DEV_OTP=1111 bypass in production.
+
+STATUS
+  Wired in code: src/platform/sms/msg91.ts
+  Template name in MSG91 dashboard: AlinkOTP (status: ON)
+
+--------------------------------------------------------------------------------
+YOUR MSG91 SETUP (Artix account)
+--------------------------------------------------------------------------------
+  Dashboard path: MSG91 → OTP → Templates
+
+  | Field            | Value                                      |
+  |------------------|--------------------------------------------|
+  | Template name    | AlinkOTP                                   |
+  | Template ID      | Copy from dashboard (OTP template row)     |
+  | API Auth Key     | MSG91 → API → Auth Key                     |
+  | Owner            | 0 (your account)                           |
+  | Status           | ON                                         |
+
+  Env vars (local .env + Vercel, mark Sensitive):
+    MSG91_AUTH_KEY=<your auth key>
+    MSG91_OTP_TEMPLATE_ID=<template id from AlinkOTP row>
+    MSG91_SENDER_ID=              ← optional for OTP v5 API
+
+  NOTE: Template ID and Auth Key are DIFFERENT fields in MSG91.
+  Copy each exactly from the dashboard — do not guess.
+
+--------------------------------------------------------------------------------
+STEP 1 — MSG91 ACCOUNT
+--------------------------------------------------------------------------------
+  1. https://msg91.com → login
+  2. Complete KYC if prompted
+  3. OTP → Templates → AlinkOTP must show Status ON
+  4. Template body must include ##OTP## placeholder (DLT approved)
+
+--------------------------------------------------------------------------------
+STEP 2 — SENDER ID (if required)
+--------------------------------------------------------------------------------
+  MSG91 → Sender ID → add 6-char header (e.g. ALINKS)
+  Map to DLT entity on TRAI DLT portal (Jio/Vi/Airtel aggregator)
+
+--------------------------------------------------------------------------------
+STEP 3 — ADD ENV VARS
+--------------------------------------------------------------------------------
+  Local (.env):
+    MSG91_AUTH_KEY=...
+    MSG91_OTP_TEMPLATE_ID=...
+
+  Vercel (Production + Preview):
+    Same vars, mark Sensitive
+    REMOVE or unset DEV_OTP in production after testing
+
+  See also: 05-vercel-environment-variables.txt
+
+--------------------------------------------------------------------------------
+STEP 4 — HOW CODE WORKS
+--------------------------------------------------------------------------------
+  Send (user clicks "Send OTP"):
+    POST https://control.msg91.com/api/v5/otp
+      ?authkey=...&template_id=...&mobile=91xxxxxxxxxx
+    → src/platform/sms/msg91.ts → sendLoginOtp()
+    → src/app/actions/auth.ts → sendOtpAction()
+
+  Verify (user enters OTP):
+    GET https://control.msg91.com/api/v5/otp/verify
+      ?authkey=...&mobile=91xxxxxxxxxx&otp=xxxx
+    → verifyLoginOtp() → createSession()
+
+  Fallback (no MSG91 env vars + NODE_ENV=development):
+    DEV_OTP from .env still works (local only)
+
+  Production without MSG91:
+    Login blocked with "SMS login is not configured"
+
+--------------------------------------------------------------------------------
+STEP 5 — TEST LOCALLY
+--------------------------------------------------------------------------------
+  1. Add MSG91_AUTH_KEY + MSG91_OTP_TEMPLATE_ID to .env
+  2. npm run dev
+  3. http://localhost:3000/signup
+  4. Enter YOUR real 10-digit phone
+  5. Click Send OTP → check SMS within 30s
+  6. Enter OTP from SMS → should redirect to onboarding
+
+  Superadmin check: /superadmin/system → MSG91_OTP: set
+
+--------------------------------------------------------------------------------
+STEP 6 — GO LIVE ON VERCEL
+--------------------------------------------------------------------------------
+  [ ] MSG91_AUTH_KEY on Vercel (Sensitive)
+  [ ] MSG91_OTP_TEMPLATE_ID on Vercel (Sensitive)
+  [ ] Delete DEV_OTP from Vercel production env
+  [ ] Test https://alinks.online/signup with real phone
+  [ ] Wrong OTP rejected
+  [ ] DEV_OTP 1111 NOT accepted in production
+
+--------------------------------------------------------------------------------
+TROUBLESHOOTING
+--------------------------------------------------------------------------------
+  | Symptom              | Fix                                                |
+  |----------------------|----------------------------------------------------|
+  | SMS not received     | Template ON? DLT approved? Check MSG91 logs        |
+  | 401 / auth error     | Regenerate Auth Key; update env                    |
+  | Invalid template     | Copy Template ID from AlinkOTP row exactly         |
+  | Still uses dev OTP   | Both MSG91 vars must be set; restart dev server    |
+  | OTP verify fails     | Wait 30s; request new OTP; check 4-digit code      |
+
+--------------------------------------------------------------------------------
+SECURITY
+--------------------------------------------------------------------------------
+  - Never commit MSG91_AUTH_KEY to GitHub
+  - Rotate key if exposed in chat or logs
+  - Do not log OTP values in server output
+
+================================================================================

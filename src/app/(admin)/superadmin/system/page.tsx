@@ -36,6 +36,7 @@ export default async function SuperadminSystemPage() {
             <li>RAZORPAY_KEY_ID: {env.RAZORPAY_KEY_ID ? "set" : "dev mode"}</li>
             <li>OPENROUTER_API_KEY: {env.OPENROUTER_API_KEY ? "set" : "mock AI"}</li>
             <li>UPSTASH_REDIS: {env.UPSTASH_REDIS_REST_URL ? "set" : "in-memory fallback"}</li>
+            <li>MSG91_OTP: {env.MSG91_AUTH_KEY && env.MSG91_OTP_TEMPLATE_ID ? "set" : "DEV_OTP fallback"}</li>
             <li>STORAGE_DEV_MODE: {env.STORAGE_DEV_MODE ?? "auto"}</li>
           </ul>
         </div>

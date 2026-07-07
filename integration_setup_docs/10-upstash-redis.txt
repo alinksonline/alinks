@@ -1,0 +1,58 @@
+================================================================================
+10 — UPSTASH REDIS (Phase 2 Cache)
+================================================================================
+
+GOAL
+  Cache tenant config and reduce Google Sheets API reads.
+  Optional until Phase 2 commerce + Sheets pipe.
+
+--------------------------------------------------------------------------------
+STEP 1 — CREATE UPSTASH DATABASE
+--------------------------------------------------------------------------------
+  1. https://upstash.com → Sign up
+  2. Create Redis database:
+       Name:   alinks-cache
+       Region: ap-south-1 (Mumbai) or closest to Vercel + Neon
+       Type:   Regional
+
+--------------------------------------------------------------------------------
+STEP 2 — COPY REST CREDENTIALS
+--------------------------------------------------------------------------------
+  Upstash Console → database → REST API
+
+  UPSTASH_REDIS_REST_URL=https://xxx.upstash.io
+  UPSTASH_REDIS_REST_TOKEN=Axxx...
+
+--------------------------------------------------------------------------------
+STEP 3 — LOCAL .env
+--------------------------------------------------------------------------------
+  Add to .env (optional for Phase 0):
+    UPSTASH_REDIS_REST_URL=...
+    UPSTASH_REDIS_REST_TOKEN=...
+
+  Without Redis: in-memory fallback (see src/tenant/storage/redis-cache.ts)
+
+--------------------------------------------------------------------------------
+STEP 4 — VERCEL INTEGRATION (easier)
+--------------------------------------------------------------------------------
+  Vercel Marketplace → Upstash → Add Integration
+  → Auto-injects env vars into alinks project
+
+  Or manual: Vercel → Environment Variables (doc 05)
+
+--------------------------------------------------------------------------------
+STEP 5 — CACHE RULES
+--------------------------------------------------------------------------------
+  TTL: 15 minutes (baseline)
+  Invalidate on: publish, product update, settings change
+
+  Code: src/tenant/storage/redis-cache.ts
+
+--------------------------------------------------------------------------------
+VERIFY
+--------------------------------------------------------------------------------
+  [ ] /superadmin/system shows UPSTASH_REDIS: set
+  [ ] Sheet read count drops under load test
+  [ ] Cache miss still returns correct data
+
+================================================================================

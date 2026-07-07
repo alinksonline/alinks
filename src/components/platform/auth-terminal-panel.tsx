@@ -4,7 +4,7 @@ const linesByMode: Record<AuthMode, { prompt?: boolean; text: string; color?: st
   signup: [
     { text: "$ alinks auth --flow signup" },
     { text: "→ method: phone_otp", color: "text-tech-green" },
-    { text: "→ trial: pro · duration: 14d", color: "text-tech-amber" },
+    { text: "→ trial: pro · duration: 14d", color: "text-brand-turquoise-light" },
     { text: "→ redirect: /onboarding", color: "text-tech-green" },
     { text: "" },
     { text: "$ alinks tenant --provision --dry-run" },

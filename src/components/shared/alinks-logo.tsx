@@ -1,7 +1,7 @@
 /** Natural asset ratio: 5000 × 2141 */
 const LOGO_ASPECT = 5000 / 2141;
 
-type AlinksLogoProps = {
+export type AlinksLogoProps = {
   height?: number;
   className?: string;
   priority?: boolean;

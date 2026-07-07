@@ -2,14 +2,14 @@ import { PlanPricingCards } from "@/components/shared/plan-pricing-cards";
 
 export function PricingSection() {
   return (
-    <section id="pricing" className="scroll-mt-16 border-t border-tech-border bg-tech-bg py-16 text-white sm:scroll-mt-20 sm:py-24">
-      <div className="marketing-container">
-        <p className="tech-label">billing.tiers</p>
-        <h2 className="mt-3 text-2xl font-bold sm:text-3xl md:text-4xl">Subscription plans</h2>
-        <p className="mt-4 max-w-lg text-sm text-zinc-400">
-          Single source of truth for Basic · Pro · Enterprise. Monthly list or annual upfront (Q033/Q034).
+    <section id="pricing" className="scroll-mt-16 border-t border-brand-ink/[0.06] bg-brand-ink py-10 text-brand-cream">
+      <div className="app-container">
+        <p className="font-mono text-[10px] font-semibold uppercase tracking-[0.22em] text-brand-turquoise-light">Plans</p>
+        <h2 className="mt-2 font-display text-2xl font-bold tracking-tight">Simple pricing for Indian SMBs</h2>
+        <p className="mt-3 text-sm text-brand-cream/70">
+          Basic, Pro, and Enterprise. Annual plans save more — founders lock for early adopters.
         </p>
-        <div className="mt-10 sm:mt-12">
+        <div className="mt-8">
           <PlanPricingCards variant="marketing" defaultCycle="annual" />
         </div>
       </div>

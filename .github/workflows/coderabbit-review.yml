@@ -1,0 +1,35 @@
+# Optional headless CodeRabbit review on PRs.
+# Requires GitHub secret: CODERABBIT_API_KEY (Agentic key from app.coderabbit.ai)
+# Primary review path is the CodeRabbit GitHub App — this job is a backup for agents/CI.
+name: CodeRabbit CLI Review
+
+on:
+  pull_request:
+    branches: [main]
+
+jobs:
+  coderabbit:
+    if: ${{ github.event.pull_request.draft == false }}
+    runs-on: ubuntu-latest
+    continue-on-error: true
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Install CodeRabbit CLI
+        run: curl -fsSL https://cli.coderabbit.ai/install.sh | sh
+
+      - name: Run CodeRabbit review
+        if: ${{ secrets.CODERABBIT_API_KEY != '' }}
+        env:
+          CODERABBIT_API_KEY: ${{ secrets.CODERABBIT_API_KEY }}
+        run: |
+          coderabbit auth login --api-key "$CODERABBIT_API_KEY"
+          coderabbit review --plain --base origin/${{ github.base_ref }}
+
+      - name: Skip notice (no API key secret)
+        if: ${{ secrets.CODERABBIT_API_KEY == '' }}
+        run: |
+          echo "CODERABBIT_API_KEY secret not set — skipping CLI review."
+          echo "GitHub App reviews still run via coderabbitai[bot] on this PR."

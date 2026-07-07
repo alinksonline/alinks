@@ -1,0 +1,99 @@
+================================================================================
+20 — SENTRY ERROR MONITORING (Optional — Recommended)
+================================================================================
+
+GOAL
+  Capture production errors, digest crashes, and API failures from Vercel.
+  Not wired in code yet — add before public launch.
+
+WHEN TO SET UP
+  After DATABASE_URL live and before removing DEV_OTP bypass.
+
+--------------------------------------------------------------------------------
+STEP 1 — CREATE SENTRY PROJECT
+--------------------------------------------------------------------------------
+  1. https://sentry.io → Sign up (GitHub login ok)
+  2. Create organization: Artix
+  3. Create project:
+       Platform: Next.js
+       Name:     alinks-production
+
+  Copy DSN:
+    https://xxx@o123.ingest.sentry.io/456
+
+--------------------------------------------------------------------------------
+STEP 2 — INSTALL SDK (when implementing)
+--------------------------------------------------------------------------------
+  cd ALINKS
+  npm install @sentry/nextjs
+
+  npx @sentry/wizard@latest -i nextjs
+
+  Wizard creates:
+    sentry.client.config.ts
+    sentry.server.config.ts
+    sentry.edge.config.ts
+    next.config.mjs updates
+
+--------------------------------------------------------------------------------
+STEP 3 — ENV VARS
+--------------------------------------------------------------------------------
+  Vercel → Environment Variables:
+
+  | Name                    | Value              | Environments      |
+  |-------------------------|--------------------|-------------------|
+  | SENTRY_DSN              | https://...@sentry | Production, Preview|
+  | SENTRY_AUTH_TOKEN       | (for source maps)  | Production only   |
+  | SENTRY_ORG              | artix              | Production only   |
+  | SENTRY_PROJECT          | alinks-production  | Production only   |
+  | NEXT_PUBLIC_SENTRY_DSN  | same as SENTRY_DSN | Production, Preview|
+
+  Mark SENTRY_AUTH_TOKEN as Sensitive.
+
+--------------------------------------------------------------------------------
+STEP 4 — VERCEL INTEGRATION (alternative)
+--------------------------------------------------------------------------------
+  https://vercel.com/integrations/sentry
+  Add to team alinks → project alinks
+  Auto-configures DSN and upload auth for source maps.
+
+--------------------------------------------------------------------------------
+STEP 5 — WHAT TO MONITOR
+--------------------------------------------------------------------------------
+  High priority ALINKS flows:
+    - POST /signup verifyOtp failures
+    - Database not connected errors
+    - Razorpay webhook signature failures (doc 08)
+    - Google Sheets write queue failures (doc 07)
+    - 500 on tenant public pages
+
+  Set alerts:
+    Sentry → Alerts → New Alert Rule
+    Notify: artixforcoding@gmail.com or Slack
+
+--------------------------------------------------------------------------------
+STEP 6 — PRIVACY (ALINKS data rules)
+--------------------------------------------------------------------------------
+  Do NOT send to Sentry:
+    - Customer phone numbers
+    - OTP codes
+    - Google OAuth tokens
+    - Razorpay card data
+
+  Configure beforeSend scrubbing in sentry.server.config.ts.
+
+--------------------------------------------------------------------------------
+STEP 7 — SOURCE MAPS
+--------------------------------------------------------------------------------
+  Enable in next.config for readable stack traces in production.
+  SENTRY_AUTH_TOKEN uploads maps during Vercel build.
+
+--------------------------------------------------------------------------------
+VERIFY
+--------------------------------------------------------------------------------
+  [ ] Test error appears in Sentry dashboard
+  [ ] Source maps resolve to TypeScript line numbers
+  [ ] No PII in event payloads
+  [ ] Alert fires on new issue
+
+================================================================================
