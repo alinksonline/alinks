@@ -36,3 +36,4 @@ yarn-error.log*
 
 # dev tenant sheet storage (Phase 2)
 /.data/
+.vercel

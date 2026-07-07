@@ -1,4 +1,6 @@
 import { eq } from "drizzle-orm";
+
+export const dynamic = "force-dynamic";
 import { getEnv } from "@/core/config/env";
 import { getPlatformDb } from "@/platform/db/client";
 import { businesses, pages } from "@/platform/db/schema";

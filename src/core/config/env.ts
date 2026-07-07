@@ -14,6 +14,11 @@ function resolvePublicUrl(explicit: string | undefined, fallbackHost: string): s
   return vercelAppOrigin() ?? `http://${fallbackHost}`;
 }
 
+function defaultPlatformHost(rootDomain: string): string {
+  // Local + custom domains use app.* ; Vercel single-host sets explicit env instead.
+  return `app.${rootDomain}`;
+}
+
 const envSchema = z.object({
   NODE_ENV: z.enum(["development", "test", "production"]).default("development"),
   DATABASE_URL: z.string().url().optional(),
@@ -48,7 +53,8 @@ export function getEnv(): Env {
     DEV_OTP: process.env.DEV_OTP,
     NEXT_PUBLIC_APP_URL: resolvePublicUrl(process.env.NEXT_PUBLIC_APP_URL, rootDomain),
     NEXT_PUBLIC_ROOT_DOMAIN: rootDomain,
-    NEXT_PUBLIC_PLATFORM_HOST: process.env.NEXT_PUBLIC_PLATFORM_HOST?.trim() || rootDomain,
+    NEXT_PUBLIC_PLATFORM_HOST:
+      process.env.NEXT_PUBLIC_PLATFORM_HOST?.trim() || defaultPlatformHost(rootDomain),
     NEXT_PUBLIC_MARKETING_HOST: process.env.NEXT_PUBLIC_MARKETING_HOST?.trim() || rootDomain,
     RAZORPAY_KEY_ID: process.env.RAZORPAY_KEY_ID,
     RAZORPAY_KEY_SECRET: process.env.RAZORPAY_KEY_SECRET,
