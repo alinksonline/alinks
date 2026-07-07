@@ -120,6 +120,19 @@ export async function verifyOtp(phone: string, otp: string): Promise<{ ok: boole
   if (otp !== env.DEV_OTP) {
     return { ok: false, error: "Invalid OTP" };
   }
-  const role = await createSession(phone);
-  return { ok: true, role };
+  if (!getPlatformDb()) {
+    return {
+      ok: false,
+      error:
+        process.env.NODE_ENV === "production"
+          ? "Sign-in is temporarily unavailable — database not configured."
+          : "Database not connected. Set DATABASE_URL in .env and run npm run db:migrate.",
+    };
+  }
+  try {
+    const role = await createSession(phone);
+    return { ok: true, role };
+  } catch {
+    return { ok: false, error: "Could not create session. Try again." };
+  }
 }
