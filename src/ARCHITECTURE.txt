@@ -1,0 +1,34 @@
+ALINKS CODE ARCHITECTURE — import rules
+========================================
+
+LAYER 1: src/core/
+  Pure primitives. NO imports from platform or tenant.
+  - config, types, constants, utils, errors
+
+LAYER 2: src/platform/
+  Artix-owned: DB schema, routing, auth, billing (future), admin.
+  May import: @/core only
+
+LAYER 3: src/tenant/
+  Tenant business: public sites, dashboard services, StorageAdapter (future).
+  May import: @/core, @/platform
+
+COMPONENTS (presentation only — no DB calls in ui/):
+  src/components/ui/       → dumb primitives (Button, Card)
+  src/components/shared/     → layout shells (PageShell)
+  src/components/platform/   → dashboard chrome (PlatformNav)
+  src/components/tenant/     → mini-site chrome (SiteHeader, TenantFooter)
+  src/components/admin/      → superadmin chrome (AdminNav)
+
+APP ROUTES (Next.js route groups):
+  (marketing)/   → alinks.online homepage
+  (platform)/    → app.alinks.online tenant dashboard
+  (admin)/       → superadmin Benjamin
+  (site)/        → tenant public mini-sites
+
+DATA RULE (locked):
+  Artix PostgreSQL → tenant config only
+  Google Sheets / tenant Supabase → client PII only
+  Never client_pii tables in platform DB
+
+middleware.ts → resolveRequest() sets x-alinks-surface, x-alinks-handle headers

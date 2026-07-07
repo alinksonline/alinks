@@ -1,0 +1,235 @@
+================================================================================
+ALINKS PHASE 0 AUDIT REPORT
+================================================================================
+Date: 2026-07-06
+Auditor: Agent (alinks-audit-review skill)
+Scope: Sections 1–4 of ALINKS_IMPLEMENTATION_PLAN.txt — Foundation complete
+Sources: ALINKS_BASELINE.txt, src/ARCHITECTURE.txt, legal/20-LEGAL-ACCEPTANCE-MATRIX.txt
+================================================================================
+
+VERDICT: PHASE 0 CODE GATE PASSED
+---------------------------------
+Automated verification green. Architecture clean. Data boundaries respected.
+Manual browser login test remains for Benjamin to confirm superadmin gate.
+
+Overall score: PASS with minor residual risks (documented below).
+
+
+================================================================================
+1. EXECUTIVE DECISION & CURRENT STATE — AUDIT
+================================================================================
+
+DECISION VALIDATED
+  Fresh rebuild was correct. Previous codebase had dual schemas, broken auth,
+  and premature Phase 1–3 UI. Current codebase is a true Phase 0 foundation.
+
+IMPLEMENTED VS PLANNED
+  | Area                    | Planned (9B Phase 0)     | Actual           | Status |
+  |-------------------------|--------------------------|------------------|--------|
+  | Next.js monorepo        | Yes                      | Yes              | PASS   |
+  | PostgreSQL              | Yes                      | Yes (no Docker)  | PASS   |
+  | Redis                   | Mentioned in 9B          | Deferred Phase 2 | OK     |
+  | R2                      | Mentioned in 9B          | Deferred Phase 1 | OK     |
+  | Phone OTP auth          | Skeleton                 | DB sessions      | PASS   |
+  | Handle system           | Yes                      | slug utils+tests | PASS   |
+  | Superadmin skeleton     | Yes                      | Yes              | PASS   |
+  | Marketing page          | Yes                      | Yes + pricing    | PASS   |
+  | Dashboard shell         | Yes                      | Yes              | PASS   |
+  | Public mini-site        | Implied                  | Placeholder      | PASS   |
+  | DNS / Cloudflare        | External                 | Not done         | EXPECTED |
+
+AUTOMATED VERIFICATION (evidence)
+  npm run typecheck  → PASS
+  npm run lint       → PASS (0 warnings)
+  npm run test       → PASS (10/10 tests)
+  npm run build      → PASS (14 routes)
+  npm run db:migrate → PASS
+  npm run db:seed    → PASS (superadmin + demo)
+
+
+================================================================================
+2. WHAT WE KEPT VS REMOVED — AUDIT
+================================================================================
+
+KEPT — VERIFIED PRESENT
+  [x] ALINKS_BASELINE.txt
+  [x] legal/ (21 draft files)
+  [x] .agents/skills/
+  [x] assets/ + public/assets/ logos
+  [x] LOCAL_DEV_SETUP.txt
+  [x] ALINKS_IMPLEMENTATION_PLAN.txt
+
+REMOVED — VERIFIED ABSENT
+  [x] src/lib/ — no imports found
+  [x] src/db/ legacy schema — gone
+  [x] docker-compose.yml — removed per user request
+  [x] Premature editor/commerce/AI/upload routes — gone
+  [x] Dual Drizzle schemas — gone
+
+RISK: None. Clean separation maintained.
+
+
+================================================================================
+3. ARCHITECTURE RULES — AUDIT
+================================================================================
+
+LAYER IMPORT COMPLIANCE
+  core/ imports only core/ ............................ PASS
+  platform/ imports core + platform ................... PASS
+  tenant/ imports core + platform ..................... PASS
+  components/ui/ has no DB calls ...................... PASS
+  No src/lib/ escape hatch ............................ PASS
+
+DATA BOUNDARY (baseline 5D)
+  Platform schema tables:
+    tenants, businesses, sessions, legal_acceptances
+  Client PII tables in platform DB .................... NONE — PASS
+  Google Sheets / Supabase for PII .................... Not wired (Phase 2+) — OK
+
+ROUTING (Q001)
+  Path mode /[handle] on marketing host ............... PASS (resolveRequest + middleware)
+  Subdomain rewrite to /[handle] ...................... PASS
+  Custom domain mode .................................. Stub only — OK for Phase 0
+  Reserved handles (terms, privacy, etc.) ............. PASS (fixed MARKETING_PATHS bug)
+
+MIDDLEWARE vs ARCHITECTURE.txt
+  resolveRequest() used ............................... PASS
+  x-alinks-surface header set ......................... PASS
+  x-alinks-handle header set .......................... PASS
+  x-alinks-url-mode header set ........................ PASS
+
+PUBLISH GATE (Q019)
+  Not required in Phase 0 ............................. Correct
+  isPublished respected on public site ................ PASS
+  legal_acceptances table exists, unused .............. OK (Phase 1)
+  Doc 03 footer notice ................................ Partial stub — OK for Phase 0
+
+
+================================================================================
+4. PHASE 0 TASK-BY-TASK AUDIT
+================================================================================
+
+P0-01 Infrastructure ................................. PASS (dev)
+  LOCAL_DEV_SETUP.txt present, no Docker
+  DATABASE_URL configured, migrate/seed work
+  External: Cloudflare, production secrets — not started (expected)
+
+P0-02 Clean scaffold ................................. PASS
+  Single schema at src/platform/db/schema/
+  Route groups: (marketing), (platform), (admin), (site)
+
+P0-03 Auth skeleton ................................... PASS
+  sessions table with tokenHash
+  HTTP-only cookie alinks_session
+  SUPERADMIN_PHONE → role superadmin
+  DEV_OTP for local dev only
+  RESIDUAL: No SMS provider, no rate limit (Phase 1)
+
+P0-04 Routing ......................................... PASS
+  7 resolveRequest tests pass
+  Middleware rewrites: /app, /admin, subdomain
+
+P0-05 Marketing ....................................... PASS
+  Homepage, header nav, pricing cards
+  /terms, /privacy, /aup placeholders (lawyer text Phase 3)
+
+P0-06 Dashboard shell ................................. PASS
+  /login outside auth layout
+  /dashboard behind requireAuth()
+  Logout via POST /api/auth/logout — acceptable Phase 0
+
+P0-07 Superadmin ...................................... PASS
+  requireSuperadmin() gate
+  Lists tenants + businesses (no client PII)
+  Non-superadmin redirected to /dashboard
+
+P0-08 Public site ..................................... PASS
+  getPublicBusinessByHandle filters isPublished
+  shouldShowAlinksWatermark() for Q029
+  TenantFooter: independent operator + terms/privacy links
+
+P0-09 Database ........................................ PASS
+  Migration 0000_phase0_foundation.sql applied
+  Seed: superadmin phone 9999999999, demo at /demo
+
+P0-10 Verification .................................... PASS (automated)
+
+
+================================================================================
+FINDINGS (severity ordered)
+================================================================================
+
+LOW — Manual browser test not run by agent
+  Benjamin should confirm login flow in browser:
+    http://localhost:3000/login → phone 9999999999 → OTP 1111 → /superadmin
+
+LOW — DEV_OTP is hardcoded
+  Acceptable for Phase 0 dev. Must replace before any public deployment.
+
+LOW — Legal pages are placeholders
+  Correct per legal/00-README — lawyer review required before Phase 3 launch.
+
+LOW — legal_acceptances table unused
+  Schema ready for Phase 1 publish gates. Not a Phase 0 defect.
+
+LOW — No pages table yet
+  Correctly deferred to Phase 1.
+
+INFO — Redis/R2 not configured
+  Baseline 9B mentions them in Phase 0 infra list; deferred to Phase 1/2 by design
+  to reduce local resource use (no Docker). Documented in implementation plan.
+
+INFO — npm audit reports 10 vulnerabilities in dev dependencies
+  Standard Next.js ecosystem; address before production deploy.
+
+
+================================================================================
+WHAT IS NOT IN PHASE 0 (correctly absent)
+================================================================================
+
+  Website builder / page editor
+  Razorpay billing
+  Google Sheets integration
+  Publish gate enforcement (legal_acceptances writes)
+  Signup onboarding flow
+  SMS OTP provider
+  Redis cache
+  R2 uploads
+  Tap & Blast, appointments, clinic/pharmacy verticals
+
+
+================================================================================
+PHASE 0 GATE CHECKLIST
+================================================================================
+
+Baseline 9B gate: "Benjamin can log in as superadmin"
+
+  [x] Superadmin role assignable via SUPERADMIN_PHONE
+  [x] /superadmin route protected by requireSuperadmin()
+  [x] Tenant list reads from platform DB (config only)
+  [x] Session persisted in DB with expiry
+  [x] Automated build/test/migrate/seed pass
+  [ ] Benjamin browser login confirmed (manual)
+
+RECOMMENDATION: Run npm run dev, login, confirm /superadmin → Phase 0 FULLY CLOSED.
+
+
+================================================================================
+READY FOR PHASE 1?
+================================================================================
+
+YES — begin Phase 1 when Benjamin confirms browser login.
+
+Phase 1 first PRs (from implementation plan):
+  PR-10  pages schema + authorized CRUD
+  PR-11  Home editor end-to-end
+  PR-13  Signup + onboarding + handle validation
+  PR-14  legal_acceptances service
+  PR-15  Publish gate service
+
+Do NOT skip publish gates in Phase 1 (Q019 locked).
+
+
+================================================================================
+END AUDIT
+================================================================================

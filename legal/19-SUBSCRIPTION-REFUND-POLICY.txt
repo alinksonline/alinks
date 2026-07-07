@@ -1,0 +1,47 @@
+================================================================================
+ALINKS SUBSCRIPTION REFUND & CANCELLATION POLICY
+================================================================================
+DRAFT v0.1 — LAWYER REVIEW REQUIRED
+Applies to: ALINKS SaaS fees (Basic/Pro/Enterprise) paid to Artix
+Does NOT apply to: tenant's customer sales (see tenant T&C)
+Publish: alinks.online/refunds or section in Platform ToS
+================================================================================
+
+1. SCOPE
+This policy covers subscription fees you pay to Artix for ALINKS software.
+
+2. FREE TRIAL
+14-day Pro trial may be offered. If you do not subscribe before trial ends, your
+public site may be unpublished. No charge if you did not pay during trial.
+
+3. CANCELLATION
+You may cancel subscription from dashboard. Cancellation stops future billing.
+Annual plans: access continues until end of paid period unless otherwise stated.
+
+4. REFUNDS
+  (a) Monthly plans: generally non-refundable for partial months [LAWYER TO CONFIRM
+      Consumer Protection alignment for digital services]
+  (b) Annual plans: [TENANT EDIT POLICY — e.g., pro-rata within 7 days only]
+  (c) Promotional / founders pricing: as stated at purchase
+  (d) Refunds for ALINKS fees do NOT include tenant's customer order refunds
+
+5. CHARGEBACKS
+Fraudulent chargebacks may result in account suspension.
+
+6. AI CREDIT PACKS
+Purchased ALINKS AI credits: [non-refundable once used / partial refund if unused —
+LAWYER TO SET]
+
+7. ADD-ONS
+Supabase connector fee (₹399/mo): billed by Artix; Supabase hosting billed by Supabase.
+Refund of connector: [POLICY]
+
+8. HOW TO REQUEST
+Email: billing@alinks.online with account email and invoice ID.
+
+9. GST
+Refunds processed net of applicable tax treatment per law.
+
+================================================================================
+END
+================================================================================

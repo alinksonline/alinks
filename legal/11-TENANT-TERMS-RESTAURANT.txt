@@ -1,0 +1,42 @@
+================================================================================
+TENANT TERMS & CONDITIONS — RESTAURANT / CLOUD KITCHEN
+================================================================================
+DRAFT v0.1 — LAWYER REVIEW REQUIRED
+================================================================================
+
+TERMS & CONDITIONS — {{TENANT_BUSINESS_NAME}}
+
+1. PREPARED FOOD
+We sell prepared food items as listed on our menu. Ingredients and allergens
+are listed where possible; customers with allergies must inform us before ordering.
+
+2. FSSAI
+FSSAI licence (if held): {{FSSAI_NUMBER_OR_BLANK}}
+We are responsible for food safety and hygiene in preparation and delivery.
+
+3. ORDERS
+Orders are subject to acceptance. Preparation time estimates are approximate.
+
+4. DELIVERY / PICKUP
+  [TENANT EDIT: areas, fees, packaging]
+
+5. CANCELLATION
+Orders may be cancelled before preparation starts. After preparation, no refund
+unless our error. [TENANT EDIT]
+
+6. QUALITY
+Report quality issues within [X] minutes of receipt for resolution.
+
+7. PAYMENT
+As enabled on checkout. COD if offered: pay on delivery.
+
+8. LIABILITY
+Limited to order value. Not liable for allergic reactions where allergens were
+disclosed and customer did not inform us of additional allergies.
+
+9. CONTACT
+{{TENANT_BUSINESS_NAME}} | {{TENANT_PHONE}}
+
+================================================================================
+END
+================================================================================

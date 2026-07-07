@@ -1,0 +1,68 @@
+================================================================================
+ALINKS PAYMENT FACILITATION ADDENDUM
+================================================================================
+DRAFT v0.1 — LAWYER + CA REVIEW REQUIRED (RBI / GST / 194-O)
+Applies when Tenant enables Pro checkout (Razorpay / PhonePe via Artix partner)
+Incorporated by reference into Platform Terms of Service
+================================================================================
+
+1. ROLE OF PARTIES
+  (a) Tenant is the SELLER OF RECORD for all goods and services sold on mini-site
+  (b) Artix provides payment facilitation technology connecting Tenant to licensed
+      payment partners (Razorpay, PhonePe Payment Gateway)
+  (c) Artix is NOT a bank, payment aggregator (unless separately licensed), or
+      seller of Tenant's products
+  (d) Settlement of customer payments goes to Tenant's designated bank account
+      via partner settlement APIs (Razorpay Route / PhonePe partner rules)
+
+2. TENANT OBLIGATIONS
+  (a) Provide accurate KYC: PAN, bank account, business proof, GSTIN if registered
+  (b) Comply with RBI, PG, and NPCI rules applicable to merchants
+  (c) Handle refunds, chargebacks, and customer payment disputes
+  (d) Not use checkout for illegal goods, money laundering, or prohibited categories
+  (e) Display accurate prices, MRP, taxes as applicable
+  (f) Maintain records of sales for GST and income tax
+
+3. ARTIX OBLIGATIONS
+  (a) Provide checkout UI integrating partner PGs
+  (b) Submit Tenant KYC to partners for sub-merchant / linked account onboarding
+  (c) Route webhooks to record orders in Tenant's Google Sheet / Supabase
+  (d) Do not store card numbers; use hosted checkout / tokenization only
+
+4. FEES
+  (a) Payment gateway fees (~2% + GST) deducted by partner from settlement
+  (b) ALINKS subscription fee is separate (SaaS billing to Artix)
+  (c) Artix platform transaction fee: [0% at launch — LAWYER/CA TO CONFIRM IF ADDED]
+  (d) Artix may earn partner referral commission from PGs (does not increase Tenant PG fee)
+
+5. COD (CASH ON DELIVERY)
+  (a) Tenant may enable COD; no PG involved for COD collection
+  (b) COD risk (fake orders, non-payment, cash handling) is 100% Tenant liability
+  (c) Tenant must publish COD terms in their customer T&C
+
+6. CHARGEBACKS & REFUNDS
+  Tenant is responsible for resolving chargebacks. Artix may suspend checkout on
+  excessive chargeback rates. Refund policy is Tenant's — see Tenant T&C templates.
+
+7. DATA
+  Minimal payment metadata (payment_id, amount, status) may be cached ephemerally
+  for order confirmation. Full payment records: partner dashboard + Tenant Sheet.
+  DPDP: purpose limitation for KYC data collected for onboarding.
+
+8. SUSPENSION
+Artix or partners may suspend payment capability for fraud, KYC failure, or breach.
+
+9. TAX (CA TO CONFIRM)
+  - GST on Tenant's sales: Tenant's responsibility
+  - TCS under GST (marketplace): [IF APPLICABLE — CA]
+  - Section 194-O TDS (e-commerce operator): [IF ARTIX IS ECO — CA + LAWYER]
+  - GST on Artix SaaS subscription: Artix invoices Tenant separately
+
+10. ACKNOWLEDGMENT
+By enabling payments, Tenant accepts this Addendum and authorizes Artix to share
+KYC with payment partners for onboarding.
+
+================================================================================
+[LAWYER: Confirm partner umbrella exemption vs PA license; PCI-DSS scope;
+         settlement timeline disclosures; PhonePe/Razorpay branding requirements]
+================================================================================

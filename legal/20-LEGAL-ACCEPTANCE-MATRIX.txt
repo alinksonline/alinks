@@ -1,0 +1,75 @@
+================================================================================
+LEGAL ACCEPTANCE MATRIX — DATABASE & PRODUCT SPEC
+================================================================================
+For engineering: legal_acceptances table + publish gates (Q019)
+================================================================================
+
+TABLE: legal_acceptances
+------------------------
+  id              UUID PK
+  tenant_id       FK (nullable for customer session acceptances)
+  customer_session_id  (nullable — for checkout/booking)
+  doc_type        ENUM (see below)
+  doc_version     VARCHAR (e.g., "1.0")
+  accepted_at     TIMESTAMP
+  ip_address      VARCHAR
+  user_agent      TEXT
+  metadata        JSONB (optional: order_id, product_id)
+
+DOC_TYPE ENUM
+-------------
+  PLATFORM_TOS
+  PLATFORM_PRIVACY
+  PLATFORM_AUP
+  PAYMENT_ADDENDUM
+  DATA_STORAGE_ADDENDUM
+  TENANT_TOS_PUBLISHED      -- tenant confirms published
+  TENANT_PRIVACY_PUBLISHED
+  GOOGLE_CONNECT
+  SUPABASE_CONNECT
+  GROCERY_LICENCE_CHECKBOX
+  PHARMACY_LICENCE_CHECKBOX
+  CLINIC_LICENCE_CHECKBOX
+  AFFILIATE_DISCLOSURE
+  AI_CONTENT_REVIEW
+  CUSTOMER_CHECKOUT
+  CUSTOMER_SALON_BOOKING
+  CUSTOMER_CLINIC_BOOKING
+  CUSTOMER_COD
+
+PUBLISH GATE (tenant mini-site public)
+---------------------------------------
+REQUIRED before publish = TRUE:
+  - PLATFORM_TOS (at signup)
+  - PLATFORM_PRIVACY (at signup)
+  - TENANT_TOS_PUBLISHED
+  - TENANT_PRIVACY_PUBLISHED
+  - Active paid subscription OR valid trial per Q035
+
+OPTIONAL / SECTOR:
+  - PHARMACY_LICENCE_CHECKBOX + verify APPROVED → pharmacy vertical
+  - CLINIC_LICENCE_CHECKBOX + verify APPROVED → clinic booking live
+  - PAYMENT_ADDENDUM → checkout enabled
+
+CUSTOMER FLOW
+-------------
+  CUSTOMER_CHECKOUT → required if Pro payment
+  CUSTOMER_CLINIC_BOOKING → emergency disclaimer + clinic T&C
+  CUSTOMER_SALON_BOOKING → package pay + cancellation policy
+
+RE-ACCEPTANCE
+-------------
+On material Platform ToS change: force modal on next login; block dashboard until accepted.
+
+VERSIONING
+----------
+  legal_documents table: type, version, html_url, effective_at, changelog
+  Current version injected into checkbox labels.
+
+FOOTER AUTO-INJECT
+------------------
+Doc 03 End-User Notice on all public pages.
+
+================================================================================
+END MATRIX
+================================================================================

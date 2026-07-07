@@ -1,0 +1,4 @@
+interface:
+  display_name: "ALINKS Project Orientation"
+  short_description: "Understand ALINKS context before work."
+  default_prompt: "Use this skill to orient on ALINKS product, code, and source-of-truth documents."

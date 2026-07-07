@@ -1,0 +1,4 @@
+interface:
+  display_name: "ALINKS Feature Workflows"
+  short_description: "Design feature behavior and user flows."
+  default_prompt: "Use this skill when implementing ALINKS feature behavior, state transitions, edge cases, errors, or end-to-end workflows."

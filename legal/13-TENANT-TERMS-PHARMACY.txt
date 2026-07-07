@@ -1,0 +1,39 @@
+================================================================================
+TENANT TERMS & CONDITIONS — PHARMACY (OTC ONLY — PHASE 2)
+================================================================================
+DRAFT v0.1 — LAWYER REVIEW REQUIRED — DRUG LICENSE MANDATORY ON FILE (Q016)
+================================================================================
+
+TERMS & CONDITIONS — {{PHARMACY_NAME}}
+
+1. LICENCE
+We hold a valid drug licence for sale of medicines as permitted by law.
+Licence number: {{DRUG_LICENSE_NUMBER}}
+We sell OVER-THE-COUNTER (OTC) products only via this website unless otherwise
+permitted by law and our licence. Prescription-only medicines are NOT sold online
+through this platform.
+
+2. PRODUCT ACCURACY
+We warrant product descriptions, batch, and expiry are accurate. Customers must
+read labels and consult pharmacist for doubts.
+
+3. AGE RESTRICTIONS
+Certain products may require minimum age — customer warrants compliance.
+
+4. ORDERS & DELIVERY
+  [TENANT EDIT: delivery rules, cold chain if applicable]
+
+5. RETURNS
+Medicines: returns only for wrong/damaged sealed products per applicable rules
+and our policy [TENANT EDIT]. Opened medicines non-returnable.
+
+6. LIABILITY
+We are the seller of record. Artix/ALINKS provides software only.
+
+7. REGULATORY COMPLIANCE
+We comply with Drugs and Cosmetics Act and state rules. Customer complaints:
+{{TENANT_PHONE}}
+
+================================================================================
+BLOCK go-live without drug license upload + ALINKS Verify approval (Q016)
+================================================================================

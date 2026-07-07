@@ -1,0 +1,39 @@
+================================================================================
+TENANT TERMS & CONDITIONS — GENERAL BUSINESS
+================================================================================
+DRAFT v0.1 — LAWYER REVIEW REQUIRED
+For: consultants, coaches, tutors, photographers, pet groomers, affiliates, etc.
+================================================================================
+
+TERMS & CONDITIONS — {{TENANT_BUSINESS_NAME}}
+
+1. SERVICES / PRODUCTS
+We provide the services and products described on this website.
+
+2. BOOKINGS / ORDERS
+Appointments and orders subject to availability and acceptance.
+
+3. PAYMENT
+As displayed at checkout or agreed separately.
+
+4. CANCELLATION & REFUNDS
+  [TENANT EDIT]
+
+5. INTELLECTUAL PROPERTY
+Content on this site is ours or used with permission. Do not copy without consent.
+
+6. AFFILIATE LINKS (if applicable)
+Some links may earn us commission. Disclosed as: #ad / sponsored where required.
+
+7. LIMITATION OF LIABILITY
+Limited to fees paid for the specific transaction.
+
+8. CONTACT
+{{TENANT_BUSINESS_NAME}} | {{TENANT_EMAIL}} | {{TENANT_PHONE}}
+
+9. GOVERNING LAW
+India. Jurisdiction: [TENANT CITY].
+
+================================================================================
+END
+================================================================================

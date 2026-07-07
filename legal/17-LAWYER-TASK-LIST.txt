@@ -1,0 +1,61 @@
+================================================================================
+LAWYER TASK LIST & LAUNCH LEGAL CHECKLIST
+================================================================================
+Derived from ALINKS_BASELINE Section 5C — for counsel engagement
+================================================================================
+
+PRIORITY 1 — BEFORE PUBLIC LAUNCH (PHASE 3)
+--------------------------------------------
+[ ] Review and finalize Doc 01 Platform Terms of Service
+[ ] Review and finalize Doc 02 Platform Privacy Policy (DPDP Act 2023)
+[ ] Review Doc 04 Payment Facilitation Addendum — confirm:
+      - Artix does NOT need RBI PA licence under Razorpay/PhonePe partner umbrella
+      - Section 194-O / GST TCS applicability if Artix facilitates tenant sales
+[ ] Review Doc 05 AUP + IT Act intermediary due diligence / takedown process
+[ ] Review Doc 06 Data & Storage Addendum (Google + Supabase BYO)
+[ ] Review tenant templates Docs 07–14 (all sectors)
+[ ] Review microcopy Doc 15 and checkboxes Doc 16
+[ ] Draft grievance officer appointment letter (Doc 18)
+[ ] Subscription refund policy Doc 19 (Consumer Protection)
+[ ] Confirm governing law / jurisdiction (Andhra Pradesh / Telangana / other)
+[ ] Confirm limitation of liability cap amount
+[ ] Confirm transient customer data processing wording (DPDP storage limitation)
+
+PRIORITY 2 — ENTITY & REGISTRATION
+------------------------------------
+[ ] Word ToS/Privacy for proprietorship NOW; amend for Artix Pvt Ltd on incorporation
+[ ] DPDP grievance officer: name, contact, publish on website
+[ ] IT Act grievance officer (may be same person — confirm)
+[ ] Intermediary due diligence compliance
+
+PRIORITY 3 — SECTOR-SPECIFIC (PHASED)
+---------------------------------------
+[ ] Clinic terms — medical legal counsel (NMC, CE Act) before scale
+[ ] Pharmacy — Drugs & Cosmetics Act before Phase 2 go-live
+[ ] Affiliate / ASCI compliance review
+
+CA / TAX (PARALLEL — NOT LAWYER)
+---------------------------------
+[ ] GST registration + SAC code for SaaS (18%)
+[ ] Invoice format for ALINKS subscriptions
+[ ] TCS/TDS on facilitated tenant commerce (if applicable)
+[ ] Razorpay settlement and GST on PG fees
+
+DELIVERABLES TO REQUEST FROM LAWYER
+------------------------------------
+1. Final PDF/HTML for alinks.online/terms, /privacy, /aup, /payment-terms
+2. Tenant template pack with {{merge fields}} documented
+3. One-page executive summary: Artix liability exposure
+4. Sign-off memo on payment partner model
+
+ARTIX PROVIDES TO LAWYER
+-------------------------
+- ALINKS_BASELINE.txt (full product spec)
+- This legal/ folder (all drafts)
+- Q005 payment model (Artix affiliate, sub-merchant)
+- Q010/Q037 Supabase BYO (tenant pays Supabase direct)
+- Section 5D data flow diagram (tenant data only on Artix PG)
+
+================================================================================
+END CHECKLIST
+================================================================================

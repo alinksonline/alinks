@@ -1,0 +1,4 @@
+interface:
+  display_name: "ALINKS Dashboard Builder"
+  short_description: "Build tenant dashboard workflows."
+  default_prompt: "Use this skill when building ALINKS dashboard, onboarding, settings, or admin UI."

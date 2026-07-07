@@ -1,0 +1,49 @@
+================================================================================
+TENANT TERMS & CONDITIONS — SALON / BEAUTY / SPA / BARBER
+================================================================================
+DRAFT v0.1 — LAWYER REVIEW REQUIRED
+Sector template — Tenant edits bracketed sections before publish
+================================================================================
+
+TERMS & CONDITIONS — {{TENANT_BUSINESS_NAME}}
+
+1. SERVICES
+We provide salon/beauty services and packages as listed on this website.
+Prices and durations are as displayed. We may refuse service for safety reasons.
+
+2. BOOKING & PAYMENT
+  - Online package booking: payment may be required before slot selection
+  - Slots are subject to availability
+  - À la carte services: as per menu prices
+  - Payment methods: UPI, card, COD as enabled on checkout
+
+3. CANCELLATION & REFUNDS
+  [TENANT EDIT: e.g., Bridal packages: 48 hours notice for reschedule]
+  [TENANT EDIT: Standard services: 24 hours cancellation]
+  No-show: [TENANT EDIT: deposit forfeited / no refund]
+  Refunds processed to original payment method within [X] business days where applicable.
+
+4. PATCH TEST / ALLERGIES
+Customer should disclose allergies. We are not liable for undisclosed reactions.
+Patch test recommended for new chemical treatments. [TENANT EDIT]
+
+5. RESULTS DISCLAIMER
+Beauty results vary by individual. Photos are illustrative unless stated as guarantee.
+
+6. LIABILITY
+Our liability is limited to the amount paid for the specific service. We are not
+liable for indirect damages. Services are provided by licensed/trained staff as
+applicable; we do not guarantee specific outcomes.
+
+7. CONDUCT
+Customers must behave respectfully. We may refuse service for harassment or intoxication.
+
+8. CONTACT
+{{TENANT_BUSINESS_NAME}} | {{TENANT_PHONE}} | {{TENANT_EMAIL}}
+
+9. GOVERNING LAW
+Laws of India. Disputes: [TENANT CITY] courts.
+
+================================================================================
+Include Refund section in checkout/booking checkbox (Doc 16)
+================================================================================

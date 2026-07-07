@@ -1,0 +1,4 @@
+interface:
+  display_name: "ALINKS Tap Blast Sharing"
+  short_description: "Build social sharing and share cards."
+  default_prompt: "Use this skill when implementing ALINKS Tap & Blast, share cards, OG images, or share analytics."

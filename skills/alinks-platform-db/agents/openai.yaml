@@ -1,0 +1,4 @@
+interface:
+  display_name: "ALINKS Platform DB"
+  short_description: "Work on Drizzle platform schema safely."
+  default_prompt: "Use this skill when changing ALINKS Drizzle schema, tenant config, or platform persistence."

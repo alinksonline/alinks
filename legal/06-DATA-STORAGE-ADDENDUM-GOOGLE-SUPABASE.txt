@@ -1,0 +1,58 @@
+================================================================================
+ALINKS DATA & STORAGE ADDENDUM (GOOGLE SHEETS / SUPABASE BYO)
+================================================================================
+DRAFT v0.1 — LAWYER REVIEW REQUIRED
+Accepted at: Google connect | Supabase connect | signup (cross-ref)
+================================================================================
+
+1. TWO-STORAGE MODEL
+  ARTIX PostgreSQL (Artix owns):
+    Tenant login, billing, pages, products config, handles, encrypted OAuth tokens,
+    legal acceptances, subscription — NO end-customer PII.
+
+  TENANT-OWNED STORAGE (Tenant owns 100%):
+    Default: Google Sheets in Tenant's Google Drive
+    Optional: Tenant's own Supabase project (BYO — Q010, Q037)
+
+2. TENANT AS DATA CONTROLLER
+For all customer, patient, order, and appointment data in Google/Supabase:
+  - Tenant is data controller / data fiduciary (as applicable)
+  - Tenant responsible for security, backup, retention, breach response, DPDP rights
+  - Artix is processor/connector only for technical transfer — not storage
+
+3. ARTIX ACCESS
+  - Google: OAuth scopes to create/append/read designated spreadsheets only
+  - Supabase: OAuth or service connection to client tables only
+  - Artix superadmin: NO access to customer/patient row content
+  - On churn: Artix revokes OAuth; does NOT delete Tenant's Google file or Supabase project
+
+4. TRANSPARENCY
+Dashboard shows: which file/project, which tabs, last sync time, activity log.
+
+5. SPEED & AVAILABILITY
+Redis cache (2–5 min TTL) for dashboard reads — not permanent storage.
+Google/Supabase outages: cached data + warning banner; Artix not liable.
+
+6. SUPABASE BYO BILLING (Q037)
+  - Tenant pays Supabase directly (supabase.com)
+  - Tenant pays Artix connector fee (₹399/mo per business) for integration
+  - Artix does NOT pay Supabase on Tenant's behalf
+
+7. MIGRATION
+One-time import Google → Supabase on Tenant request. Tenant confirms row counts.
+
+8. DELETION
+  Delete business: Artix removes mapping; Google/Supabase data stays with Tenant
+  Delete account: all businesses removed from Platform; Tenant keeps all files/projects
+  Patient/customer retention: Tenant deletes when purpose done (Q040) — not Artix
+
+9. DATA PIN
+Dashboard view of sensitive tabs may require 6-digit PIN + biometric (product feature).
+
+10. ACCEPTANCE
+[ ] I understand my customer data is stored in MY Google Account or MY Supabase,
+    not on Artix servers. I am responsible for this data.
+
+================================================================================
+END ADDENDUM
+================================================================================

@@ -1,0 +1,48 @@
+================================================================================
+TENANT TERMS & CONDITIONS — GROCERY / FOOD RETAIL
+================================================================================
+DRAFT v0.1 — LAWYER REVIEW REQUIRED
+Covers: kirana, packaged FMCG, fresh veg/fruits (tenant choice — Q015)
+================================================================================
+
+TERMS & CONDITIONS — {{TENANT_BUSINESS_NAME}}
+
+1. SELLER & LICENCES
+We sell food and grocery products. Where applicable, we maintain required
+licences (including FSSAI) for products we sell. Branded pre-packaged goods
+are governed by manufacturer labels.
+
+FSSAI (if applicable): {{FSSAI_NUMBER_OR_BLANK}}
+GSTIN: {{GSTIN_OR_NOT_REGISTERED}}
+
+2. PRODUCT TYPES
+  - Branded pre-packaged: manufacturer FSSAI/MRP on label applies
+  - Our own/repacked/fresh items: we are responsible for quality and compliance
+
+3. FRESH / PERISHABLE
+Fresh vegetables, fruits, and perishables: quality at time of delivery/pickup.
+[TENANT EDIT: "sourced daily" / best-before practices]
+Customer should inspect on receipt and report issues within [X] hours.
+
+4. ORDERS & DELIVERY
+  [TENANT EDIT: pin codes, minimum order, delivery fee, timing]
+
+5. RETURNS
+Perishable goods: returns only if damaged/wrong on delivery — report within [X] hours.
+Packaged goods: per sealed product return policy [TENANT EDIT].
+
+6. FOOD SAFETY
+We follow applicable food safety practices. Customer with allergies must read labels.
+
+7. PAYMENT
+UPI, card, COD as enabled. COD terms: [TENANT EDIT].
+
+8. LIABILITY
+Limited to order value for proven defects at delivery.
+
+9. CONTACT
+{{TENANT_BUSINESS_NAME}} | {{TENANT_PHONE}}
+
+================================================================================
+Platform ToS: Artix does not verify FSSAI — tenant warrants in signup checkbox
+================================================================================

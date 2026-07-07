@@ -1,0 +1,4 @@
+interface:
+  display_name: "ALINKS Commerce"
+  short_description: "Build catalog, WhatsApp order, and checkout features."
+  default_prompt: "Use this skill when implementing ALINKS commerce, catalog, orders, or checkout."

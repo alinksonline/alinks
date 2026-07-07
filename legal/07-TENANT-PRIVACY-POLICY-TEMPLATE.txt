@@ -1,0 +1,71 @@
+================================================================================
+TENANT PRIVACY POLICY — TEMPLATE
+================================================================================
+DRAFT v0.1 — LAWYER REVIEW REQUIRED
+Tenant publishes at: [handle].alinks.online/privacy (or custom domain)
+BLOCK PUBLISH: required before site goes live (Q019)
+================================================================================
+
+PRIVACY POLICY
+{{TENANT_BUSINESS_NAME}}
+Effective date: {{DATE}}
+Contact: {{TENANT_EMAIL}} | {{TENANT_PHONE}}
+Address: {{TENANT_ADDRESS}}
+
+1. WHO WE ARE
+{{TENANT_BUSINESS_NAME}} ("we", "us") operates this website. We are an independent
+business. This website uses ALINKS software hosted by Artix; Artix does not sell
+our products or services to you.
+
+2. DATA WE COLLECT
+When you use our website, place orders, or book appointments, we may collect:
+  - Name, phone number, email address
+  - Delivery address (if applicable)
+  - Order or booking details (products, slot, package, amount)
+  - Payment status (payments processed via our payment provider; we do not store
+    your full card number)
+  - Optional: visit reason (clinic), age/gender if you provide
+
+3. HOW WE USE DATA
+  - Process orders and appointments
+  - Send confirmations and reminders (SMS/WhatsApp if enabled)
+  - Customer support and delivery
+  - Legal and tax records as required
+
+4. WHERE DATA IS STORED
+Your data is stored in {{TENANT_BUSINESS_NAME}}'s designated business records
+(e.g., Google Sheets or database we control). It is not stored on Artix servers.
+
+5. SHARING
+We do not sell your personal data. We may share with:
+  - Delivery partners (name, phone, address for fulfilment)
+  - Payment processors (for transaction processing)
+  - Law enforcement if required by law
+
+6. RETENTION
+We keep your information only as long as needed for the purposes above, then
+delete or anonymise when no longer required. [TENANT MAY EDIT PERIOD]
+
+For clinics: appointment records may be kept as required for our practice;
+we delete or archive when no longer needed for care or legal obligations.
+
+7. YOUR RIGHTS
+You may request access, correction, or deletion by contacting us at
+{{TENANT_EMAIL}}. You may lodge a complaint with the Data Protection Board of India.
+
+8. SECURITY
+We take reasonable steps to protect your data. No method is 100% secure.
+
+9. CHILDREN
+Our services are not directed at children without parental involvement.
+
+10. CHANGES
+We may update this policy. Check this page for the latest version.
+
+11. CONTACT
+{{TENANT_BUSINESS_NAME}}
+{{TENANT_EMAIL}} | {{TENANT_PHONE}}
+
+================================================================================
+TENANT EDITS: retention period, specific channels, clinic-specific clauses
+================================================================================

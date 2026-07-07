@@ -1,0 +1,4 @@
+interface:
+  display_name: "ALINKS Appointments"
+  short_description: "Build salon, clinic, and booking workflows."
+  default_prompt: "Use this skill when implementing ALINKS appointments, slots, packages, clinics, or doctors."

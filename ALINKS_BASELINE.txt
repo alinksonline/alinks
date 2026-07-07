@@ -1,0 +1,3168 @@
+================================================================================
+ALINKS — BASELINE PLANNING DOCUMENT
+================================================================================
+Created: 2026-07-03
+Last updated: 2026-07-03 (session 16 — Q006 tech stack locked Next.js)
+Purpose: Single source of truth for all planning discussions. Update this file
+         as decisions are made. Do not treat chat as the canonical record.
+Status: PRODUCT DEFINED — Point-wise decisions in progress (Section 11).
+================================================================================
+
+
+0. ORGANIZATION & ROLES
+--------------------------------------------------------------------------------
+Parent company:  Artix
+Product:         ALINKS
+Superadmin:      Benjamin Anand (founder, full platform control)
+Founder origin:  Andhra Pradesh, India
+
+Artix builds ALINKS. Benjamin Anand operates as superadmin with authority over
+platform config, users, billing overrides, moderation, and feature flags.
+
+
+1. PRODUCT DEFINITION (LOCKED)
+--------------------------------------------------------------------------------
+One-liner:
+  ALINKS gives budget-strapped Indian startups a mobile-first mini-website and
+  simple dashboard — up to 5 pages — so they get digital presence without
+  spending lakhs on custom dev or agencies.
+
+What it is:
+  - A multi-tenant "mini website" platform (not a full website builder like Wix)
+  - Optimized for MOBILE + TABLET viewing (primary)
+  - Desktop viewing: supported but optional / secondary
+  - Tenant dashboard to customize their public pages
+  - Hard limit: MAX 5 PAGES per tenant (sufficient by design — not a limitation bug)
+
+What it is NOT (scope guardrails):
+  - Not unlimited pages / full CMS
+  - Not a replacement for heavy custom ERP
+  - Not Artix selling regulated goods directly — tenants run their own businesses;
+    ALINKS provides the digital storefront tooling (compliance still applies)
+
+
+2. TARGET USERS & WHO BENEFITS
+--------------------------------------------------------------------------------
+PRIMARY AUDIENCE
+  - Indian startups with low or zero marketing/dev budget
+  - Micro & small businesses going online for the first time
+  - Solo founders, home businesses, cloud kitchens, local shops
+  - Freelancers and affiliate marketers needing a clean mobile presence
+  - Anyone who needs "good enough" digital presence fast and cheap
+
+GEO FOCUS
+  - 100% Indian-first (Andhra Pradesh roots, national reach)
+  - International (Phase 2+): Singapore, UAE, Russia, Malaysia, South Korea, Japan
+  - Diaspora Indians abroad are a natural secondary audience
+
+VALUE PROPOSITION
+  - Launch a professional mobile mini-site in hours, not months
+  - Cheaper than hiring devs or buying enterprise SaaS
+  - Templates tuned for Indian business types (UPI, WhatsApp, GST fields)
+  - One dashboard: pages, products, bookings, links, basic analytics
+  - One-tap share products to WhatsApp & Instagram (branded share cards — Pro)
+  - Grows with them: Free → Basic → Pro → Enterprise
+
+
+3. BUSINESS VERTICALS (TEMPLATES / MODES)
+--------------------------------------------------------------------------------
+ALINKS supports ALL business types via vertical templates. Each tenant picks a
+mode; the 5-page structure adapts. Examples:
+
+  | Vertical              | Typical 5-page split                          |
+  |-----------------------|-----------------------------------------------|
+  | General / startup     | Home, About, Services, Contact, Links         |
+  | E-commerce (all goods)| Home, Shop, Categories/Offers, About, Contact |
+  | Grocery / kirana      | Home, Shop, Fresh/Daily, Delivery info, Contact|
+  | Restaurant / kitchen  | Home, Menu, Order/WhatsApp, Gallery, Contact  |
+  | Appointments (beauty) | Home, Services, Book, Gallery, Contact       |
+  | Appointments (clinic) | Home, Doctors, Book, About/Licenses, Contact  |
+  | Pharmacy              | Home, Products (OTC only), Info, About, Contact|
+  | Affiliate marketing   | Home, Links/offers, Reviews, About, Contact   |
+  | Portfolio / profile   | Home, Work, Services, Testimonials, Contact   |
+
+IMPORTANT — Regulated verticals (platform + tenant responsibility):
+  See Section 5B. E-commerce (especially food/grocery), pharmacy, health
+  appointments, and payments each carry extra legal duties. ALINKS must gate
+  features, collect license fields, and show disclaimers per vertical.
+
+
+3A. E-COMMERCE SCOPE (LOCKED — FULL CATALOG, NOT CLOTHES-ONLY)
+--------------------------------------------------------------------------------
+Founder intent: E-commerce on ALINKS is universal — any physical product a small
+Indian business might sell. One catalog system, category templates, same 5-page
+storefront model.
+
+PRODUCT CATEGORIES SUPPORTED (non-exhaustive — tenants can list anything legal):
+
+  Fashion & personal
+    - Clothes, footwear, bags, jewellery, watches, beauty, grooming
+
+  Electronics & tech
+    - Gadgets, mobile accessories, headphones, cables, chargers
+    - Consumer electronics (TV, audio, small appliances)
+    - Computers, peripherals, storage, networking
+
+  Electricals & hardware
+    - Switches, wires, lighting, fans, tools
+    - Home electrical fittings, extension boards, solar small goods
+
+  Home & living
+    - Kitchenware, utensils, decor, furniture (small/shippable)
+    - Cleaning, storage, bedding, bath
+
+  Food & grocery (packaged + fresh)
+    - Rice, flour (atta, maida), dal, spices, oil, sugar, salt
+    - Packaged snacks, beverages, branded FMCG
+    - Fresh vegetables, fruits (perishable — delivery rules on tenant)
+    - Local kirana / provision store inventory
+
+  Other common SMB inventory
+    - Toys, books, stationery, gifts, festival items
+    - Sports, fitness, auto accessories, pet supplies
+    - Handicrafts, regional specialty products (AP crafts, etc.)
+
+E-COMMERCE FEATURES (Pro tier — draft)
+  - Product catalog: name, images, price, MRP, GST slab, SKU, stock qty
+  - Category tags (electronics, grocery, fashion, etc.)
+  - Variants: size/color/weight (e.g. 1kg / 5kg rice bags)
+  - Unit field for grocery: kg, g, L, ml, piece, dozen
+  - COD + UPI + cards (via tenant payment gateway)
+  - WhatsApp order fallback (order message pre-filled) for Basic-tier shops
+  - Delivery/pickup toggle, minimum order, service area (pin codes / radius)
+  - Tenant return/refund policy page (template)
+
+NOT selling (tenant prohibited — moderation + ToS):
+  - Illegal goods, counterfeit brands, banned chemicals
+  - Prescription medicines (pharmacy vertical — separate gating)
+  - Tobacco/vape where state law restricts online sale
+  - Weapons, explosives, unlicensed wildlife products
+
+E-commerce template 5-page example (electronics + grocery hybrid shop):
+  Page 1 Home | Page 2 Shop (all categories) | Page 3 Deals/Featured |
+  Page 4 About/Delivery/FSSAI-GST info | Page 5 Contact/WhatsApp
+
+
+3B. APPOINTMENTS SCOPE (LOCKED — SALONS TO CLINICS, DOC–PATIENT)
+--------------------------------------------------------------------------------
+Founder intent: One appointments/booking system for ALL service-based businesses
+that take bookings — from salons and beauty centers to clinics, doctors, and full
+doc–patient scheduling. Same 5-page mini-site; booking widget adapts by sub-mode.
+
+APPOINTMENT SUB-MODES (single engine, different templates + compliance tier):
+
+  TIER 1 — Beauty & wellness (LOW regulatory friction)
+    - Salons, barbers, beauty parlours, beauty centers
+    - Spas, massage (non-medical), nail art, lash/brow, makeup artists
+    - Tattoo studios, grooming lounges, bridal makeup
+    - Fitness trainers, yoga/zumba, dance, music — 1:1 slots MVP; group batches Phase 2 (Q026)
+
+  TIER 2 — Professional services (LOW friction)
+    - Consultants, coaches, tutors (group class batches Phase 2 — Q026), photographers
+    - Lawyers/architects (initial consult slot — not legal advice via platform)
+    - Pet groomers, veterinary OPD (vet licensing — see Tier 3 lite)
+
+  TIER 3 — Healthcare & clinical (HIGH friction — license gating + DPDP health data)
+    - Clinics, polyclinics, hospitals (OPD appointment only)
+    - Doctors: GP, specialists, dentists, dermatologists, pediatricians
+    - AYUSH practitioners (Ayurveda, Homeopathy, Unani, Siddha — reg no. required)
+    - Physiotherapy, chiropractic, mental health counsellors/psychologists
+    - Diagnostic labs (sample collection slot booking — not report delivery MVP)
+    - Doc–patient: patient picks doctor → picks slot → booking confirmed to both sides
+
+DOC–PATIENT MODEL (what ALINKS provides vs what it does NOT)
+  ALINKS PROVIDES (booking layer — not a hospital EMR):
+    - Doctor/clinician profile pages (name, qualification, reg no., photo, timings)
+    - Patient books slot with a specific doctor or "any available"
+    - Patient details: name, phone, optional age/gender, optional visit reason
+    - SMS/WhatsApp confirmation + reminder to patient and clinic dashboard
+    - Clinic dashboard: today's appointments read from tenant Google Sheet
+    - Mark completed/no-show → updates tenant's Sheet row (NOT Artix database)
+
+  ALINKS DOES NOT PROVIDE (phase 2+ / separate legal review):
+    - Electronic Medical Records (EMR), diagnosis, prescription writing
+    - Telemedicine video consult inside ALINKS (NMC Telemedicine Guidelines 2020)
+    - Lab report storage, vitals tracking, medicine orders
+    - Replacing doctor–patient relationship — tenant clinician is always responsible
+
+BEAUTY & SALON PACKAGES MODEL (LOCKED — PAY FIRST, THEN APPOINTMENT)
+--------------------------------------------------------------------------------
+Founder intent: For salons, beauty centers, barbers, spas, and similar Tier-1
+businesses, customers browse PACKAGES (bundled services), pay online, then pick a
+slot — payment + appointment are one flow.
+
+CUSTOMER FLOW (salon / beauty — Pro tier)
+  1. Customer opens tenant mini-site → Packages or Services page
+  2. Selects a package (e.g. "Bridal Glow — ₹4,999" or "Haircut + Beard — ₹499")
+  3. Pays via UPI/card/COD rules (tenant payment gateway)
+  4. After successful payment → date/time slot picker opens
+  5. Customer confirms slot → appointment auto-created and linked to payment
+  6. WhatsApp/SMS confirmation with package name, amount paid, date/time
+  7. Row appended to tenant Google Sheet (Appointments tab) — PAID + package details
+  8. Salon dashboard reads appointment from their Sheet (not stored on Artix)
+
+PRE-MADE PACKAGES (Artix library — 12 at launch, tenant can use or customize — Q023)
+  ALINKS ships 12 ready-made package templates at launch: 6 salon + 6 beauty center.
+  Tenant onboards → picks templates → use as-is OR customize name, price, duration,
+  included services, photos — or create fully custom packages from scratch.
+
+  Example pre-made salon packages (editable):
+    - Basic Haircut (30 min, ₹199)
+    - Haircut + Beard Trim (45 min, ₹349)
+    - Hair Spa + Cut (90 min, ₹899)
+    - Facial Classic (60 min, ₹599)
+    - Bridal Package Full (240 min, ₹4,999)
+    - Party Makeup (90 min, ₹2,499)
+    - Manicure + Pedicure Combo (120 min, ₹1,299)
+
+  Example pre-made beauty center packages (editable):
+    - Clean-up + Bleach (60 min)
+    - De-tan + Facial (90 min)
+    - Pre-bridal 5-session bundle
+    - Skin glow monthly pack (4 visits)
+
+  Package fields (dashboard):
+    - Name, description, image
+    - Included services list (bullet items)
+    - Total duration (auto-calculates slot length)
+    - Price, optional discount/MRP display
+    - Active/inactive toggle
+    - Source tag: "ALINKS template" vs "custom"
+
+  Tenant actions:
+    [Use template] → copies pre-made package into their catalog
+    [Edit]         → change price, services, duration, photos anytime
+    [Create new]   → build custom package from scratch
+    [Disable]      → hide package without deleting
+
+  Clinics/doctors: packages optional (e.g. "Health checkup bundle") — Phase 2;
+  MVP clinic flow remains slot booking; beauty/salon packages are priority.
+
+APPOINTMENT FEATURES (Pro tier — draft)
+  MVP — 1:1 SLOT BOOKING
+  - Package catalog (pre-made + custom) for Tier-1 beauty/salon/spa
+  - Pay-then-book flow: payment success gates slot selection
+  - Service menu (à la carte) still available alongside packages
+  - Staff/stylist roster: assign package appointments to staff member
+  - Weekly schedule + slot length derived from package duration
+
+  PHASE 2 — GROUP + BATCH BOOKING (Q026 — same engine, new booking mode)
+  - Class/batch entity: name, instructor, max capacity, price (optional pay-then-book)
+  - Recurring schedule (Mon/Wed/Fri 6am) + one-off workshop slots
+  - Customer books seat in group; capacity counter; optional waitlist
+  - Verticals: yoga, zumba, gym, dance, music, tuition batches, coaching workshops
+  - Google Sheet: Appointments tab row includes class_id, seats_booked, capacity
+  - Block holidays / lunch breaks
+  - Refund/cancel policy per tenant (shown before payment)
+  - Auto WhatsApp/SMS: payment receipt, booked, reminder (24h/1h), cancelled
+  - Basic tier fallback: packages listed + "Book & pay via WhatsApp" (no online PG)
+
+CLINIC / DOCTOR-SPECIFIC FIELDS
+  - Medical council registration number (NMC / state council / DCI for dentists)
+  - Qualification display (MBBS, BDS, MD, etc.)
+  - Clinic registration / Clinical Establishments Act number (state-dependent)
+  - Specialization tags (cardiology, ortho, skin, etc.)
+  - OPD timings vs emergency disclaimer ("not for emergencies — call 108/102")
+  - Superadmin approval required before clinic/doctor booking goes LIVE
+
+5-PAGE EXAMPLES
+
+  Beauty salon:
+    P1 Home | P2 Services & prices | P3 Book slot | P4 Gallery/reviews | P5 Contact
+
+  Beauty center (multi-service):
+    P1 Home | P2 Packages (select + pay) | P3 Book slot (post-payment) |
+    P4 Services à la carte | P5 Contact
+
+  Single doctor clinic:
+    P1 Home | P2 Doctor profile + qualifications | P3 Book appointment |
+    P4 About clinic + reg info | P5 Contact/location
+
+  Multi-doctor clinic:
+    P1 Home | P2 Our doctors (list) | P3 Book (select doctor → slot) |
+    P4 Specialties/services | P5 Contact
+
+  Diagnostic lab:
+    P1 Home | P2 Tests/packages | P3 Book sample collection slot |
+    P4 Prep instructions | P5 Contact
+
+CUSTOMER-FACING FLOWS (mobile)
+
+  Salon / beauty (package flow — default Tier 1):
+    1. Browse packages → select one
+    2. Pay (UPI/card)
+    3. Pick date + slot (duration from package)
+    4. Enter name + phone
+    5. Confirmation → paid appointment on salon dashboard
+
+  Clinic / doctor (slot flow — Tier 3):
+    1. Land on Book page → choose doctor (or any)
+    2. Choose date → available slots
+    3. Enter name + phone (+ optional visit reason)
+    4. Confirm → WhatsApp/SMS + clinic dashboard notification
+    (Payment optional: consult fee at booking or pay-at-clinic — tenant setting)
+
+NOT IN SCOPE (prohibited / later)
+  - Emergency triage or "consult now" for acute care
+  - Prescription upload/fulfilment inside booking flow (see pharmacy vertical)
+  - Unlicensed individuals posing as doctors — reg no. verified at onboarding
+  - Storing clinical diagnoses in MVP patient notes field (free text limited to
+    "reason for visit" — not medical record)
+
+
+4. SUBSCRIPTION MODEL
+--------------------------------------------------------------------------------
+Tiers: BASIC | PRO | ENTERPRISE (no forever-free — Q035)
+
+PRICING LOCKED (Q033/Q034 — session 29)
+  | Tier       | Monthly (list) | Annual (/mo, pay upfront) | Annual total   | Save      |
+  |------------|----------------|---------------------------|----------------|-----------|
+  | Basic      | ₹599           | ₹499                      | ₹5,988/yr      | 17%       |
+  | Pro        | ₹1,599         | ₹1,499                    | ₹17,988/yr     | modest    |
+  | Enterprise | ₹6,999         | ₹4,999                    | ₹59,988/yr     | 29%       |
+
+  PRIMARY discount lever = Q036 Launch Stack (not deeper Pro annual — Benjamin session 31).
+  Q034 annual ladder stays 499/1499/4999. Real savings = founders lock + first-100 stack.
+  FOUNDER RULE: do NOT chase conversions by cutting list/annual prices — stack Q036 only.
+  Marketing anchor: ~~₹599~~ **₹499/mo** billed annually. Monthly = always full list.
+
+LAUNCH STACK (Q036 LOCKED — PRIMARY promo; preferred over Pro annual tweak — session 31)
+  1. FOUNDERS LOCK — first 500 annual subscribers keep their annual rate FOR LIFE
+     (₹499 / ₹1,333 / ₹4,999 per mo tier — grandfathered on renewal)
+  2. FIRST 100 — extra 2 months on annual: pay for 10 months → get 12 (any tier annual)
+     Best on Pro annual: case studies + checkout demos for marketing
+  3. NO monthly launch discount — monthly stays ₹599 / ₹1,599 / ₹6,999 always
+     Pushes serious tenants to annual; monthly = flexibility tax
+  4. Launch window: first 6 months from public signup open (Phase 3 gate)
+
+SERIOUS TENANTS ONLY (Q035 LOCKED — Benjamin confirmed session 30)
+  - NO permanent free tier — ever. Trial → pay or leave.
+  - 14-day Pro trial: phone OTP + business name + vertical mandatory at signup
+  - During trial: build in dashboard; PUBLIC publish requires paid plan (Basic minimum)
+  - Day 15 unpaid → mini-site unpublished immediately (404 / "shop paused")
+  - Draft + config kept 30 days → email warning → delete business if still unpaid
+  - No anonymous signups; no email-only accounts without phone verify
+  - Handle reserved during trial; released if deleted after grace period
+  - Goal: kirana, salon, clinic owners who pay — not free webpage hoarders
+
+Tier differentiation:
+
+  BASIC — "Commerce Lite" (Option A — Q002 LOCKED)
+    - Full 5 pages
+    - Mobile-optimized templates
+    - Public URL: alinks.online/[handle] (path — handle mandatory)
+    - Product catalog: all categories, AI descriptions
+    - WhatsApp / call / email CTAs
+    - "Order on WhatsApp" — pre-filled cart message (NO on-site payment)
+    - FB Marketplace listing assistant (copy-paste pack — manual post)
+    - Basic analytics
+
+  PRO — "Commerce Pro" (Option B — Q002 LOCKED)
+    - Everything in Basic PLUS full on-site checkout:
+    - Cart, variants, inventory, COD/UPI/card via Artix payment stack (Q005)
+    - Pay-then-book for salon packages
+    - Orders → tenant Google Sheet / Supabase
+    - Meta Commerce Catalog sync → Facebook Shop + Instagram Shop
+    - Public URL: [handle].alinks.online + custom domain
+    - Grocery units (kg/L), MRP, expiry field for food SKUs
+    - Appointments: salons, beauty centers, clinics, doctors, doc–patient booking
+    - Beauty packages: pre-made templates + editable; pay → then book slot
+    - Service menu (à la carte), staff/doctor roster, slot calendar, reminders
+    - Clinic mode: NMC/reg no. display, doctor selection; patients in Google Sheet
+    - Google Account connect required for client bookings/orders
+    - Remove Artix branding
+    - Custom domain support
+    - Affiliate link blocks
+    - Tap & Blast: WhatsApp + Instagram product/package sharing
+    - Branded share cards (Story 9:16, Feed 1:1), broadcast multi-product
+
+  ENTERPRISE
+    - Everything in Pro
+    - Priority support, multi-user dashboard seats
+    - API / webhooks, advanced analytics
+    - SLA, manual onboarding, white-label options (DECIDE)
+    - Vertical compliance pack (FSSAI, GST invoice, clinical license fields)
+    - Multi-seat clinic dashboard (receptionist + doctor logins)
+    - Supabase dedicated client database INCLUDED (or heavy discount)
+
+  ADD-ON (all tiers — Pro+)
+    - "ALINKS Database" powered by Supabase — monthly fee per business
+    - For tenants who outgrow Google Sheets or want faster queries + SQL export
+    - Artix provisions + manages connection; tenant owns data; Artix not liable
+
+Revenue model: SaaS subscription (primary). Optional future: transaction fee on
+tenant sales IF Artix facilitates payments — legal review required before adding.
+
+Pricing resolved (session 29–30):
+  [x] Monthly list: ₹599 / ₹1,599 / ₹6,999 — Q033
+  [x] Annual: ₹499 / ₹1,499 / ₹4,999 per mo — Q034 (launch stack Q036 = main promo)
+  [x] No forever-free; trial-only serious tenants — Q035
+  [x] Launch stack: founders lock + first 100 + no monthly discount — Q036
+
+
+5. COMPLIANCE PHILOSOPHY
+--------------------------------------------------------------------------------
+CORE LIABILITY PRINCIPLE (LOCKED — FOUNDER INTENT)
+  "Any business they conduct is their headache, not ours."
+
+  Artix / ALINKS is a technology platform (SaaS + hosting + tools). Tenants run
+  their own businesses. All sector-specific legal duties — licenses, product safety,
+  medical conduct, food standards, tax on sales, consumer disputes, refunds for
+  salon packages or doctor visits — are the TENANT'S responsibility, not Artix's.
+
+  The platform must SAY this clearly in lawyer-drafted legal documents and enforce
+  it in product (checkbox at onboarding, footer links, tenant storefront disclaimer).
+
+TIER A — MUST HAVE (before public launch in India)
+  - Artix entity registered (proprietor + MSME now → Pvt Ltd before public launch)
+  - Platform Privacy Policy (Artix — how ALINKS handles platform user data)
+  - Platform Terms of Service (Artix — tenant + end-customer facing sections)
+  - DPDP Act 2023: consent, data rights, breach process, grievance officer
+  - IT Act intermediary compliance: due diligence, takedown workflow
+  - GST on ALINKS subscriptions (SaaS, likely 18%)
+  - Tenant is seller / service provider of record for ALL tenant business activity
+  - Consumer Protection Act: clear ALINKS subscription cancellation & refund policy
+  - Secure auth, HTTPS, encryption at rest for sensitive fields
+  - Content moderation for illegal/prohibited listings
+
+TIER B — STRONG RECOMMENDATION
+  - Lawyer-drafted documents (NOT copy-paste templates) — see Section 5C
+  - Tenant onboarding: must accept Platform ToS + acknowledge tenant liability
+  - Tenant-facing Privacy Policy template they publish on their mini-site
+  - Tenant Terms template for THEIR customers (salon refund rules, shop returns, etc.)
+  - Razorpay / Cashfree for subscription billing only (Artix revenue)
+  - Separate "tenant payments" model: connected accounts OR tenant brings own PG
+  - Audit logs (admin actions, billing, page publishes)
+  - Limitation of liability + indemnity from tenants for their content/sales/services
+  - Storefront footer on every tenant site: "Powered by ALINKS" + link to platform ToS
+    + "This business is operated independently by [Tenant Name]"
+
+TIER C — AVOID / HIGH RISK
+  - Enabling prescription drug sales without verifying drug licenses
+  - Processing tenant customer payments without clear legal role (marketplace vs SaaS)
+  - Storing Aadhaar/PAN without purpose limitation
+  - Auto-renew subscriptions without clear consent (Consumer Protection / dark patterns)
+  - Claiming ALINKS "is" the pharmacy/restaurant — always tenant-branded
+  - Ignoring FSSAI display requirements for food tenants
+  - Affiliate links without disclosure (#ad / sponsored — ASCI guidelines)
+  - Telemedicine / video consult / e-prescription without NMC + drug rules compliance
+  - Storing clinical diagnoses or lab reports as if ALINKS is an EMR
+  - Building a client/customer/patient CRM database on Artix PostgreSQL
+  - Retaining end-customer PII after successful Google Sheet write
+  - Allowing unverified "doctors" without registration number check
+  - Artix implying it endorses, employs, or guarantees any tenant's services
+  - Hiding platform liability disclaimers to look like Artix runs the shop/clinic
+
+
+5C. LEGAL DOCUMENTS — ALL SECTORS, ALL TOUCHPOINTS (LOCKED)
+--------------------------------------------------------------------------------
+Founder intent (session 22–23):
+  Terms & Conditions + Privacy + disclaimers for EACH AND EVERYTHING — every sector,
+  every action, every payment, every product type. ALINKS rents software; legal docs
+  are how Artix stays safe when tenant sells veg without FSSAI, botches a haircut,
+  or mislabels a product. Lawyer drafts — not copy-paste.
+
+TWO LAYERS + EVERY MOMENT A USER CLICKS "I AGREE"
+  Layer A: Artix ↔ Tenant (platform ToS, privacy, payment facilitation, indemnity)
+  Layer B: Tenant ↔ Customer (tenant T&C, privacy, sector disclaimers)
+  Rule: no feature goes live without applicable legal text + acceptance logged (timestamp)
+
+LAYER A — ARTIX PLATFORM DOCUMENTS (one set, covers all sectors)
+  Applies to: tenants (business owners) signing up for ALINKS + platform operations
+
+  1. ALINKS Terms of Service (Tenant Agreement)
+     - Artix provides software/hosting only
+     - Tenant solely responsible for their business, licenses, products, services,
+       appointments, medical conduct, food safety, taxes, consumer complaints
+     - Tenant indemnifies Artix against claims arising from tenant's business
+     - Acceptable use policy (no illegal goods, fake doctors, etc.)
+     - Subscription billing, cancellation, refund of ALINKS fees (not tenant sales)
+     - Account suspension for violations
+     - Governing law: India (Andhra Pradesh / chosen jurisdiction — lawyer decides)
+     - Limitation of liability cap (lawyer to draft)
+
+  2. ALINKS Privacy Policy (Platform)
+     - What data Artix collects from TENANTS only (account, billing, usage, site config)
+     - Artix does NOT retain tenant client/customer/patient data — see Section 5D
+     - Transient processing only: client data passes through to tenant's Google account
+     - DPDP rights for tenants: access, correction, deletion requests
+     - Data retention, security, breach notification (tenant data scope only)
+     - Sub-processors (Razorpay, hosting, SMS, Google APIs)
+     - Contact / grievance officer details
+
+  3. ALINKS End-User Notice (short — on tenant sites via footer)
+     - "Transactions and services are provided by [Tenant], not Artix"
+     - Link to full platform ToS and Privacy Policy
+
+  4. ALINKS Payment Facilitation Addendum (Pro checkout — Q005)
+     - Artix connects Razorpay/PhonePe as partner; tenant is seller of record
+     - Settlement to tenant bank; Artix not liable for product/service disputes
+     - KYC data collected for PG onboarding — purpose-limited, DPDP disclosed
+     - Chargebacks, refunds on tenant sales = tenant handles
+
+  5. ALINKS Acceptable Use Policy (AUP) — embedded in ToS + standalone link
+     - Prohibited: fake doctors, Rx drugs, illegal goods, counterfeit, hate, fraud
+     - Consequences: suspend tenant, revoke payments, report to authorities
+
+  6. ALINKS Data & Storage Addendum (Google Sheets / Supabase BYO — 5D/5F)
+     - Client data stored in tenant-owned Google/Supabase — not Artix
+     - Artix OAuth access revocable; tenant owns data forever
+     - Artix not liable for Google/Supabase outages or tenant account loss
+
+  TENANT SIGNUP — REQUIRED ACCEPTANCES (all logged with version + timestamp)
+    [ ] I agree to ALINKS Terms of Service (v1.x)
+    [ ] I agree to ALINKS Privacy Policy (v1.x)
+    [ ] I understand I am solely responsible for my business, licenses, and products
+    [ ] I agree to Acceptable Use Policy
+    [ ] (Pro) I agree to Payment Facilitation Addendum
+
+LAYER B — TENANT BUSINESS DOCUMENTS (templates Artix provides, tenant publishes)
+  Each tenant mini-site must have (generated from templates, editable):
+
+  1. Tenant Privacy Policy
+     - How THIS business collects customer data (bookings, orders, phone)
+     - Pre-filled with tenant business name; tenant edits contact email
+     - Required before site goes live (all sectors)
+
+  2. Tenant Terms & Conditions
+     - Sector-aware template selected at onboarding:
+         Salon/Beauty | E-commerce | Grocery/Food | Restaurant | Clinic/Doctor |
+         Pharmacy | General business
+     - Covers: refunds, cancellations, appointment no-show policy, delivery rules,
+       product returns, medical disclaimer (clinic), FSSAI display (food), etc.
+     - Tenant edits specifics (e.g. "48h cancellation for bridal packages")
+     - Shown to end-customer before: package payment, checkout, or booking confirm
+
+  3. Sector-specific disclaimers (auto-injected on tenant site + in tenant T&C template)
+     - Clinic: not for emergencies; doctor responsible for care; not telemedicine MVP
+     - Pharmacy: OTC only; licensed seller; tenant warrants drug license
+     - Grocery/Food: tenant responsible for FSSAI/licenses (Q014 honor — in writing)
+     - Branded vs own_item: tenant warrants product labels accurate
+     - Fresh veg/perishables: tenant responsible for quality/safety (Q015)
+     - E-commerce: seller GSTIN, return policy, Legal Metrology (MRP/weight)
+     - Beauty: patch test / allergy disclaimer
+     - Restaurant: prepared food safety tenant duty
+     - Affiliate links: disclosure (#ad)
+
+  4. Tenant Refund & Cancellation Policy (template section inside tenant T&C)
+     - Salon: package no-show, bridal cancellation hours
+     - Shop: return window, COD refusal
+     - Clinic: appointment reschedule
+
+EVERY TOUCHPOINT — CUSTOMER (end buyer) MUST SEE LEGAL TEXT
+  | Moment                         | What customer accepts / sees              |
+  |--------------------------------|-------------------------------------------|
+  | First visit tenant mini-site   | Footer: operated by [Tenant], not Artix   |
+  | Product page (food)            | "Seller responsible for licenses" microcopy |
+  | Add to cart / WhatsApp order   | Link to tenant T&C + Privacy              |
+  | Checkout pay (Pro)             | Checkbox: tenant T&C + refund policy      |
+  | Book salon package + pay       | Checkbox: cancellation policy + beauty disc|
+  | Book clinic appointment        | Checkbox: not emergency + privacy + clinic T&C|
+  | COD order confirm              | Tenant T&C checkbox                       |
+  | Subscribe to tenant waitlist   | Tenant privacy only                       |
+
+EVERY TOUCHPOINT — TENANT (business owner)
+  | Moment                         | What tenant accepts                       |
+  |--------------------------------|-------------------------------------------|
+  | ALINKS signup                  | Platform ToS + Privacy + liability checkbox|
+  | Enable payments (Pro)          | Payment Facilitation Addendum + KYC consent|
+  | Connect Google                 | Google data addendum + client data notice |
+  | Connect Supabase BYO           | Supabase addendum + tenant owns data      |
+  | Publish site (first time)      | Tenant T&C + Privacy published confirmation|
+  | Add grocery product (own_item) | "I have required food licenses" checkbox   |
+  | Add pharmacy products          | "I hold valid drug license" checkbox       |
+  | Clinic go-live                 | "I hold valid medical registration" checkbox|
+  | Enable affiliate links         | ASCI disclosure acknowledgment            |
+  | AI-generated content publish   | "I reviewed AI content for accuracy" checkbox|
+
+BLOCK PUBLISH RULE (Q019 — aligns with "each and everything")
+  Tenant mini-site CANNOT go public until:
+    ✓ Platform ToS accepted (signup)
+    ✓ Tenant Privacy Policy page published (min length check)
+    ✓ Tenant T&C page published (sector template selected)
+    ✓ "Operated independently" footer auto-enabled
+  Optional fields (FSSAI, GSTIN, NMC): NOT required to publish — but disclaimers always show
+
+WHERE LEGAL DOCS LIVE (URLs)
+  - alinks.online/terms, /privacy, /aup, /payment-terms     → Artix platform
+  - alinks.online/[handle]/terms, /privacy                → Tenant (Basic path)
+  - [handle].alinks.online/terms, /privacy                  → Tenant (Pro)
+  - Custom domain: tenant.com/terms                         → Same content, canonical
+
+VERSIONING & PROOF
+  - Every doc has version number (v1.0, v1.1)
+  - DB table: legal_acceptances (user_id, doc_type, version, ip, timestamp)
+  - On material ToS change: force re-accept on next login
+  - Export acceptance log for lawyer if sued
+
+HOW THIS COVERS FSSAI / VEG / "NOT OUR PROBLEM" (Q014, Q015)
+  Platform ToS § Tenant warrants all licenses for products they list
+  Grocery onboarding checkbox § Food license is my responsibility
+  Tenant T&C template § Seller responsible for FSSAI, quality, expiry
+  Product page microcopy § Branded goods: manufacturer label governs
+  Artix does not verify FSSAI — stated explicitly in platform ToS
+  Customer sues for bad veg → tenant indemnifies Artix per signup ToS
+
+LAWYER TASK LIST (before launch — comprehensive)
+  [ ] Platform ToS + indemnity + limitation of liability + governing law AP/India
+  [ ] Platform Privacy Policy (DPDP — tenant data only for client PII stance)
+  [ ] Payment Facilitation Addendum (Razorpay/PhonePe partner model Q005)
+  [ ] Google/Supabase Data Addendum
+  [ ] Tenant template library: Salon, Beauty, E-commerce, Grocery, Restaurant,
+      Clinic, Pharmacy, General — each with sector disclaimers
+  [ ] Customer-facing short disclaimers (microcopy lawyer-approved)
+  [ ] Intermediary safe harbour IT Act — grievance officer appointed
+  [ ] Marketplace TCS/TDS/194-O wording if payment facilitation (CA + lawyer)
+  [ ] DPDP: Artix not data fiduciary for end-customers
+  [ ] Consumer Protection: ALINKS subscription refund policy (Artix fees only)
+
+
+5D. DATA OWNERSHIP — TENANT DATA ONLY, CLIENTS → GOOGLE (LOCKED)
+--------------------------------------------------------------------------------
+Founder intent (verbatim principle):
+  "I want them to save their data on their Google accounts. None of their data
+   I need. I need my tenants data, not their clients data."
+
+SUMMARY
+  - Artix stores TENANT data (the business paying for ALINKS)
+  - Artix does NOT store CLIENT data (customers, patients, buyers, bookers)
+  - Client data goes to TENANT-OWNED storage — NOT Artix servers:
+      DEFAULT:  Google Sheets / Drive (included in Pro)
+      PREMIUM:  Supabase Postgres (paid add-on / Enterprise — Supabase tie-up)
+  - Artix role: seamless TRANSFER + dashboard display — zero responsibility for
+    client data content, accuracy, breaches in tenant storage, or compliance
+  - Tenant is data owner + data controller for all client data in both options
+
+WHAT ARTIX / ALINKS STORES (YES — TENANT DATA)
+  Tenant account & billing:
+    - Owner name, email, phone, login credentials
+    - Subscription tier, plan, promo usage, Razorpay subscription IDs
+    - Invoices for ALINKS fees (Artix → tenant)
+
+  Tenant business configuration:
+    - Business name, logo, address, GSTIN, FSSAI, license numbers (uploaded docs)
+    - 5 pages content, theme, blocks, images (tenant media on R2/S3)
+    - Product catalog CONFIG (names, prices, SKUs — not who bought what)
+    - Package/service menu CONFIG (not who booked)
+    - Staff/doctor roster profiles (clinic public info — not patient lists)
+    - Subdomain, custom domain, legal policy text
+    - Google OAuth refresh token (encrypted) — OR Supabase connection config
+      (project URL + encrypted service key ref) — tenant-owned backend only
+    - Storage backend choice per business: "google_sheets" | "supabase"
+
+  Platform operations:
+    - Aggregated anonymous analytics (page views, no client PII)
+    - Superadmin: tenant status, moderation, MRR — NO client lists
+    - Minimal security logs (IP, timestamp, tenant_id — NO client phone/name)
+
+WHAT ARTIX / ALINKS DOES NOT STORE (NO — CLIENT / END-CUSTOMER DATA)
+  - Customer name, phone, email, address
+  - Order history (who bought what, when, delivery address)
+  - Appointment records (who booked, slot, package paid, visit reason)
+  - Patient data (age, symptoms, health notes — especially clinics)
+  - Payment details linking a person to a transaction (beyond transient PG callback)
+  - CRM lists, customer chat history, reviews with PII
+  - Long-term backups of any of the above on Artix servers
+
+GOOGLE ACCOUNT INTEGRATION (required for bookings / orders / client-facing flows)
+  Onboarding (Pro tier or when enabling shop/booking):
+    1. Tenant clicks "Connect Google Account"
+    2. OAuth consent: Drive + Sheets scope (least privilege)
+    3. ALINKS auto-creates in TENANT'S Google Drive:
+         Spreadsheet: "ALINKS - [Business Name]"
+         Tabs:
+           - Appointments  (salon, clinic, all booking verticals)
+           - Orders        (e-commerce, grocery)
+           - Customers     (deduped contact list — owned by tenant)
+    4. Each booking/order → append row to correct tab via Google Sheets API
+    5. Data never persisted to PostgreSQL client tables (no such tables by design)
+
+  Tenant dashboard views:
+    - "Today's appointments" → live read from their Google Sheet (API fetch)
+    - "Recent orders"        → live read from their Google Sheet
+    - Mark complete/cancel   → updates row in THEIR Sheet (not Artix DB)
+    - If Google disconnected → dashboard shows warning; tenant must reconnect
+
+TRANSIENT PROCESSING (honest technical limit)
+  - Client data exists in server memory only during request (booking/checkout flow)
+  - Typical lifetime: seconds, max 24h retry queue for failed Google API write then DROP
+  - WhatsApp/SMS: phone sent to MSG91/Twilio for one message — not stored by Artix
+  - Payment gateway: Razorpay handles card/UPI; Artix stores only payment_id briefly
+    to confirm write-to-Sheet success, then discard client-linked fields
+  - Lawyer to confirm this satisfies DPDP "storage limitation" principle
+
+CLIENT DATA FLOW (diagram in words)
+  End-customer on mini-site
+    → submits booking/order
+    → ALINKS validates slot / cart (no save)
+    → append row to tenant Google Sheet
+    → send WhatsApp/SMS confirmation (phone not retained)
+    → respond success to customer
+    → purge any ephemeral client fields
+
+TENANT PRIVACY POLICY TEMPLATE (update)
+  - Must state: "Your data is stored in [Business Name]'s Google account, managed
+    by [Business Name]. Artix/ALINKS does not keep your personal information."
+  - Tenant is data controller for clients; Google is sub-processor/storage
+
+BENEFITS FOR ARTIX
+  - Minimal DPDP exposure — not holding sensitive health or customer PII
+  - Smaller breach blast radius (no customer DB to leak)
+  - Aligns with "their business is their headache"
+  - Lower storage costs; no CRM liability
+  - Clinics/patients: Artix never holds medical-adjacent records
+
+RISKS & MITIGATIONS
+  | Risk                              | Mitigation                              |
+  |-----------------------------------|-----------------------------------------|
+  | Google API down                   | Retry queue 24h; tenant sees stale warn |
+  | Tenant loses Google access        | Their responsibility; export is in Drive|
+  | Tenant won't connect Google       | Block Pro booking/checkout until connected|
+  | IT Act asks for some records      | Security logs only; lawyer confirms     |
+  | Dashboard slow (API latency)      | Optional short Redis cache, TTL ≤15 min |
+  |                                   | (no permanent client DB)                |
+  | International (RU data locality)  | Client data in tenant Google region     |
+
+WHAT SUPERADMIN (BENJAMIN) CAN SEE
+  - Tenant list, plan, revenue, site status, license uploads
+  - Tenant business config (pages, products — catalog, not buyers)
+  - CANNOT see: customer names, patient lists, order/client history
+  - Platform metrics: total tenants, MRR, page views — aggregate only
+
+RESOLVED (session 6–7)
+  [x] Artix PostgreSQL for tenant data only; clients → Google Sheets
+  [x] Google connect mandatory for Pro booking/shop; optional for Basic (site only)
+  [x] Redis short cache OK for speed (not permanent storage)
+
+RESOLVED IMPLEMENTATION (was open — now locked)
+  [x] Clinic tab: Patients tab for clinics; Customers for others — Q013
+  [x] Max businesses per tier: Basic 1 / Pro 1 / Enterprise 3 (+₹299/mo add-on) — Q021
+  [x] Product limits: Basic 25 / Pro 200 / Enterprise 2000; Pro extra slots on request — Q022
+  [x] Data PIN: 6-digit + biometric on mobile — Q012
+
+
+5D2. LICENSE VERIFY — AI/ML PIPELINE (Q016/Q018 — SCALE TO 1000s)
+--------------------------------------------------------------------------------
+Founder question: Thousands of clinics — how can Benjamin approve manually? Use ML?
+
+ANSWER: YES — AI-assisted verification. Benjamin does NOT click approve on every tenant.
+Manual superadmin only for: appeals, flagged cases, random audits, suspensions.
+
+SAME PIPELINE FOR: Clinic NMC/DCI/AYUSH reg | Pharmacy drug license (Q016)
+
+TENANT UPLOAD FLOW
+  1. Tenant uploads license scan (photo/PDF) + enters reg number + doctor/pharmacy name
+  2. ALINKS AI pipeline runs (async, 30s–5min)
+  3. Result: AUTO_APPROVED | PENDING_REVIEW | REJECTED
+  4. Clinic/pharmacy goes live only on AUTO_APPROVED or human APPROVED
+
+AI/ML PIPELINE (ALINKS Verify — build in Phase 2, basic rules Phase 1.5)
+  Step 1 — Document classification (vision model)
+    - Is this image a medical council certificate / drug license / not a random photo?
+    - Reject: memes, unrelated docs, unreadable blur
+
+  Step 2 — OCR + field extraction (ALINKS AI / vision API)
+    - Extract: reg number, name, state council, expiry, issuing authority
+    - Compare tenant-entered fields vs OCR — mismatch → PENDING_REVIEW
+
+  Step 3 — Format & rules engine (no ML — fast)
+    - NMC/state reg number pattern per state (regex rules, expandable)
+    - Expiry date not in past
+    - Duplicate reg number across tenants → flag (one doctor, one account)
+
+  Step 4 — External validation (where possible)
+    - NMC / state medical council public lookup (if URL/API available — research per state)
+    - Manual fallback queue if no online registry for that state
+    - Pharmacy: state drug controller format validation
+
+  Step 5 — Risk score (0–100)
+    - High confidence + all checks pass → AUTO_APPROVE (target 80%+ of applications)
+    - Medium confidence → PENDING_REVIEW queue (junior mod or Benjamin batch review)
+    - Low confidence / mismatch / duplicate → REJECT with reason + re-upload option
+
+  Step 6 — Audit log (Artix protection)
+    - Store: upload hash, OCR result, risk score, auto vs human decision, timestamp
+    - If sued: "We verified license [reg] with automated + human review on [date]"
+
+SUPERADMIN (BENJAMIN) AT SCALE — NOT PER-TENANT CLICKING
+  | Volume        | Benjamin's role                                      |
+  |---------------|------------------------------------------------------|
+  | 1–50 clinics  | Can spot-check queue occasionally                    |
+  | 50–1000       | Review only PENDING_REVIEW + complaints (batch UI)   |
+  | 1000+         | Hire 1–2 moderators OR outsource KYC review company  |
+  |               | Benjamin: policy, appeals, bans, random 2% audit     |
+
+SUPERADMIN DASHBOARD — VERIFY QUEUE (not approve-all)
+  - Filter: PENDING_REVIEW only (maybe 10–20% of submissions)
+  - One-click: Approve | Reject | Request re-upload
+  - Bulk actions: approve 20 at once if batch looks clean
+  - AI shows: side-by-side upload + OCR extracted fields + risk score
+  - Stats: 847 auto-approved this month, 12 pending, 3 rejected
+
+PHASE ROLLOUT
+  Phase 1.5: Manual queue only (MVP — low volume beta)
+  Phase 2:   OCR + rules + auto-approve high confidence
+  Phase 3:   State registry integrations + ML model trained on Indian med certs
+  Phase 4:   Pharmacy license same pipeline
+
+HONEST LIMITS (tell lawyer)
+  - AI verification is best-effort — not government endorsement
+  - ToS: "Artix verifies documents using automated tools; tenant warrants authenticity"
+  - Fake sophisticated forgery may pass — random audits + complaint suspension
+  - Never claim "NMC verified doctor" badge — say "License document on file"
+
+ALSO APPLY TO PHARMACY Q016
+  - Same ALINKS Verify pipeline for drug license upload
+  - Shared moderation queue in superadmin
+
+
+5E. GOOGLE SHEETS — SPEED, VISIBILITY, MULTI-BUSINESS, DELETE, LOCK (LOCKED)
+--------------------------------------------------------------------------------
+Founder questions answered in this section:
+  - Will data retrieval be fast?
+  - Tenants must KNOW their data is in Google Sheets (and which tabs)
+  - One event writing to multiple tabs — tenant must see that clearly
+  - One tenant with 3 business types — how does it work?
+  - Account deletion — what happens to data?
+  - Spreadsheet lock with password tenant sets
+
+TWO-DATABASE MODEL (CONFIRMED — "PERFECT" PER FOUNDER)
+  ┌─────────────────────────────┐     ┌──────────────────────────────┐
+  │ ARTIX PostgreSQL            │     │ TENANT Google Drive          │
+  │ (Benjamin / Artix owns)     │     │ (Tenant owns 100%)           │
+  ├─────────────────────────────┤     ├──────────────────────────────┤
+  │ Tenant login & billing      │     │ Client appointments          │
+  │ Pages, products, packages   │     │ Orders & payments log        │
+  │ Business config, licenses   │     │ Customer contact list        │
+  │ Google OAuth token (enc.)   │     │ Activity / audit tab         │
+  │ Subscription, promos        │     │ ALL end-customer PII         │
+  └─────────────────────────────┘     └──────────────────────────────┘
+
+
+1) DATA RETRIEVAL — WILL IT BE FAST?
+--------------------------------------------------------------------------------
+Honest answer: Google Sheets API is slower than a local database, but fast enough
+for small businesses if we design smart reads. Target: dashboard feels < 1 second.
+
+Typical Google Sheets API latency:
+  - Single tab read (today's rows):     200–600 ms
+  - Batch read (3 tabs at once):        400–900 ms
+  - Append one row (booking):           300–700 ms
+  - Cold start / token refresh:         +1–2 s occasionally
+
+SPEED STRATEGY (how we make it feel fast)
+  a) SHORT-LIVED CACHE (Redis, TTL 2–5 minutes — NOT permanent storage)
+     - Cache key: tenant_id + business_id + tab + date_range
+     - On dashboard open: show cached data instantly → refresh in background
+     - "Last updated 2 min ago" + manual Refresh button
+     - Founder approved this in session 7
+
+  b) READ ONLY WHAT'S NEEDED
+     - Default view: TODAY + NEXT 7 DAYS appointments (not entire sheet history)
+     - Orders: last 30 days paginated (50 rows per page)
+     - Use Google API filters / row ranges (A1 notation) — never load 10,000 rows
+
+  c) BATCH API CALLS
+     - One network call fetches Appointments + Orders + Customers summary
+     - Avoid 3 separate round-trips
+
+  d) OPTIMISTIC UI ON WRITES
+     - Customer books → show success immediately after Google append confirms
+     - Dashboard pending row: "Syncing…" until read confirms (usually < 2 s)
+
+  e) BACKGROUND PREFETCH
+     - When tenant opens dashboard, prefetch in parallel with page editor load
+
+  f) SLA EXPECTATION (set with tenants)
+     - "Dashboard reflects new bookings within 1–2 minutes" — honest marketing
+     - Not millisecond HFT — fine for salon, kirana, clinic OPD
+
+WHEN IT WON'T BE FAST (edge cases — tenant should know)
+  - Tenant has 50,000+ rows in one tab → suggest archive tab or export
+  - Google outage → dashboard shows cached data + warning banner
+  - Tenant on 2G → slow regardless; mini-site booking still works (write is async)
+
+PERFORMANCE TARGETS (engineering goals)
+  | Action                    | Target perceived time |
+  |---------------------------|----------------------|
+  | Dashboard open (cached)   | < 300 ms             |
+  | Dashboard refresh (live)  | < 1.5 s              |
+  | New booking appears       | < 3 s after submit   |
+  | Mark appointment done     | < 2 s                |
+
+
+2) TENANT MUST KNOW — GOOGLE SHEET TRANSPARENCY (LOCKED)
+--------------------------------------------------------------------------------
+Founder intent: Tenants must always know their client data lives in Google Sheets,
+which file, and which tabs were touched.
+
+ONBOARDING (first Google connect)
+  - Full-screen explainer before OAuth:
+      "Your customer data will be stored in YOUR Google account, not on ALINKS
+       servers. We will create a spreadsheet in your Google Drive."
+  - After connect: success screen lists EXACTLY what was created:
+      ✓ File: "ALINKS - Priya Salon"
+      ✓ Tabs: Appointments | Orders | Customers | Activity Log
+      ✓ [Open in Google Sheets] button (deep link)
+  - Email summary sent to tenant with same list + link
+
+DASHBOARD — PERSISTENT "DATA HOME" WIDGET (always visible)
+  ┌────────────────────────────────────────────────────────────┐
+  │ 📊 Your data lives in Google Sheets                        │
+  │ File: ALINKS - Priya Salon                                 │
+  │ Tabs: Appointments · Orders · Customers · Activity Log     │
+  │ [Open Sheet]  [View Activity]  [Change Data PIN]           │
+  └────────────────────────────────────────────────────────────┘
+
+SETTINGS → DATA & PRIVACY PAGE
+  - Google account connected: artixtenant@gmail.com
+  - Spreadsheet name + link (per business if multi-business)
+  - List of all tabs with row counts
+  - When sheet was created
+  - Clarification: "ALINKS does not store your customer data on our servers"
+
+ACTIVITY LOG TAB (auto-created in their Sheet — 5th tab)
+  Every write ALINKS makes is ALSO logged to "Activity Log" tab in same file:
+  | Timestamp | Event type | Tabs written | Row refs | Summary (no extra PII) |
+  |-----------|------------|--------------|----------|------------------------|
+  | 10:32 AM  | BOOKING    | Appointments, Customers | Appt row 45, Cust row 12 | Bridal pkg booked |
+  | 11:00 AM  | ORDER      | Orders, Customers       | Order row 8, Cust row 13 | ₹499 paid |
+
+  Dashboard "Recent activity" mirrors this — tenant always sees multi-tab writes.
+
+ONE EVENT → MULTIPLE TABS (founder concern: "many sheets in 1 event")
+  Single booking/order can write to 2–3 TABS in the SAME spreadsheet file:
+    Event: Salon package booked + paid
+      → Tab "Appointments"  (new row: slot, package, amount)
+      → Tab "Customers"     (new or updated row: name, phone)
+      → Tab "Activity Log"  (audit entry listing both writes)
+
+  Tenant sees toast notification:
+    "Saved to your Google Sheet → Appointments (row 45) + Customers (row 12)"
+    [Open Sheet]
+
+  NOT multiple spreadsheet FILES per event — one file, multiple tabs, clearly shown.
+
+
+3) ONE TENANT — MULTIPLE BUSINESSES (e.g. 3 types)
+--------------------------------------------------------------------------------
+Scenario: One person buys salon + kirana + clinic from Artix.
+
+ACCOUNT MODEL
+  - ONE tenant login (one phone/email, one ALINKS subscription bill)
+  - MULTIPLE "Businesses" (sites) under that account — like workspaces
+  - Dashboard has business switcher: [Priya Salon ▼] [Priya Kirana] [Dr Priya Clinic]
+
+PER-BUSINESS ISOLATION (recommended — LOCKED)
+  Each business gets its OWN:
+    ✓ Subdomain (priya-salon.alinks.in, priya-kirana.alinks.in, drpriya.alinks.in)
+    ✓ 5 pages (independent)
+    ✓ Vertical mode (salon / grocery / clinic)
+    ✓ Google Spreadsheet file (separate file per business — cleaner)
+
+  Google Drive after setup:
+    ALINKS - Priya Salon          (tabs: Appointments, Orders, Customers, Activity)
+    ALINKS - Priya Kirana         (tabs: Orders, Customers, Activity) — no Appointments
+    ALINKS - Dr Priya Clinic      (tabs: Appointments, Patients*, Customers, Activity)
+    * Patients tab for clinic instead of generic Customers (optional — DECIDE)
+
+  Same Google account connects once; ALINKS creates 3 files in their Drive.
+  Tenant sees all 3 listed in Settings → Data & Privacy.
+
+TIER LIMITS (LOCKED — Q021/Q022)
+  | Tier       | Max businesses | Max products | Max spreadsheets |
+  |------------|----------------|--------------|------------------|
+  | Basic      | 1              | 25           | 1 (or 0 if no shop/booking) |
+  | Pro        | 1              | 200          | 1                |
+  | Enterprise | 3              | 2000         | 3                |
+  | Add-on     | +₹299/mo per extra business beyond tier cap |
+  | Pro add-on | Extra product slots on request (INR TBD — Batch F) |
+
+WHY SEPARATE FILES (not one mega-sheet)
+  - Salon appointments don't mix with kirana orders
+  - Clinic patient data isolated from grocery customers
+  - Easier for tenant to share one file with accountant (kirana only)
+  - Clearer transparency per business
+  - If they delete one business on ALINKS, one file mapping removed (file stays in Drive)
+
+BILLING SCENARIO (3 businesses)
+  - Option A: Enterprise plan covers 3 businesses (one invoice)
+  - Option B: Pro + 2 add-on business slots
+  - Artix PostgreSQL stores: tenant_id → business_1, business_2, business_3 config
+  - Each business_id maps to: subdomain, vertical, google_spreadsheet_id
+
+
+4) ACCOUNT DELETION — WHAT HAPPENS?
+--------------------------------------------------------------------------------
+Tenant initiates: Settings → Delete Account (or Delete Business)
+
+DELETE ONE BUSINESS (keep account)
+  Artix removes from PostgreSQL:
+    - That business's pages, catalog, packages, subdomain config
+    - Google spreadsheet_id mapping + OAuth scope for that file
+  Artix does NOT delete:
+    - The Google Spreadsheet file (stays in tenant's Drive forever)
+    - Tenant's main ALINKS account or other businesses
+  UX message:
+    "Your mini-site will be removed. Your Google Sheet 'ALINKS - Priya Salon'
+     is in YOUR Drive — we will not delete it. [Open Sheet] to keep or delete yourself."
+
+DELETE FULL ALINKS ACCOUNT
+  Step 1: Tenant confirms + enters password / OTP
+  Step 2: Warning screen lists all Google Sheets linked (with links)
+  Step 3: Cancel active Razorpay subscription
+  Step 4: Artix deletes from PostgreSQL within 30 days (immediate deactivation):
+    - Tenant profile, all businesses, pages, catalog config
+    - Encrypted Google refresh tokens (revoked via Google API)
+    - Subscription history (retain invoices 7 years per tax law — anonymized)
+  Step 5: Artix does NOT delete Google Sheets — tenant owns them
+  Step 6: Confirmation email:
+    "Account deleted. Your data sheets are still in your Google Drive:
+     [list of files]. ALINKS no longer has access."
+
+SUPERADMIN (Benjamin) force-delete tenant
+  - Same as full delete + ban phone/email if abuse
+  - Still cannot delete their Google files — revoke OAuth only
+
+GRACE PERIOD (recommended)
+  - 14-day soft delete: tenant can reactivate, config restored from Postgres backup
+  - After 14 days: hard delete tenant config
+  - Google Sheets: never touched by Artix at any stage
+
+
+5) SPREADSHEET LOCK — PASSWORD TENANT SETS (LOCKED INTENT)
+--------------------------------------------------------------------------------
+Founder intent: Spreadsheet should be locked with a password the tenant sets.
+
+IMPORTANT TECHNICAL TRUTH (must be honest with tenants):
+  Google Sheets does NOT support Excel-style "password to open this file" natively.
+  Security is via Google Account login (Gmail + password + 2FA).
+
+ALINKS SOLUTION — THREE LAYERS (combine all)
+
+  LAYER 1 — Google Drive privacy (default, automatic)
+    - Sheet created as PRIVATE in tenant's Drive
+    - Not shared with anyone unless tenant chooses
+    - Not public on web
+    - ALINKS OAuth can only access files ALINKS created (drive.file scope)
+
+  LAYER 2 — ALINKS DATA PIN (tenant sets — this is their "password")
+    - During onboarding: "Set a 4–6 digit PIN to protect customer data"
+    - PIN required to view Appointments / Orders / Customers in ALINKS dashboard
+    - PIN stored as bcrypt hash in Artix PostgreSQL (NOT the client data — just lock)
+    - 5 wrong attempts → 15 min lockout
+    - Optional: re-PIN every 30 min idle (session timeout)
+    - Changing PIN: Settings → Security → Change Data PIN
+
+  LAYER 3 — Protected tabs in Google Sheet (ALINKS sets on create)
+    - Tabs Appointments, Orders, Customers: protected ranges (only tenant's
+      Google account can edit directly in Sheets; ALINKS service writes via API)
+    - Tenant can still open Sheet in Google with their Gmail login
+    - Instructions shown: "Enable 2-Step Verification on your Google account"
+
+WHAT TENANT SEES (wording)
+  "Your customer data is stored in your private Google Sheet, secured by:
+   (1) Your Google account login
+   (2) Your ALINKS Data PIN to view data in this dashboard
+   Set your PIN now → [____]"
+
+OPTIONAL FUTURE (Phase 2 — if founder wants stronger lock)
+  - Encrypt sensitive columns (phone) before writing; decrypt in dashboard with PIN
+  - Too complex for MVP — PIN gate on dashboard is enough for most SMBs
+
+WHAT WE DO NOT PROMISE
+  - "Password-protected Excel file" — misleading for live Google Sheet sync
+  - We DO promise: private Drive + PIN-gated dashboard + tenant owns the file
+
+
+6) COMPLETE BOOKING WRITE EXAMPLE (multi-tab transparency)
+--------------------------------------------------------------------------------
+Customer books "Bridal Package ₹4,999" at Priya Salon:
+
+  1. Payment succeeds (Artix-affiliated PG — Razorpay/PhonePe/UPI)
+  2. Customer picks slot: Sat 4 PM
+  3. ALINKS appends rows (same spreadsheet "ALINKS - Priya Salon"):
+       Appointments row 45: Sat 4PM | Bridal | ₹4999 | PAID | Priya | 98xxx
+       Customers row 12:    Priya | 98xxx | last_visit Sat | total_visits 3
+       Activity Log row 8:  BOOKING | Appt+Customers | rows 45,12 | 10:32 AM
+  4. Customer sees confirmation screen
+  5. Tenant dashboard toast:
+       "New booking → Appointments row 45, Customers row 12 [Open Sheet]"
+  6. No client row stored in Artix PostgreSQL
+  7. Redis cache invalidated for that business's appointment view
+
+
+7) TENANT-FACING FAQ (in-app help — draft)
+--------------------------------------------------------------------------------
+Q: Where is my customer data stored?
+A: In your Google Drive, in a file named "ALINKS - [Your Business]". Not on ALINKS.
+
+Q: Can ALINKS see my customers?
+A: No. Benjamin/superadmin cannot see your customer lists. Data goes to your Sheet.
+
+Q: I have 3 businesses — how many Sheets?
+A: One separate Google Sheet per business. All in your Google account.
+
+Q: I deleted my ALINKS account — is my data gone?
+A: Your Google Sheets remain in your Drive. ALINKS loses access; you keep everything.
+
+Q: How do I lock my data?
+A: Set your ALINKS Data PIN + keep your Google account secure with 2FA.
+
+
+5F. SUPABASE DATABASE OPTION — TENANT-OWNED, ARTIX TRANSFERS ONLY (LOCKED)
+--------------------------------------------------------------------------------
+Founder intent (session 8):
+  - Tenants who want a separate database can BUY a Supabase database from ALINKS
+  - Artix needs a Supabase tie-up / partnership
+  - For CLIENT data: Artix holds NO responsibility — we only manage seamless transfer
+  - Same liability principle as Google Sheets: tenant owns it, Artix pipes data through
+
+WHY OFFER SUPABASE (in addition to Google Sheets)
+  | Google Sheets (default)     | Supabase (premium)                |
+  |-----------------------------|-----------------------------------|
+  | Free feel, familiar UI      | Real Postgres, millisecond reads  |
+  | Good for < 5k rows          | Scales to millions of rows        |
+  | Tenant edits in Sheets app  | SQL, exports, BI tools, backups   |
+  | Slower API reads            | Realtime subscriptions (live board)|
+  | Best for kirana/salon start | Best for busy clinic / large shop |
+
+THREE-DATABASE ARCHITECTURE (final model)
+  ┌─────────────────────────────────────────────────────────────────────────┐
+  │ 1. ARTIX PostgreSQL (Benjamin owns — platform DB)                       │
+  │    Tenants, billing, pages, catalog config, PIN hash, backend choice    │
+  └─────────────────────────────────────────────────────────────────────────┘
+                                    │
+                    ALINKS writes client data via adapter (no local persist)
+                                    │
+              ┌─────────────────────┴─────────────────────┐
+              ▼                                           ▼
+  ┌───────────────────────────┐           ┌───────────────────────────────┐
+  │ 2a. GOOGLE SHEETS         │           │ 2b. SUPABASE (tenant DB)      │
+  │ Tenant's Google Drive     │           │ Tenant's Supabase project     │
+  │ DEFAULT — included Pro    │           │ PAID — add-on or Enterprise   │
+  │ Client appointments/orders│           │ Client appointments/orders    │
+  │ TENANT OWNS 100%          │           │ TENANT OWNS 100%              │
+  └───────────────────────────┘           └───────────────────────────────┘
+
+ARTIX LIABILITY ON CLIENT DATA (LOCKED — BOTH BACKENDS)
+  Artix / ALINKS:
+    ✓ Provides software to BUILD and RUN the mini-site + dashboard
+    ✓ Transfers (writes/reads) client data seamlessly to tenant-chosen backend
+    ✓ Provisions Supabase project as reseller/partner (if tenant buys add-on)
+    ✓ Maintains connection health, retry on failed writes, show sync status
+
+  Artix / ALINKS does NOT:
+    ✗ Own client data (Google or Supabase)
+    ✗ Guarantee accuracy of tenant's client records
+    ✗ Bear liability for client data breach in tenant's Google or Supabase
+    ✗ Act as data fiduciary for end-customers or patients
+    ✗ Responsible for tenant's misuse of client data
+    ✗ Responsible for Supabase/Google outages (show status, retry — not liable)
+
+  ToS language (lawyer draft):
+    "ALINKS acts as a technical conduit. Client data is stored in storage
+     systems designated and owned by the Tenant (Google Account or Supabase
+     project). Artix does not store, control, or assume responsibility for
+     Tenant's client data. Tenant is solely responsible for security, backups,
+     legal compliance, and accuracy of data in their designated storage."
+
+SUPABASE TIE-UP / PARTNERSHIP (ACTION ITEMS FOR ARTIX)
+  Phase A — Business partnership
+    [ ] Apply: Supabase Partner Program (https://supabase.com/partners)
+    [ ] Discuss: reseller / managed service model for Indian SMB market
+    [x] Billing BYO (Q037): tenant pays Supabase direct; Artix bills connector fee only
+    [ ] Region: Mumbai (ap-south-1) for India tenant client DBs — DPDP friendly
+
+  Phase B — Technical provisioning model (pick one — DECIDE)
+    Option 1 — ARTIX ORG, PER-TENANT PROJECT (recommended MVP)
+      - Artix Supabase organization account
+      - Each paying tenant business → new Supabase project via Management API
+      - Project naming: alinks-[tenant-slug]-[business-slug]
+      - Tenant gets: project URL, anon key (dashboard), service key (Artix backend only)
+      - Tenant dashboard shows: "Your database: Supabase project [link]"
+      - On cancel: export dump offered; project paused 30 days then deleted per ToS
+      - Tenant data portability: pg_dump export before deletion
+
+    Option 2 — TENANT BRINGS OWN SUPABASE (like Google connect)
+      - Tenant creates Supabase project themselves
+      - Pastes project URL + service role key in ALINKS (encrypted vault)
+      - ALINKS runs migrations on their project
+      - Tenant pays Supabase directly; pays ALINKS only for connector fee
+      - Lower Artix revenue but zero Supabase billing risk
+
+    Option 3 — HYBRID (recommended long-term)
+      - Default: Artix-provisioned Supabase (easy onboarding)
+      - Advanced: bring-your-own-Supabase for tech-savvy tenants
+
+SUPABASE SCHEMA (per tenant business — ALINKS auto-migrates)
+  Tables (client data only — mirrors Google tab structure):
+    - appointments   (id, slot, service, package, amount, status, customer_name, phone, ...)
+    - orders           (id, items_json, total, status, customer_name, phone, address, ...)
+    - customers        (id, name, phone, email, last_visit, visit_count, ...)
+    - activity_log     (id, event_type, tables_written, summary, created_at)
+
+  RLS policies:
+    - Tenant service role (ALINKS backend) can read/write
+    - Tenant dashboard user via anon + custom JWT or row-level tenant_id
+    - NO public anon access to client PII
+    - Artix superadmin: NO access to tenant Supabase (by design — same as Sheets)
+
+  Artix NEVER mixes tenant client data in one Supabase project — 1 project per
+  business (or strict schema isolation — separate projects cleaner for liability)
+
+SEAMLESS TRANSFER LAYER (how ALINKS "manages" without owning)
+  Code pattern: StorageAdapter interface
+    - GoogleSheetsAdapter.appendAppointment(row)
+    - SupabaseAdapter.insertAppointment(row)
+    - Same booking flow → adapter chosen by tenant's storage_backend setting
+
+  Transfer guarantees (best-effort, not warranty):
+    - Write with retry (3x exponential backoff)
+    - Failed write → queue 24h → alert tenant in dashboard
+    - Sync status indicator: ✓ Synced | ⟳ Retrying | ✗ Failed — check connection
+    - Idempotency key per booking (no duplicate rows on retry)
+
+  Dashboard reads:
+    - Google: Sheets API + Redis cache (5E)
+    - Supabase: direct SQL via service key + optional Realtime (faster — < 100ms)
+
+MIGRATION PATHS (tenant upgrades) — BYO MODEL (Q010)
+  Google Sheets → Supabase (paid upgrade):
+    1. Tenant buys "ALINKS Database" connector add-on
+    2. Option A: "Create Supabase" via Artix partner referral link (tenant owns account)
+       Option B: "Connect existing Supabase" via ALINKS OAuth app (tenant owns project)
+    3. ALINKS runs schema migration on TENANT'S project (appointments, orders, etc.)
+    4. One-time import: Google tabs → bulk insert tenant Supabase
+    5. Tenant confirms row counts → switch storage_backend to "supabase"
+    6. Google Sheet kept as archive in their Drive
+    7. Tenant pays Supabase directly (free tier or ~$25/mo Pro) — not Artix invoice
+
+  Supabase → Google (downgrade — rare):
+    - Export Supabase to CSV → import to new Google Sheet
+    - Switch backend; tenant initiates
+
+TENANT UX — CHOOSING STORAGE (Settings → Client Data Storage)
+  ┌────────────────────────────────────────────────────────────────────┐
+  │ Where should your CUSTOMER data be stored?                         │
+  │                                                                    │
+  │ ○ Google Sheets (included) — Simple, free feel, open in Drive       │
+  │ ○ Supabase Database (₹___/month) — Faster, scales, SQL access     │
+  │                                                                    │
+  │ ALINKS does not store your customer data on our servers.           │
+  │ You own your data. We transfer it seamlessly to your choice.       │
+  │ Artix is not responsible for data in your Google or Supabase.     │
+  │ [ ] I understand — Tenant is responsible for client data           │
+  └────────────────────────────────────────────────────────────────────┘
+
+PRICING (Q037 — BYO model per Q010; session 31)
+  IMPORTANT: "30% margin" ≠ "30% off Supabase" for tenant.
+    - Margin = Artix profit ON TOP of cost (you charge MORE than Supabase bill, keep %)
+    - Discount = tenant pays LESS — NOT what we meant
+
+  Q010 LOCKED = BYO Supabase (tenant owns project). Two separate bills:
+    1. Tenant → Supabase directly (THEIR card; free tier $0 or Pro ~$25/mo)
+    2. Tenant → Artix ₹399/mo connector fee (Artix revenue — NOT a Supabase subsidy)
+
+  ARTIX POCKET RULE (Benjamin — session 32): Artix NEVER pays Supabase for tenants.
+    - No pass-through, no reseller, no "from my pocket"
+    - ₹399 is pure connector SaaS fee (like charging for Google Sheets sync layer)
+    - If tenant won't pay Supabase → they stay on Google Sheets (included free in Pro)
+
+  | Bill                        | Who pays whom        | Amount (REC)           |
+  |-----------------------------|----------------------|------------------------|
+  | Google Sheets backend       | Included in Pro      | ₹0 extra               |
+  | ALINKS ↔ Supabase connector | Tenant → Artix       | ₹399/mo per business   |
+  | Supabase hosting            | Tenant → Supabase    | $0–25/mo (tenant direct)|
+  | Enterprise                  | Connector included   | ₹0 (in ₹6,999 plan)    |
+
+  Artix does NOT resell Supabase hosting in BYO model — no pass-through invoice.
+  Optional future: Artix-provisioned Supabase (reseller) = cost × 1.43 for 30% margin
+    Example only: Supabase ₹2,100/mo → charge tenant ₹3,000/mo — NOT MVP path.
+
+ACCOUNT DELETION — SUPABASE BYO SCENARIO
+  - Artix revokes OAuth access only — does NOT delete tenant's Supabase project
+  - Tenant owns project forever in their Supabase account (same as Google Sheets)
+  - Email: "ALINKS disconnected. Your Supabase data remains in your account."
+  - Google Sheets scenario unchanged: file stays in Drive, Artix revokes OAuth
+
+SUPABASE BYO — TENANT FLOW (Q010 LOCKED)
+  Path A — New tenant (Artix affiliate):
+    1. Dashboard → "Upgrade to Supabase"
+    2. "Create free Supabase account" → opens supabase.com via Artix partner/referral
+    3. Tenant creates project in Mumbai region (ap-south-1)
+    4. Returns to ALINKS → "Connect with Supabase" OAuth button
+    5. ALINKS installs schema + migrates data from Google Sheet
+
+  Path B — Existing Supabase user:
+    1. OAuth connect → tenant picks organization + project
+    2. ALINKS requests scoped access: schema migrate + read/write client tables only
+    3. Never access other tables in tenant project
+
+  Artix applies: supabase.com/partners + OAuth app (docs: publish-an-oauth-app)
+
+SUPABASE + DATA PIN
+  - Same ALINKS Data PIN gates dashboard view regardless of backend
+  - Supabase: credentials in Artix vault encrypted; PIN does not replace DB auth
+  - Tenant can also set Supabase project password / restrict dashboard access in
+    Supabase console (their account)
+
+PARTNERSHIP TIMELINE
+  Phase 0 (now):     Apply Supabase Partner + build OAuth integration app
+  Phase 1 (MVP):     Google Sheets only — ship faster
+  Phase 2:           BYO Supabase connector (referral + OAuth) live
+  Phase 3:           Migration tools Google → tenant Supabase polished
+
+OPEN QUESTIONS
+  [x] Supabase BYO + Artix affiliate connector (Q010 locked)
+  [x] ALINKS connector fee: ₹399/mo per business — tenant pays; Artix pays Supabase ₹0
+  [ ] On tenant churn: delete Supabase project immediately or 30-day grace?
+  [ ] Include Supabase in Enterprise only or offer on Pro add-on from day 1?
+  [ ] Artix margin target on Supabase resale (% over Supabase list price)?
+
+
+5G. REDIS SPEED LAYER (LOCKED — FOUNDER APPROVED "AWESOME IDEA")
+--------------------------------------------------------------------------------
+Founder intent (session 9):
+  "We can use Redis — that's really an awesome idea. Redis will cover for speed,
+   correct?"
+
+ANSWER: YES — Redis is the speed layer. It does NOT store client data permanently.
+It makes Google Sheets / Supabase backends feel instant for tenants and customers.
+
+WHAT REDIS IS (in ALINKS architecture)
+  - In-memory cache sitting between ALINKS app and slow external APIs (Google Sheets)
+  - Also speeds up: public mini-site page loads, product catalog, share card generation
+  - Hosted: Upstash Redis (serverless, Mumbai region) OR Redis on same VPS as app
+  - Artix-owned Redis — contains ONLY short-lived cached copies + session data
+  - NEVER the system of record for client PII (Google/Supabase remain source of truth)
+
+WHAT REDIS CACHES (and TTL)
+  | Cache key type              | TTL        | Purpose                          |
+  |-----------------------------|------------|----------------------------------|
+  | Dashboard appointments    | 2–5 min    | Today's bookings from Sheets/DB  |
+  | Dashboard orders            | 2–5 min    | Recent orders list               |
+  | Customer tab summary        | 5 min      | Row count + last 10 (not full CRM)|
+  | Public product catalog      | 10–15 min  | Shop page fast load on 4G        |
+  | Single product page         | 15 min     | Product detail + OG share image  |
+  | Package list (salon)        | 10 min     | Packages page render             |
+  | Share card image (generated)| 24 hours   | Pre-rendered PNG/WebP per product|
+  | Tenant page content (pub)   | 5–10 min   | 5-page mini-site HTML/data       |
+  | Rate limit counters         | 1 min–1 hr | Abuse prevention                 |
+  | OTP / session tokens        | 5–15 min   | Auth (tenant login only)         |
+
+HOW REDIS MAKES IT FEEL FAST (stale-while-revalidate pattern)
+  1. Tenant opens dashboard
+  2. Redis HIT → show data in < 100 ms (feels instant)
+  3. Background job fetches fresh data from Google/Supabase
+  4. If changed → update Redis + subtle UI "Updated just now"
+  5. If Google slow/down → keep serving Redis + yellow banner "Using cached data"
+
+  Customer opens product link from WhatsApp:
+  1. Product page served from Redis-cached catalog → fast first paint
+  2. Share OG image already in Redis/CDN → pretty link preview in WhatsApp
+
+WRITE PATH (booking/order — Redis role)
+  - Write goes DIRECTLY to Google Sheet or Supabase (source of truth)
+  - On successful write → INVALIDATE relevant Redis keys immediately
+  - Next dashboard read → cache miss → fresh fetch → repopulate Redis
+  - Optional: write-through — update Redis with new row after Google confirms
+
+REDIS DOES NOT REPLACE GOOGLE / SUPABASE
+  | Concern                         | Answer                                |
+  |---------------------------------|---------------------------------------|
+  | Redis covers speed?             | YES for reads + page loads            |
+  | Redis stores client data forever?| NO — TTL expires, keys deleted       |
+  | If Redis crashes?               | App fetches from Google/Supabase direct|
+  | Is client data safe in Redis?   | Ephemeral copy only; encrypted transit|
+  | Supabase tenants need Redis?    | Less critical (DB is fast) but still  |
+  |                                 | helps catalog + share cards + pages   |
+
+SECURITY
+  - Redis keys namespaced: tenant_id:business_id:resource — no cross-tenant leak
+  - No long TTL on PII-heavy keys (max 5 min for appointment rows with phone)
+  - Redis not exposed to public internet (private network / Upstash TLS)
+  - Client phone numbers in Redis cache: acceptable as ephemeral (same as in-flight)
+
+INFRASTRUCTURE (draft)
+  - MVP: Upstash Redis (pay-per-request, Mumbai, ~$10–30/mo at early scale)
+  - Scale: Redis Cluster or ElastiCache when 10k+ tenants
+  - Monitor: cache hit rate target > 80% on dashboard reads
+
+USER-FACING COPY
+  Dashboard footer: "⚡ Accelerated by ALINKS cache — live data in your Google
+  Sheet / database. [Refresh now]"
+
+
+15. SOCIAL SHARING ENGINE — FULL SOCIAL EXPERIENCE (LOCKED SCOPE)
+--------------------------------------------------------------------------------
+Founder intent (session 9–10):
+  Sharing is NOT only Instagram + WhatsApp. Facebook included. Sharing is ONE unified
+  experience across all channels tenants actually use in India. Engineered awesomely —
+  something different, a good experience competitors don't offer.
+
+WHY THIS MATTERS (India context)
+  - 90% of Indian SMB sales start on WhatsApp or Instagram DM — not Google search
+  - Dukaan/Bikayi share links; ALINKS must share EXPERIENCES (visual cards + story)
+  - Tenant's customer is on phone — share flow must be 2 taps, mobile-first
+
+TAP & BLAST — SHARE ENGINE (Q028 LOCKED)
+
+CORE IDEA (what makes it DIFFERENT)
+  Competitors give you a URL. ALINKS gives you:
+    ✓ Ready-to-send visual card (image + caption + link + optional QR)
+    ✓ Format picker (WhatsApp chat, WhatsApp Status, IG Story, IG Feed)
+    ✓ Live preview — tenant sees exactly what customer receives
+    ✓ One product OR multi-product "blast" in one message
+    ✓ Branded with tenant logo/colors automatically
+    ✓ Deep link opens exact product on mini-site (not just homepage)
+
+SHARE TARGETS — FULL SOCIAL (one engine, all channels)
+  | Channel            | Format              | How it works                        |
+  |--------------------|---------------------|-------------------------------------|
+  | WhatsApp Chat      | Image + text + link | wa.me?text= + Web Share API         |
+  | WhatsApp Status    | 9:16 vertical card  | Download image → open WA Status     |
+  | WhatsApp Broadcast | Multi-product list  | One message, numbered items + links |
+  | Instagram Story    | 9:16 branded card   | Download → IG "Add to Story"        |
+  | Instagram Feed     | 1:1 square card     | Download image + copy caption       |
+  | Instagram DM       | Link + OG preview   | Rich preview via Open Graph meta    |
+  | Facebook Post      | 1.91:1 link card    | FB sharer + OG preview + save image |
+  | Facebook Story     | 9:16 vertical card  | Same asset as IG/WA Status          |
+  | Facebook Marketplace| Link + card (info) | "Sell elsewhere" — link to mini-site|
+  | Facebook Groups    | Pre-filled post text| Tenant sells in local AP groups      |
+  | Telegram           | Image + link        | t.me/share/url + channel post format|
+  | Twitter / X        | Card + short link   | summary_large_image OG              |
+  | Pinterest          | 2:3 vertical pin    | Product pin image + link            |
+  | LinkedIn           | Link post (B2B)     | Professional tenants, consultants   |
+  | Native Share Sheet | OS picker           | navigator.share() — all apps on phone|
+  | Copy link          | Short link          | alinks.in/p/abc123 (tracked)        |
+  | QR code            | PNG/SVG             | Print on shop counter, packaging    |
+  | SMS                | Plain text + link   | Fallback for non-smartphone customers|
+
+UNIFIED SHARE UX (one bottom sheet — all platforms)
+  Tenant taps Share → ONE modal:
+  ┌─────────────────────────────────────────────────────────────┐
+  │  Share "iPhone Case"                                          │
+  │  [ live preview card ]                                        │
+  │  ── Quick send ──                                             │
+  │  [WhatsApp] [WA Status] [Instagram] [Facebook] [Telegram]     │
+  │  [Copy link] [QR] [More…]  ← opens native OS share sheet      │
+  │  ── Format ──                                                 │
+  │  ( ) Chat/Message  ( ) Story/Status  ( ) Feed/Post            │
+  │  [ Copy caption ]  [ Save image ]                             │
+  └─────────────────────────────────────────────────────────────┘
+  Same card asset auto-crops per channel — tenant never re-designs.
+
+SHARE FLOWS (tenant from dashboard — mobile-first)
+
+  FLOW A — Share one product
+    1. Tenant taps product → big "Share" button (always visible)
+    2. Bottom sheet slides up with format chips:
+         [WhatsApp] [WA Status] [IG Story] [IG Post] [Copy link] [QR]
+    3. Live preview card animates in (tenant logo, product photo, price, MRP strike)
+    4. Tap WhatsApp → opens share with:
+         - Attached generated image (if supported)
+         - Pre-filled message:
+           "✨ iPhone 13 Case — ₹299 (MRP ₹499)
+            👉 Order: priya-shop.alinks.in/p/iphone-case
+            — Priya Electronics"
+    5. Done in 2 taps from product list
+
+  FLOW B — Share salon package (appointments vertical)
+    Same flow but package image + "Book now" link to package booking page
+    Message: "💇 Bridal Package ₹4,999 — Sat slots open! Book: [link]"
+
+  FLOW C — Multi-product blast ("Shop drop")
+    1. Tenant selects 3–10 products (checkbox mode in catalog)
+    2. Tap "Blast to WhatsApp"
+    3. ALINKS generates:
+         - Collage image (2x2 grid of products) OR carousel PDF
+         - Numbered text list with individual deep links
+    4. One wa.me open — tenant picks group (family group, broadcast list)
+    5. Perfect for "Sunday sale" kirana owners
+
+  FLOW D — Share entire shop
+    "Share my shop" → shop homepage link + hero card image (5-page site cover)
+
+  FLOW E — Customer-side share (on public mini-site)
+    Every product card has small share icon → customer shares to THEIR WhatsApp
+    (viral loop — free marketing for tenant)
+
+SHARE CARD DESIGN (auto-generated — the "awesome" part)
+  - Server-side render (Satori / Puppeteer / Cloudflare Browser Rendering)
+  - Templates per vertical:
+      Kirana:        price tag style, MRP, "Order on WhatsApp"
+      Fashion:       model-style layout, size hint
+      Electronics:   spec bullets, warranty badge
+      Salon package: before/after style, duration, "Book slot"
+      Restaurant:    dish photo, "Order now" emoji
+  - Tenant brand colors from dashboard theme
+  - ALINKS watermark (Q029): Basic tier only — official logo in corner + optional "Shared via ALINKS"
+  - Pro/Enterprise: watermark stripped; full tenant branding on card
+  - Festival skins: Diwali, Sankranti, Eid, Christmas (optional toggle)
+  - Cached in Redis + R2 CDN (share:product_id:format → image URL)
+  - Logo asset: store in R2/CDN at deploy; versioned PNG/SVG from founder brand kit
+
+DEEP LINKS & TRACKING
+  - Short URL: priya-shop.alinks.in/p/{slug} or alinks.in/s/{code}
+  - Opens product directly on mini-site (mobile-optimized)
+  - UTM params auto: ?utm_source=whatsapp&utm_medium=share&utm_campaign=product
+  - Share analytics (tenant dashboard — NO client PII):
+      "iPhone Case shared 47 times, 12 clicks this week"
+  - Click tracking = aggregate only; Artix does not store who clicked
+
+INSTAGRAM-SPECIFIC (technical reality + UX)
+  Instagram does NOT allow direct "post to feed" from web apps (API restricted).
+  ALINKS workaround (best-in-class UX):
+    1. Generate beautiful 1080x1920 (Story) or 1080x1080 (Feed) image
+    2. "Copy caption" button (caption includes hashtags tenant can edit)
+    3. "Save image" → device gallery
+    4. Deep link try: instagram://story-camera (mobile) with instruction overlay
+    5. 3-step animated guide: Save → Open Instagram → Post (first time only)
+
+  Instagram link preview (when sharing link in DM):
+    - Open Graph meta tags on every product page
+    - og:image = generated share card (WhatsApp uses same OG — one image both platforms)
+
+WHATSAPP-SPECIFIC
+  - wa.me/?text= encoded message (works all Android/iOS)
+  - Web Share API Level 2 where supported (share image + text together)
+  - whatsapp://send?text= fallback
+  - Click-to-chat on mini-site: "Questions? WhatsApp us" with product context
+  - Order message pre-fill includes product name, qty, price from share link visit
+
+TIER GATING (draft — Q029 watermark locked)
+  | Feature                         | Basic      | Pro        | Enterprise |
+  |---------------------------------|------------|------------|------------|
+  | Share shop link                 | ✓          | ✓          | ✓          |
+  | Share product link (plain)      | ✓          | ✓          | ✓          |
+  | Tap & Blast share cards (image) | ✓ watermarked | ✓ clean | ✓ clean    |
+  | ALINKS logo on share card       | ✓ (Q029)   | —          | —          |
+  | Format picker (Story/Feed/Status)| —          | ✓          | ✓          |
+  | Multi-product blast             | —          | ✓ (10 max) | ✓ (50 max) |
+  | Festival skins                  | —          | ✓          | ✓          |
+  | Share analytics (clicks)        | —          | ✓          | ✓          |
+  | Custom QR with logo             | —          | ✓          | ✓          |
+
+DIFFERENTIATION vs COMPETITORS
+  | Dukaan / Bikayi     | Tap & Blast                                  |
+  |---------------------|----------------------------------------------|
+  | Plain product link  | Visual card + caption + deep link            |
+  | No format choice    | WhatsApp Status + IG Story formats built-in|
+  | Desktop-first share | Mobile 2-tap share from phone dashboard      |
+  | No package sharing  | Salon packages shareable same as products    |
+  | Generic preview     | Branded, vertical-specific card templates    |
+  | No blast            | Multi-product "Shop drop" one message        |
+
+MVP PHASING (sharing)
+  Phase 1:   Share shop link + product deep link + wa.me pre-filled text (Basic)
+  Phase 1.5: Branded share cards + format picker (Pro)
+  Phase 2:   Multi-product blast + share analytics + festival skins
+  Phase 2:   Customer-side viral share on product cards
+
+ENGINEERING NOTES
+  - Share card generation: async job → store in R2 → URL in Redis
+  - OG tags on all public product/package pages (SEO + social)
+  - Public share landing: if product deleted, show "Product unavailable" gracefully
+  - Rate limit share generation: 50 cards/hour per tenant (prevent abuse)
+
+OPEN QUESTIONS (moved to Section 11 Decision Register)
+
+
+15B. FACEBOOK MARKETPLACE & META COMMERCE (PLANNING)
+--------------------------------------------------------------------------------
+Founder question (session 12): Can we integrate FB Marketplace? API? Affiliate?
+
+HONEST ANSWER — NO PUBLIC "MARKETPLACE AFFILIATE" PROGRAM
+  - Facebook Marketplace is NOT like Amazon Associates — no affiliate commission API
+  - Marketplace = local listings; buyers contact seller or go to seller website
+  - Meta Affiliate / Creator programs exist but are for content creators, not SMB shops
+  - ALINKS does NOT position as "FB Marketplace affiliate" — wrong model
+
+WHAT META ACTUALLY OFFERS (3 levels — increasing difficulty)
+
+  LEVEL 1 — MARKETPLACE LISTING ASSISTANT (Basic tier — MVP, no API)
+    What: ALINKS generates a "Marketplace Listing Pack" per product:
+      - Title (200 chars), description (256 chars shown on FB)
+      - Price, condition (new), category suggestion
+      - Up to 10 images (Marketplace allows multiple)
+      - Suggested meet-up / delivery area from tenant address
+      - Link back: alinks.online/[handle] or [handle].alinks.online/p/product
+
+    Tenant flow:
+      1. Tap "List on Facebook Marketplace" on any product
+      2. ALINKS shows preview + [Copy all] [Save images]
+      3. Opens facebook.com/marketplace/create (or FB app) — tenant pastes manually
+      4. 3-step guide first time (like Instagram Story flow)
+
+    Why: Zero API approval, works in India today, every kirana owner uses Marketplace
+
+  LEVEL 2 — META COMMERCE CATALOG SYNC (Pro tier — real integration)
+    What: Official Meta Commerce API — sync ALINKS product catalog to:
+      - Facebook Shop (on tenant's Facebook Page)
+      - Instagram Shopping (if tenant has IG business)
+      - NOT the same as personal Marketplace local listings — but products appear
+        on Page Shop tab and IG product tags
+
+    Tenant flow:
+      1. Connect Facebook Business account (OAuth — tenant owns FB Page)
+      2. ALINKS pushes catalog via Meta Product Catalog API (items_batch)
+      3. Products auto-sync on add/edit/delete in ALINKS dashboard
+      4. Checkout URL = tenant mini-site (partner_product_checkout_uri pattern)
+      5. Sales still on tenant site (Option B) or WhatsApp (Option A)
+
+    API: Meta Commerce Platform / Catalog API
+    Docs: developers.facebook.com/docs/commerce-platform
+    India: Facebook Shops available for eligible businesses — tenant needs FB Page + commerce account
+
+  LEVEL 3 — MARKETPLACE PARTNER ITEM API (Enterprise / future — partner only)
+    What: Official Marketplace Partner Program — listings appear IN Marketplace
+      search/feed alongside user listings. Buyer clicks → lands on tenant ALINKS site.
+
+    API: POST /{product-catalog-id}/items_batch (Marketplace Item API)
+    Docs: developers.facebook.com/docs/marketplace/partnerships/itemAPI
+    Catch: NOT open to everyone — Artix must apply to Marketplace Partnership Program
+    Catch: Historically limited countries — verify India eligibility with Meta
+    Catch: Requires approved partner status, product catalog, seller API
+
+    Artix roadmap:
+      Phase 0: Apply to Meta Commerce Partner program (start early — long approval)
+      Phase 1: Level 1 + Level 2 live for tenants
+      Phase 2: If partner approved → auto-sync to Marketplace feed (Level 3)
+
+    fields we would send per product:
+      - title, description, price (INR), image_link, link (ALINKS product URL)
+      - partner_product_checkout_uri → Pro checkout page
+      - partner_product_location → tenant city (Vijayawada, etc.)
+      - partner_delivery_method → shipping / in_person
+      - condition: new
+
+TIER MAPPING (FB / Meta features)
+  | Feature                           | Basic (A) | Pro (B)  | Enterprise |
+  |-----------------------------------|-----------|----------|------------|
+  | FB Marketplace listing assistant  | ✓ manual  | ✓ manual | ✓ manual   |
+  | Meta Catalog → FB Shop + IG Shop  | —         | ✓ auto   | ✓ auto     |
+  | Marketplace Partner API auto-list | —         | —        | Phase 2*   |
+  | Share to Facebook (Tap & Blast)   | link      | cards    | cards      |
+  *After Artix becomes Meta Marketplace Partner — not guaranteed timeline
+
+COMPLIANCE (India)
+  - Tenant owns Facebook account + Page — Artix is connector only (same as Google)
+  - Tenant responsible for Marketplace listing accuracy, meet-ups, disputes
+  - Artix ToS: not liable for FB Marketplace transactions
+  - GST/product claims on FB listing = tenant headache
+
+DIFFERENTIATION
+  - Dukaan: basic FB share. ALINKS: listing pack + catalog sync + checkout deep link
+  - Kirana owner lists rice on Marketplace in 2 min with AI-written description
+
+
+16. ALINKS AI — ALL TEXT + SEO (LOCKED SCOPE)
+--------------------------------------------------------------------------------
+Founder intent (session 10–11):
+  SEO handled extremely with Artix AI. AND every tenant text field — textboxes,
+  descriptions, short descriptions, everything — Write / Create / Generate with AI.
+  AI must KNOW who the tenant is, what their business is, and what to generate.
+
+ONE AI BRAIN PER TENANT BUSINESS — "ALINKS AI Context Profile"
+  Stored in Artix PostgreSQL (tenant config — NOT client data):
+    - business_name, owner_name, vertical (salon/kirana/clinic/etc.)
+    - city, area, state (Andhra Pradesh default), pin code
+    - language_preference: English | Hindi | Marathi | Telugu | Tamil | Kannada | Malayalam | mix
+    - brand_tone: friendly | professional | luxury | budget | festive
+    - tagline (optional), year_established, specialties[]
+    - services/packages/product categories (from catalog)
+    - target_customer: "young women", "families", "patients", "B2B"
+    - unique_selling_point (tenant can type one line — AI expands)
+    - competitor_position: "cheapest in area", "premium bridal", etc.
+
+  AI receives this context on EVERY generation call — never generic lorem ipsum.
+  On onboarding: 5-question wizard builds profile → AI generates entire first draft site.
+
+EVERY FIELD WITH "✨ Generate with ALINKS AI" (complete list)
+  Site pages (all 5 pages):
+    - Page title, hero headline, hero subtext
+    - Section headings (H1, H2, H3)
+    - Body paragraphs (About, Services, Contact intro)
+    - CTA button text ("Book now", "Order on WhatsApp", etc.)
+    - Footer tagline
+
+  E-commerce:
+    - Product title (polish tenant's rough input)
+    - Short description (≤80 chars — for cards, share, WhatsApp)
+    - Long description (full product page)
+    - Category names and category descriptions
+    - Variant labels (e.g. "1kg premium sona masoori rice")
+
+  Appointments / salon:
+    - Package name polish
+    - Package short + long description
+    - Service menu item name + description
+    - Staff/stylist bio (from name + specialty)
+    - Booking confirmation SMS/WhatsApp message template
+
+  Clinic (careful — no medical claims):
+    - Doctor bio (from qualification + specialty — factual only)
+    - Clinic about text (no diagnosis promises)
+    - OPD service descriptions
+
+  Restaurant / grocery:
+    - Menu item descriptions
+    - Dish dietary tags text
+    - Delivery area description
+
+  SEO (per field — see below):
+    - Meta title, meta description per page
+    - Alt text per image
+    - Schema FAQ questions + answers
+    - Google Business Profile blurb
+
+  Sharing (Tap & Blast):
+    - WhatsApp/FB/IG share caption per product/package
+    - Hashtag suggestions (#VijayawadaSalon #APBeauty)
+
+  Legal templates (AI pre-fill, tenant + lawyer reviews):
+    - Refund policy draft, cancellation policy draft
+    - Privacy policy business-specific paragraphs
+
+  Dashboard UX per textbox:
+    [✨ Generate] [✨ 3 variants] [Regenerate] [Make shorter] [Make Telugu]
+    Tenant always edits before save — AI drafts, human approves.
+
+AI GENERATION RULES (product behavior)
+  - Always inject: business_name + city + vertical into system prompt
+  - Never invent licenses, FSSAI, NMC numbers — only use tenant-entered facts
+  - Never generate medical cure claims for clinic vertical
+  - Short description = max 80 chars; long = 150–300 words per vertical default
+  - Bulk: "Generate all product descriptions" for kirana import (CSV upload)
+  - On product photo upload: vision AI → title + short + long description suggested
+  - Cache in Redis: same inputs = same output (save API cost) unless "Regenerate"
+
+TIER LIMITS — SUBSCRIPTION-INCLUDED AI (FREE with tier — Q032 revised)
+  Core tenant tools: descriptions, SEO, content — INCLUDED in subscription, not credit packs.
+  | AI action (tenant dashboard) | Free tier | Basic     | Pro       | Enterprise |
+  |------------------------------|-----------|-----------|-----------|------------|
+  | Onboarding full site draft   | 1x        | 1x        | 1x        | 1x         |
+  | Per-field generate           | 20/mo     | 100/mo    | 500/mo    | unlimited  |
+  | Bulk product descriptions    | —         | 25/mo     | 200/mo    | unlimited  |
+  | Vision (photo → desc)        | —         | 10/mo     | 100/mo    | unlimited  |
+  | Regional language AI gen       | —         | Phase 2   | ✓         | ✓          |
+  | SEO meta auto on publish     | template  | AI        | AI        | AI         |
+  | AI About page / alt text     | —         | per above | per above | per above  |
+
+  Exceed monthly cap → tenant buys ALINKS AI Credit packs from Artix (paid — not free).
+
+PAID AI — CREDIT PACKS ONLY (Q032 — Benjamin revised)
+  | Who pays Artix              | What                                      | Free? |
+  |-----------------------------|-------------------------------------------|-------|
+  | Tenant                      | Overage beyond tier limits above          | NO    |
+  | Tenant                      | Premium/heavy AI (bulk regen, extra SEO)  | NO    |
+  | Tenant OR end-customer      | ANY client-facing AI on public mini-site  | NO    |
+  | —                           | Client AI never uses subscription allowance| NEVER |
+
+  Client AI examples (Phase 2+): product Q&A bot, "find me a gift" assistant, chat on site.
+  Tenant enables client AI only with credit balance OR passes cost to customer (UPI per use).
+  Artix sells credits; Artix pays OpenRouter/Perplexity when credits purchased — no subsidy.
+  Pack INR (e.g. ₹99 = 500 credits) — finalize in Batch F.
+
+WHAT "EXTREME SEO" MEANS FOR ALINKS
+  Every tenant mini-site must rank on Google for local searches:
+    "salon near me Vijayawada", "kirana delivery Guntur", "best bridal makeup AP"
+  ALINKS AI automates what agencies charge ₹15k–50k/month for.
+
+ALINKS AI SEO — FEATURE SET (per tenant business)
+  AUTO-GENERATED (on page publish / product add):
+    - Page title tags (≤60 chars, keyword-rich, local)
+    - Meta descriptions (≤155 chars, CTA included)
+    - H1/H2 structure suggestions in page editor
+    - Alt text for every product/page image (AI vision + context)
+    - Schema.org JSON-LD:
+        LocalBusiness, Product, Offer, FAQPage, BeautySalon, MedicalBusiness, etc.
+    - Open Graph + Twitter Card tags (feeds Share Engine link previews)
+    - Canonical URLs, sitemap.xml per tenant (auto-regenerated)
+    - robots.txt per tenant subdomain
+
+  LOCAL SEO (India-specific):
+    - City + area keywords from tenant address (Telugu transliteration option)
+    - "Near me" semantic phrases in About page (AI draft, tenant approves)
+    - Google Business Profile description generator (copy-paste for tenant)
+    - Local language meta variant (Hindi, Marathi, South langs) — Phase 2
+
+  CONTENT AI (tenant approves before publish):
+    - "Write my About page" — 3 variants, pick one
+    - Product descriptions from photo + title (bulk generate for kirana import)
+    - FAQ section auto-generated per vertical (schema-marked)
+    - Blog/post stub for "why choose us" (optional 5th page content)
+
+  ONGOING AI (monthly per Pro+ tenant):
+    - SEO health score in dashboard (0–100)
+    - "Fix these 5 issues" actionable list
+    - Keyword suggestions from vertical + city
+    - Competitor gap analysis (what similar shops rank for — public SERP data)
+    - Indexing status check (is Google crawling your site?)
+
+  TECHNICAL SEO (automatic — no AI cost):
+    - SSR/SSG via Next.js — fast LCP on mobile
+    - Core Web Vitals monitoring per tenant
+    - Mobile-first indexing ready
+    - Structured data validation before publish
+    - hreflang ready for Phase 2 international
+
+AI STACK (Q032 LOCKED — OpenRouter + Perplexity)
+  ROUTING (Artix-owned keys — tenant never sees provider)
+    - OpenRouter: primary gateway — route per task to cheapest fit model
+      (Grok fast, GPT-4o-mini, Claude Haiku, etc. — pick at call time by cost/latency)
+    - Perplexity API: search-grounded tasks (local SEO research, competitor phrases,
+      "near me" keyword ideas, factual business context — Sonar family)
+    - Vision: OpenRouter vision-capable model for photo → product description
+    - Embeddings: optional via OpenRouter (low-cost model) for keyword clustering
+
+  ALINKS AI — TWO TRACKS (Q032 revised — Benjamin)
+
+  TRACK 1 — SUBSCRIPTION-INCLUDED (FREE with tier — descriptions, SEO, content)
+    - Product descriptions, page copy, SEO meta, vision-on-upload, onboarding draft
+    - Monthly caps per tier (see tier table above) — resets each billing cycle
+    - Artix absorbs API cost within caps (priced into Basic/Pro/Enterprise subscription)
+    - Redis cache hits = no API call = does not count against cap
+
+  TRACK 2 — PAID CREDIT PACKS (buy from Artix — NOT free)
+    - Tenant overage when monthly included allowance exhausted
+    - ALL end-customer / client AI on public mini-site — always paid, never tier-included
+    - Unit: "ALINKS AI Credits" (simple for SMB; not raw tokens)
+    - Purchase via Razorpay in dashboard (tenant) or checkout (customer pays per use — Phase 2)
+    - Artix pays OpenRouter/Perplexity ONLY when credits sold — prepaid pool, no subsidy
+    - Rule: paid-track AI blocked at 0 credits — hard stop + buy pack
+    - Margin: pack INR > API cost — target 30–50% gross on credit revenue
+
+  COST CONTROL
+    - Redis cache: same inputs = no re-call (cache hit = 0 credits charged)
+    - Rate limit per tenant per hour (abuse prevention)
+    - Per-action credit weight: simple gen = 1 credit; bulk/vision = N credits (Batch F table)
+
+TIER GATING (draft — finalize in costing session)
+  | Feature                    | Basic     | Pro       | Enterprise |
+  |----------------------------|-----------|-----------|------------|
+  | Auto meta title/desc       | template  | AI custom | AI custom  |
+  | Schema.org markup          | basic     | full      | full       |
+  | AI alt text (per image)    | —         | 50/mo     | unlimited  |
+  | AI About page writer       | —         | 3/mo      | unlimited  |
+  | AI product descriptions    | —         | 100/mo    | unlimited  |
+  | SEO health score           | —         | ✓         | ✓          |
+  | Local keyword suggestions  | —         | ✓         | ✓ + human  |
+  | Regional language meta     | —         | Phase 2   | Phase 2    |
+
+SHARE + SEO TOGETHER
+  - OG images = share cards = SEO social preview (one generated asset)
+  - Facebook/Instagram/WhatsApp previews all use same AI-optimized meta
+  - Product share link = canonical URL with full schema
+
+BRAND: "ALINKS AI" badge on every text field + SEO section (Artix product)
+
+
+8A. DOMAINS & URL ROUTING (LOCKED — Q001)
+--------------------------------------------------------------------------------
+Platform domain (founder acquired): alinks.online
+
+Q001 LOCKED (session 11 — Benjamin):
+  | Tier           | Public URL format                    | Custom domain      |
+  |----------------|--------------------------------------|--------------------|
+  | Free           | alinks.online/[handle]               | —                  |
+  | Basic          | alinks.online/[handle]               | —                  |
+  | Pro            | [handle].alinks.online (always)      | Own domain included (optional setup)|
+  | Enterprise     | [handle].alinks.online (always)      | Own domain included (optional setup)|
+
+DUAL-URL RULE (Q024 — Benjamin)
+  Pro+ tenants ALWAYS have [handle].alinks.online — handle never removed or replaced.
+  When tenant connects custom domain (e.g. shop.priyabeauty.com), BOTH URLs serve the site.
+  No custom domain yet → subdomain is the public URL; path alinks.online/[handle] 301s to subdomain.
+  Custom domain connected → canonical SEO prefers custom domain; subdomain still resolves.
+
+HANDLE (MANDATORY — all tiers)
+  - Every tenant MUST pick a unique handle at signup
+  - Format: lowercase, a-z 0-9 hyphen, 3–30 chars, no spaces
+  - Examples: priya-salon, vijay-kirana, dr-rama-clinic
+  - Reserved blocked: www, app, api, admin, dashboard, login, mail, support, help,
+    terms, privacy, blog, status, cdn, static, assets, _next
+  - Handle is PERMANENT identity (upgrade Basic→Pro: same handle → gets subdomain)
+  - Handle uniqueness: global across platform (path + subdomain share one namespace)
+
+UPGRADE PATH (same handle throughout)
+  Free/Basic:  alinks.online/priya-salon
+  Upgrades to Pro → automatically also: priya-salon.alinks.online
+  Both URLs work during transition; canonical redirects to Pro preferred URL
+  Old path URL 301 redirects to subdomain (SEO juice preserved)
+
+PRO — CUSTOM DOMAIN (optional, tenant brings domain)
+  Tenant enters: shop.priyabeauty.com (or priyabeauty.com)
+
+  ALINKS dashboard shows step-by-step (copy-paste values):
+
+  STEP 1 — Verify ownership (TXT record)
+    Host:  _alinks-verify.shop.priyabeauty.com  (or root if apex)
+    Value: alinks-verify=[unique-token-per-tenant]
+    Purpose: proves tenant owns domain before we route traffic
+
+  STEP 2 — Point traffic (choose one)
+
+    Option A — Subdomain (RECOMMENDED): shop.priyabeauty.com
+      Type:  CNAME
+      Host:  shop  (or full subdomain)
+      Value: custom.alinks.online
+      SSL:   auto via Cloudflare for SaaS / Vercel custom hostnames
+
+    Option B — Apex/root: priyabeauty.com (harder, avoid if possible)
+      Type:  A
+      Host:  @
+      Value: [ALINKS edge IP — provided in dashboard]
+      Also:  TXT verify as above
+      Note:  tell tenant root domain may conflict with existing email/website
+
+  STEP 3 — ALINKS auto-checks DNS every 5 min → "Connected ✓" or "Pending…"
+  STEP 4 — SSL certificate auto-issued (Let's Encrypt / Cloudflare)
+  STEP 5 — Canonical URL in SEO = custom domain when active
+           [handle].alinks.online remains live (not disabled) — dual-URL per Q024
+
+  Engineering: Cloudflare for SaaS (Custom Hostnames) OR Vercel custom domains
+  Tenant never touches server config — only copy DNS records from dashboard
+
+PLATFORM SUBDOMAINS (Artix infrastructure on alinks.online)
+  - app.alinks.online        → tenant dashboard login
+  - api.alinks.online        → API (if separate)
+  - www.alinks.online        → marketing homepage for ALINKS product
+  - *.alinks.online          → wildcard SSL for all Pro tenant subdomains
+  - custom.alinks.online     → CNAME target for custom domain routing
+
+DOUBTS RESOLVED (no blockers — decisions made)
+  [x] Domain is alinks.online (not .in) — update all docs and examples
+  [x] Handle mandatory all tiers — yes
+  [x] Free/Basic = path only; Pro = subdomain — yes
+  [x] Custom domain = Pro+ included; handle subdomain always + own domain additive — Q024
+  [x] TXT + CNAME approach — standard, Cloudflare handles SSL
+
+MINOR OPEN (Benjamin confirm if you care)
+  [ ] Enterprise: white-label domain (links.artix.com) — later?
+  [ ] Handle change: allowed once per year or locked forever? REC: 1 change/year
+
+
+17. COSTING & PRICING FRAMEWORK (NEXT SESSION — STRUCTURED)
+--------------------------------------------------------------------------------
+Founder intent: Help calculate costs, set expected targets, price tiers accordingly.
+This section will be filled in Session 11 with full numbers. Framework below.
+
+COST BUCKETS TO MODEL (monthly per tenant at scale)
+  A. Infrastructure: hosting, Redis, R2, CDN, PostgreSQL (Artix)
+  B. AI API: OpenRouter + Perplexity (Q032)
+     - Track 1: subscription-included caps (descriptions/SEO) — cost baked into tier price
+     - Track 2: credit packs — tenant overage + ALL client AI; Artix margin on packs
+     - Client AI = 100% paid track; never subsidized
+  C. Google APIs: Sheets read/write quota
+  D. Supabase resale: pass-through + margin (premium tenants only)
+  E. SMS/WhatsApp notifications: MSG91 per message
+  F. Payment gateway: Razorpay % on Artix subscriptions
+  G. Support + moderation: assumed minutes per tenant
+
+REVENUE TARGETS (Q038/Q039 — session 33)
+  [x] Q039 phased: initial ~₹1.25L MRR → month 12 ~₹3.25L → later higher
+  [x] Q038: 500 total / 250 paying @ month 12 post-launch (locked session 34)
+  [ ] CAC assumption: organic vs paid?
+  [ ] Churn assumption: 5% / 10% monthly?
+  [ ] Free tier %: 30% / 50%?
+
+PRICING OUTPUT (next session delivers)
+  - Basic / Pro / Enterprise INR monthly + annual
+  - Supabase add-on INR
+  - ALINKS AI Credit packs (INR per pack size — Q032 overage model)
+  - Break-even tenant count per tier
+  - Gross margin % target: 70%+ SaaS standard
+
+Q033 — HOW TO PRICE (METHODOLOGY — session 29 REC, not locked)
+--------------------------------------------------------------------------------
+Do NOT pick prices first. Run this 5-step worksheet, then set INR.
+
+STEP 1 — CONFIRM TARGETS (Benjamin fills — unlocks Q038/Q039)
+  | Input                    | Example A (conservative) | Example B (growth) |
+  |--------------------------|--------------------------|---------------------|
+  | Total tenants month 12   | 500                      | 1,000               |
+  | Paying %                 | 40% (200 paying)         | 50% (500 paying)    |
+  | Target MRR month 12      | ₹2.5L                    | ₹6L                 |
+  | Monthly churn            | 8%                       | 6%                  |
+  | Free tier % of signups   | 40%                      | 35%                 |
+
+STEP 2 — COST PER TENANT / MONTH (variable COGS — estimate at 500 tenants)
+  | Cost bucket              | Basic (lite) | Basic (heavy) | Pro (lite) | Pro (heavy) |
+  |--------------------------|--------------|---------------|------------|-------------|
+  | Infra (host, Redis, R2)  | ₹12          | ₹18           | ₹20        | ₹35         |
+  | Artix PG on subscription | ₹8         | ₹8            | ₹12        | ₹12         |
+  | AI Track 1 (included caps)| ₹10        | ₹35           | ₹25        | ₹90         |
+  | Google Sheets API        | ₹0           | ₹0            | ₹8         | ₹25         |
+  | SMS/WhatsApp (Pro book)  | ₹0           | ₹0            | ₹15        | ₹40         |
+  | Support amortized        | ₹10          | ₹10           | ₹15        | ₹20         |
+  | TOTAL COGS               | ~₹40         | ~₹71          | ~₹95       | ~₹222       |
+
+  Fixed overhead (solo): ₹25–40k/mo (infra base + tools + CA) — divide by paying tenants.
+
+STEP 3 — COMPETITOR ANCHORS (India SMB — budget startup segment)
+  | Competitor / alt         | Typical paid range     | ALINKS position        |
+  |--------------------------|------------------------|------------------------|
+  | Dukaan / Bikayi / Zoho   | ₹0–2,999/mo tiers      | Match low, beat on Share|
+  | Agency mini-site         | ₹15k–50k one-time      | 10× cheaper monthly    |
+  | Shopify India            | ₹1,994+ /mo            | Too expensive for kirana|
+  | WhatsApp-only (free)     | ₹0                     | Basic must stay <₹500  |
+
+STEP 4 — LOCKED PRICES (Q033/Q034 — Benjamin session 29)
+  | Tier       | Monthly list | Annual (/mo) | Annual billed  | Save vs monthly |
+  |------------|--------------|--------------|----------------|-----------------|
+  | Basic      | ₹599         | ₹499         | ₹5,988         | ₹1,200/yr (17%) |
+  | Pro        | ₹1,599       | ₹1,499       | ₹17,988        | use Q036 stack  |
+  | Enterprise | ₹6,999       | ₹4,999       | ₹59,988        | ₹24,000/yr (29%)|
+
+  Anchor trick: always display ~~₹599~~ **₹499/mo** with "billed annually" fine print.
+  No forever-free tier — 14-day Pro trial → pay or unpublish (Q035).
+
+STEP 5 — SANITY CHECK MRR MATH (at locked prices, 70% on annual plan)
+  500 paying @ mix 30% Basic / 60% Pro / 10% Ent, 70% choose annual:
+    Blended ≈ ₹1,350 ARPU → ~₹6.75L MRR + add-ons
+  Adjust Q038/Q039 targets against this model.
+
+ADD-ON REC DRAFT (same session)
+  | Add-on                    | REC              |
+  |---------------------------|------------------|
+  | Extra business            | ₹299/mo (Q021)   |
+  | ALINKS AI Credit pack     | ₹99 = 500 credits|
+  | ALINKS AI Credit pack L   | ₹299 = 2,000     |
+  | Supabase connector (BYO)  | ₹399/mo to Artix; tenant pays Supabase direct |
+  | Pro extra product slots   | ₹199/mo per +100 |
+
+Q033–Q040 LOCKED session 29–34. BATCH F COMPLETE.
+
+See Section 11 Decision Register — BATCH F (pricing).
+
+
+5B. VERTICAL-SPECIFIC COMPLIANCE (INDIA)
+--------------------------------------------------------------------------------
+E-COMMERCE — ALL PHYSICAL GOODS (fashion, electronics, electricals, gadgets, etc.)
+  - Tenant is seller of record; Artix is platform/intermediary (IT Act due diligence)
+  - GSTIN field on storefront (required if tenant is GST registered)
+  - HSN code field per product (optional MVP, recommended Pro+)
+  - Return/refund/shipping policy — tenant template required before shop goes live
+  - Consumer Protection Act 2019: e-commerce disclosures (seller identity, MRP,
+    country of origin if applicable, complaint contact)
+  - Legal Metrology (Packaged Commodities) Rules: MRP, net quantity, manufacturer
+    for pre-packed goods — product form must support weight/volume + MRP display
+  - Electronics: BIS certification claims — tenant warrants accuracy; moderate
+    misleading "ISI/BIS" labels; warranty field on product
+  - Electricals: same as electronics — no uncertified unsafe goods marketing
+  - If Artix touches customer money: marketplace facilitator GST + TCS + RBI — CA
+
+E-COMMERCE — FOOD & GROCERY (rice, flour, vegetables, packaged food, FMCG)
+  FSSAI RULE (Q014 + Q015 ALIGNED — Benjamin): SAME AS VEG — TENANT'S JOB, NOT ARTIX POLICE
+  ALINKS rents software. We provide fields + disclaimers. Tenant is liable. We do not
+  block shops or products for missing FSSAI (honor system + ToS + suspend only on abuse).
+
+  TYPE A — BRANDED PRE-PACKAGED (FSSAI on product label)
+    - Product fields: manufacturer_fssai (from pack — AI/photo), MRP, brand name
+    - Tenant shop FSSAI field: optional (encouraged, not enforced)
+
+  TYPE B — TENANT OWN ITEMS (repacked, homemade, fresh veg, loose packed)
+    - Product flag: own_item — UI suggests "enter your FSSAI" + display on page
+    - Tenant FSSAI field on shop: optional at publish — tenant self-declares
+    - NOT blocked by ALINKS if empty — tenant accepts ToS liability checkbox
+    - If tenant enters FSSAI → display on storefront (good practice)
+
+  ONBOARDING (grocery — informational only, not a gate):
+    "What do you sell?" branded / own items / both → sets default product_source on new SKUs
+    Checkbox: "I confirm I have required licenses for food I sell — my responsibility"
+
+  ARTIX ROLE (FSSAI)
+    ✓ Provide tenant FSSAI field + per-product manufacturer FSSAI field
+    ✓ AI reminds "own items usually need FSSAI" — suggestion not block
+    ✓ ToS + tenant legal template: food licenses are tenant duty
+    ✓ Superadmin suspend shop only on complaint, fraud, or illegal listing — not proactive audit
+    ✗ Do NOT block publish for missing FSSAI
+    ✗ Do NOT verify FSSAI numbers (no govt API check MVP)
+
+  RESTAURANT / CLOUD KITCHEN (prepared food): same principle — FSSAI field offered,
+    tenant displays if they have it; not Artix gate. Tenant liable per ToS.
+
+  Fresh vegetables/fruits/perishables (usually Type B own_item):
+      - Expiry/best-before or "sourced today" disclaimer on tenant
+      - Delivery SLA is tenant's responsibility
+      - No false organic/health claims (ASCI + FSSAI advertising norms)
+  - Packaged groceries: MRP, net weight, batch/expiry date fields encouraged
+  - AGMARK / organic claims: tenant must upload proof if they claim it
+  - State-specific: some states restrict certain food online sales — geo notes later
+  - Weights & measures: kg/g/L units must match actual pack size (Legal Metrology)
+
+RESTAURANTS / CLOUD KITCHENS (prepared food — not grocery SKU shop)
+  - FSSAI field on template (tenant fills if they have — honor system, Q014/Q015)
+  - Food safety claims moderated
+  - Swiggy/Zomato integration optional later — not MVP
+  - Distinct from grocery mode: menu items vs packaged SKUs
+
+APPOINTMENTS — TIER 1: SALONS, BEAUTY CENTERS, BARBER, SPA (Q017 — tenant duty)
+  - Same as FSSAI/grocery: ALINKS rents booking software; tenant liable per ToS 5C
+  - Package pay-then-book; tenant owns refunds/disputes; beauty disclaimers in template
+  - No license gate — optional fields; checkbox "I am responsible for my services"
+  - Pre-made packages editable; tenant warrants accuracy; Artix does not verify skills
+  - WhatsApp booking fallback on Basic tier acceptable
+
+APPOINTMENTS — TIER 2: PROFESSIONAL SERVICES (LOW RISK)
+  - Tutors, consultants, photographers, pet groomers
+  - Tenant responsible for professional conduct; Artix is scheduling tool only
+
+APPOINTMENTS — TIER 3: CLINICS, DOCTORS, DENTISTS, LABS (Q017/Q018 — ARTIX PROTECTION)
+  - Same pattern as Q016 pharmacy: license on file MANDATORY, not honor-only
+  - Booking-only — NOT telemedicine, NOT prescriptions, NOT EMR
+  - Tenant uploads: NMC/state medical council / DCI / AYUSH reg + scan
+  - NMC verify: AI-assisted pipeline (5D2) — not manual per tenant at scale
+  - Display reg numbers on doctor profiles; full clinic ToS + 5C disclaimers
+  - Tenant liable for medical conduct; Artix has reg copy + verify log if sued
+  - DPDP Act: patient phone, age, visit reason = personal data; health-related
+    fields = sensitive personal data — explicit consent checkbox at booking:
+    "I agree to share my details with [Clinic Name] for this appointment"
+  - Patient booking data stored in tenant's Google Sheet only — NOT on Artix servers
+  - Artix does not retain, market with, or access patient lists post-request
+  - Tenant (clinic) is data controller; responsible for Google account security
+  - Emergency disclaimer on every clinic template: not for medical emergencies
+  - Telemedicine (video consult): PHASE 3+ only — NMC Telemedicine Practice
+    Guidelines 2020, patient identity verification, consent, prescribing rules
+  - Diagnostic labs: collection-slot booking only; reports NOT stored in ALINKS MVP
+  - Veterinary: vet registration field; separate from human clinic moderation
+
+DOC–PATIENT COMPLIANCE SUMMARY
+  - Doctor–patient relationship is between tenant doctor and patient
+  - ALINKS is neutral scheduling SaaS — ToS must state this clearly
+  - No diagnosis, treatment advice, or prescription via platform chat in MVP
+  - Indemnity: clinic tenant indemnifies Artix for medical malpractice claims
+  - Consumer Protection: appointment fees/refunds per tenant policy
+  - Medical outcomes, negligence, wrong treatment = 100% tenant headache, not Artix
+
+PHARMACY (Q016 LOCKED — license mandatory for ARTIX protection)
+  - Phase 2 vertical; OTC-only — NO prescription drugs, NO Rx upload, NO online consult
+  - EXCEPTION to Q014/Q015 honor system: drug license REQUIRED on file before go-live
+    (Artix must have proof for legal protection — not "tenant says so" only)
+  - Tenant provides: state drug license number + upload scan + checkbox + pharmacy ToS 5C
+  - ALINKS Verify AI pipeline (5D2) — same as clinic; not manual per tenant at scale
+  - Product flag: otc_only — block SKU if prescription-required medicine name detected
+  - Tenant liable for sales; Artix has license copy + approvals log if regulator/sue
+  - Benjamin can suspend pharmacy tenants instantly on complaint or fake license
+
+AFFILIATE MARKETING (Q027 — TWO TRACKS)
+  TRACK A — TENANT AFFILIATE LINKS (their business, their commissions)
+    - Vertical template: Home, Links/offers, Reviews, About, Contact
+    - Phase 1.5: tenant pastes own external affiliate URLs (Amazon, Flipkart, D2C brands)
+    - Phase 2: ALINKS tracks clicks per link on tenant mini-site (dashboard analytics)
+    - ASCI disclosure block mandatory on every affiliate page (#ad / sponsored)
+    - Tenant liable for link accuracy, offers, and disclosure — Artix provides blocks only
+
+  TRACK B — ALINKS PARTNER PROGRAM (Artix-owned — refer tenants to ALINKS)
+    - Partners get unique ref code → alinks.online/join?ref=[code]
+    - Phase 1.5: attribution on signup (cookie + ref param, 30-day window)
+    - Phase 2: partner dashboard (signups, conversions, earnings), payout via Razorpay
+    - Commission model: % of first payment or recurring — INR/rates TBD (Batch F)
+    - Separate from tenant affiliate links; partners are influencers/CAs/agencies/freelancers
+
+  COMPLIANCE (both tracks)
+    - No misleading income claims in Artix or tenant marketing
+    - Platform affiliate ToS + tenant affiliate disclosure in Section 5C matrix
+
+PAYMENTS ON TENANT SITES (Q005 LOCKED — see Section 6B)
+  - Artix-affiliated model: tenants onboard payments ONLY through ALINKS
+  - No "bring your own Razorpay" — Artix is payment partner + facilitator
+  - Triggers RBI marketplace / PA-adjacent rules, GST TCS, Section 194-O — CA + lawyer
+
+
+6. INDIA — LEGAL & TAX (ARTIX / ALINKS)
+--------------------------------------------------------------------------------
+6A. ARTIX ENTITY STATUS (Q004 LOCKED — session 14)
+--------------------------------------------------------------------------------
+CURRENT (today):
+  - Legal form: PROPRIETORSHIP (sole proprietor — Benjamin Anand / Artix)
+  - MSME certificate: YES (obtained)
+  - Pvt Ltd / LLP registration: NOT YET — application in progress, register after
+    application completes (Benjamin to confirm type: likely Pvt Ltd)
+
+PLANNED (before public launch — Phase 3 gate):
+  - Incorporate Artix Private Limited (still recommended over continuing as sole prop
+    at scale — limited liability, Razorpay credibility, investor-ready, tenant trust)
+  - Transfer or re-sign: MSME, GST, Razorpay, domain contracts to Pvt Ltd entity
+  - CA + CS for incorporation, PAN/TAN, bank account in company name
+
+WHAT YOU CAN DO NOW (proprietorship + MSME — Phase 0–2 beta)
+  ✓ Build product, beta test with friends, manual onboarding
+  ✓ Register alinks.online, deploy on Cloudflare/Vercel
+  ✓ MSME benefits: subsidies, loans, govt schemes — keep certificate handy
+  ✓ Start GST registration in proprietor name if turnover approaching threshold
+  ✓ Draft ToS/Privacy with lawyer (can list proprietor name initially)
+  ✓ Open Razorpay in proprietor name for LIMITED beta subscriptions (possible)
+
+WHAT NEEDS REGISTERED ENTITY BEFORE PUBLIC LAUNCH
+  ✗ Scaling paid subscriptions at volume — Razorpay prefers company account
+  ✗ Enterprise tenants / B2B invoices expecting Pvt Ltd name on invoice
+  ✗ Limited liability protection (personal assets exposed in proprietorship)
+  ✗ Hiring employees, ESOP, fundraising
+  ✗ DPDP grievance officer letterhead — company preferred
+
+RECOMMENDED PARALLEL TRACK
+  Weeks 1–8:  Build Phase 0–1 while incorporation application completes
+  Week 8–12:  Complete Pvt Ltd registration + company bank + Razorpay business account
+  Week 17–22: Public launch only on Pvt Ltd entity (Phase 3)
+
+ENTITY ON PLATFORM / LEGAL DOCS (until Pvt Ltd done)
+  - Invoice footer: "Artix — [Proprietor name]" or trading name with MSME UDYAM no.
+  - ToS party: sole proprietor trading as Artix (lawyer to word correctly)
+  - After Pvt Ltd: update all docs to "Artix Private Limited"
+
+Entity for tax (target): Artix Private Limited — discuss with CA
+
+
+6B. PAYMENT MODEL — ARTIX AFFILIATE / PARTNER (Q005 LOCKED)
+--------------------------------------------------------------------------------
+Founder intent (session 15):
+  "My clients want Razorpay, PhonePe, Google Pay. Tenants should only integrate
+   these through Artix — I want to be an affiliate to these companies."
+
+YES — understood. Model shift from "pure SaaS" to "SaaS + embedded payments platform."
+
+WHAT CUSTOMERS (end buyers) SEE AT CHECKOUT
+  One ALINKS checkout on tenant mini-site showing:
+    ✓ UPI — Google Pay, PhonePe, Paytm, BHIM (all via UPI intent / QR)
+    ✓ PhonePe Payment Gateway (direct if PhonePe partner live)
+    ✓ Razorpay checkout — cards, netbanking, wallets, UPI
+    ✓ COD (tenant toggle — cash on delivery, no PG needed)
+
+  Google Pay is NOT a separate merchant API for websites — it appears as UPI option
+  inside Razorpay/PhonePe checkout. Customer taps GPay → UPI app opens. Done.
+
+HOW TENANTS USE PAYMENTS (no own Razorpay account)
+  1. Tenant enables "Payments" in ALINKS dashboard (Pro tier)
+  2. ALINKS onboarding wizard — KYC fields:
+       PAN, Aadhaar (if required by PG), bank account, GSTIN (optional), business proof
+  3. Artix submits tenant as SUB-MERCHANT via partner APIs:
+       - Razorpay Partner Program → linked account / sub-merchant
+       - PhonePe Partner Program → merchant under Artix partnership
+  4. Approval: 24–72 hours (PG dependent)
+  5. Tenant mini-site checkout goes LIVE — money settles to TENANT bank account
+     (Artix routes via Razorpay Route / PhonePe split — tenant is seller of record)
+
+ARTIX PARTNERSHIPS TO APPLY (action items)
+  | Partner        | Program                          | Artix earns              |
+  |----------------|----------------------------------|--------------------------|
+  | Razorpay       | partners.razorpay.com            | Referral % + platform APIs|
+  |                | Sub-merchant onboarding APIs     | PayFac-style embed       |
+  |                | Razorpay Route (payment splits)  |                          |
+  | PhonePe        | business.phonepe.com/partner-program | Partner commission   |
+  |                | Payment Gateway API              |                          |
+  | Google Pay     | No direct SaaS affiliate         | Via UPI in Razorpay/PPG  |
+  | NPCI / UPI     | Licensed via Razorpay/PhonePe only| Never DIY UPI           |
+
+  Apply BOTH Razorpay Partner + PhonePe Partner in Phase 0 (long onboarding).
+
+MONEY FLOW (who gets what)
+  Customer pays ₹500 for rice on tenant kirana mini-site
+    → Razorpay/PhonePe processes payment
+    → Settlement: tenant bank account (minus PG fee ~2%)
+    → Artix affiliate commission: small % from PG partner program (PG pays Artix)
+    → Optional: Artix platform fee % on transaction (DECIDE in pricing — e.g. 0.5–1%)
+    → ALINKS subscription fee: separate (tenant pays Artix monthly for software)
+
+TWO PAYMENT STREAMS FOR ARTIX
+  Stream 1 — ALINKS SaaS billing (tenant → Artix):
+    Tenant pays Basic/Pro/Enterprise subscription to Artix via same Razorpay partner
+    master account (Artix is merchant of record for SaaS fees)
+
+  Stream 2 — Tenant commerce (customer → tenant via Artix stack):
+    End-customer pays tenant for products/packages via embedded checkout
+    Artix facilitates; tenant is seller of record; money to tenant bank
+
+TENANT DASHBOARD — PAYMENTS SECTION
+  - Status: KYC pending | Active | Suspended
+  - Enabled methods: UPI ✓ Cards ✓ COD ✓
+  - Settlement: next payout date, amount (fetched from PG API — not stored long-term)
+  - Artix does NOT hold tenant money in Artix bank — direct/route settlement
+  - "Powered by Razorpay & PhonePe" badges on checkout (partner branding rules)
+
+COMPLIANCE SHIFT (CRITICAL — lawyer + CA before Phase 2 commerce)
+  Artix is NO LONGER "pure SaaS ignoring payments":
+    - RBI: payment aggregation / facilitation — verify if PA license needed or
+      partner exemption via Razorpay/PhonePe licensed umbrella (lawyer MUST confirm)
+    - GST: marketplace TCS may apply on tenant sales if Artix facilitates
+    - Income Tax: Section 194-O (e-commerce operator TDS) — if Artix is ECO
+    - DPDP: payment data flows through Artix checkout — minimal retention policy
+    - PCI: use PG hosted checkout / Razorpay.js — never touch card numbers on Artix servers
+
+  Tenant liability unchanged for product/service quality; Artix facilitates payment rail only.
+  Update Platform ToS: Artix payment facilitation terms + settlement timelines.
+
+TECHNICAL INTEGRATION (engineering)
+  - Razorpay Partner API: OAuth sub-merchant creation, Route linked accounts
+  - PhonePe PG API: standard pay + callback (after partner approval)
+  - Unified ALINKS Checkout component:
+      tries Razorpay first OR PhonePe based on tenant config / failover
+  - UPI intent links for mobile (GPay, PhonePe app deep link)
+  - Webhook hub: payment.captured → write order to Google Sheet / Supabase
+  - Redis: payment status polling cache (30s TTL)
+  - Never store card data; store only: payment_id, order_id, amount, status (ephemeral)
+
+PHASED ROLLOUT
+  Phase 1 Basic: WhatsApp order only — no PG needed
+  Phase 2 Pro: Artix checkout with Razorpay partner (apply partner in Phase 0)
+  Phase 2b: Add PhonePe PG as second rail
+  Phase 3: Full UPI intent + COD + subscription billing same stack
+
+OPEN (legal/pricing)
+  [ ] Artix transaction fee on tenant sales? (0% vs 0.5% vs 1%) — pricing session
+  [ ] Lawyer sign-off on PayFac vs licensed partner umbrella model
+  [ ] Tenant KYC: Artix collects PAN/Aadhaar — DPDP purpose limitation docs
+
+
+ALINKS subscription revenue:
+  - GST 18% on SaaS (SAC code verification with CA)
+  - Invoice to tenants with Artix GSTIN
+  - TDS: unlikely on B2B SaaS invoices unless specific cases
+
+Tenant revenue (their sales):
+  - Tenant collects GST on their goods/services
+  - Artix does NOT automatically become liable IF pure SaaS (no payment facilitation)
+  - If payment facilitation added: Section 194-O, TCS, marketplace GST — revisit
+
+Payments for subscriptions (Artix):
+  - Razorpay / Cashfree subscriptions API
+  - UPI AutoPay / cards for recurring Basic/Pro/Enterprise billing
+  - Promo codes: FIRST100 (2 months), FREEMONTH (1 month) — system-enforced
+
+Andhra Pradesh:
+  - Professional tax, shops & establishment if local office
+  - Regional UI langs (Q025): Hindi + Marathi + South cluster — Phase 2 after English MVP
+
+
+7. INTERNATIONAL (PHASE 2+) — UNCHANGED PRIORITY LIST
+--------------------------------------------------------------------------------
+Markets: Singapore | UAE | Russia | Malaysia | South Korea | Japan
+
+Common requirements:
+  - Localized privacy notice, currency, tax display
+  - Subscription VAT/GST per country as thresholds hit
+  - Tenant vertical rules repeat per country (food, pharma stricter everywhere)
+
+Russia & South Korea: highest cost to do correctly — defer to Phase 3.
+
+
+8. PLATFORM ARCHITECTURE (STACK LOCKED — Q006)
+--------------------------------------------------------------------------------
+Core pattern: Multi-tenant SaaS with public mini-sites per tenant
+
+
+8B. TECH STACK DECISION — NEXT.JS NOT PYTHON (Q006 LOCKED)
+--------------------------------------------------------------------------------
+Founder question: Python or Next.js? PostgreSQL must use. What to suggest?
+
+RECOMMENDATION: Next.js 14+ App Router monolith (TypeScript) — single codebase
+Do NOT split into Python backend + separate frontend for MVP (too slow solo).
+Do NOT use Django templates for tenant sites (weak mobile UX + SEO vs Next).
+
+WHY NEXT.JS WINS FOR ALINKS (vs Python backend)
+  | Requirement              | Next.js                         | Python (FastAPI/Django)     |
+  |--------------------------|---------------------------------|----------------------------|
+  | Mobile-first mini-sites  | SSR/SSG native, fast LCP        | Needs separate React front  |
+  | ALINKS AI SEO            | Meta tags, schema in same render| Front still needed          |
+  | alinks.online/[handle]   | Middleware tenant resolution    | Same but 2 projects         |
+  | *.alinks.online wildcard | Edge middleware on Cloudflare   | Possible, more plumbing     |
+  | OG / share card previews | @vercel/og, Satori in-app       | Pillow/Python possible, split|
+  | Dashboard + public site  | One repo, route groups          | 2 repos minimum             |
+  | Razorpay/PhonePe webhooks| API routes                      | FastAPI good — but split    |
+  | Google Sheets API        | googleapis npm                  | google-api-python-client  |
+  | Redis cache              | ioredis / Upstash               | redis-py — either works     |
+  | Solo founder + AI assist | 1 language (TS), ship faster    | 2 stacks = slower           |
+  | Hire in India 2026       | Huge Next/React pool            | Python backend pool OK      |
+  | Deploy                   | Vercel / Cloudflare Workers     | Railway/Fly + separate FE   |
+
+WHEN PYTHON WOULD MAKE SENSE (not now)
+  - Heavy ML pipelines, custom model training
+  - Massive CSV/ETL batch jobs (import 50k kirana SKUs)
+  - Phase 4: optional Python worker service for bulk AI if Node times out
+  - MVP: call Grok/OpenAI APIs from Next.js server — no Python needed
+
+LOCKED STACK (production)
+  LANGUAGE:     TypeScript (strict) — front + back one project
+  FRAMEWORK:    Next.js 14+ App Router
+  DATABASE:     PostgreSQL 16
+  ORM:          Drizzle ORM (type-safe, migrations via drizzle-kit)
+  CACHE:        Redis via Upstash (Mumbai region)
+  FILES:        Cloudflare R2 (S3-compatible — product images, share cards)
+  AUTH:         Better Auth or Auth.js — phone OTP via MSG91/Firebase
+  PAYMENTS:     Razorpay Node SDK + PhonePe PG API
+  GOOGLE:       googleapis (Sheets + Drive OAuth)
+  AI:           xAI Grok API / OpenAI — called from Server Actions
+  QUEUE:        Inngest or BullMQ on Redis (Google Sheet retry, share card gen)
+  EMAIL/SMS:    MSG91 (India OTP + transactional)
+  HOSTING:      Cloudflare (DNS wildcard alinks.online) + Vercel OR Cloudflare Pages
+                Artix Postgres: Neon (Mumbai) or Supabase (Artix platform DB only)
+  CDN/WAF:      Cloudflare
+  MONITORING:   Sentry + Cloudflare analytics
+
+REPO STRUCTURE (monorepo single app)
+  /app
+    /(marketing)     → www.alinks.online homepage
+    /(dashboard)     → app.alinks.online tenant dashboard
+    /(admin)         → superadmin Benjamin
+    /(site)/[handle] → tenant public mini-sites path routing
+  /middleware.ts     → resolve tenant: path | subdomain | custom domain
+  /lib
+    /db              → Drizzle schema (tenant data ONLY)
+    /storage         → StorageAdapter (Google Sheets | Supabase)
+    /payments        → Razorpay + PhonePe partner
+    /ai              → ALINKS AI context + generation
+    /share           → Share card renderer
+    /cache           → Redis helpers
+
+WHAT WE ARE NOT USING (MVP)
+  ✗ Python Django/FastAPI main API
+  ✗ Separate React SPA (Vite) + Python API
+  ✗ MongoDB, Firebase as primary DB
+  ✗ PHP, WordPress multi-site
+  ✗ Flutter for tenant sites (web-first; native app Phase 4+)
+
+POSTGRESQL — YES, NON-NEGOTIABLE
+  - Artix platform DB only (tenants, config, billing, handles, OAuth tokens)
+  - NOT client PII — client data → Google Sheets / tenant Supabase
+  - Drizzle migrations in CI; branch DB for dev
+
+SCALING PATH (same stack, no rewrite)
+  - 0–1k tenants: Vercel + Neon + Upstash (current stack)
+  - 1k–10k: Cloudflare full edge, read replicas, Redis cluster
+  - 10k+: split workers (Inngest), still Next.js — no Python rewrite required
+
+ROUTING (see Section 8A — LOCKED)
+  - Free/Basic: alinks.online/[handle]
+  - Pro/Enterprise: [handle].alinks.online + optional custom domain (CNAME + TXT)
+  - Wildcard SSL: *.alinks.online via Cloudflare
+  - Middleware: resolve tenant from path handle OR subdomain OR custom domain host
+
+MOBILE-FIRST PUBLIC SITE
+  - Server-rendered for SEO + fast first paint on 4G
+  - Responsive: mobile primary, tablet second, desktop "optional enhancement"
+  - PWA optional (add-to-homescreen for tenant customers)
+
+DASHBOARD (tenant admin)
+  - Web app, mobile-friendly (founders edit from phone)
+  - Page editor: sections/blocks, not free-form HTML (security + consistency)
+  - Max 5 pages enforced in DB schema + API validation
+  - Media library limits per tier
+  - Client bookings/orders: read/write tenant's Google Sheet (NOT Artix Postgres)
+  - "Connect Google" status indicator; reconnect flow if token expires
+
+DATA LAYER (LOCKED PRINCIPLE — THREE DB MODEL)
+  Artix PostgreSQL:     tenants, config, catalog, subscriptions, pages, PIN hash
+  Tenant Google Sheets: client PII (default backend) — tenant owns
+  Tenant Supabase:      client PII (premium backend) — tenant owns, Artix provisions
+  StorageAdapter pattern: booking flow writes to chosen backend only
+  No client_pii tables in Artix PostgreSQL — ever
+
+SUPERADMIN (Benjamin Anand)
+  - Tenant list, suspend/ban, promo overrides
+  - Vertical approval queue:
+      pharmacy | clinics/doctors (NMC) | illegal listings — not FSSAI audit
+  - Suspend clinic tenants with fake reg numbers or patient complaints
+  - Product/category moderation (prohibited goods, counterfeit flags)
+  - Platform analytics, MRR, churn
+  - Feature flags per region
+  - Content/report moderation queue
+
+TECH STACK (LOCKED — Section 8B)
+  Next.js 14+ App Router + TypeScript + Drizzle + PostgreSQL
+  Redis Upstash | R2 | Cloudflare | Razorpay/PhonePe Node SDKs
+  Client data store (pick per tenant business):
+    - Google Sheets API + Drive API (default, tenant OAuth)
+    - Supabase JS + service role (premium, Artix-provisioned or BYO)
+  StorageAdapter interface in backend — same booking code, two backends
+  Google OAuth: connect tenant Google account; encrypted refresh tokens in DB
+  Auth: Phone OTP (India) + email for tenants; superadmin role separate
+  File storage: R2/S3 for tenant images (not client documents)
+  CDN: Cloudflare
+  Billing: Razorpay Subscriptions (tenant billing to Artix)
+  Tenant commerce: Razorpay Route / Connect (if tenant payments) — TBD
+  Redis (Upstash, Mumbai): speed layer — see Section 5G (LOCKED, founder approved)
+    catalog cache, dashboard reads, share cards, sessions, rate limits
+    TTL 2–15 min — NEVER permanent client data store
+
+Why NOT native mobile app for MVP:
+  - Tenant sites are web — customers visit links on WhatsApp/Instagram
+  - Dashboard works as mobile web first; native app can come later for Artix brand
+
+
+9. MVP SCOPE RECOMMENDATION (DISCUSS)
+--------------------------------------------------------------------------------
+MVP (India only) — suggested cut for speed + compliance:
+  [IN]  5-page mini-site builder, 3–5 templates
+  [IN]  Dashboard, phone OTP login
+  [IN]  Subdomain per tenant
+  [IN]  Subscription billing (Free promo + Basic/Pro)
+  [IN]  WhatsApp button, click-to-call, Google Maps embed
+  [IN]  Basic analytics (page views)
+  [IN]  Superadmin panel
+  [OUT] Custom domain (Pro — phase 1.5)
+  [OUT] Full e-commerce checkout (Pro — phase 1.5)
+  [OUT] Appointments engine (Pro — phase 1.5; salon before clinic)
+  [OUT] Pharmacy vertical (manual review + phase 2)
+  [OUT] International billing
+  [OUT] Desktop-perfect layouts (good enough responsive only)
+
+Founder wants "everything" — phased delivery reduces lawsuit risk and ships faster.
+
+Recommended ecommerce phasing:
+  Phase 1.5a: General product shop (fashion, gadgets, accessories) + WhatsApp order
+  Phase 1.5b: Grocery template + FSSAI Q014 + packaged & fresh veg (tenant chooses)
+  Delivery/pin-code fields: tenant configures; Artix does not restrict product type (Q015)
+  Phase 2:   Full cart checkout + tenant Razorpay + GST invoice helper
+
+Appointments module (Q017): salon + clinic templates ship together when feature ready
+  - Salon/beauty: packages, pay-then-book, honor + ToS (no license gate)
+  - Clinic/doctor: same module + NMC license mandatory + superadmin approve
+  Phase 2: multi-staff roster, reminders, deposit payment, clinic multi-seat
+  Phase 3: telemedicine — NMC legal review only (NOT before)
+
+MVP launch templates: General startup + Portfolio + simple Shop (catalog, no checkout)
+
+NOTE: Section 9 above is pre-Q002. See 9B for current launch plan.
+
+
+9B. BUILD ROADMAP — LAUNCH ASAP WHEN READY (Q003 LOCKED)
+--------------------------------------------------------------------------------
+Founder: vision since 2023 — launch as soon as everything is built, no fake delays.
+
+STRATEGY: "Soft launch ladder" — ship usable product at each gate, add features weekly.
+Public marketing launch = when Phase 3 complete. Private beta can start at Phase 1.
+
+PHASE 0 — FOUNDATION (weeks 1–4)
+  - Entity: proprietorship OK for dev; Pvt Ltd application tracking in parallel
+  - alinks.online DNS (Cloudflare wildcard SSL)
+  - Next.js monorepo, PostgreSQL, Redis (Upstash), R2
+  - Tenant auth (phone OTP), handle system, superadmin skeleton
+  - alinks.online marketing page + app.alinks.online dashboard shell
+  GATE: Benjamin can log in as superadmin
+
+PHASE 1 — SOFT BETA "Sites live" (weeks 5–10)
+  - 5-page builder, 3 templates, ALINKS AI basic text generation
+  - Free + Basic: alinks.online/[handle]
+  - Commerce Lite (Option A): catalog + WhatsApp order
+  - Razorpay subscriptions (Basic billing)
+  - Legal: platform ToS/Privacy v1, tenant template v1
+  - 10–20 beta tenants from AP network (manual onboarding)
+  GATE: first paying Basic tenant
+
+PHASE 2 — PRO COMMERCE (weeks 11–16)
+  - [handle].alinks.online subdomains
+  - Commerce Pro (Option B): cart + tenant Razorpay checkout
+  - Google Sheets client data pipe + Redis cache
+  - Tap & Blast (WhatsApp + FB link + listing assistant)
+  - Custom domain DNS wizard (TXT + CNAME)
+  - Salon packages + pay-then-book
+  GATE: first Pro tenant with on-site UPI payment
+
+PHASE 3 — PUBLIC LAUNCH India (weeks 17–22) ← "LAUNCH" when Benjamin ready
+  - ALINKS AI full (SEO, bulk descriptions, share captions)
+  - Meta Commerce catalog sync (Pro)
+  - Appointments multi-staff, clinic gated onboarding
+  - Promo codes FIRST100 + FREEMONTH
+  - SEO sitemaps, schema.org, Core Web Vitals
+  GATE: open signup, marketing push Andhra Pradesh + national
+
+PHASE 4 — GROWTH (weeks 23–30+)
+  - Supabase add-on, Enterprise multi-business
+  - Supabase partner live, Meta Marketplace partner application follow-up
+  - Dashboard i18n: Hindi, Marathi, Telugu, Tamil, Kannada, Malayalam (Q025)
+  - International prep (SG/UAE)
+  - Pharmacy OTC gated, fresh veg grocery
+
+TEAM ASSUMPTIONS (adjust timeline)
+  | Team                          | Phase 3 public launch estimate |
+  |-------------------------------|--------------------------------|
+  | Benjamin solo + AI coding     | 6–9 months (realistic)         |
+  | Benjamin + 1 full-stack dev   | 4–5 months                     |
+  | Benjamin + 2 devs + designer  | 3–4 months                     |
+
+HONEST SCOPE NOTE
+  Full vision (all verticals + AI + share + Sheets + Supabase + FB Partner API)
+  cannot ship day 1 — but Q003 means: launch PUBLIC when Phase 3 done, not before.
+  Beta tenants can use product from Phase 1 — "building in public" since 2023 vision.
+
+MILESTONE DATES (no calendar lock — work-based gates only)
+  - Private beta:     Phase 1 gate passed
+  - Paid customers:   Phase 1 gate
+  - Public launch:    Phase 3 gate
+  - "Everything":     Phase 4 ongoing (years, not weeks)
+
+WHAT BLOCKS LAUNCH (fix before public)
+  [ ] Artix Pvt Ltd incorporated (in progress — MSME done, application pending)
+  [ ] Lawyer ToS + Privacy (can draft under proprietor, amend after Pvt Ltd)
+  [ ] Razorpay live
+  [ ] GST registration
+  [ ] Grievance officer appointed (DPDP)
+
+
+10. COMPETITIVE POSITIONING (INDIA)
+--------------------------------------------------------------------------------
+Competitors / alternatives tenants use today:
+  - Linktree, Beacons, Bio.link (link-in-bio — too shallow for "mini website")
+  - Dukaan, Bikayi (commerce-heavy, more expensive)
+  - Wix / WordPress (too complex for non-tech founders)
+  - Instagram / WhatsApp Business only (no owned presence)
+
+ALINKS sweet spot:
+  - More than link-in-bio, less than Wix
+  - India-priced, India templates, UPI-native mindset
+  - 5-page constraint = faster setup, better mobile UX, lower support burden
+  - One shop for kirana + electronics + fashion — rivals Dukaan/Bikayi on simplicity,
+    beats them on "full digital presence" (not commerce-only)
+  - Tap & Blast: beats Dukaan on WhatsApp/Instagram sharing (visual cards,
+    Story format, multi-product blast — not just ugly links)
+  - Appointments: competes with Fresha (beauty), Practo (doctors) — ALINKS wins on
+    "mini-site + booking in one cheap tool" for startups, not enterprise hospital EMR
+  - Redis speed layer: dashboard + shop feel native-fast even on Google Sheets backend
+
+
+11. POINT-WISE DECISION REGISTER
+--------------------------------------------------------------------------------
+How we decide: one batch at a time. Status: LOCKED | RECOMMENDED | OPEN | DEFERRED
+Benjamin replies: "Q003: yes" or "Q003: no, use X instead" — we update and lock.
+
+Format: Q### | Question | Recommendation | Status | Benjamin answer
+
+─── BATCH A: MVP & LAUNCH (decide first) ───
+Q001 | URL routing per tier on alinks.online?
+     | LOCKED: Free/Basic = alinks.online/[handle]; Pro = [handle].alinks.online
+     | Pro custom domain: CNAME → custom.alinks.online + TXT verify (Section 8A)
+     | Status: LOCKED (session 11) | Answer: YES per Benjamin
+
+Q002 | E-commerce Option A vs B — how to ship and price?
+     | LOCKED: BOTH options — priced by tier (not by launch phase)
+     | Basic = Option A (catalog + WhatsApp order, no on-site payment)
+     | Pro = Option B (full cart + UPI/card checkout + pay-then-book packages)
+     | Both built for MVP launch; Basic tenants cannot checkout on-site
+     | Optional add-on later: "Checkout upgrade" for Basic → ₹X/mo (DECIDE in pricing)
+     | Status: LOCKED (session 12) | Answer: YES per Benjamin
+
+Q003 | Launch timeline target?
+     | LOCKED: ASAP when built — founder vision since 2023, no artificial delay
+     | No fixed calendar date; ship phased MVPs as each phase completes
+     | Realistic build estimate below (Section 9B) — solo vs team changes speed
+     | Status: LOCKED (session 13) | Answer: ASAP per Benjamin
+
+Q004 | Artix legal entity status?
+     | LOCKED: Proprietorship NOW + MSME certificate YES
+     | Pvt Ltd registration NOT YET — application in progress, register when complete
+     | Public launch (Phase 3) requires Pvt Ltd — beta can run as proprietor
+     | Status: LOCKED (session 14) | Answer: per Benjamin
+
+Q005 | Tenant payments: own PG vs Artix-facilitated?
+     | LOCKED (revised session 15): ARTIX-AFFILIATED PAYMENTS ONLY
+     | Tenants do NOT bring own Razorpay — they onboard via ALINKS payment stack
+     | Artix becomes partner/affiliate: Razorpay + PhonePe (+ GPay via UPI rails)
+     | Customers pay: Razorpay checkout, PhonePe PG, Google Pay/UPI, cards, COD
+     | Status: LOCKED — legal review REQUIRED (PayFac / marketplace rules)
+     | Answer: per Benjamin — affiliate model, tenants integrate only through Artix
+
+Q006 | Tech stack — Python vs Next.js? PostgreSQL required.
+     | LOCKED: Next.js 14+ App Router (TypeScript) — NOT Python for main platform
+     | PostgreSQL + Drizzle ORM | Redis (Upstash) | R2 (images/share cards)
+     | Python optional Phase 4 only for heavy AI batch workers — not MVP
+     | Full rationale: Section 8B
+     | Status: LOCKED (session 16) | Answer: Next.js stack per analysis
+
+─── BATCH B: DATA & STORAGE ───
+  PLAIN GUIDE (Q007 + Q008 — Benjamin does not need to handle tech manually)
+
+  Q007 IN ONE SENTENCE:
+    Before a tenant can take orders or bookings online, they must connect their
+    Google account once — so customer data goes to THEIR Sheet, not Artix servers.
+    Basic tier (website only, WhatsApp link) = Google optional.
+    Pro tier (shop/checkout/booking) = Google required, dashboard blocks go-live until connected.
+
+  Q008 IN ONE SENTENCE:
+    If Google is slow/down when customer books — customer still sees success;
+    ALINKS retries saving to Sheet for 24h automatically. Tenant sees "pending sync"
+    in dashboard. Benjamin/superadmin never manually fixes individual orders.
+
+Q007 | Google connect mandatory before shop/booking live?
+     | LOCKED: YES for Pro shop/booking; optional for Basic (site + WhatsApp only)
+     | UX: onboarding wizard step "Connect Google" with explainer video (30 sec)
+     | Status: LOCKED (session 6–7, explained session 17) | Answer: YES
+
+Q008 | Failed Google write: error to customer or 24h queue?
+     | LOCKED: Queue 24h — customer always sees "Confirmed"; ALINKS retries silently
+     | Benjamin does NOT handle this manually — engineering + dashboard alerts only
+     | Status: LOCKED (session 17 — founder delegated to REC) | Answer: AUTO
+
+Q009 | Redis as speed layer?
+     | Status: LOCKED (session 9) | Answer: YES
+
+Q010 | Supabase default: Artix-provisioned vs BYO?
+     | LOCKED: TENANT BYO (Bring Your Own Supabase) — tenant owns project 100%
+     | Artix = affiliate/partner connector (like payment stack model spirit)
+     | Apply Supabase Partner Program + publish ALINKS OAuth integration app
+     | Tenant signs up via Artix referral OR connects existing project via OAuth
+     | Artix earns: partner rev share (if Supabase program) + ALINKS connector fee
+     | Artix does NOT host tenant client DB on Artix Supabase org (BYO only)
+     | Default for all tiers remains Google Sheets — Supabase is paid upgrade path
+     | Status: LOCKED (session 18) | Answer: BYO + Artix affiliate per Benjamin
+
+Q011 | Supabase on churn: delete project when?
+     | LOCKED (BYO model Q010): Artix NEVER deletes tenant Supabase project
+     | On churn/cancel: 30-day grace → export tools active → revoke ALINKS OAuth only
+     | After 30 days: ALINKS disconnects; tenant Supabase project stays in THEIR account
+     | Tenant deletes own Supabase manually if they want — not Artix job
+     | Status: LOCKED (session 19) | Answer: 30-day grace + revoke only, no delete
+
+Q012 | Data PIN: 4-digit or 6-digit?
+     | LOCKED: 6-digit PIN + device security integration (biometric when available)
+     | Mobile dashboard: Face ID / fingerprint unlocks client data view after PIN setup
+     | Fallback: 6-digit PIN if device has no biometric
+     | Status: LOCKED (session 20) | Answer: YES per Benjamin
+
+Q013 | Clinic tab: separate "Patients" vs shared "Customers"?
+     | LOCKED: Clinics → "Patients" tab; salon/kirana/shop → "Customers" tab
+     | Same Sheet/Supabase file per business; tab name depends on vertical
+     | Patients fields: name, phone, doctor, slot, visit reason (no diagnosis MVP)
+     | Status: LOCKED (session 20) | Answer: YES per Benjamin
+
+─── BATCH C: VERTICALS & COMPLIANCE ───
+Q014 | Grocery FSSAI: required at onboarding or honor system?
+     | LOCKED (revised session 22): SAME AS Q015 — tenant's problem, not Artix gate
+     | Distinguish branded (manufacturer FSSAI on product) vs own_item (tenant FSSAI field)
+     | Artix provides fields + ToS + checkbox — does NOT block publish for missing FSSAI
+     | Tenant liable; superadmin suspends only on abuse/complaint — not license police
+     | Status: LOCKED | Answer: honor system + tools per Benjamin
+
+Q015 | Fresh veg at launch or packaged-only first?
+     | LOCKED: NOT Artix problem — tenant chooses what they sell
+     | ALINKS rents software/services; we do not phase-gate product categories
+     | When grocery shop is live: packaged AND fresh veg both available
+     | Tenant liable for own items (Q014 FSSAI); Artix provides fields (expiry, unit kg)
+     | Status: LOCKED (session 22) | Answer: per Benjamin — tenant decides, not us
+
+Q016 | Pharmacy at launch?
+     | LOCKED: Phase 2 vertical — OTC-only, NO prescription drugs ever MVP
+     | LICENSE MANDATORY for Artix protection (exception to Q014 FSSAI honor system)
+     | Before pharmacy goes live: drug license upload/number + ToS checkbox + 5C legal
+     | Superadmin approve recommended — license on file protects Artix if sued
+     | Rx upload, online consult, medicine delivery — blocked in product
+     | Status: LOCKED (session 23) | Answer: OTC + license required per Benjamin
+
+Q017 | Salon/beauty vs clinic booking launch order?
+     | LOCKED: NO forced launch order — same as Q014/Q015/Q016 pattern
+     | Both available when appointments module ships; tenant picks vertical
+     | Salon/beauty: honor system + full ToS (tenant liable) — like FSSAI food
+     | Clinic: NMC/reg license MANDATORY on file for Artix protection — like pharmacy
+     | Status: LOCKED (session 24) | Answer: per Benjamin
+
+Q018 | Clinic NMC verify: manual superadmin or honor?
+     | LOCKED: License on file REQUIRED — AI-assisted verify, NOT 1000s manual by Benjamin
+     | Hybrid pipeline (Section 5D2): ML/OCR + rules → auto-approve OR human review queue
+     | Benjamin/superadmin: spot audits, appeals, suspensions — not every single clinic
+     | Status: LOCKED (session 25) | Answer: AI-assisted + license mandatory per Benjamin
+
+Q019 | Tenant legal pages: block publish until T&C + Privacy done?
+     | LOCKED: YES — site cannot go public without tenant T&C + Privacy published
+     | Platform ToS at signup; sector disclaimers auto-injected; see Section 5C matrix
+     | FSSAI/NMC optional fields — disclaimers still mandatory in templates
+     | Status: LOCKED (session 23) | Answer: YES — each and everything per Benjamin
+
+Q020 | COD default on for Indian shops?
+     | LOCKED: Default ON — tenant can turn OFF in dashboard
+     | COD risk (fake orders, no-shows, cash handling) = 100% tenant liability per ToS 5C
+     | Artix provides COD toggle only; not party to delivery disputes or payment collection
+     | Tenant T&C template: COD terms (confirmation call, minimum order) — tenant edits
+     | Status: LOCKED (session 26) | Answer: default ON, tenant risk not Artix per Benjamin
+
+─── BATCH D: PRODUCT LIMITS & FEATURES ───
+Q021 | Max businesses per tier?
+     | LOCKED: Basic 1, Pro 1, Enterprise 3 (add-on +₹299/mo per extra business)
+     | One tenant login; business switcher for multi-site (see 5E)
+     | Status: LOCKED (session 27) | Answer: YES — per REC
+
+Q022 | Product limit per tier?
+     | LOCKED: Basic 25, Pro 200, Enterprise 2000
+     | Pro: can purchase additional product slots on request (add-on — INR in Batch F)
+     | Basic/Enterprise: hard cap unless Enterprise custom deal
+     | Status: LOCKED (session 27) | Answer: REC + Pro on-request extra slots
+
+Q023 | Pre-made salon packages at launch: how many?
+     | LOCKED: 12 templates at launch (6 salon + 6 beauty center)
+     | Tenant can use as-is OR customize (price, duration, services, photos) + create custom
+     | Status: LOCKED (session 27) | Answer: YES 12 + customization allowed
+
+Q024 | Custom domain: Pro or Enterprise only?
+     | LOCKED: Pro+ included (Pro and Enterprise — differentiator vs competitors)
+     | Handle is PERMANENT: [handle].alinks.online ALWAYS works for Pro+
+     | Custom domain is ADDITIVE — tenant adds own domain when ready; both URLs live
+     | No custom domain configured → subdomain [handle].alinks.online is primary public URL
+     | Basic/Free: path alinks.online/[handle] only — no custom domain
+     | Status: LOCKED (session 27) | Answer: Pro included; handle + own domain both work
+
+Q025 | Telugu/Hindi UI at launch?
+     | LOCKED: English dashboard + mini-site builder UI at launch (MVP)
+     | Phase 2 dashboard i18n — India coverage beyond AP:
+     |   Hindi (Delhi, Mumbai, Pune), Marathi (Pune, Mumbai), Telugu (AP/South),
+     |   Tamil, Kannada, Malayalam (South India cluster)
+     | Tenant picks language in onboarding; AI content gen follows same langs (Pro+)
+     | Public mini-site: tenant content any language; ALINKS chrome = chosen UI lang
+     | Status: LOCKED (session 27) | Answer: English launch; Hindi + South langs Phase 2
+
+Q026 | Group class booking (yoga batches)?
+     | LOCKED: Phase 2 — NOT MVP (MVP = 1:1 slot booking only)
+     | Phase 2 adds GROUP + SLOT module on same appointments engine:
+     |   capacity per slot, batch/class name, recurring schedule, waitlist optional
+     | Verticals: yoga, zumba, gym batches, dance, music, tuition, coaching workshops
+     | MVP verticals use 1:1 slots or salon pay-then-book packages until Phase 2 ships
+     | Status: LOCKED (session 27) | Answer: YES Phase 2; group+slots for many verticals
+
+Q027 | Affiliate tracking built-in or external links only?
+     | LOCKED: TWO TRACKS — tenant affiliates + ALINKS platform affiliates
+     | TRACK A — Tenant affiliate links (affiliate-marketer vertical + any Pro tenant):
+     |   Phase 1.5: external link blocks (Amazon, Flipkart, brand URLs tenant owns)
+     |   Phase 2: built-in click tracking + dashboard stats per link on mini-site
+     |   ASCI disclosure block mandatory (#ad / sponsored) — Section 5C
+     | TRACK B — ALINKS Partner Program (Artix-owned — refer new tenants):
+     |   Phase 1.5: referral links alinks.online/join?ref=[partner_code]
+     |   Phase 2: partner dashboard, attributed signups, commission payouts (INR TBD Batch F)
+     | Not the same as tenant links — ALINKS affiliates sell ALINKS subscriptions
+     | Status: LOCKED (session 27) | Answer: both — tenant own links + ALINKS affiliate program
+
+─── BATCH E: SHARING & AI SEO ───
+Q028 | Share engine brand name?
+     | LOCKED: "Tap & Blast" — tenant-facing brand for share engine
+     | Dashboard label, onboarding, marketing: Tap & Blast
+     | Internal/engineering codename may stay share-engine; product family ≠ ALINKS AI naming
+     | Status: LOCKED (session 28) | Answer: Tap & Blast per Benjamin
+
+Q029 | Watermark "Shared via ALINKS" on Basic share cards?
+     | LOCKED: YES on Basic — ALINKS logo watermark on every Tap & Blast share card
+     | Placement: corner badge — official ALINKS logo asset (founder has logo file)
+     | Optional micro-text: "Shared via ALINKS" beside logo (small, non-intrusive)
+     | Pro + Enterprise: NO ALINKS watermark — tenant logo/brand only (upsell differentiator)
+     | Status: LOCKED (session 28) | Answer: YES — ALINKS logo important per Benjamin
+
+Q030 | Full social: WA + IG + FB + Telegram + native share?
+     | Status: LOCKED (session 10) | Answer: YES — full social
+
+Q031 | AI SEO "ALINKS AI" in Pro tier?
+     | Status: LOCKED (session 10) | Answer: YES — extreme SEO with AI
+
+Q032 | AI provider for costing (next session)?
+     | LOCKED: OpenRouter + Perplexity API (routing per task)
+     | TRACK 1 FREE (subscription): descriptions, SEO, content — monthly caps per tier
+     | TRACK 2 PAID (credit packs from Artix): tenant overage + ALL client/end-customer AI
+     | Client AI on mini-site is NEVER free — tenant or customer buys credits from Artix
+     | Artix pays AI companies when credits purchased; included caps costed into tier price
+     | Pack INR + cap numbers — finalize in Batch F
+     | Status: LOCKED (session 28, revised) | Answer: free tier AI for descriptions; paid for rest
+
+─── BATCH F: PRICING & PROMOS — COMPLETE (Q033–Q040 ALL LOCKED) ───
+Q033 | Exact INR: Basic / Pro / Enterprise monthly?
+     | LOCKED: ₹599 / ₹1,599 / ₹6,999 — list monthly (anchor / pay-monthly price)
+     | Status: LOCKED (session 29) | Answer: 599 / 1599 / 6999 per Benjamin
+
+Q034 | Annual pricing discount?
+     | LOCKED: ₹499 / ₹1,499 / ₹4,999 per month — billed annually upfront
+     | Totals: ₹5,988 / ₹17,988 / ₹59,988 per year
+     | Pro annual modest save — bigger wins come from Q036 launch stack (preferred)
+     | Status: LOCKED (session 31) | Answer: 499 / 1499 / 4999; promos via Q036 not Q034
+
+Q035 | Permanent free tier vs trial-only after promos?
+     | LOCKED: NO forever-free — serious business tenants only (Benjamin confirmed)
+     | 14-day Pro trial; phone OTP + business name + vertical mandatory
+     | Public publish requires paid plan; day 15 unpaid → site unpublished
+     | Draft 30-day grace → delete warning; handles released if abandoned
+     | Status: LOCKED (session 30) | Answer: trial-only, strict — no dead accounts
+
+Q036 | Launch promo stack?
+     | LOCKED: stack ALL launch tricks (session 30)
+     | Founders lock: first 500 annual subs keep rate for life
+     | First 100: pay 10 months annual → get 12 (extra 2 free)
+     | No monthly launch discount — annual only gets savings
+     | Launch window: 6 months from public signup open
+     | Status: LOCKED (session 30) | Answer: full stack per Benjamin
+
+Q037 | Supabase add-on INR per business/month?
+     | LOCKED (BYO model Q010): NOT pass-through — connector fee only
+     | Tenant pays Supabase directly on supabase.com (free or ~$25/mo Pro)
+     | ALINKS connector: ₹399/mo per business (schema, OAuth, migration, sync layer)
+     | Enterprise: connector included in plan (no extra ₹399)
+     | "30% margin" = Artix profit if we RESELL Supabase later — NOT 30% off for tenant
+     | Status: LOCKED (session 31) | Answer: ₹399/mo connector; tenant pays Supabase separate
+
+Q038 | Year 1 tenant target for pricing model?
+     | SCOPE: 12 months after PUBLIC launch (Phase 3) — not 12 months from today
+     | LOCKED (Benjamin delegated session 34): 500 total, 250 paying (50% trial→paid)
+     | Why 250 paying: hits Q039 month-12 ~₹3.25L MRR — profitable solo, not fantasy
+     | ~42 signups/mo avg → 500 total; ~21 new paying/mo → 250 paying by month 12
+     | Stretch if ahead of plan: 1,000 / 500 — not the plan target
+     | Status: LOCKED (session 34) | Answer: 500 total / 250 paying — Artix REC for profit
+
+Q039 | Target MRR month 12?
+     | MRR = revenue GOAL — does NOT change Q033 prices (599/1599/6999 stay fixed)
+     | LOCKED phased (Benjamin session 33): initial modest → later higher
+     | PHASE A — INITIAL (months 1–6 post-launch): overheads + little profit
+     |   Target ~₹1.25L MRR (~95–100 paying @ ~₹1,300 blended avg)
+     |   Covers: infra ₹20–25k + founder draw ₹70–80k + small buffer ₹15–20k
+     | PHASE B — MONTH 12 (growth): higher — pairs with Q038 base 250 paying
+     |   Target ~₹3.25L MRR (250 paying) — later higher, not day-one pressure
+     | PHASE C — STRETCH (optional year 2): ~₹6.5L MRR (500 paying)
+     | Status: LOCKED (session 33) | Answer: initial ₹1.25L → month 12 ₹3.25L → later higher
+
+Q040 | Patient data retention in Google/Supabase?
+     | LOCKED: delete when purpose done — keep it simple (Benjamin)
+     | Tenant (clinic) deletes/archives rows in THEIR Sheet/Supabase when no longer needed
+     | ALINKS does NOT auto-delete; does NOT store patient rows on Artix servers
+     | Template line: "We keep patient details only as long as needed for care/booking,
+     |   then remove — clinic owner responsible for deletion in their Google/Supabase"
+     | Reality: row sits in tenant Sheet until tenant deletes; ALINKS never holds copy
+     | Status: LOCKED (session 33) | Answer: need-done-then-remove; tenant's job not Artix
+
+BATCH A — COMPLETE (Q001–Q006 ALL LOCKED)
+BATCH B — COMPLETE (Q007–Q013 ALL LOCKED)
+BATCH D — COMPLETE (Q021–Q027 ALL LOCKED)
+BATCH E — COMPLETE (Q028–Q032 ALL LOCKED)
+BATCH F — COMPLETE (Q033–Q040 ALL LOCKED)
+ALL PLANNING BATCHES A–F COMPLETE (Q001–Q040)
+NEXT PHASE: BUILD (Section 9B roadmap) + external actions (lawyer, Razorpay, Pvt Ltd)
+
+
+12. DECISION LOG
+--------------------------------------------------------------------------------
+(Date       | Decision                                      | Rationale              | Owner)
+2026-07-03  | Baseline doc created                          | Planning baseline      | Benjamin + AI
+2026-07-03  | Product = mobile-first 5-page mini-site SaaS  | Founder vision locked  | Benjamin
+2026-07-03  | Parent = Artix, superadmin = Benjamin Anand   | Org structure          | Benjamin
+2026-07-03  | Tiers = Free/Basic/Pro/Enterprise + promos    | Monetization frame     | Benjamin
+2026-07-03  | Max 5 pages per tenant                        | Simplicity + mobile UX | Benjamin
+2026-07-03  | All verticals supported via templates         | Broad market           | Benjamin
+2026-07-03  | E-commerce = ALL goods (not clothes-only)     | Founder scope locked   | Benjamin
+2026-07-03  | Grocery/food SKUs incl. rice, flour, veg      | Kirana + SMB focus     | Benjamin
+2026-07-03  | Appointments = salons → clinics → doc–patient | Full booking scope     | Benjamin
+2026-07-03  | Medical = booking only, no telemedicine MVP   | Lawsuit avoidance      | Benjamin
+2026-07-03  | Salon/beauty = packages, pay then book slot    | Founder product flow   | Benjamin
+2026-07-03  | Pre-made editable package templates           | Faster tenant onboard  | Benjamin
+2026-07-03  | Platform + tenant legal docs all sectors      | Compliance baseline    | Benjamin
+2026-07-03  | Tenant business liability = tenant headache   | Core Artix principle   | Benjamin
+2026-07-03  | Client data → tenant Google; Artix stores none| Founder data policy    | Benjamin
+2026-07-03  | Artix DB = tenants + config only              | No client CRM on Artix | Benjamin
+2026-07-03  | Google mandatory for Pro shop/booking only    | Basic = site only      | Benjamin
+2026-07-03  | Redis 2–5 min cache for Sheet reads OK        | Speed without storing  | Benjamin
+2026-07-03  | 1 spreadsheet per business (multi-biz)        | Isolation + clarity    | Benjamin
+2026-07-03  | Activity Log tab for multi-tab write visibility| Tenant transparency   | Benjamin
+2026-07-03  | Account delete: Artix config gone, Sheet stays| Tenant owns data       | Benjamin
+2026-07-03  | Data PIN locks dashboard view of client data  | Google has no file pwd | Benjamin
+2026-07-03  | Supabase sold as optional tenant client DB     | Premium add-on         | Benjamin
+2026-07-03  | Supabase partner tie-up required                | Provisioning + billing | Benjamin
+2026-07-03  | Artix = transfer only, zero client data duty    | Both Google + Supabase | Benjamin
+2026-07-03  | Redis = official speed layer (5G)               | Fast reads + pages     | Benjamin
+2026-07-03  | ALINKS Share Engine: WA + IG product sharing    | Differentiated UX      | Benjamin
+2026-07-03  | Q001: alinks.online path/subdomain/custom DNS  | Founder domain model   | Benjamin
+2026-07-03  | ALINKS AI generates ALL tenant text fields     | Context-aware AI       | Benjamin
+2026-07-03  | Q002: Basic=WhatsApp shop, Pro=full checkout   | Both at MVP, tier-priced| Benjamin
+2026-07-03  | FB Marketplace assistant Basic; catalog Pro    | No FB affiliate API    | Benjamin
+2026-07-03  | Q003: launch ASAP when built (vision since 2023)| Phased gates not dates | Benjamin
+2026-07-03  | Q004: Proprietor + MSME now; Pvt Ltd pending   | Register post-application| Benjamin
+(pending)   | MVP feature cut                               | —                      | —
+(pending)   | Pvt Ltd incorporation complete                  | Before public launch   | Benjamin
+(pending)   | Enterprise max businesses count (3 or 5?)       | —                      | —
+(pending)   | Supabase add-on INR pricing                     | —                      | —
+(pending)   | Supabase partner program application            | —                      | —
+(pending)   | Pricing INR                                   | —                      | —
+2026-07-03  | Q005: Artix affiliate PG stack (RZP+PhonePe+UPI)| Not tenant own Razorpay| Benjamin
+(pending)   | Razorpay + PhonePe partner applications         | Phase 0 action         | Benjamin
+(pending)   | Lawyer PayFac / 194-O / TCS review              | Before Pro checkout    | —
+2026-07-03  | Q006: Next.js + PG + Drizzle + Redis + R2      | Not Python MVP         | Benjamin
+2026-07-03  | Q007/Q008 locked — founder does not handle manually| Auto UX + retry queue| Benjamin
+2026-07-03  | Q010: BYO Supabase + Artix partner/OAuth connector | Tenant owns DB       | Benjamin
+2026-07-03  | Q011: churn = 30d export grace, revoke OAuth only | Never delete BYO DB  | Benjamin
+2026-07-03  | Q012: 6-digit PIN + biometric device unlock      | Dashboard client data| Benjamin
+2026-07-03  | Q013: Clinics use Patients tab not Customers     | Vertical-specific tabs | Benjamin
+2026-07-03  | Q014: FSSAI fields + honor system, no Artix gate | Same as Q015 tenant duty| Benjamin
+2026-07-03  | Q015: tenant chooses veg/packaged — not Artix gate| SaaS rent model        | Benjamin
+2026-07-03  | Q019: legal T&C+Privacy required; 5C full matrix | Each touchpoint covered| Benjamin
+2026-07-03  | Q016: pharmacy OTC Phase 2; license mandatory     | Artix protection       | Benjamin
+2026-07-03  | Q017/Q018: salon free+ToS; clinic NMC+approve   | Like FSSAI vs pharmacy | Benjamin
+2026-07-03  | Q018: ALINKS Verify AI pipeline — not manual 1000s| Section 5D2            | Benjamin
+(pending)   | Artix legal entity                            | —                      | —
+
+
+13. NOTES FROM FOUNDER (VERBATIM INTENT)
+--------------------------------------------------------------------------------
+Session 1:
+  - Full-stack from zero, best stack TBD, compliance from day one
+  - Indian app 100%, AP roots, international later (SG, UAE, RU, MY, KR, JP)
+  - Lawsuit avoidance is non-negotiable
+
+Session 2:
+  - "I am superadmin Benjamin Anand, product of Artix"
+  - Goal: digital presence for Indians, mainly startups without big budgets
+  - Mini website on mobile + tablets; desktop optional
+  - Small dashboard to customize pages; MAX 5 pages
+  - Subs: Free (promos: 2 months for first 100 users, 1 month free for all),
+    Basic, Pro, Enterprise
+  - All business types: ecommerce, appointments, pharmacy, restaurants,
+    cloud kitchens, clothes, affiliate marketing — everyone
+
+Session 3:
+  - E-commerce is NOT clothes-only — everything:
+    gadgets, accessories, electronics, electricals, fashion, home goods, etc.
+  - Food/grocery ecommerce: rice, flour, groceries, vegetables — full kirana scope
+  - Same 5-page mini-store model; category templates handle differences
+
+Session 4:
+  - Appointments for everything: salons, beauty centers, clinics, doctors
+  - Full doc–patient booking (pick doctor, book slot, confirmations)
+  - NOT telemedicine/prescriptions in MVP — scheduling layer only
+
+Session 5:
+  - Salons/beauty: customer selects PACKAGE → pays → appointment is made
+  - ALINKS offers pre-made packages; tenants use as-is or edit later
+  - Privacy Policy + Terms & Conditions for ALL sectors (platform + tenant templates)
+  - "Any business they conduct is their headache, not ours" — tenant bears all
+    sector liability; Artix is software platform only
+
+Session 6:
+  - Client/customer/patient data saved to TENANT'S Google account (Sheets/Drive)
+  - Artix wants TENANT data only (subscribers, config, billing) — NOT client data
+  - No customer CRM database on Artix servers by design
+
+Session 7:
+  - Confirmed: Artix PostgreSQL for tenants; clients in tenant Google Sheets — perfect
+  - Speed: Redis cache 2–5 min + smart reads — fast enough for SMB dashboards
+  - Tenants must always see which Google Sheet + which tabs hold their data
+  - One event (booking) may write multiple TABS — show clearly in Activity Log + toast
+  - 1 tenant, 3 businesses = 3 subdomains + 3 separate Google Spreadsheet files
+  - Delete account: Artix deletes config + revokes OAuth; Google Sheets stay in Drive
+  - Password lock: ALINKS Data PIN (tenant sets) + private Google Drive;
+    Google Sheets has no native file password — honest about this
+
+Session 8:
+  - Tenants wanting separate DB → sell Supabase database via Artix (tie-up needed)
+  - Client data: Artix NO responsibility — only seamless transfer/management of pipe
+  - Three DB model: Artix Postgres (tenants) + Google OR Supabase (clients)
+  - Supabase = paid add-on or Enterprise; Google Sheets = default included Pro
+  - StorageAdapter: same booking code writes to tenant-chosen backend
+
+Session 9:
+  - Redis confirmed as speed layer — awesome idea; covers fast dashboard + shop reads
+  - Redis = short TTL cache only, NOT permanent client storage
+  - Share products to WhatsApp + Instagram — engineered as ALINKS Share Engine
+  - Branded share cards, Story/Status formats, multi-product blast, deep links
+  - Different experience vs competitors — visual cards not plain URLs
+
+Session 10:
+  - Sharing = FULL social (WA, IG, FB, Telegram, X, Pinterest, native share sheet)
+  - One unified share modal — same card, auto-crop per channel
+  - AI SEO "ALINKS AI" — extreme SEO automated per tenant (meta, schema, local, content)
+  - Too many open questions → Section 11 Point-wise Decision Register (Q001–Q040)
+  - Pricing/costing deferred to Session 11 with targets + margin analysis
+  - Go point-wise batch by batch — start BATCH A (MVP & launch)
+
+Session 11:
+  - ALL tenant text fields generate with ALINKS AI — knows tenant, business, context
+  - AI Context Profile per business; sparkle button on every textbox
+  - Q001 LOCKED: domain alinks.online; Free/Basic path /[handle]; Pro subdomain
+  - Pro custom domain: dashboard shows TXT + CNAME copy-paste; Cloudflare SSL
+
+Session 12:
+  - Q002 LOCKED: both commerce modes — Basic=WhatsApp catalog (A), Pro=checkout (B)
+  - Price tiers accordingly; both ship at MVP
+  - FB Marketplace: no affiliate API; 3 levels (assistant / catalog sync / partner API)
+  - Basic gets Marketplace listing assistant; Pro gets Meta Commerce catalog sync
+  - Artix to apply Meta Commerce + Marketplace Partner programs long-term
+
+Session 13:
+  - Q003 LOCKED: launch ASAP when built — idea since 2023, no arbitrary delay
+  - Section 9B build roadmap: Phase 1 beta → Phase 3 public launch
+  - Timeline work-based gates, not calendar; 6–9 months solo realistic
+
+Session 14:
+  - Q004 LOCKED: Artix = proprietorship today; MSME certificate obtained
+  - Pvt Ltd not yet — register after application completes
+  - Beta build OK as proprietor; public launch needs Pvt Ltd + company Razorpay
+
+Session 15:
+  - Q005 LOCKED (revised): Artix affiliate/partner model — NOT tenant own Razorpay
+  - Tenants onboard KYC through ALINKS; sub-merchant via Razorpay + PhonePe partners
+  - GPay = UPI rail inside checkout (not separate affiliate)
+  - Apply Razorpay Partner + PhonePe Partner programs; legal review for PayFac/TCS/TDS
+
+Session 16:
+  - Q006 LOCKED: Next.js monolith (TypeScript), NOT Python for main platform
+  - PostgreSQL + Drizzle ORM mandatory; Redis Upstash; R2; Cloudflare hosting
+  - Python deferred to Phase 4 optional AI batch workers only
+  - BATCH A complete (Q001–Q006) — proceed to BATCH B
+
+Session 17:
+  - Benjamin unsure on Q007/Q008 — both locked with simple defaults; no manual handling
+  - Q007: Pro must connect Google before shop/booking; Basic optional
+  - Q008: auto-retry 24h; customer always sees confirmed; tenant dashboard shows pending
+
+Session 18:
+  - Q010 LOCKED: Tenant BYO Supabase (they own project); Artix affiliate/partner connector
+  - Not Artix-provisioned org; OAuth connect + partner referral link
+  - Artix revenue: connector fee + Supabase partner program (apply early)
+
+Session 19:
+  - Q011 LOCKED: BYO — Artix never deletes tenant Supabase; 30-day export grace then revoke OAuth
+
+Session 20:
+  - Q012 LOCKED: 6-digit Data PIN + biometric (Face ID / fingerprint) on mobile dashboard
+  - Q013 LOCKED: separate Patients tab for clinics; Customers tab for salon/kirana/shop
+  - BATCH B COMPLETE — all data/storage decisions locked (Q007–Q013)
+
+Session 21:
+  - Q014 LOCKED: FSSAI not blanket — branded products use label FSSAI; own items need tenant FSSAI
+
+Session 22:
+  - Q015 LOCKED: fresh veg vs packaged = tenant choice; ALINKS rents services, no category gating
+  - Q014 REVISED to match: FSSAI = tenant duty; fields + ToS only, no block publish
+  - Core rule repeated: Artix rents software — licenses, products, food = tenant headache
+
+Session 23:
+  - Founder: T&C + legal for each and everything — Section 5C expanded full matrix
+  - Every signup, checkout, booking, grocery, payment touchpoint has acceptances
+  - Q019 LOCKED: block publish without tenant T&C + Privacy; honor system licenses in ToS
+  - Q016 LOCKED: pharmacy Phase 2 OTC-only; drug license MANDATORY on file for Artix protection
+  - Q017/Q018 LOCKED: salon+clinic same module; salon=ToS honor; clinic=NMC license+approve
+  - Q018 revised: AI/ML verify pipeline at scale — Benjamin reviews queue only, not 1000s manual
+
+Session 27:
+  - Q021 LOCKED: Basic 1 / Pro 1 / Enterprise 3 businesses; +₹299/mo per extra business
+  - Q022 LOCKED: Basic 25 / Pro 200 / Enterprise 2000 products; Pro can buy more slots on request
+  - Q023 LOCKED: 12 salon/beauty package templates at launch; full tenant customization allowed
+  - Q024 LOCKED: custom domain Pro+ included; handle subdomain always live; own domain additive
+  - Q025 LOCKED: English UI at launch; Phase 2 Hindi + Marathi + South langs (Pune/Mumbai/Delhi/AP)
+  - Q026 LOCKED: group+batch booking Phase 2; yoga/fitness/dance/tuition + many verticals
+  - Q027 LOCKED: tenant own affiliate links + ALINKS Partner Program; click tracking Phase 2
+  - Q028 LOCKED: share engine brand name = "Tap & Blast"
+  - Q029 LOCKED: ALINKS logo watermark on Basic share cards; removed Pro+
+  - Q032 LOCKED: OpenRouter + Perplexity; free tier caps for descriptions/SEO; paid credits
+    for tenant overage + all client AI (buy from Artix only)
+  - Q033/Q034 LOCKED: monthly 599/1599/6999; annual 499/1499/4999
+  - Q036 preferred over Pro annual tweak — launch stack is primary promo lever
+  - Benjamin: will NOT chase conversions by cutting base prices — Q036 stack only
+  - Q037 LOCKED: Supabase BYO — ₹399/mo ALINKS connector; tenant pays Supabase direct
+  - Q040 LOCKED: patient rows — delete when need done; tenant deletes in Sheet; not Artix
+  - Q039 LOCKED: initial ₹1.25L MRR (overheads + little profit) → month 12 ₹3.25L → later higher
+  - Q038 LOCKED: 500 total / 250 paying @ month 12 post-launch (profitable solo target)
+  - Q035 LOCKED: trial-only serious tenants; publish requires pay; unpublish day 15
+  - Q036 LOCKED: founders lock 500 + first 100 pay-10-get-12 + no monthly discount
+
+
+14. PROFESSIONALS TO ENGAGE
+--------------------------------------------------------------------------------
+- CA: GST, subscription invoicing, marketplace rules if payments added
+- Lawyer: ToS (tenant vs platform liability), Privacy (DPDP), intermediary rules
+- CS: Artix Pvt Ltd incorporation, ROC
+- Later: vertical-specific counsel for pharmacy/food/clinical booking
+- Medical legal counsel before clinic vertical goes live (NMC, CE Act, DPDP health)
+
+
+================================================================================
+END OF BASELINE — Planning complete Q001–Q040 (Batches A–F).
+Next: BUILD Phase 0 (Section 9B) + lawyer + Razorpay partner + Pvt Ltd before public launch.
+================================================================================

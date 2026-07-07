@@ -1,0 +1,52 @@
+================================================================================
+ALINKS ACCEPTABLE USE POLICY (AUP)
+================================================================================
+DRAFT v0.1 — LAWYER REVIEW REQUIRED
+Part of Platform Terms of Service — standalone URL: alinks.online/aup
+================================================================================
+
+1. PURPOSE
+Protect the Platform, users, and public from illegal, harmful, or abusive use.
+
+2. PROHIBITED CONTENT & CONDUCT
+Tenants must NOT use ALINKS to:
+  (a) Sell illegal goods or services under Indian law
+  (b) Sell prescription-only medicines without valid drug licence (pharmacy vertical)
+  (c) Offer medical services without valid registration (NMC/state council/AYUSH)
+  (d) Impersonate doctors, hospitals, or government bodies
+  (e) Sell counterfeit, stolen, or IP-infringing products
+  (f) Publish false claims (health cures, guaranteed income, fake certifications)
+  (g) Facilitate fraud, phishing, or payment scams
+  (h) Harass, discriminate, or publish hate content
+  (i) Distribute malware or attempt to breach Platform security
+  (j) Scrape or overload Platform APIs abusively
+  (k) Resell ALINKS access without authorization
+  (l) Use affiliate links without ASCI-compliant disclosure (#ad / sponsored)
+
+3. HIGH-RISK CATEGORIES (EXTRA SCRUTINY)
+  - Pharmacy: OTC only; drug licence mandatory on file
+  - Clinic/doctor: NMC/reg number mandatory; ALINKS Verify pipeline
+  - Food/grocery: no false organic/FSSAI claims
+  - Financial products: prohibited unless licensed
+
+4. MODERATION
+Artix may:
+  - Remove or hide listings
+  - Suspend checkout or publishing
+  - Terminate accounts
+  - Report to authorities where legally required
+  - Cooperate with law enforcement and grievance requests per IT Act
+
+5. TENANT COOPERATION
+Tenant must respond to takedown notices and provide licence proof when requested.
+
+6. REPORTING
+Report abuse: abuse@alinks.online | Grievance Officer: [Doc 18]
+
+7. NO DUTY TO MONITOR
+Artix is not obligated to pre-screen all content but may do so. Intermediary
+safe harbour subject to due diligence compliance. [LAWYER TO ALIGN WITH IT ACT]
+
+================================================================================
+END AUP
+================================================================================

@@ -1,0 +1,39 @@
+================================================================================
+ALINKS END-USER NOTICE (SHORT — TENANT MINI-SITE FOOTER)
+================================================================================
+DRAFT v0.1 — LAWYER REVIEW REQUIRED
+Use: Auto-injected footer on every public tenant mini-site (all tiers)
+================================================================================
+
+--- FOOTER BLOCK (HTML/MARKDOWN TEMPLATE) ---
+
+This website is operated independently by **[{{TENANT_BUSINESS_NAME}}]**.
+Products, services, appointments, and payments are provided by the business
+owner, not by Artix or ALINKS.
+
+ALINKS provides website hosting and software tools only.
+
+Business contact: [{{TENANT_PHONE}}] | [{{TENANT_EMAIL}}]
+
+[Terms & Conditions] [Privacy Policy]  ← links to tenant's own pages
+
+---
+Platform: [Powered by ALINKS]  ← Basic tier shows branding; Pro may hide per tier
+[ALINKS Platform Terms] [ALINKS Privacy]  ← links to alinks.online/terms, /privacy
+---
+
+--- ONE-LINE VARIANT (mobile compact) ---
+
+Operated by {{TENANT_BUSINESS_NAME}} · Not Artix · [Terms] [Privacy]
+
+--- CHECKOUT / BOOKING BANNER ---
+
+You are buying from **{{TENANT_BUSINESS_NAME}}**, not from ALINKS. For order,
+refund, or service issues, contact the business directly.
+
+================================================================================
+IMPLEMENTATION NOTES
+- {{TENANT_BUSINESS_NAME}} = from tenant profile
+- Tenant Terms/Privacy must be published before site goes live (Q019)
+- Clinic: add "Not for medical emergencies — call 108/102"
+================================================================================

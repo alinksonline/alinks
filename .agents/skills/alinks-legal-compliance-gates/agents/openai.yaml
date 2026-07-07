@@ -1,0 +1,4 @@
+interface:
+  display_name: "ALINKS Legal Gates"
+  short_description: "Apply legal and publish gate rules."
+  default_prompt: "Use this skill when implementing ALINKS legal acceptances, disclaimers, or publish gates."

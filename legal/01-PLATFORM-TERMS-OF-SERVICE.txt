@@ -1,0 +1,134 @@
+================================================================================
+ALINKS TERMS OF SERVICE (TENANT AGREEMENT)
+================================================================================
+DRAFT v0.1 — LAWYER REVIEW REQUIRED
+Party: [Artix / Artix Private Limited] ("Artix", "we", "us")
+Product: ALINKS ("Platform")
+User: Business owner registering for ALINKS ("Tenant", "you")
+Effective date: [DATE]
+Version: 1.0
+================================================================================
+
+1. ACCEPTANCE
+By creating an account, accessing the dashboard, or using ALINKS, you agree to
+these Terms of Service, our Privacy Policy, Acceptable Use Policy, and any
+addenda you accept (including Payment Facilitation Addendum if you enable
+payments). If you do not agree, do not use the Platform.
+
+2. WHAT ALINKS IS
+ALINKS is a software-as-a-service (SaaS) platform that provides:
+  - Tools to create and host a mobile-first mini-website (up to 5 pages)
+  - Product catalog, booking, and optional checkout features
+  - Integration with third-party services (e.g., Google Sheets, Supabase BYO,
+    payment gateways via Artix partners)
+Artix provides TECHNOLOGY ONLY. Artix is not your employer, partner, agent,
+franchisor, or co-seller of your products or services.
+
+3. TENANT IS SOLELY RESPONSIBLE FOR THEIR BUSINESS
+You alone are responsible for:
+  (a) Your business operations, products, services, pricing, and descriptions
+  (b) All licences, registrations, and permits (including but not limited to
+      FSSAI, drug licence, NMC/medical registration, GST, shop establishment)
+  (c) Accuracy of listings, images, claims, MRP, weights, expiry dates
+  (d) Food safety, product quality, professional conduct, and consumer complaints
+  (e) Appointments, salon packages, clinic bookings, and medical disclaimers
+  (f) Refunds, returns, cancellations, and disputes with YOUR customers
+  (g) Tax on YOUR sales (GST, TDS, etc.)
+  (h) Compliance with Consumer Protection Act 2019, ASCI, Legal Metrology,
+      IT Act, DPDP Act 2023 (as applicable to you as data controller of
+      your customer data), and all applicable laws
+
+Artix does not verify licences, FSSAI numbers, medical credentials, or product
+safety except where the Platform provides optional verification tools. Any
+approval or display on the Platform does not constitute Artix endorsement.
+
+4. INDEMNITY
+You agree to indemnify, defend, and hold harmless Artix, its directors,
+officers, employees, and affiliates from any claims, damages, losses, penalties,
+or expenses (including reasonable legal fees) arising from:
+  - Your business, products, services, or conduct
+  - Your breach of these Terms or applicable law
+  - Claims by your customers, patients, or third parties
+  - Content you publish or AI-generated content you approve and publish
+
+5. LIMITATION OF LIABILITY
+To the maximum extent permitted by law:
+  (a) Artix's total liability for any claim shall not exceed the fees paid by
+      you to Artix in the [12] months preceding the claim, or INR [AMOUNT],
+      whichever is lower. [LAWYER TO SET CAP]
+  (b) Artix is not liable for indirect, consequential, special, or punitive
+      damages, lost profits, or loss of data in your Google/Supabase accounts.
+  (c) Artix is not liable for third-party services (Google, Supabase, Razorpay,
+      PhonePe, SMS providers, hosting outages).
+
+6. SUBSCRIPTION & BILLING
+  (a) Fees for Basic, Pro, Enterprise tiers are as published on alinks.online
+  (b) Subscriptions renew per your chosen plan (monthly or annual)
+  (c) Taxes (GST) apply as per law
+  (d) Refunds of ALINKS subscription fees: see Subscription Refund Policy (Doc 19)
+  (e) Artix subscription fees are separate from your customer sales
+
+7. ACCOUNT & TRIAL
+  (a) 14-day trial may be offered; public publish may require paid plan
+  (b) Phone verification and business details may be required
+  (c) Unpaid accounts after trial: site may be unpublished per Platform policy
+  (d) You must provide accurate registration information
+
+8. ACCEPTABLE USE
+You must comply with the Acceptable Use Policy (Doc 05). Prohibited uses
+include illegal goods, counterfeit products, unlicensed pharmacy, fake medical
+credentials, fraud, and content that violates law.
+
+9. SUSPENSION & TERMINATION
+Artix may suspend or terminate your account for:
+  - Breach of Terms or AUP
+  - Complaints, fraud, or illegal listings
+  - Non-payment
+  - Fake licences or misrepresentation
+You may cancel per dashboard; export obligations per Data Addendum.
+
+10. INTELLECTUAL PROPERTY
+  (a) Artix owns the Platform, ALINKS brand, Tap & Blast, templates, and code
+  (b) You own your business content, product images, and customer data in your
+      designated storage (Google/Supabase)
+  (c) Licence grant: you may use ALINKS during subscription; Basic tier may
+      display ALINKS branding; Pro+ may remove per tier features
+
+11. AI FEATURES (ALINKS AI)
+  (a) AI generates drafts; you must review before publish
+  (b) You are liable for published AI content
+  (c) AI credits: included allowances and paid packs per published pricing
+  (d) Client-facing AI consumes paid credits; not included in base subscription
+
+12. PAYMENTS (IF ENABLED)
+If you enable checkout, you also accept the Payment Facilitation Addendum
+(Doc 04). You are seller of record. Artix facilitates payment routing only.
+
+13. DATA
+See Privacy Policy (Doc 02) and Data & Storage Addendum (Doc 06). Artix stores
+tenant account data only. Customer/patient data is stored in YOUR Google
+Sheets or YOUR Supabase — not on Artix servers.
+
+14. MODIFICATIONS
+We may update these Terms with notice (email / dashboard). Material changes
+may require re-acceptance. Continued use after notice constitutes acceptance
+unless law requires explicit consent.
+
+15. GOVERNING LAW & DISPUTES
+These Terms are governed by the laws of India. Courts at [Vijayawada / Hyderabad /
+chosen jurisdiction — LAWYER TO CONFIRM] shall have exclusive jurisdiction.
+You agree to attempt good-faith resolution before litigation.
+
+16. GRIEVANCE & CONTACT
+Grievance Officer: [NAME, EMAIL — see Doc 18]
+Support: support@alinks.online
+Registered address: [ARTIX ADDRESS]
+
+17. MISCELLANEOUS
+Severability, no waiver, assignment (Artix may assign; you may not without consent),
+entire agreement with Privacy Policy and accepted addenda.
+
+================================================================================
+[LAWYER: Add Schedule of tier features, intermediary safe harbour cross-refs,
+         force majeure, dispute resolution / arbitration if preferred]
+================================================================================

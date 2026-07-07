@@ -1,0 +1,151 @@
+================================================================================
+ALINKS — LOCAL DEV SETUP (NO DOCKER)
+================================================================================
+Docker is not required. Use a cloud Postgres (recommended) or native Homebrew Postgres.
+Redis is optional until Phase 2 — skip it for Phase 0.
+================================================================================
+
+OPTION A — NEON CLOUD POSTGRES (RECOMMENDED — ZERO LOCAL RAM)
+-----------------------------------------------------------
+Best if Docker or local Postgres feels heavy. Free tier is enough for Phase 0–1.
+
+1. Create a free project at https://neon.tech
+2. Copy the connection string (pooled or direct — direct is fine for dev)
+3. Create .env from the example:
+
+     cp .env.example .env
+
+4. Paste into .env:
+
+     DATABASE_URL=postgresql://user:pass@ep-xxx.region.aws.neon.tech/alinks_platform?sslmode=require
+
+5. Run migrations and seed:
+
+     npm install
+     npm run db:migrate
+     npm run db:seed
+
+6. Start the app:
+
+     npm run dev
+
+7. Open http://localhost:3000/login
+   - Phone: your SUPERADMIN_PHONE (10 digits, set in .env)
+   - OTP: 1111 (DEV_OTP in .env)
+
+
+OPTION B — HOMEBREW POSTGRES (NATIVE MAC — LIGHTER THAN DOCKER)
+--------------------------------------------------------------
+Only if you want the database fully on your machine without cloud.
+
+1. Install and start Postgres:
+
+     brew install postgresql@16
+     brew services start postgresql@16
+
+2. Create database and user:
+
+     createuser -s alinks_user 2>/dev/null || true
+     createdb alinks_platform 2>/dev/null || true
+
+3. Set .env:
+
+     DATABASE_URL=postgresql://alinks_user@localhost:5432/alinks_platform
+
+   (On default Homebrew install, local trust auth often needs no password.)
+
+4. Migrate, seed, dev — same as Option A steps 5–7.
+
+
+OPTION C — SUPABASE PLATFORM PROJECT (CLOUD)
+--------------------------------------------
+Use a separate Supabase project for Artix platform DB only (not tenant BYO).
+
+1. Create project at https://supabase.com
+2. Settings → Database → connection string (URI)
+3. Set DATABASE_URL in .env (use the direct connection, port 5432)
+4. Migrate, seed, dev — same as Option A steps 5–7.
+
+
+ENV VARIABLES (.env)
+--------------------
+  DATABASE_URL          — required (see options above)
+  SUPERADMIN_PHONE      — your 10-digit phone → grants superadmin on login
+  DEV_OTP               — 1111 for local dev only
+  NEXT_PUBLIC_APP_URL   — http://localhost:3000
+
+Redis (UPSTASH_REDIS_*) — not needed until Phase 2 cache layer.
+
+
+PHASE 0 VERIFY CHECKLIST
+------------------------
+  [ ] npm run typecheck
+  [ ] npm run lint
+  [ ] npm run build
+  [ ] npm run db:migrate
+  [ ] npm run db:seed
+  [ ] Login → /superadmin shows tenants
+  [ ] http://localhost:3000/demo shows demo site
+
+
+DEV URL SHORTCUTS (localhost)
+-----------------------------
+  /                     — marketing homepage
+  /login                — tenant / superadmin login
+  /app/login            — same login (platform dev prefix)
+  /dashboard            — tenant dashboard (after login)
+  /admin/superadmin     — superadmin (after superadmin login)
+  /demo                 — public demo mini-site (after seed)
+  /demo/store           — Pro cart checkout (Phase 2)
+  /demo/book            — Salon pay-then-book (Phase 2)
+  /dashboard/share      — Tap & Blast short links
+  /dashboard/domain     — Custom domain wizard (Pro+)
+
+
+PHASE 3+4 END-TO-END TEST
+----------------------------
+  /dashboard/ai              — ALINKS AI SEO + credit packs (mock without OPENROUTER_API_KEY)
+  /billing                   — promo codes FIRST100, FREEMONTH
+  /dashboard/settings        — Hindi/Telugu/Tamil/Kannada/Malayalam/Marathi UI
+  /dashboard/integrations/supabase — BYO Supabase connector (Phase 4)
+  /dashboard/integrations/meta     — Meta catalog feed URL
+  /editor/staff              — multi-staff roster
+  /editor/clinic             — NMC license submit (superadmin approves at /superadmin)
+  /demo/sitemap.xml          — per-tenant sitemap
+  /api/meta/catalog/demo     — Meta Commerce JSON feed
+  /sitemap.xml               — platform marketing sitemap
+
+PHASE 2 END-TO-END TEST (no external keys required)
+-------------------------------------------------
+1. npm run db:migrate && npm run db:seed && npm run dev
+2. Public store: http://localhost:3000/demo/store
+   - Add items → checkout → UPI (simulated) → order row in .data/tenant-sheets/
+3. Salon booking: http://localhost:3000/demo/book
+   - Pick package → pay now (simulated) → Appointments sheet row
+4. Tenant dashboard: login phone 9876543210, OTP from DEV_OTP
+   - /editor/commerce — Pro checkout already enabled on demo
+   - /dashboard/share — create short link, test /s/<code>
+   - /dashboard/domain — set domain, paste TXT token to verify
+5. Optional production keys in .env:
+   RAZORPAY_KEY_ID, RAZORPAY_KEY_SECRET — live UPI
+   UPSTASH_REDIS_REST_URL, UPSTASH_REDIS_REST_TOKEN — cloud Redis cache
+   STORAGE_DEV_MODE=true — force file-based sheets (default without Google SA)
+
+
+TROUBLESHOOTING
+---------------
+  "DB not connected" on pages
+    → DATABASE_URL missing or wrong in .env; restart npm run dev after editing .env
+
+  migrate fails
+    → Ensure database exists and URL is reachable (Neon: sslmode=require)
+
+  superadmin shows Access Denied / redirects to dashboard
+    → SUPERADMIN_PHONE must match the phone you enter at login (last 10 digits)
+
+  /demo not found
+    → Run npm run db:seed after migrate
+
+================================================================================
+END
+================================================================================

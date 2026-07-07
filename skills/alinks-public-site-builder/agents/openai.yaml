@@ -1,0 +1,4 @@
+interface:
+  display_name: "ALINKS Public Site Builder"
+  short_description: "Build tenant mini-site surfaces."
+  default_prompt: "Use this skill when building ALINKS tenant public mini-sites and page blocks."

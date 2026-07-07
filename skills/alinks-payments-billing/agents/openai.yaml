@@ -1,0 +1,4 @@
+interface:
+  display_name: "ALINKS Payments Billing"
+  short_description: "Work on billing and partner payment flows."
+  default_prompt: "Use this skill when implementing ALINKS subscriptions, Razorpay, PhonePe, UPI, COD, or payment addenda."

@@ -1,0 +1,49 @@
+================================================================================
+SECTOR DISCLAIMERS & MICROCOPY (CUSTOMER-FACING SNIPPETS)
+================================================================================
+DRAFT v0.1 — LAWYER REVIEW REQUIRED
+Inject on product pages, checkout, booking flows per vertical
+================================================================================
+
+--- FOOD / GROCERY (product page) ---
+Seller is responsible for food licences, quality, and accurate labelling.
+Branded items: see manufacturer label for FSSAI and MRP.
+
+--- OWN ITEM / FRESH VEG (product flag: own_item) ---
+Sold by {{TENANT_NAME}}. Check quality on delivery. Report issues promptly.
+
+--- E-COMMERCE (product page) ---
+MRP and net quantity as displayed. Returns per seller policy in Terms.
+
+--- BEAUTY (package page) ---
+Patch test recommended for sensitive skin. Results may vary.
+
+--- CLINIC (booking page) ---
+⚠ Not for medical emergencies. Call 108 / 102 immediately.
+Appointment booking does not replace in-person consultation.
+
+--- PHARMACY (product page) ---
+OTC only. Read label. Consult pharmacist if unsure. Not for self-diagnosis.
+
+--- COD (checkout) ---
+Cash on delivery: pay the delivery person. Fake orders may be refused.
+
+--- AFFILIATE (affiliate page) ---
+#ad — We may earn commission from some links.
+
+--- AI CONTENT (tenant dashboard publish) ---
+I have reviewed AI-generated content for accuracy before publishing.
+
+--- PAYMENTS (checkout) ---
+You are paying {{TENANT_NAME}}, not ALINKS. Payment processed securely via
+Razorpay/PhonePe.
+
+--- GOOGLE SHEETS (tenant settings) ---
+Your customer data will be saved to YOUR Google Sheet in YOUR Google Drive.
+
+--- SUPABASE (tenant settings) ---
+You pay Supabase separately. ALINKS connector fee billed by Artix.
+
+================================================================================
+END MICROCOPY
+================================================================================

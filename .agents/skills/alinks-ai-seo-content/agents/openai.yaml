@@ -1,0 +1,4 @@
+interface:
+  display_name: "ALINKS AI SEO Content"
+  short_description: "Build ALINKS AI text and SEO features."
+  default_prompt: "Use this skill when implementing ALINKS AI, descriptions, SEO metadata, schema, or credit caps."

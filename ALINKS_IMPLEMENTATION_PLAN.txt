@@ -1,0 +1,604 @@
+================================================================================
+ALINKS — DETAILED TASKS & IMPLEMENTATION PLAN
+================================================================================
+Created: 2026-07-06
+Status: PHASE 0 COMPLETE (code gate) — ready for Phase 1
+Sources: ALINKS_BASELINE.txt (Section 9B, 11), legal/, src/ARCHITECTURE.txt
+Strategy: Start fresh from Phase 0. Keep planning docs, legal drafts, skills, logos.
+================================================================================
+
+TABLE OF CONTENTS
+-----------------
+1. Executive decision & current state
+2. What we kept vs removed
+3. Architecture rules (non-negotiable)
+4. Phase 0 — Foundation (weeks 1–4)
+5. Phase 1 — Soft beta “Sites live” (weeks 5–10)
+6. Phase 2 — Pro commerce (weeks 11–16)
+7. Phase 3 — Public launch India (weeks 17–22)
+8. Phase 4 — Growth (weeks 23–30+)
+9. External blockers (not code)
+10. Cross-cutting engineering tasks
+11. Skill mapping (which agent skill to use when)
+12. Verification & definition of done per phase
+13. Suggested implementation order (PR-sized slices)
+
+
+================================================================================
+1. EXECUTIVE DECISION & CURRENT STATE
+================================================================================
+
+DECISION (2026-07-06)
+---------------------
+The previous codebase was deleted and rebuilt from scratch. Reason: dual DB schemas,
+broken auth, premature Phase 1–3 UI, missing publish gates, and architecture drift.
+Salvaging that code would cost more than a clean Phase 0 foundation.
+
+CURRENT STATE — PHASE 0 COMPLETE (2026-07-06)
+---------------------------------------------
+Implemented & verified:
+  [x] Next.js 14 App Router — 14 routes build successfully
+  [x] Layered folders: core / platform / tenant / components / app
+  [x] Single platform Drizzle schema (tenants, businesses, sessions, legal_acceptances)
+  [x] Middleware: resolveRequest() + x-alinks-surface/handle/url-mode headers
+  [x] Session auth: DB-backed tokens, HTTP-only cookie, superadmin role
+  [x] Phone OTP dev flow (DEV_OTP=1111, SUPERADMIN_PHONE in .env)
+  [x] Marketing: homepage, nav, pricing, /terms /privacy /aup placeholders
+  [x] Platform: login, dashboard shell, logout API
+  [x] Superadmin: tenant + business list (config only, no client PII)
+  [x] Public site: published-only gate, footer + Doc 03 notice, Q029 watermark
+  [x] Custom domain stub page
+  [x] Vitest: 10 tests (resolveRequest + slug validation)
+  [x] npm run typecheck — PASS
+  [x] npm run lint — PASS
+  [x] npm run build — PASS
+  [x] npm run db:migrate + db:seed — PASS (local Postgres)
+  [x] LOCAL_DEV_SETUP.txt — no Docker
+
+Manual confirmation still needed (Benjamin):
+  [ ] Browser login: phone 9999999999 + OTP 1111 → /superadmin
+  [ ] Browser login: phone 9876543210 + OTP 1111 → /dashboard
+  [ ] Visit http://localhost:3000/demo after npm run dev
+
+Phase 0 gate (baseline 9B): “Benjamin can log in as superadmin”
+  → CODE COMPLETE. Manual browser test confirms gate for Benjamin.
+
+
+================================================================================
+2. WHAT WE KEPT VS REMOVED
+================================================================================
+
+KEPT (source of truth & assets)
+-------------------------------
+  ALINKS_BASELINE.txt          — locked product decisions Q001–Q040
+  legal/                       — draft legal corpus (lawyer review required)
+  .agents/skills/              — implementation skills for agents
+  assets/                      — canonical logos + favicon
+  public/assets/               — web-served logo copies
+  LOCAL_DEV_SETUP.txt          — dev setup without Docker
+  package.json, tsconfig, tailwind, drizzle.config
+
+REMOVED (intentionally)
+-----------------------
+  Old src/ application (editor UI, commerce stubs, dual schema, lib/ layer)
+  Old drizzle migrations (schema drift)
+  Premature features: upload API, AI API, ad network, OG generator, editor screens
+  alinks_ad_network_discussion.md (planning noise; recreate when Phase 3+ if needed)
+
+DO NOT RE-ADD until the matching phase gate
+--------------------------------------------
+  Website builder UI        → Phase 1
+  Razorpay billing          → Phase 1
+  Google Sheets pipe        → Phase 2
+  Tap & Blast               → Phase 2
+  Custom domain wizard      → Phase 2
+  Full AI SEO               → Phase 3
+  Clinic/pharmacy gating    → Phase 3
+  Supabase add-on           → Phase 4
+
+
+================================================================================
+3. ARCHITECTURE RULES (NON-NEGOTIABLE)
+================================================================================
+
+Read src/ARCHITECTURE.txt before every feature.
+
+LAYER IMPORT RULES
+  core/      → imports nothing from platform, tenant, components, app
+  platform/  → imports core only
+  tenant/    → imports core + platform
+  components/ui/ → dumb primitives only; NO database calls
+  app/       → route composition; keep domain logic in platform/ or tenant/
+
+DATA OWNERSHIP (LOCKED — baseline 5D)
+  Artix PostgreSQL  → tenant config, pages, theme, billing refs, legal logs
+  Google Sheets     → customer/order/booking PII (tenant-owned)
+  Tenant Supabase   → optional BYO PII store (Phase 4)
+  NEVER add client_pii, customers, patients, orders tables to platform DB
+
+ROUTING (Q001 LOCKED)
+  Basic/Free     → alinks.online/[handle]
+  Pro/Enterprise → [handle].alinks.online
+  Custom domain  → additive CNAME (Phase 2 wizard)
+  Reserved handles → see src/core/constants/limits.ts RESERVED_HANDLES
+
+PUBLISH GATE (Q019 LOCKED — implement Phase 1)
+  Required before isPublished = true:
+    - PLATFORM_TOS + PLATFORM_PRIVACY at signup
+    - TENANT_TOS_PUBLISHED + TENANT_PRIVACY_PUBLISHED
+    - Active subscription OR valid trial (Q035)
+  Log every acceptance in legal_acceptances table
+  Inject Doc 03 End-User Notice on all public pages
+
+
+================================================================================
+4. PHASE 0 — FOUNDATION (weeks 1–4)
+================================================================================
+
+GATE: Benjamin can log in as superadmin and see tenant list.
+
+PHASE 0 TASK LIST
+-----------------
+
+P0-01  Infrastructure setup                                    [DONE — dev]
+  - [x] LOCAL_DEV_SETUP.txt — Neon / Homebrew / Supabase (no Docker)
+  - [x] Dev DATABASE_URL in .env (local Postgres configured)
+  - [ ] Cloudflare DNS wildcard SSL for alinks.online (external — pre-launch)
+  - [ ] Production DATABASE_URL + env secrets documented (pre-launch)
+  - [ ] R2 bucket for assets (Phase 1)
+  - [ ] Redis via Upstash cloud only (Phase 2)
+
+P0-02  Clean codebase scaffold                                 [DONE]
+  - [x] core/, platform/, tenant/, components/, app/ route groups
+  - [x] Single drizzle schema at src/platform/db/schema/
+  - [x] No src/lib/ or src/db/ legacy folders
+
+P0-03  Auth skeleton                                         [DONE — harden next]
+  - [x] sessions table + token hash in cookie
+  - [x] DEV_OTP for local dev
+  - [x] SUPERADMIN_PHONE → superadmin role
+  - [ ] Replace DEV_OTP with real SMS provider (MSG91 / Twilio India) — Phase 1
+  - [ ] Rate-limit OTP attempts
+  - [ ] Session rotation on privilege change
+
+P0-04  Routing & middleware                                   [DONE]
+  - [x] resolveRequest() in platform/routing/
+  - [x] x-alinks-surface, x-alinks-handle, x-alinks-url-mode headers
+  - [x] Dev prefixes: /app → platform, /admin → superadmin
+  - [x] Subdomain rewrite to /[handle]
+  - [x] Vitest unit tests for resolveRequest() (7 tests)
+
+P0-05  Marketing surface                                       [DONE]
+  - [x] Homepage with logo (light background variant)
+  - [x] /terms, /privacy, /aup placeholder pages
+  - [x] Marketing header nav + pricing section (TIER_PRICING)
+
+P0-06  Platform dashboard shell                                [DONE]
+  - [x] Login page
+  - [x] Dashboard with business summary
+  - [ ] Logout via server action (currently API route — OK for Phase 0)
+
+P0-07  Superadmin skeleton                                     [DONE]
+  - [x] Tenant list (config only, no client PII)
+  - [x] Business list with publish status
+  - [ ] Suspend/ban tenant actions (Phase 1)
+  - [ ] License approval queue for clinic/pharmacy (Phase 3)
+
+P0-08  Public site placeholder                                 [DONE]
+  - [x] getPublicBusinessByHandle — respects isPublished
+  - [x] TenantFooter with Doc 03 end-user notice stub
+  - [x] Custom domain lookup stub
+  - [x] Tier watermark via shouldShowAlinksWatermark() (Q029)
+
+P0-09  Database & migrations                                   [DONE]
+  - [x] Migration 0000_phase0_foundation.sql
+  - [x] migrate + seed run successfully
+  - [x] Superadmin + demo business in DB
+  - [ ] pages table — deferred to Phase 1 (correct)
+
+P0-10  Verification                                            [DONE — automated]
+  - [x] typecheck + lint + build + test (10/10) green
+  - [x] db:migrate + db:seed green
+  - [ ] Manual browser: superadmin login → /superadmin (Benjamin)
+  - [ ] Manual browser: tenant login → /dashboard (Benjamin)
+  - [ ] Manual browser: /demo live, unpublished handle → 404 (Benjamin)
+
+PHASE 0 EXIT CRITERIA — STATUS: PASSED (automated), PENDING (manual browser)
+-----------------------------------------------------------------------------
+  Automated checks: ALL PASS.
+  Architecture: single schema, no src/lib/, no unauthenticated server mutations.
+  Manual browser confirmation by Benjamin closes the gate fully.
+  See ALINKS_PHASE0_AUDIT.txt for full audit report.
+
+
+================================================================================
+5. PHASE 1 — SOFT BETA “SITES LIVE” (weeks 5–10)
+================================================================================
+
+GATE: First paying Basic tenant with a live 5-page mini-site.
+
+PHASE 1 TASK LIST
+-----------------
+
+P1-01  Signup & onboarding
+  - Phone OTP signup flow (not just login)
+  - Business name, vertical picker, handle selection
+  - Enforce isValidHandle() + RESERVED_HANDLES
+  - 14-day Pro trial logic (Q035) — trialEndsAt on tenants
+  - Platform ToS + Privacy checkboxes at signup → legal_acceptances
+
+P1-02  Pages schema & 5-page builder
+  - Add pages table: businessId, slug, title, content (JSON blocks), isPublished
+  - Enforce MAX_PAGES_PER_BUSINESS = 5
+  - Editor routes under (platform)/(authenticated)/editor/
+  - Home, About, Services, Contact, + legal pages (Privacy, Terms)
+  - Save draft vs publish per page
+  - Mobile-first editor shell (use alinks-site-editor skill)
+
+P1-03  Templates (3 at launch)
+  - General business
+  - Salon / beauty
+  - E-commerce / kirana
+  - Template = default contentJson + theme tokens
+
+P1-04  Theme & branding settings
+  - branding JSONB on businesses (logo, favicon, cover)
+  - theme JSONB (colors, fonts, radius, layout)
+  - Image upload → R2 (not local public/uploads)
+  - Use alinks-tenant-customization skill
+
+P1-05  Publish workflow (Q019)
+  - Publish checklist UI: legal, subscription, storage
+  - acceptLegalAndPublish server action with real gate checks
+  - Write legal_acceptances on every checkbox
+  - Block public site if !isPublished
+  - Use alinks-legal-compliance-gates skill
+
+P1-06  Commerce Lite — Option A (Q002)
+  - Product catalog in Google Sheet (tenant connects Google)
+  - Catalog display on /[handle]/store
+  - WhatsApp order button (no on-site payment for Basic)
+  - Enforce TIER_LIMITS products (Basic = 25)
+  - Use alinks-commerce skill
+
+P1-07  Google Sheets connect (minimum viable)
+  - OAuth connect flow; store spreadsheet ID + encrypted token ref in platform DB
+  - GoogleSheetsAdapter real implementation (not stub)
+  - Failed write → show error to customer (Q008)
+  - Use alinks-tenant-storage skill
+
+P1-08  Basic billing — Razorpay subscriptions
+  - Basic ₹599/mo (Q033)
+  - Razorpay subscription create + webhook handler
+  - tenants.status: trial | active | past_due | suspended
+  - Block publish if no active sub/trial
+  - Use alinks-payments-billing skill
+
+P1-09  ALINKS AI basic (text only)
+  - Single endpoint: generate page copy / product description
+  - OpenRouter or similar; rate limit per tier
+  - AI_CONTENT_REVIEW acceptance log
+  - Use alinks-ai-seo-content skill
+
+P1-10  Legal v1 publication
+  - Lawyer-approved platform ToS + Privacy on /terms, /privacy
+  - Tenant template v1 injected into editor
+  - Doc 03 footer on all public pages (already started in TenantFooter)
+  - Use alinks-legal-compliance-gates skill
+
+P1-11  Beta onboarding
+  - Manual superadmin invite for 10–20 AP network tenants
+  - Support playbook doc (not code)
+
+P1-12  Testing foundation
+  - Add Vitest
+  - Tests: resolveRequest, isValidHandle, publish gate, auth session
+  - CI: typecheck + lint + test + build
+
+PHASE 1 EXIT CRITERIA
+---------------------
+  Tenant signs up → builds 5 pages → accepts legal → pays Basic → site live at /[handle]
+  First real INR payment recorded.
+  No client PII in platform Postgres (verify schema + queries).
+
+
+================================================================================
+6. PHASE 2 — PRO COMMERCE (weeks 11–16)
+================================================================================
+
+GATE: First Pro tenant completes on-site UPI/card payment.
+
+PHASE 2 TASK LIST
+-----------------
+
+P2-01  Pro subdomain routing
+  - [handle].alinks.online live (middleware + DNS)
+  - Tier check: Basic cannot use subdomain
+  - Use alinks-tenant-routing skill
+
+P2-02  Commerce Pro — Option B
+  - Cart, checkout, Razorpay tenant sub-merchant
+  - PAYMENT_ADDENDUM acceptance
+  - CUSTOMER_CHECKOUT acceptance on order
+  - COD default ON, tenant can disable (Q020)
+  - Use alinks-commerce + alinks-payments-billing skills
+
+P2-03  Google Sheets pipe + Redis cache
+  - Upstash Redis cache layer (15m TTL)
+  - Dashboard reads from cache; writes bypass cache
+  - Retry queue for failed writes (24h — Q008)
+  - Use alinks-tenant-storage skill
+
+P2-04  Tap & Blast (Q028–Q030)
+  - WhatsApp share cards, product blast, short links
+  - Basic watermark on share images (Q029)
+  - Use alinks-tap-blast-sharing skill
+
+P2-05  Custom domain wizard
+  - TXT + CNAME verification
+  - businesses.customDomain field + DNS instructions UI
+  - Pro+ only (Q024)
+  - Use alinks-tenant-routing skill
+
+P2-06  Salon packages + pay-then-book
+  - 12 pre-made package templates (Q023)
+  - Package entity in tenant sheet (not platform DB)
+  - Booking flow → Google Sheet row
+  - Use alinks-appointments skill
+
+P2-07  Share & domains dashboard pages
+  - Dashboard share hub
+  - Domain management page
+
+PHASE 2 EXIT CRITERIA
+---------------------
+  Pro tenant on [handle].alinks.online with cart checkout completes a real UPI payment.
+  Google Sheet receives order row. Redis cache reduces sheet API calls.
+
+
+================================================================================
+7. PHASE 3 — PUBLIC LAUNCH INDIA (weeks 17–22)
+================================================================================
+
+GATE: Open signup + marketing push (AP + national).
+
+PHASE 3 TASK LIST
+-----------------
+
+P3-01  ALINKS AI full
+  - SEO titles, meta descriptions, schema.org JSON-LD
+  - Bulk product descriptions, share captions
+  - AI credit packs + usage limits
+  - Use alinks-ai-seo-content skill
+
+P3-02  Meta Commerce catalog sync (Pro)
+  - Meta partner program application (start Phase 0 — long lead time)
+  - Catalog feed generation
+
+P3-03  Appointments multi-staff
+  - Salon roster, slot capacity
+  - Clinic gated onboarding (NMC license upload + superadmin approve — Q018)
+  - CUSTOMER_CLINIC_BOOKING + emergency disclaimer
+  - Use alinks-appointments skill
+
+P3-04  Promo codes
+  - FIRST100, FREEMONTH (Q036)
+  - Razorpay coupon integration
+
+P3-05  SEO & performance
+  - Sitemaps per tenant
+  - schema.org on public pages
+  - Core Web Vitals pass (use web-perf skill)
+  - next/image everywhere; no raw img tags
+
+P3-06  Ad network publisher slots (if in scope)
+  - Basic/Free opt-in ads; Pro can disable
+  - Manual ad review queue in superadmin
+
+P3-07  Public launch checklist
+  - All external blockers cleared (Section 9)
+  - Lawyer sign-off on all published legal docs
+  - DPDP grievance officer live on site
+  - GST invoices working
+
+PHASE 3 EXIT CRITERIA
+---------------------
+  Open self-serve signup. Marketing site live. Lawyer-approved legal published.
+  Phase 3 feature set complete per baseline 9B.
+
+
+================================================================================
+8. PHASE 4 — GROWTH (weeks 23–30+)
+================================================================================
+
+P4-01  Supabase BYO add-on (Q010, Q037)
+P4-02  Enterprise multi-business (3 businesses, switcher — Q021)
+P4-03  Dashboard i18n: Hindi, Telugu, Tamil, Kannada, Malayalam, Marathi (Q025)
+P4-04  International prep (SG/UAE)
+P4-05  Pharmacy OTC gated vertical (Q016)
+P4-06  Fresh veg grocery (Q015)
+P4-07  Meta Marketplace partner follow-up
+
+
+================================================================================
+9. EXTERNAL BLOCKERS (NOT CODE — TRACK IN PARALLEL)
+================================================================================
+
+Entity & legal
+  [ ] Artix Pvt Ltd incorporated
+  [ ] Lawyer finalize Docs 01–06, 07–14 (see legal/17-LAWYER-TASK-LIST.txt)
+  [ ] DPDP grievance officer appointed + published
+  [ ] GST registration + SaaS SAC 18%
+
+Payments
+  [ ] Razorpay partner application (start Phase 0)
+  [ ] PhonePe partner application (start Phase 0)
+  [ ] Razorpay live keys in production
+
+Infrastructure
+  [ ] alinks.online DNS on Cloudflare (wildcard SSL)
+  [ ] Production Postgres (Neon / Supabase platform project / RDS)
+  [ ] Upstash Redis production
+  [ ] Cloudflare R2 for tenant uploads
+
+Partnerships (long lead)
+  [ ] Meta Commerce partner (apply early — baseline 9B)
+  [ ] Supabase partner (Phase 4)
+
+
+================================================================================
+10. CROSS-CUTTING ENGINEERING TASKS
+================================================================================
+
+Done once, used everywhere
+--------------------------
+  C-01  Vitest + test CI pipeline                    → start Phase 1
+  C-02  Zod validation on all server actions         → Phase 1
+  C-03  Structured AppError + user-visible messages  → Phase 1
+  C-04  Audit log for superadmin actions             → Phase 1
+  C-05  Rate limiting on auth + AI + upload APIs     → Phase 1
+  C-06  R2 storage adapter (replace local uploads)   → Phase 1
+  C-07  Observability: request IDs, error tracking   → Phase 2
+  C-08  E2E tests (Playwright): signup → publish     → Phase 2
+
+Never do
+--------
+  - Store customer phone, address, order line items in platform Postgres
+  - Skip legal_acceptances writes on any checkbox
+  - Allow publish without subscription/trial check
+  - Add features from Phase N+2 before Phase N gate passes
+
+
+================================================================================
+11. SKILL MAPPING (use .agents/skills/ when implementing)
+================================================================================
+
+  alinks-project-orientation      → always read first; baseline vs code
+  alinks-architecture-guardrails  → any import or folder change
+  alinks-platform-db              → Drizzle schema, migrations
+  alinks-tenant-routing           → middleware, handles, domains
+  alinks-tenant-storage           → Google Sheets, Redis, StorageAdapter
+  alinks-legal-compliance-gates   → publish gates, legal_acceptances
+  alinks-site-editor              → Phase 1 website builder
+  alinks-public-site-builder      → tenant public pages
+  alinks-dashboard-builder        → dashboard, onboarding, superadmin
+  alinks-commerce                 → catalog, cart, COD, WhatsApp orders
+  alinks-payments-billing         → Razorpay, subscriptions, trials
+  alinks-appointments             → salon/clinic booking
+  alinks-tap-blast-sharing        → share engine, OG cards
+  alinks-ai-seo-content           → AI generation, SEO
+  alinks-tenant-customization     → theme, branding
+  alinks-ui-styling-system        → shared components
+  alinks-brand-assets             → logo variant selection
+  alinks-launch-roadmap           → phase planning, readiness reports
+  alinks-audit-review             → before each phase gate sign-off
+
+
+================================================================================
+12. VERIFICATION & DEFINITION OF DONE PER PHASE
+================================================================================
+
+PHASE 0 DONE WHEN
+  npm run typecheck && npm run lint && npm run build — all pass
+  DATABASE_URL configured && npm run db:migrate && npm run db:seed — success
+  (Setup: LOCAL_DEV_SETUP.txt — no Docker required)
+  Login with SUPERADMIN_PHONE + DEV_OTP → /superadmin shows tenant rows
+  /demo shows published demo business
+  Unpublished business handle → 404
+  No src/lib/, no src/db/, single schema only
+
+PHASE 1 DONE WHEN
+  New tenant completes signup → 5 pages → legal accept → Razorpay Basic → /[handle] live
+  legal_acceptances rows exist for every checkbox
+  Google Sheet receives a test order row (Commerce Lite)
+  Vitest tests pass for gates + routing + auth
+  First paying Basic tenant (real INR)
+
+PHASE 2 DONE WHEN
+  Pro tenant on subdomain with cart checkout completes UPI payment
+  Custom domain verified and serves site
+  Tap & Blast generates share card with WhatsApp deep link
+  Salon package book → pay → row in sheet
+
+PHASE 3 DONE WHEN
+  Open signup enabled
+  Lawyer-approved legal live
+  All external blockers cleared
+  Core Web Vitals green on marketing + sample tenant site
+  Benjamin approves public marketing push
+
+
+================================================================================
+13. SUGGESTED IMPLEMENTATION ORDER (PR-SIZED SLICES)
+================================================================================
+
+IMMEDIATE (finish Phase 0 — this week)
+--------------------------------------
+  PR-01  Verify build pipeline + fix any compile errors
+  PR-02  LOCAL_DEV_SETUP.txt reviewed and followed (Neon/Homebrew, migrate, seed, login)
+  PR-03  Tier watermark on TenantFooter (basic = show, pro = hide)
+  PR-04  Platform legal placeholder routes (/terms, /privacy stubs)
+
+PHASE 1 — slice order (do not parallelize gates)
+------------------------------------------------
+  PR-10  pages schema + migration + CRUD server actions (authorized)
+  PR-11  Home editor (single page) end-to-end save + public render
+  PR-12  Remaining 4 pages + 5-page limit enforcement
+  PR-13  Signup + onboarding + handle validation
+  PR-14  legal_acceptances service + signup checkboxes
+  PR-15  Publish gate service (block until legal + trial/sub)
+  PR-16  Theme + branding editor + R2 upload
+  PR-17  3 templates
+  PR-18  Google OAuth connect + Sheets adapter (read products)
+  PR-19  Commerce Lite store page + WhatsApp order
+  PR-20  Razorpay Basic subscription + webhooks
+  PR-21  Vitest + core tests
+  PR-22  ALINKS AI basic text endpoint
+
+PHASE 2 — slice order
+---------------------
+  PR-30  Pro subdomain enforcement
+  PR-31  Redis cache layer
+  PR-32  Cart + Razorpay checkout (Pro)
+  PR-33  Custom domain wizard
+  PR-34  Tap & Blast MVP
+  PR-35  Salon packages + pay-then-book
+
+PHASE 3+ — per baseline 9B section 9B lines 2563–2576
+
+
+================================================================================
+QUICK REFERENCE — LOCKED DECISIONS THAT DRIVE TASKS
+================================================================================
+
+  Q001  Basic = path URL; Pro = subdomain; custom domain additive
+  Q002  Basic = WhatsApp catalog; Pro = full checkout
+  Q019  Block publish until tenant legal + platform legal + subscription
+  Q020  COD default ON (tenant liability)
+  Q021  Basic 1 biz, Pro 1, Enterprise 3
+  Q022  Basic 25 products, Pro 200, Enterprise 2000
+  Q033  Basic ₹599, Pro ₹1599, Enterprise ₹6999
+  Q035  Trial model — 14-day Pro trial at signup
+  Q040  Patient/customer data stays in Google/Supabase only
+
+
+================================================================================
+NEXT ACTION FOR BENJAMIN
+================================================================================
+
+1. Review this plan.
+2. Run locally (see LOCAL_DEV_SETUP.txt — no Docker):
+     cp .env.example .env
+     Set DATABASE_URL (Neon free tier recommended)
+     Set SUPERADMIN_PHONE to your phone
+     npm run db:migrate
+     npm run db:seed
+     npm run dev
+3. Login at http://localhost:3000/login with your phone + OTP 1111
+4. Confirm /superadmin works → Phase 0 gate passed
+5. Approve PR-01 through PR-04 to fully close Phase 0
+6. Do not start website builder until Phase 0 verification is green
+
+================================================================================
+END OF IMPLEMENTATION PLAN
+================================================================================

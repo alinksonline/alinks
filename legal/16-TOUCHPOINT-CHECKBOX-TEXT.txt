@@ -1,0 +1,64 @@
+================================================================================
+TOUCHPOINT CHECKBOX & CONSENT TEXT
+================================================================================
+DRAFT v0.1 — Implement in product; log to legal_acceptances table
+================================================================================
+
+--- TENANT SIGNUP (required) ---
+[ ] I agree to the ALINKS Terms of Service (v{{VERSION}})
+[ ] I agree to the ALINKS Privacy Policy (v{{VERSION}})
+[ ] I understand I am solely responsible for my business, licences, products,
+    and services — not Artix
+[ ] I agree to the Acceptable Use Policy
+
+--- TENANT ENABLE PAYMENTS (Pro) ---
+[ ] I agree to the ALINKS Payment Facilitation Addendum (v{{VERSION}})
+[ ] I authorise ALINKS to submit my KYC to Razorpay/PhonePe for merchant onboarding
+[ ] I understand I am the seller of record for all customer transactions
+
+--- TENANT CONNECT GOOGLE ---
+[ ] I understand customer data will be stored in MY Google Account (Google Sheets)
+[ ] I agree to the ALINKS Data & Storage Addendum (v{{VERSION}})
+
+--- TENANT CONNECT SUPABASE ---
+[ ] I understand I own my Supabase project and pay Supabase directly
+[ ] I agree to the ALINKS Data & Storage Addendum (v{{VERSION}})
+[ ] I understand ALINKS charges a connector fee of ₹399/month per business
+
+--- TENANT FIRST PUBLISH ---
+[ ] I confirm my Terms & Conditions and Privacy Policy are published and accurate
+[ ] I confirm "Operated independently" footer is enabled
+
+--- TENANT GROCERY ONBOARDING ---
+[ ] I confirm I have all required licences for food I sell — this is my responsibility
+
+--- TENANT PHARMACY ---
+[ ] I hold a valid drug licence and sell only as permitted by law (OTC online)
+
+--- TENANT CLINIC GO-LIVE ---
+[ ] I hold valid medical registration and am solely responsible for patient care
+
+--- TENANT AFFILIATE LINKS ---
+[ ] I will disclose affiliate relationships per ASCI guidelines (#ad / sponsored)
+
+--- TENANT AI PUBLISH ---
+[ ] I have reviewed AI-generated content for accuracy before publishing
+
+--- CUSTOMER CHECKOUT (Pro) ---
+[ ] I agree to {{TENANT_NAME}}'s Terms & Conditions and Privacy Policy
+[ ] I understand {{TENANT_NAME}} is the seller, not ALINKS
+
+--- CUSTOMER SALON PACKAGE PAY ---
+[ ] I agree to cancellation and refund policy (link)
+[ ] I understand beauty service results may vary
+
+--- CUSTOMER CLINIC BOOKING ---
+[ ] This is not for emergencies — I will call 108/102 for emergencies
+[ ] I agree to clinic Terms and Privacy Policy
+
+--- CUSTOMER COD CONFIRM ---
+[ ] I agree to {{TENANT_NAME}}'s Terms. I will pay cash on delivery.
+
+================================================================================
+DATABASE: legal_acceptances(user_id|session_id, doc_type, version, ip, ua, ts)
+================================================================================

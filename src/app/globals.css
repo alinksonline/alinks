@@ -1,0 +1,37 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  color-scheme: light;
+  --color-brand-cream: #faf9f7;
+  --color-brand-ink: #1c1917;
+  --color-brand-mist: #f5f4f1;
+  --color-brand-bronze: #9a6b2e;
+}
+
+body {
+  background-color: var(--color-brand-cream);
+  color: var(--color-brand-ink);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+@layer utilities {
+  .marketing-container {
+    @apply mx-auto w-full max-w-6xl px-4 sm:px-6 lg:px-8;
+  }
+
+  .tech-label {
+    @apply font-mono text-[10px] font-medium uppercase tracking-[0.25em] text-tech-cyan;
+  }
+
+  .tech-panel {
+    @apply rounded-lg border border-tech-border bg-tech-panel shadow-panel;
+  }
+
+  .tech-grid-bg {
+    background-size: 48px 48px;
+    @apply bg-tech-grid;
+  }
+}

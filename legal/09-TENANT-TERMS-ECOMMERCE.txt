@@ -1,0 +1,46 @@
+================================================================================
+TENANT TERMS & CONDITIONS — E-COMMERCE (GENERAL SHOP)
+================================================================================
+DRAFT v0.1 — LAWYER REVIEW REQUIRED
+For: fashion, electronics, gadgets, electricals, general retail
+================================================================================
+
+TERMS & CONDITIONS — {{TENANT_BUSINESS_NAME}}
+
+1. SELLER IDENTITY
+Seller: {{TENANT_BUSINESS_NAME}}
+GSTIN (if registered): {{GSTIN_OR_NOT_REGISTERED}}
+Contact: {{TENANT_PHONE}} | {{TENANT_EMAIL}}
+
+2. PRODUCTS
+We sell products as described on this website. Images are representative.
+Specifications and MRP are as listed. We warrant we are authorised to sell listed goods.
+
+3. PRICING & PAYMENT
+Prices in INR. Taxes as applicable. Payment via enabled methods (UPI, card, COD).
+
+4. SHIPPING & DELIVERY
+  [TENANT EDIT: delivery areas, timelines, charges]
+  Risk of loss passes on delivery to customer unless otherwise stated.
+
+5. RETURNS & REFUNDS (Consumer Protection Act aligned)
+  [TENANT EDIT: return window — e.g., 7 days for defective/wrong item]
+  Return process: contact us at {{TENANT_EMAIL}}
+  Refund after inspection within [X] days.
+  Certain categories may be non-returnable (hygiene, sealed goods) — [TENANT LIST]
+
+6. WARRANTY
+Manufacturer warranty applies where stated. We are not manufacturer unless specified.
+
+7. COD
+If COD enabled: customer must pay on delivery; we may refuse COD for repeat defaulters.
+
+8. LIMITATION OF LIABILITY
+Liability limited to product purchase price for direct damages.
+
+9. DISPUTES
+Contact us first. Governing law: India. Jurisdiction: [TENANT CITY].
+
+================================================================================
+Legal Metrology: MRP, net quantity on product pages — tenant responsibility
+================================================================================

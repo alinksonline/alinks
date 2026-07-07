@@ -1,0 +1,37 @@
+================================================================================
+DPDP GRIEVANCE OFFICER — NOTICE (PUBLIC)
+================================================================================
+DRAFT v0.1 — LAWYER REVIEW REQUIRED
+Publish at: alinks.online/privacy (section) and alinks.online/grievance
+Required before public launch under Digital Personal Data Protection Act 2023
+================================================================================
+
+GRIEVANCE OFFICER & DATA PROTECTION CONTACT
+
+In accordance with the Digital Personal Data Protection Act, 2023:
+
+Data Fiduciary: [Artix Private Limited / Artix — proprietorship until Pvt Ltd]
+Product: ALINKS (https://alinks.online)
+
+Grievance Officer:
+  Name: [FULL NAME — Benjamin Anand or appointed officer]
+  Email: grievance@alinks.online
+  Address: [REGISTERED OFFICE ADDRESS]
+  Phone: [OPTIONAL]
+
+For privacy-related requests, complaints, or to exercise your rights regarding
+personal data processed by Artix about your ALINKS tenant account:
+
+  Email: privacy@alinks.online
+  Response time: within [X] days per applicable rules [LAWYER TO SET]
+
+Note: For complaints about a specific shop, salon, or clinic listed on ALINKS,
+contact that business directly. Artix does not control customer data stored in
+tenant Google Sheets or Supabase.
+
+For security issues: security@alinks.online
+
+================================================================================
+APPOINTMENT: Board resolution / proprietor letter appointing Grievance Officer
+[LAWYER TO DRAFT APPOINTMENT DOCUMENT]
+================================================================================

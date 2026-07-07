@@ -1,0 +1,4 @@
+interface:
+  display_name: "ALINKS Launch Roadmap"
+  short_description: "Plan work against ALINKS launch phases."
+  default_prompt: "Use this skill when planning ALINKS implementation order, milestones, or launch readiness."

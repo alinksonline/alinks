@@ -1,0 +1,4 @@
+interface:
+  display_name: "ALINKS Tenant Customization"
+  short_description: "Implement tenant-specific branding and overrides."
+  default_prompt: "Use this skill when building ALINKS tenant theming, customization, branding, templates, or per-business overrides."

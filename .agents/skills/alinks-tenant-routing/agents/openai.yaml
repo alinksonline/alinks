@@ -1,0 +1,4 @@
+interface:
+  display_name: "ALINKS Tenant Routing"
+  short_description: "Work on host and handle routing."
+  default_prompt: "Use this skill when changing ALINKS tenant routing, handles, subdomains, or custom domains."

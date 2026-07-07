@@ -1,0 +1,4 @@
+interface:
+  display_name: "ALINKS UI Styling System"
+  short_description: "Build shared UI and styling primitives."
+  default_prompt: "Use this skill when building ALINKS reusable components, styling, tokens, layouts, or visual patterns."

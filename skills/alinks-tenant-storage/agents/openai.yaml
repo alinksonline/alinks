@@ -1,0 +1,4 @@
+interface:
+  display_name: "ALINKS Tenant Storage"
+  short_description: "Implement Google Sheets or Supabase storage."
+  default_prompt: "Use this skill when building ALINKS tenant-owned client data storage."

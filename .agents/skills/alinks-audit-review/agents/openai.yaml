@@ -1,0 +1,4 @@
+interface:
+  display_name: "ALINKS Audit Review"
+  short_description: "Audit ALINKS behavior and compliance."
+  default_prompt: "Use this skill when reviewing ALINKS features, publish gates, logs, acceptance checks, or traceability."

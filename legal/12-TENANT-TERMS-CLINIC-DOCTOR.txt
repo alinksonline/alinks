@@ -1,0 +1,54 @@
+================================================================================
+TENANT TERMS & CONDITIONS — CLINIC / DOCTOR / OPD BOOKING
+================================================================================
+DRAFT v0.1 — LAWYER REVIEW REQUIRED — MEDICAL LEGAL COUNSEL BEFORE GO-LIVE AT SCALE
+NOT telemedicine / e-prescription in MVP
+================================================================================
+
+TERMS & CONDITIONS — {{CLINIC_NAME}}
+
+1. NATURE OF SERVICE
+We provide outpatient appointment booking and clinic information. This website
+does NOT provide emergency medical care.
+
+** NOT FOR EMERGENCIES — CALL 108 / 102 OR NEAREST HOSPITAL **
+
+2. MEDICAL REGISTRATION
+Practitioner(s): {{DOCTOR_NAME}}
+Registration: {{NMC_OR_STATE_COUNCIL_NUMBER}}
+Qualification: {{QUALIFICATION}}
+
+3. APPOINTMENTS
+  - Booking confirms a time slot only
+  - Consultation fees: as displayed or payable at clinic
+  - We may reschedule due to practitioner unavailability
+
+4. NO DOCTOR-PATIENT RELATIONSHIP ONLINE
+Booking via this website does not establish treatment until in-person consultation
+per our policies. No medical advice via website chat in MVP.
+
+5. PATIENT RESPONSIBILITIES
+Provide accurate contact information and reason for visit (optional field).
+Arrive on time. Bring prior reports if relevant.
+
+6. DATA & PRIVACY
+Patient details are stored in our clinic records (Google Sheets/database we control).
+We keep information only as long as needed for care and legal obligations, then
+remove when no longer required. See our Privacy Policy.
+
+7. CANCELLATION
+  [TENANT EDIT: reschedule policy, no-show policy]
+
+8. LIMITATION OF LIABILITY
+We are not liable for outcomes of treatment beyond applicable law. Platform
+(ALINKS) is not a healthcare provider.
+
+9. TELEMEDICINE
+Not offered via this website unless explicitly stated in future with separate consent.
+
+10. CONTACT
+{{CLINIC_NAME}} | {{TENANT_PHONE}} | Address: {{ADDRESS}}
+
+================================================================================
+Checkbox at booking: "Not for emergencies" + clinic T&C + privacy (Doc 16)
+================================================================================

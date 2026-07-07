@@ -1,0 +1,106 @@
+================================================================================
+ALINKS PRIVACY POLICY (PLATFORM — TENANT DATA)
+================================================================================
+DRAFT v0.1 — LAWYER REVIEW REQUIRED — DPDP ACT 2023 ALIGNMENT
+Data Fiduciary: [Artix / Artix Private Limited]
+Product: ALINKS
+Effective date: [DATE]
+Version: 1.0
+================================================================================
+
+1. SCOPE
+This Policy explains how Artix collects, uses, stores, and protects personal
+data of TENANTS (business owners who register for ALINKS).
+
+IMPORTANT — END-CUSTOMER DATA:
+Artix does NOT store your customers', patients', or buyers' personal data on
+Artix servers. That data is written to storage YOU own and control:
+  - Your Google Account (Google Sheets / Drive), or
+  - Your Supabase project (BYO model)
+See Data & Storage Addendum (Doc 06). For how YOU handle customer data, you must
+publish your own Privacy Policy (Doc 07 template) on your mini-site.
+
+2. DATA WE COLLECT (TENANTS)
+  Account: name, phone, email, business name, vertical, address, GSTIN (optional)
+  Billing: subscription tier, payment history, invoices, Razorpay payment IDs
+  Technical: IP address, device, browser, session logs, security logs
+  Platform use: pages edited, products added, feature usage, AI credit balance
+  OAuth tokens: encrypted Google/Supabase connection tokens (not sheet content)
+  KYC (Pro payments): PAN, bank details — submitted to payment partners via Artix
+       wizard; purpose-limited; see Payment Addendum
+  Legal acceptances: which documents you agreed to, version, timestamp, IP
+
+3. DATA WE DO NOT COLLECT OR RETAIN
+  - Customer names, phones, orders, appointments, patient details (permanent storage)
+  - Full contents of your Google Sheets or Supabase tables
+  - Card numbers (payments via hosted PG checkout only)
+  - Clinical diagnoses or medical records
+
+Transient processing: during a booking or checkout request, customer fields may
+exist in server memory only long enough to append to your Google Sheet or
+Supabase, then are discarded. [LAWYER TO CONFIRM DPDP storage limitation wording]
+
+4. PURPOSE OF PROCESSING
+  - Provide and improve ALINKS services
+  - Billing and subscription management
+  - Authentication and security
+  - Payment facilitation onboarding (sub-merchant KYC to partners)
+  - Support and abuse prevention
+  - Legal compliance and dispute resolution
+  - Aggregated analytics (no customer PII)
+
+5. LEGAL BASIS (DPDP)
+  - Consent: signup, optional features, marketing (if any)
+  - Contract: necessary to provide subscribed services
+  - Legal obligation: tax, fraud prevention, lawful requests
+  - Legitimate uses: security, platform integrity [LAWYER TO MAP TO DPDP SECTIONS]
+
+6. SHARING & SUB-PROCESSORS
+We may share tenant data with:
+  | Recipient          | Purpose                          |
+  |--------------------|----------------------------------|
+  | Razorpay / PhonePe | Subscription + sub-merchant KYC  |
+  | Google             | OAuth, Sheets API (your account)   |
+  | Supabase           | OAuth connect (your project)       |
+  | Cloudflare/Vercel  | Hosting, CDN                       |
+  | MSG91 / SMS        | OTP, notifications (if enabled)  |
+  | OpenRouter/Perplexity | ALINKS AI generation (tenant content) |
+We do not sell tenant personal data.
+
+7. INTERNATIONAL TRANSFERS
+Some sub-processors may process data outside India. We use appropriate safeguards
+as required by law. [LAWYER TO ADD STANDARD CLAUSES]
+
+8. RETENTION
+  - Active account: duration of subscription + reasonable period
+  - Billing records: as required by tax law (typically 6–8 years — CA to confirm)
+  - Security logs: [90 days — LAWYER TO SET]
+  - Deleted account: tenant config removed; legal/billing records retained per law
+  - OAuth tokens: deleted on disconnect or account deletion
+
+9. YOUR RIGHTS (DPDP)
+Tenants may request: access, correction, erasure (subject to legal retention),
+grievance redressal, nominate a contact for exercise of rights upon death/incapacity.
+Contact Grievance Officer (Doc 18). Response within timelines per DPDP rules.
+
+10. SECURITY
+HTTPS, encryption at rest for sensitive fields, access controls, PIN/biometric
+for dashboard (product feature). No system is 100% secure; report concerns promptly.
+
+11. BREACH NOTIFICATION
+We will notify affected tenants and authorities as required by DPDP and applicable law.
+
+12. CHILDREN
+ALINKS is for business users. Not directed at children under 18.
+
+13. CHANGES
+We will update this Policy with notice. Material changes may require re-consent.
+
+14. CONTACT
+Data Protection / Grievance Officer: [NAME, EMAIL, ADDRESS — Doc 18]
+Email: privacy@alinks.online
+
+================================================================================
+[LAWYER: Map to DPDP Section 6 notice requirements, Significant Data Fiduciary
+         assessment if applicable, cross-border transfer rules]
+================================================================================

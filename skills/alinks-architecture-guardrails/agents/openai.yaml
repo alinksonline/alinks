@@ -1,0 +1,4 @@
+interface:
+  display_name: "ALINKS Architecture Guardrails"
+  short_description: "Keep ALINKS layer boundaries intact."
+  default_prompt: "Use this skill before editing ALINKS architecture, imports, or shared modules."
