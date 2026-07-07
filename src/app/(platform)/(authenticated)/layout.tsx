@@ -1,4 +1,6 @@
 import type { ReactNode } from "react";
+
+export const dynamic = "force-dynamic";
 import { eq } from "drizzle-orm";
 import { getBusinessesForTenant } from "@/app/actions/multi-business";
 import { BusinessSwitcher } from "@/components/platform/business-switcher";

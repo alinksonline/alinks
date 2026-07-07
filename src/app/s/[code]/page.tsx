@@ -3,6 +3,8 @@ import { redirect } from "next/navigation";
 import { getPlatformDb } from "@/platform/db/client";
 import { shareLinks } from "@/platform/db/schema";
 
+export const dynamic = "force-dynamic";
+
 export default async function ShortLinkPage({ params }: { params: { code: string } }) {
   const db = getPlatformDb();
   if (!db) redirect("/");
