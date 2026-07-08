@@ -1,13 +1,19 @@
 "use server";
 
 import { completeOnboardingAction } from "@/app/actions/business";
-import { verifyOtpAction, verifyWidgetAccessTokenAction } from "@/app/actions/auth";
+import {
+  verifyEmailOtpAction,
+  verifyOtpAction,
+  verifyWidgetAccessTokenAction,
+} from "@/app/actions/auth";
+import type { AuthLoginMode } from "@/platform/auth/auth-mode";
 import type { SiteTemplateId } from "@/core/types/page";
 import { isValidEmail, normalizeEmail } from "@/core/utils/email";
 import { isValidHandle, normalizeHandle } from "@/core/utils/slug";
 
 export type SignupPayload = {
-  phone: string;
+  authMode: AuthLoginMode;
+  phone?: string;
   email: string;
   otp?: string;
   msg91AccessToken?: string;
@@ -61,9 +67,12 @@ export async function completeSignupAction(input: SignupPayload) {
   }
 
   const profile = { email, name: input.businessName.trim() };
-  const auth = input.msg91AccessToken
-    ? await verifyWidgetAccessTokenAction(input.msg91AccessToken, input.phone, profile)
-    : await verifyOtpAction(input.phone, input.otp ?? "", profile);
+  const auth =
+    input.msg91AccessToken && input.phone
+      ? await verifyWidgetAccessTokenAction(input.msg91AccessToken, input.phone, profile)
+      : input.authMode === "email"
+        ? await verifyEmailOtpAction(email, input.otp ?? "", profile)
+        : await verifyOtpAction(input.phone ?? "", input.otp ?? "", profile);
   if (!auth.success) {
     return { success: false as const, error: auth.error ?? "OTP verification failed" };
   }

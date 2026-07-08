@@ -3,13 +3,21 @@ import { cookies } from "next/headers";
 import { eq } from "drizzle-orm";
 import { redirect } from "next/navigation";
 import { getEnv } from "@/core/config/env";
+import { isResendConfigured } from "@/platform/auth/auth-mode";
 import { canSendOtp, recordOtpSend } from "@/platform/auth/otp-rate-limit";
+import {
+  generateEmailOtpCode,
+  setEmailOtpCookie,
+  verifyEmailOtpCookie,
+} from "@/platform/email/email-otp-cookie";
+import { sendLoginOtpEmail } from "@/platform/email/resend";
 import { verifyMsg91WidgetAccessToken } from "@/platform/sms/msg91-widget-server";
 import type { OtpDeliveryMode } from "@/platform/sms/otp-mode";
 import { getOtpDeliveryMode, isMsg91ApiConfigured, isMsg91WidgetConfigured } from "@/platform/sms/otp-mode";
 import { isMsg91RetrySessionMissing, resendLoginOtp, sendLoginOtp, verifyLoginOtp } from "@/platform/sms/msg91";
 import type { Session, SessionRole } from "@/core/types/auth";
 import { isPlaceholderTenantEmail, isValidEmail, normalizeEmail } from "@/core/utils/email";
+import { syntheticPhoneForEmail } from "@/core/utils/synthetic-phone";
 import { requireTenDigitMobile, tenDigitMobileError } from "@/core/utils/phone";
 import { getPlatformDb } from "@/platform/db/client";
 import { sessions, tenants } from "@/platform/db/schema";
@@ -30,19 +38,91 @@ function normalizePhone(phone: string): string {
   return requireTenDigitMobile(phone);
 }
 
+function resolveSessionRole(email: string, phone: string): SessionRole {
+  const env = getEnv();
+  if (env.SUPERADMIN_EMAIL && normalizeEmail(email) === normalizeEmail(env.SUPERADMIN_EMAIL)) {
+    return "superadmin";
+  }
+  try {
+    if (normalizePhone(phone) === normalizePhone(env.SUPERADMIN_PHONE)) return "superadmin";
+  } catch {
+    // phone may be synthetic for email-only accounts
+  }
+  return "tenant";
+}
+
+async function persistSession(tenantId: string, role: SessionRole): Promise<void> {
+  const token = randomBytes(32).toString("hex");
+  const expiresAt = new Date(Date.now() + SESSION_TTL_MS);
+  const db = getPlatformDb();
+  if (!db) throw new Error("Database not connected");
+
+  await db.insert(sessions).values({
+    tenantId,
+    tokenHash: hashToken(token),
+    role,
+    expiresAt,
+  });
+
+  cookies().set(SESSION_COOKIE, token, {
+    httpOnly: true,
+    secure: process.env.NODE_ENV === "production",
+    sameSite: "lax",
+    path: "/",
+    expires: expiresAt,
+  });
+}
+
+export async function createSessionFromEmail(
+  email: string,
+  profile?: TenantSignupProfile,
+): Promise<SessionRole> {
+  const db = getPlatformDb();
+  if (!db) throw new Error("Database not connected");
+
+  const normalizedEmail = normalizeEmail(email);
+  if (!isValidEmail(normalizedEmail)) throw new Error("Invalid email address");
+
+  const phone = syntheticPhoneForEmail(normalizedEmail);
+  const role = resolveSessionRole(normalizedEmail, phone);
+
+  const existing = await db.select().from(tenants).where(eq(tenants.email, normalizedEmail)).limit(1);
+  let tenant = existing[0];
+
+  if (!tenant) {
+    const [created] = await db
+      .insert(tenants)
+      .values({
+        email: normalizedEmail,
+        phone,
+        name: profile?.name?.trim() || (role === "superadmin" ? "ALINKS Superadmin" : "New Tenant"),
+        tier: role === "superadmin" ? "enterprise" : "basic",
+        status: "active",
+      })
+      .returning();
+    tenant = created;
+  } else if (profile?.name?.trim() && (!tenant.name || tenant.name === "New Tenant")) {
+    await db
+      .update(tenants)
+      .set({ name: profile.name.trim(), updatedAt: new Date() })
+      .where(eq(tenants.id, tenant.id));
+  }
+
+  await persistSession(tenant.id, role);
+  return role;
+}
+
 export async function createSession(phone: string, profile?: TenantSignupProfile): Promise<SessionRole> {
   const db = getPlatformDb();
   if (!db) throw new Error("Database not connected");
 
-  const env = getEnv();
   const normalized = normalizePhone(phone);
-  const role: SessionRole =
-    normalized === normalizePhone(env.SUPERADMIN_PHONE) ? "superadmin" : "tenant";
-
   const signupEmail = profile?.email ? normalizeEmail(profile.email) : undefined;
   if (signupEmail && !isValidEmail(signupEmail)) {
     throw new Error("Invalid email address");
   }
+
+  const role = resolveSessionRole(signupEmail ?? `${normalized}@alinks.local`, normalized);
 
   if (signupEmail) {
     const emailTaken = await db.select().from(tenants).where(eq(tenants.email, signupEmail)).limit(1);
@@ -82,24 +162,7 @@ export async function createSession(phone: string, profile?: TenantSignupProfile
       .where(eq(tenants.id, tenant.id));
   }
 
-  const token = randomBytes(32).toString("hex");
-  const expiresAt = new Date(Date.now() + SESSION_TTL_MS);
-
-  await db.insert(sessions).values({
-    tenantId: tenant.id,
-    tokenHash: hashToken(token),
-    role,
-    expiresAt,
-  });
-
-  cookies().set(SESSION_COOKIE, token, {
-    httpOnly: true,
-    secure: process.env.NODE_ENV === "production",
-    sameSite: "lax",
-    path: "/",
-    expires: expiresAt,
-  });
-
+  await persistSession(tenant.id, role);
   return role;
 }
 
@@ -175,12 +238,102 @@ export async function sendOtp(phone: string): Promise<{
     return sms.ok ? { ok: true, mode: "msg91-api" as const } : { ok: false, error: sms.error };
   }
 
+  if (isResendConfigured()) {
+    return {
+      ok: false,
+      error: "Use email login — enter your email address instead of mobile.",
+    };
+  }
+
   if (env.NODE_ENV === "production") {
-    return { ok: false, error: "SMS login is not configured. Contact support." };
+    return {
+      ok: false,
+      error: "Login is not configured. Add RESEND_API_KEY on Vercel (free email OTP).",
+    };
   }
 
   recordOtpSend(phone);
   return { ok: true, mode: "dev" };
+}
+
+export async function sendEmailOtp(email: string): Promise<{
+  ok: boolean;
+  mode?: "email" | "dev";
+  error?: string;
+}> {
+  const normalized = normalizeEmail(email);
+  if (!isValidEmail(normalized)) {
+    return { ok: false, error: "Enter a valid email address" };
+  }
+
+  const rate = canSendOtp(normalized);
+  if (!rate.ok) {
+    return { ok: false, error: `Wait ${rate.waitSeconds}s before requesting another code` };
+  }
+
+  const env = getEnv();
+  if (!isResendConfigured()) {
+    if (env.NODE_ENV === "production") {
+      return {
+        ok: false,
+        error: "Email login is not configured. Add RESEND_API_KEY on Vercel.",
+      };
+    }
+    recordOtpSend(normalized);
+    return { ok: true, mode: "dev" };
+  }
+
+  const code = generateEmailOtpCode();
+  const sent = await sendLoginOtpEmail(normalized, code);
+  if (!sent.ok) return { ok: false, error: sent.error };
+
+  setEmailOtpCookie(normalized, code);
+  recordOtpSend(normalized);
+  return { ok: true, mode: "email" };
+}
+
+export async function resendEmailOtp(email: string): Promise<{
+  ok: boolean;
+  mode?: "email" | "dev";
+  error?: string;
+}> {
+  return sendEmailOtp(email);
+}
+
+export async function verifyEmailOtp(
+  email: string,
+  otp: string,
+  profile?: TenantSignupProfile,
+): Promise<{ ok: boolean; role?: SessionRole; error?: string }> {
+  const normalized = normalizeEmail(email);
+  const env = getEnv();
+
+  if (isResendConfigured()) {
+    if (!verifyEmailOtpCookie(normalized, otp)) {
+      return { ok: false, error: "Invalid or expired code — check your email or request a new one" };
+    }
+  } else if (env.NODE_ENV === "production") {
+    return { ok: false, error: "Email login is not configured" };
+  } else if (otp.replace(/\D/g, "") !== env.DEV_OTP.replace(/\D/g, "")) {
+    return { ok: false, error: "Invalid OTP" };
+  }
+
+  if (!getPlatformDb()) {
+    return {
+      ok: false,
+      error:
+        process.env.NODE_ENV === "production"
+          ? "Sign-in is temporarily unavailable — database not configured."
+          : "Database not connected. Set DATABASE_URL in .env and run npm run db:migrate.",
+    };
+  }
+
+  try {
+    const role = await createSessionFromEmail(normalized, profile);
+    return { ok: true, role };
+  } catch (e) {
+    return { ok: false, error: e instanceof Error ? e.message : "Could not create session. Try again." };
+  }
 }
 
 export async function resendOtp(phone: string): Promise<{
@@ -215,8 +368,12 @@ export async function resendOtp(phone: string): Promise<{
     return { ok: false, error: retry.error ?? "Could not resend OTP" };
   }
 
+  if (isResendConfigured()) {
+    return { ok: false, error: "Use email login instead of SMS." };
+  }
+
   if (env.NODE_ENV === "production") {
-    return { ok: false, error: "SMS login is not configured. Contact support." };
+    return { ok: false, error: "Login is not configured. Add RESEND_API_KEY on Vercel." };
   }
 
   recordOtpSend(phone);
@@ -272,7 +429,7 @@ export async function verifyOtp(
       return { ok: false, error: sms.error ?? "Invalid OTP — check the SMS code or request a new one" };
     }
   } else if (env.NODE_ENV === "production") {
-    return { ok: false, error: "SMS login is not configured" };
+    return { ok: false, error: "Login is not configured. Add RESEND_API_KEY on Vercel." };
   } else if (otp.replace(/\D/g, "") !== env.DEV_OTP.replace(/\D/g, "")) {
     return { ok: false, error: "Invalid OTP" };
   }

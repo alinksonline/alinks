@@ -5,6 +5,7 @@ import { Msg91WidgetCleanup } from "@/components/platform/msg91-widget-cleanup";
 import { SignupForm } from "@/components/platform/signup-form";
 import { getSession } from "@/platform/auth/session";
 import { getBusinessForTenant } from "@/platform/business/require-business";
+import { authLoginModeLabel, getAuthLoginMode } from "@/platform/auth/auth-mode";
 import { getMsg91WidgetPublicConfig, getOtpDeliveryMode } from "@/platform/sms/otp-mode";
 
 export default async function SignupPage() {
@@ -14,15 +15,10 @@ export default async function SignupPage() {
     redirect(business ? "/dashboard" : "/onboarding");
   }
 
+  const authMode = getAuthLoginMode();
   const otpMode = getOtpDeliveryMode();
   const widgetConfig = getMsg91WidgetPublicConfig();
-
-  const subtitle =
-    otpMode === "msg91-widget"
-      ? "Verify your mobile · MSG91 OTP Widget"
-      : otpMode === "msg91-api"
-        ? "Verify your mobile number · SMS OTP via MSG91"
-        : "Local dev — configure MSG91 in .env for real SMS";
+  const subtitle = `Verify your account · ${authLoginModeLabel(authMode)}`;
 
   return (
     <AuthShell
@@ -39,7 +35,7 @@ export default async function SignupPage() {
       }
     >
       <Msg91WidgetCleanup otpMode={otpMode} />
-      <SignupForm otpMode={otpMode} widgetConfig={widgetConfig} />
+      <SignupForm authMode={authMode} otpMode={otpMode} widgetConfig={widgetConfig} />
     </AuthShell>
   );
 }

@@ -4,9 +4,16 @@ import { useMemo, useState, useTransition } from "react";
 import { LegalAgreementField } from "@/components/legal/legal-agreement-field";
 import { useRouter } from "next/navigation";
 import { completeSignupAction } from "@/app/actions/signup";
-import { resendOtpAction, sendOtpAction } from "@/app/actions/auth";
+import {
+  resendEmailOtpAction,
+  resendOtpAction,
+  sendEmailOtpAction,
+  sendOtpAction,
+} from "@/app/actions/auth";
+import { GoogleSignInButton } from "@/components/platform/google-sign-in-button";
 import { useMsg91OtpWidget } from "@/platform/sms/use-msg91-otp-widget";
 import { Button } from "@/components/ui/button";
+import type { AuthLoginMode } from "@/platform/auth/auth-mode";
 import type { OtpDeliveryMode } from "@/platform/sms/otp-mode";
 import type { SiteTemplateId } from "@/core/types/page";
 import { isValidEmail } from "@/core/utils/email";
@@ -26,11 +33,13 @@ const VERTICALS: { id: string; label: string; note?: string }[] = [
 ];
 
 type SignupFormProps = {
+  authMode: AuthLoginMode;
   otpMode: OtpDeliveryMode;
   widgetConfig: { widgetId: string; widgetToken: string } | null;
 };
 
-export function SignupForm({ otpMode, widgetConfig }: SignupFormProps) {
+export function SignupForm({ authMode, otpMode, widgetConfig }: SignupFormProps) {
+  const usesEmail = authMode === "email";
   const router = useRouter();
   const [step, setStep] = useState<"business" | "otp">("business");
   const [phone, setPhone] = useState("");
@@ -62,10 +71,12 @@ export function SignupForm({ otpMode, widgetConfig }: SignupFormProps) {
 
   const sendOtp = () => {
     setError(null);
-    const phoneError = tenDigitMobileError(phone);
-    if (phoneError) {
-      setError(phoneError);
-      return;
+    if (!usesEmail) {
+      const phoneError = tenDigitMobileError(phone);
+      if (phoneError) {
+        setError(phoneError);
+        return;
+      }
     }
     if (!businessName.trim()) {
       setError("Enter your business name");
@@ -90,7 +101,13 @@ export function SignupForm({ otpMode, widgetConfig }: SignupFormProps) {
 
     startTransition(async () => {
       try {
-        if (otpMode === "msg91-widget") {
+        if (usesEmail) {
+          const result = await sendEmailOtpAction(email);
+          if (!result.success) {
+            setError(result.error ?? "Could not send code");
+            return;
+          }
+        } else if (otpMode === "msg91-widget") {
           if (!msg91Widget.ready) {
             setError(msg91Widget.initError ?? "MSG91 widget is still loading — wait a moment and try again");
             return;
@@ -114,7 +131,13 @@ export function SignupForm({ otpMode, widgetConfig }: SignupFormProps) {
     setError(null);
     startTransition(async () => {
       try {
-        if (otpMode === "msg91-widget") {
+        if (usesEmail) {
+          const result = await resendEmailOtpAction(email);
+          if (!result.success) {
+            setError(result.error ?? "Could not resend code");
+            return;
+          }
+        } else if (otpMode === "msg91-widget") {
           await msg91Widget.resendOtp();
         } else {
           const result = await resendOtpAction(phone);
@@ -140,7 +163,8 @@ export function SignupForm({ otpMode, widgetConfig }: SignupFormProps) {
         }
 
         const result = await completeSignupAction({
-          phone,
+          authMode,
+          phone: usesEmail ? undefined : phone,
           email: email.trim(),
           otp: otpMode === "msg91-widget" ? undefined : otp,
           msg91AccessToken,
@@ -167,10 +191,17 @@ export function SignupForm({ otpMode, widgetConfig }: SignupFormProps) {
     });
   };
 
-  const last4 = phone.slice(-4);
+  const codeHint = usesEmail
+    ? email.replace(/^(.{2}).*(@.*)$/, "$1•••$2")
+    : `••••${phone.slice(-4)}`;
 
   return (
     <div>
+      <div className="mb-5 space-y-3">
+        <GoogleSignInButton label="Sign up with Google" />
+        <p className="text-center text-xs text-brand-ink/45">or verify with {usesEmail ? "email code" : "mobile OTP"}</p>
+      </div>
+
       <div className="mb-6 flex gap-2">
         {(["business", "otp"] as const).map((s) => (
           <span
@@ -240,21 +271,23 @@ export function SignupForm({ otpMode, widgetConfig }: SignupFormProps) {
             </p>
           </div>
 
-          <div>
-            <label htmlFor="phone" className="mb-2 block text-xs font-semibold uppercase tracking-wide text-brand-ink/50">
-              Mobile / WhatsApp number
-            </label>
-            <TenDigitPhoneInput
-              id="phone"
-              value={phone}
-              onValueChange={setPhone}
-              placeholder="9160425142"
-              required
-            />
-            <p className="mt-1.5 text-xs text-brand-ink/45">
-              Exactly 10 digits of your mobile — e.g. <span className="font-mono">9160425142</span>. Do not add +91 before it.
-            </p>
-          </div>
+          {!usesEmail && (
+            <div>
+              <label htmlFor="phone" className="mb-2 block text-xs font-semibold uppercase tracking-wide text-brand-ink/50">
+                Mobile / WhatsApp number
+              </label>
+              <TenDigitPhoneInput
+                id="phone"
+                value={phone}
+                onValueChange={setPhone}
+                placeholder="9160425142"
+                required
+              />
+              <p className="mt-1.5 text-xs text-brand-ink/45">
+                Exactly 10 digits — e.g. <span className="font-mono">9160425142</span>
+              </p>
+            </div>
+          )}
 
           <div>
             <label htmlFor="vertical" className="mb-2 block text-xs font-semibold uppercase tracking-wide text-brand-ink/50">
@@ -317,15 +350,22 @@ export function SignupForm({ otpMode, widgetConfig }: SignupFormProps) {
             disabled={isPending || (otpMode === "msg91-widget" && !msg91Widget.ready)}
             onClick={sendOtp}
           >
-            {isPending ? "Sending OTP…" : "Send OTP to verify number"}
+            {isPending ? "Sending…" : usesEmail ? "Email me a verification code" : "Send OTP to verify number"}
           </Button>
         </div>
       ) : (
         <form onSubmit={completeSignup} className="space-y-5">
           <div className="rounded-xl border border-brand-turquoise/25 bg-brand-turquoise/5 px-4 py-3 text-sm text-brand-ink/80">
-            {otpMode === "msg91-widget" || otpMode === "msg91-api" ? (
+            {usesEmail ? (
               <>
-                <p className="font-semibold text-brand-ink">Check SMS on ••••{last4}</p>
+                <p className="font-semibold text-brand-ink">Check email at {codeHint}</p>
+                <p className="mt-1 text-xs text-brand-ink/55">
+                  6-digit code via Resend. Check spam if needed. Expires in 10 minutes.
+                </p>
+              </>
+            ) : otpMode === "msg91-widget" || otpMode === "msg91-api" ? (
+              <>
+                <p className="font-semibold text-brand-ink">Check SMS on {codeHint}</p>
                 <p className="mt-1 text-xs text-brand-ink/55">
                   OTP sent via MSG91{otpMode === "msg91-widget" ? " Widget" : ""}. Wait 60 seconds, then tap Resend if needed.
                 </p>
