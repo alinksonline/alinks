@@ -1,13 +1,16 @@
 "use server";
 
 import { completeOnboardingAction } from "@/app/actions/business";
-import { verifyOtpAction } from "@/app/actions/auth";
+import { verifyOtpAction, verifyWidgetAccessTokenAction } from "@/app/actions/auth";
 import type { SiteTemplateId } from "@/core/types/page";
+import { isValidEmail, normalizeEmail } from "@/core/utils/email";
 import { isValidHandle, normalizeHandle } from "@/core/utils/slug";
 
 export type SignupPayload = {
   phone: string;
-  otp: string;
+  email: string;
+  otp?: string;
+  msg91AccessToken?: string;
   businessName: string;
   handle: string;
   vertical: string;
@@ -47,12 +50,20 @@ export async function completeSignupAction(input: SignupPayload) {
     return { success: false as const, error: "Describe what your business does (at least 10 characters)" };
   }
 
+  const email = normalizeEmail(input.email);
+  if (!isValidEmail(email)) {
+    return { success: false as const, error: "Enter a valid email address" };
+  }
+
   const handle = normalizeHandle(input.handle || input.businessName);
   if (!isValidHandle(handle)) {
     return { success: false as const, error: "Choose a valid site handle (letters, numbers, hyphens)" };
   }
 
-  const auth = await verifyOtpAction(input.phone, input.otp);
+  const profile = { email, name: input.businessName.trim() };
+  const auth = input.msg91AccessToken
+    ? await verifyWidgetAccessTokenAction(input.msg91AccessToken, input.phone, profile)
+    : await verifyOtpAction(input.phone, input.otp ?? "", profile);
   if (!auth.success) {
     return { success: false as const, error: auth.error ?? "OTP verification failed" };
   }

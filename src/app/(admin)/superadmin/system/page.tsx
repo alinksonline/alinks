@@ -2,6 +2,7 @@ import Link from "next/link";
 import { PageShell } from "@/components/shared/page-shell";
 import { getSuperadminOverview } from "@/platform/admin/get-overview";
 import { getEnv } from "@/core/config/env";
+import { getOtpDeliveryMode, isMsg91WidgetConfigured } from "@/platform/sms/otp-mode";
 
 export default async function SuperadminSystemPage() {
   const overview = await getSuperadminOverview();
@@ -36,7 +37,9 @@ export default async function SuperadminSystemPage() {
             <li>RAZORPAY_KEY_ID: {env.RAZORPAY_KEY_ID ? "set" : "dev mode"}</li>
             <li>OPENROUTER_API_KEY: {env.OPENROUTER_API_KEY ? "set" : "mock AI"}</li>
             <li>UPSTASH_REDIS: {env.UPSTASH_REDIS_REST_URL ? "set" : "in-memory fallback"}</li>
-            <li>MSG91_OTP: {env.MSG91_AUTH_KEY && env.MSG91_OTP_TEMPLATE_ID ? "set" : "DEV_OTP fallback"}</li>
+            <li>MSG91 mode: {getOtpDeliveryMode()}</li>
+            <li>MSG91 widget: {isMsg91WidgetConfigured() ? "set" : "not set"}</li>
+            <li>MSG91 API template: {env.MSG91_AUTH_KEY && env.MSG91_OTP_TEMPLATE_ID ? "set" : "not set"}</li>
             <li>STORAGE_DEV_MODE: {env.STORAGE_DEV_MODE ?? "auto"}</li>
           </ul>
         </div>

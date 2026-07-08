@@ -40,6 +40,8 @@ const envSchema = z.object({
   MSG91_AUTH_KEY: z.string().optional(),
   MSG91_OTP_TEMPLATE_ID: z.string().optional(),
   MSG91_SENDER_ID: z.string().optional(),
+  NEXT_PUBLIC_MSG91_WIDGET_ID: z.string().optional(),
+  NEXT_PUBLIC_MSG91_WIDGET_TOKEN: z.string().optional(),
 });
 
 export type Env = z.infer<typeof envSchema>;
@@ -72,5 +74,7 @@ export function getEnv(): Env {
     MSG91_AUTH_KEY: process.env.MSG91_AUTH_KEY,
     MSG91_OTP_TEMPLATE_ID: process.env.MSG91_OTP_TEMPLATE_ID,
     MSG91_SENDER_ID: process.env.MSG91_SENDER_ID,
+    NEXT_PUBLIC_MSG91_WIDGET_ID: process.env.NEXT_PUBLIC_MSG91_WIDGET_ID,
+    NEXT_PUBLIC_MSG91_WIDGET_TOKEN: process.env.NEXT_PUBLIC_MSG91_WIDGET_TOKEN,
   });
 }

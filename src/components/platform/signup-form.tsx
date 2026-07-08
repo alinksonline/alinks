@@ -1,14 +1,19 @@
 "use client";
 
-import Link from "next/link";
 import { useMemo, useState, useTransition } from "react";
+import { LegalAgreementField } from "@/components/legal/legal-agreement-field";
 import { useRouter } from "next/navigation";
 import { completeSignupAction } from "@/app/actions/signup";
 import { resendOtpAction, sendOtpAction } from "@/app/actions/auth";
+import { useMsg91OtpWidget } from "@/platform/sms/use-msg91-otp-widget";
 import { Button } from "@/components/ui/button";
+import type { OtpDeliveryMode } from "@/platform/sms/otp-mode";
 import type { SiteTemplateId } from "@/core/types/page";
-import { normalizeHandle } from "@/core/utils/slug";
+import { isValidEmail } from "@/core/utils/email";
+import { isValidHandle, normalizeHandle } from "@/core/utils/slug";
+import { TenDigitPhoneInput } from "@/components/ui/ten-digit-phone-input";
 import { cn } from "@/core/utils/cn";
+import { tenDigitMobileError } from "@/core/utils/phone";
 
 const VERTICALS: { id: string; label: string; note?: string }[] = [
   { id: "salon", label: "Salon & beauty" },
@@ -21,13 +26,15 @@ const VERTICALS: { id: string; label: string; note?: string }[] = [
 ];
 
 type SignupFormProps = {
-  otpMode: "msg91" | "dev";
+  otpMode: OtpDeliveryMode;
+  widgetConfig: { widgetId: string; widgetToken: string } | null;
 };
 
-export function SignupForm({ otpMode }: SignupFormProps) {
+export function SignupForm({ otpMode, widgetConfig }: SignupFormProps) {
   const router = useRouter();
   const [step, setStep] = useState<"business" | "otp">("business");
   const [phone, setPhone] = useState("");
+  const [email, setEmail] = useState("");
   const [businessName, setBusinessName] = useState("");
   const [handle, setHandle] = useState("");
   const [vertical, setVertical] = useState("salon");
@@ -39,8 +46,11 @@ export function SignupForm({ otpMode }: SignupFormProps) {
   const [acceptResponsibility, setAcceptResponsibility] = useState(false);
   const [acceptNoHarmfulUse, setAcceptNoHarmfulUse] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [deliveryMode, setDeliveryMode] = useState<"msg91" | "dev">(otpMode);
   const [isPending, startTransition] = useTransition();
+  const msg91Widget = useMsg91OtpWidget(
+    otpMode === "msg91-widget" ? widgetConfig?.widgetId : undefined,
+    otpMode === "msg91-widget" ? widgetConfig?.widgetToken : undefined,
+  );
 
   const suggestedHandle = useMemo(
     () => normalizeHandle(handle || businessName),
@@ -52,13 +62,21 @@ export function SignupForm({ otpMode }: SignupFormProps) {
 
   const sendOtp = () => {
     setError(null);
-    const digits = phone.replace(/\D/g, "");
-    if (digits.length !== 10) {
-      setError("Enter your 10-digit Indian mobile / WhatsApp number");
+    const phoneError = tenDigitMobileError(phone);
+    if (phoneError) {
+      setError(phoneError);
       return;
     }
     if (!businessName.trim()) {
       setError("Enter your business name");
+      return;
+    }
+    if (!isValidEmail(email)) {
+      setError("Enter a valid email address");
+      return;
+    }
+    if (!isValidHandle(suggestedHandle)) {
+      setError("Choose a valid site handle (letters, numbers, hyphens only)");
       return;
     }
     if (!legalOk) {
@@ -71,23 +89,42 @@ export function SignupForm({ otpMode }: SignupFormProps) {
     }
 
     startTransition(async () => {
-      const result = await sendOtpAction(phone);
-      if (!result.success) {
-        setError(result.error ?? "Could not send OTP");
-        return;
+      try {
+        if (otpMode === "msg91-widget") {
+          if (!msg91Widget.ready) {
+            setError(msg91Widget.initError ?? "MSG91 widget is still loading — wait a moment and try again");
+            return;
+          }
+          await msg91Widget.sendOtp(phone);
+        } else {
+          const result = await sendOtpAction(phone);
+          if (!result.success) {
+            setError(result.error ?? "Could not send OTP");
+            return;
+          }
+        }
+        setStep("otp");
+      } catch (e) {
+        setError(e instanceof Error ? e.message : "Could not send OTP");
       }
-      setDeliveryMode(result.mode);
-      setStep("otp");
     });
   };
 
   const resendOtp = () => {
     setError(null);
     startTransition(async () => {
-      const result = await resendOtpAction(phone);
-      if (!result.success) {
-        setError(result.error ?? "Could not resend OTP");
-        return;
+      try {
+        if (otpMode === "msg91-widget") {
+          await msg91Widget.resendOtp();
+        } else {
+          const result = await resendOtpAction(phone);
+          if (!result.success) {
+            setError(result.error ?? "Could not resend OTP");
+            return;
+          }
+        }
+      } catch (e) {
+        setError(e instanceof Error ? e.message : "Could not resend OTP");
       }
     });
   };
@@ -96,30 +133,41 @@ export function SignupForm({ otpMode }: SignupFormProps) {
     e.preventDefault();
     setError(null);
     startTransition(async () => {
-      const result = await completeSignupAction({
-        phone,
-        otp,
-        businessName: businessName.trim(),
-        handle: suggestedHandle,
-        vertical,
-        businessPurpose: businessPurpose.trim(),
-        templateId: (vertical === "salon" ? "salon" : vertical === "kirana" || vertical === "ecommerce" ? "ecommerce" : "general") as SiteTemplateId,
-        acceptTos,
-        acceptPrivacy,
-        acceptAup,
-        acceptResponsibility,
-        acceptNoHarmfulUse,
-      });
-      if (!result.success) {
-        setError(result.error ?? "Signup failed");
-        return;
+      try {
+        let msg91AccessToken: string | undefined;
+        if (otpMode === "msg91-widget") {
+          msg91AccessToken = await msg91Widget.verifyOtp(otp);
+        }
+
+        const result = await completeSignupAction({
+          phone,
+          email: email.trim(),
+          otp: otpMode === "msg91-widget" ? undefined : otp,
+          msg91AccessToken,
+          businessName: businessName.trim(),
+          handle: suggestedHandle,
+          vertical,
+          businessPurpose: businessPurpose.trim(),
+          templateId: (vertical === "salon" ? "salon" : vertical === "kirana" || vertical === "ecommerce" ? "ecommerce" : "general") as SiteTemplateId,
+          acceptTos,
+          acceptPrivacy,
+          acceptAup,
+          acceptResponsibility,
+          acceptNoHarmfulUse,
+        });
+        if (!result.success) {
+          setError(result.error ?? "Signup failed");
+          return;
+        }
+        router.push(result.role === "superadmin" ? "/superadmin" : "/editor");
+        router.refresh();
+      } catch (e) {
+        setError(e instanceof Error ? e.message : "Signup failed");
       }
-      router.push(result.role === "superadmin" ? "/superadmin" : "/editor");
-      router.refresh();
     });
   };
 
-  const last4 = phone.replace(/\D/g, "").slice(-4);
+  const last4 = phone.slice(-4);
 
   return (
     <div>
@@ -140,25 +188,6 @@ export function SignupForm({ otpMode }: SignupFormProps) {
       {step === "business" ? (
         <div className="space-y-5">
           <div>
-            <label htmlFor="phone" className="mb-2 block text-xs font-semibold uppercase tracking-wide text-brand-ink/50">
-              Mobile / WhatsApp number
-            </label>
-            <input
-              id="phone"
-              type="tel"
-              value={phone}
-              onChange={(e) => setPhone(e.target.value)}
-              placeholder="98765 43210"
-              className="premium-input"
-              autoComplete="tel"
-              inputMode="numeric"
-            />
-            <p className="mt-1.5 text-xs text-brand-ink/45">
-              OTP is sent by SMS to this number. Use the same number you use for WhatsApp business.
-            </p>
-          </div>
-
-          <div>
             <label htmlFor="businessName" className="mb-2 block text-xs font-semibold uppercase tracking-wide text-brand-ink/50">
               Business name
             </label>
@@ -174,7 +203,7 @@ export function SignupForm({ otpMode }: SignupFormProps) {
 
           <div>
             <label htmlFor="handle" className="mb-2 block text-xs font-semibold uppercase tracking-wide text-brand-ink/50">
-              Site address
+              Handle — your public site URL
             </label>
             <div className="flex items-center gap-1 rounded-xl border border-brand-ink/10 bg-brand-surface px-3 py-2">
               <span className="shrink-0 text-sm text-brand-ink/40">alinks.online/</span>
@@ -182,10 +211,49 @@ export function SignupForm({ otpMode }: SignupFormProps) {
                 id="handle"
                 value={handle}
                 onChange={(e) => setHandle(e.target.value)}
-                placeholder={suggestedHandle || "your-shop"}
+                placeholder={suggestedHandle || "priya-salon"}
                 className="min-w-0 flex-1 bg-transparent text-sm outline-none"
               />
             </div>
+            <p className="mt-1.5 text-xs text-brand-ink/45">
+              <strong>Handle ≠ username.</strong> This is your permanent site address (e.g.{" "}
+              <span className="font-mono">priya-salon</span>), not what you use to log in. Login is always your mobile number + OTP.
+            </p>
+          </div>
+
+          <div>
+            <label htmlFor="email" className="mb-2 block text-xs font-semibold uppercase tracking-wide text-brand-ink/50">
+              Email
+            </label>
+            <input
+              id="email"
+              type="email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              placeholder="you@business.com"
+              className="premium-input"
+              autoComplete="email"
+              required
+            />
+            <p className="mt-1.5 text-xs text-brand-ink/45">
+              Account contact &amp; billing notices. You still sign in with mobile OTP, not email.
+            </p>
+          </div>
+
+          <div>
+            <label htmlFor="phone" className="mb-2 block text-xs font-semibold uppercase tracking-wide text-brand-ink/50">
+              Mobile / WhatsApp number
+            </label>
+            <TenDigitPhoneInput
+              id="phone"
+              value={phone}
+              onValueChange={setPhone}
+              placeholder="9160425142"
+              required
+            />
+            <p className="mt-1.5 text-xs text-brand-ink/45">
+              Exactly 10 digits of your mobile — e.g. <span className="font-mono">9160425142</span>. Do not add +91 before it.
+            </p>
           </div>
 
           <div>
@@ -223,34 +291,11 @@ export function SignupForm({ otpMode }: SignupFormProps) {
             </p>
           </div>
 
-          <div className="space-y-3 rounded-xl border border-brand-ink/8 bg-brand-mist/40 p-4 text-sm text-brand-ink/80">
-            <label className="flex gap-2">
-              <input type="checkbox" checked={acceptTos} onChange={(e) => setAcceptTos(e.target.checked)} className="mt-0.5" />
-              <span>
-                I agree to the{" "}
-                <Link href="/terms" className="font-semibold text-brand-purple">
-                  Terms of Service
-                </Link>
-              </span>
-            </label>
-            <label className="flex gap-2">
-              <input type="checkbox" checked={acceptPrivacy} onChange={(e) => setAcceptPrivacy(e.target.checked)} className="mt-0.5" />
-              <span>
-                I agree to the{" "}
-                <Link href="/privacy" className="font-semibold text-brand-purple">
-                  Privacy Policy
-                </Link>
-              </span>
-            </label>
-            <label className="flex gap-2">
-              <input type="checkbox" checked={acceptAup} onChange={(e) => setAcceptAup(e.target.checked)} className="mt-0.5" />
-              <span>
-                I agree to the{" "}
-                <Link href="/aup" className="font-semibold text-brand-purple">
-                  Acceptable Use Policy
-                </Link>
-              </span>
-            </label>
+          <div className="space-y-4 rounded-xl border border-brand-ink/8 bg-brand-mist/40 p-4">
+            <p className="text-xs font-semibold uppercase tracking-wide text-brand-ink/45">Legal agreements</p>
+            <LegalAgreementField docId="tos" checked={acceptTos} onChange={setAcceptTos} />
+            <LegalAgreementField docId="privacy" checked={acceptPrivacy} onChange={setAcceptPrivacy} />
+            <LegalAgreementField docId="aup" checked={acceptAup} onChange={setAcceptAup} />
             <label className="flex gap-2">
               <input type="checkbox" checked={acceptResponsibility} onChange={(e) => setAcceptResponsibility(e.target.checked)} className="mt-0.5" />
               <span>I am solely responsible for my business, licences, products, and services — not Artix</span>
@@ -263,18 +308,26 @@ export function SignupForm({ otpMode }: SignupFormProps) {
 
           {error && <p className="text-xs text-red-600">{error}</p>}
 
-          <Button type="button" variant="bronze" disabled={isPending} onClick={sendOtp}>
+          {otpMode === "msg91-widget" && msg91Widget.initError && (
+            <p className="text-xs text-amber-700">{msg91Widget.initError}</p>
+          )}
+          <Button
+            type="button"
+            variant="bronze"
+            disabled={isPending || (otpMode === "msg91-widget" && !msg91Widget.ready)}
+            onClick={sendOtp}
+          >
             {isPending ? "Sending OTP…" : "Send OTP to verify number"}
           </Button>
         </div>
       ) : (
         <form onSubmit={completeSignup} className="space-y-5">
           <div className="rounded-xl border border-brand-turquoise/25 bg-brand-turquoise/5 px-4 py-3 text-sm text-brand-ink/80">
-            {deliveryMode === "msg91" ? (
+            {otpMode === "msg91-widget" || otpMode === "msg91-api" ? (
               <>
-                <p className="font-semibold text-brand-ink">Check SMS on +91 ••••{last4}</p>
+                <p className="font-semibold text-brand-ink">Check SMS on ••••{last4}</p>
                 <p className="mt-1 text-xs text-brand-ink/55">
-                  OTP sent via MSG91. If it does not arrive in 60 seconds, tap Resend. Do not use a demo code — enter the SMS OTP only.
+                  OTP sent via MSG91{otpMode === "msg91-widget" ? " Widget" : ""}. Wait 60 seconds, then tap Resend if needed.
                 </p>
               </>
             ) : (

@@ -1,0 +1,64 @@
+================================================================================
+15 — MSG91 OTP WIDGET (Next.js — ALINKS signup/login)
+================================================================================
+
+PREFERRED over direct v5 OTP API when DLT/template mapping is done in the widget.
+
+--------------------------------------------------------------------------------
+MSG91 DASHBOARD SETUP
+--------------------------------------------------------------------------------
+  1. MSG91 → OTP → Create New Widget
+  2. Name: ALINKS Login (or similar)
+  3. Verification: Login using OTP
+  4. Contact: Mobile number · Channel: SMS
+  5. Map template: ALINKS_Signup_OTP (add DLT Template ID in template edit)
+  6. Country: Allow India only (recommended)
+  7. Webhook: Skip (leave empty)
+  8. Client integration: Web SDK → Custom UI → exposeMethods: true
+  9. Copy Widget ID + Auth Token (Token section — NOT the API Auth Key)
+
+--------------------------------------------------------------------------------
+ENV VARS (.env + Vercel)
+--------------------------------------------------------------------------------
+  NEXT_PUBLIC_MSG91_WIDGET_ID=<widget id from dashboard>
+  NEXT_PUBLIC_MSG91_WIDGET_TOKEN=<widget auth token — safe for browser>
+  MSG91_AUTH_KEY=<server auth key — for verifyAccessToken only>
+
+  Widget mode is used in production. On localhost, ALINKS auto-falls back to msg91-api
+  because MSG91's hCaptcha rejects localhost ("network-error").
+
+  Optional (widget testing on a public URL):
+    NEXT_PUBLIC_MSG91_WIDGET_FORCE=true
+
+  Or disable captcha in MSG91 → OTP Widget → Captcha Validation → Off.
+
+--------------------------------------------------------------------------------
+HOW ALINKS USES IT
+--------------------------------------------------------------------------------
+  Client (signup/login):
+    - Loads otp-provider.js (verify.msg91.com, fallback verify.phone91.com)
+    - initSendOTP({ widgetId, tokenAuth, exposeMethods: true }) on script onload
+    - sendOtp('91' + 10-digit mobile)
+    - retryOtp(null) on resend
+    - verifyOtp(code) → returns access-token
+
+  Server:
+    - POST https://control.msg91.com/api/v5/widget/verifyAccessToken
+    - Body: { "authkey": MSG91_AUTH_KEY, "access-token": "<jwt from widget>" }
+    - Creates ALINKS session on success
+
+  Code (HTML snippet converted to TypeScript):
+    - src/platform/sms/msg91-widget-client.ts   ← client (configuration + loadOtpScript)
+    - src/platform/sms/use-msg91-otp-widget.ts  ← React hook for signup/login forms
+    - src/platform/sms/msg91-widget-server.ts   ← server verifyAccessToken
+    - src/platform/sms/otp-mode.ts
+
+--------------------------------------------------------------------------------
+TEST
+--------------------------------------------------------------------------------
+  1. Set widget env vars · restart npm run dev
+  2. /signup → enter 9160425142 (10 digits)
+  3. Send OTP → SMS should arrive via widget
+  4. Enter OTP → should redirect to editor/onboarding
+
+================================================================================

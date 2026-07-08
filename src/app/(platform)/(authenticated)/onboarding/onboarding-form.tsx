@@ -3,6 +3,7 @@
 import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { completeOnboardingAction } from "@/app/actions/business";
+import { LegalAgreementField } from "@/components/legal/legal-agreement-field";
 import { Button } from "@/components/ui/button";
 import type { SiteTemplateId } from "@/core/types/page";
 
@@ -94,19 +95,11 @@ export function OnboardingForm() {
           ))}
         </div>
       </div>
-      <div className="space-y-2 rounded-lg border bg-slate-50 p-4 text-sm">
-        <label className="flex gap-2">
-          <input type="checkbox" checked={acceptTos} onChange={(e) => setAcceptTos(e.target.checked)} />
-          I agree to ALINKS Terms of Service (draft v0.1)
-        </label>
-        <label className="flex gap-2">
-          <input type="checkbox" checked={acceptPrivacy} onChange={(e) => setAcceptPrivacy(e.target.checked)} />
-          I agree to ALINKS Privacy Policy (draft v0.1)
-        </label>
-        <label className="flex gap-2">
-          <input type="checkbox" checked={acceptAup} onChange={(e) => setAcceptAup(e.target.checked)} />
-          I agree to the Acceptable Use Policy
-        </label>
+      <div className="space-y-4 rounded-xl border border-brand-ink/8 bg-brand-mist/40 p-4">
+        <p className="text-xs font-semibold uppercase tracking-wide text-brand-ink/45">Legal agreements</p>
+        <LegalAgreementField docId="tos" checked={acceptTos} onChange={setAcceptTos} />
+        <LegalAgreementField docId="privacy" checked={acceptPrivacy} onChange={setAcceptPrivacy} />
+        <LegalAgreementField docId="aup" checked={acceptAup} onChange={setAcceptAup} />
       </div>
       {error && <p className="text-sm text-red-600">{error}</p>}
       <Button type="submit" className="w-full" disabled={isPending}>

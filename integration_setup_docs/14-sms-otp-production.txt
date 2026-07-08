@@ -1,5 +1,5 @@
 ================================================================================
-14 — SMS OTP PRODUCTION (MSG91 — AlinkOTP)
+14 — SMS OTP PRODUCTION (MSG91 — ALINKS_Signup_OTP)
 ================================================================================
 
 GOAL
@@ -8,7 +8,7 @@ GOAL
 
 STATUS
   Wired in code: src/platform/sms/msg91.ts
-  Template name in MSG91 dashboard: AlinkOTP (status: ON)
+  Template name in MSG91 dashboard: ALINKS_Signup_OTP (status: Active)
 
 --------------------------------------------------------------------------------
 YOUR MSG91 SETUP (Artix account)
@@ -17,16 +17,16 @@ YOUR MSG91 SETUP (Artix account)
 
   | Field            | Value                                      |
   |------------------|--------------------------------------------|
-  | Template name    | AlinkOTP                                   |
-  | Template ID      | Copy from dashboard (OTP template row)     |
+  | Template name    | ALINKS_Signup_OTP                          |
+  | Template ID      | 6a4d3880e8e89020f0004466 (from dashboard) |
   | API Auth Key     | MSG91 → API → Auth Key                     |
   | Owner            | 0 (your account)                           |
   | Status           | ON                                         |
 
   Env vars (local .env + Vercel, mark Sensitive):
     MSG91_AUTH_KEY=<your auth key>
-    MSG91_OTP_TEMPLATE_ID=<template id from AlinkOTP row>
-    MSG91_SENDER_ID=              ← optional for OTP v5 API
+    MSG91_OTP_TEMPLATE_ID=6a4d3880e8e89020f0004466
+    MSG91_SENDER_ID=ALINKS        ← 6-char DLT sender ID (must be approved)
 
   NOTE: Template ID and Auth Key are DIFFERENT fields in MSG91.
   Copy each exactly from the dashboard — do not guess.
@@ -36,7 +36,8 @@ STEP 1 — MSG91 ACCOUNT
 --------------------------------------------------------------------------------
   1. https://msg91.com → login
   2. Complete KYC if prompted
-  3. OTP → Templates → AlinkOTP must show Status ON
+  3. OTP → Templates → ALINKS_Signup_OTP must show Status Active
+  4. Click Test DLT on the template — DLT mapping must pass for India delivery
   4. Template body must include ##OTP## placeholder (DLT approved)
 
 --------------------------------------------------------------------------------
@@ -105,7 +106,11 @@ TROUBLESHOOTING
 --------------------------------------------------------------------------------
   | Symptom              | Fix                                                |
   |----------------------|----------------------------------------------------|
-  | SMS not received     | Template ON? DLT approved? Check MSG91 logs        |
+  | SMS not received     | API may return success but SMS fails — see DLT row |
+  | Failed report 400    | "Template ID Missing or Invalid" → map DLT ID in   |
+  |                      | MSG91 → OTP → ALINKS_Signup_OTP → Edit → DLT field |
+  |                      | Save → Test DLT → test SMS must arrive on phone    |
+  | API Failed 400       | MSG91_OTP_TEMPLATE_ID wrong — NOT the Auth Key     |
   | 401 / auth error     | Regenerate Auth Key; update env                    |
   | Invalid template     | Copy Template ID from AlinkOTP row exactly         |
   | Still uses dev OTP   | Both MSG91 vars must be set; restart dev server    |
