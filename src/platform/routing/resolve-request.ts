@@ -3,7 +3,7 @@ import type { AppSurface, ResolvedRequest, TenantUrlMode } from "@/core/types/ro
 
 const PLATFORM_PREFIXES = ["/dashboard", "/login", "/signup", "/onboarding", "/editor", "/billing", "/api"];
 const ADMIN_PREFIXES = ["/superadmin"];
-const MARKETING_PATHS = new Set(["terms", "privacy", "aup", "payment-terms"]);
+const MARKETING_PATHS = new Set(["terms", "privacy", "aup", "payment-terms", "grievance"]);
 
 function stripPort(host: string): string {
   return host.split(":")[0] ?? host;

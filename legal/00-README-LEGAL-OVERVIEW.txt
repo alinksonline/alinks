@@ -47,6 +47,25 @@ FILE INDEX
 18  DPDP grievance officer notice
 19  ALINKS subscription refund & cancellation policy
 20  Legal acceptance matrix (what to log in database)
+21  DPDP Act 2023 — ALINKS status audit (product vs policy; living doc)
+
+AGENT SKILLS (legal/skills/)
+----------------------------
+  INDEX.md                         — skill pack index
+  alinks-legal-compliance-gates  — publish gates, acceptances, sector rules
+  alinks-audit-review              — baseline audits, traceability, gap review
+  alinks-dpdp-compliance           — DPDP checklist, user rights, grievance
+  alinks-compliance-security-guardrails — pre-deploy security & compliance audit
+
+Symlinked from .agents/skills/ for Google Antigravity agent discovery.
+Automatic: .agent/rules/compliance-guardrails.md (always on)
+           npm pretest + GitHub CI on every test/PR
+On demand:  /guardrails-scan workflow in Antigravity
+
+TWO DOC TYPES IN THIS FOLDER
+----------------------------
+  01–20  Draft legal TEXT — lawyer review before publication
+  21     Living PRODUCT AUDIT — what the app implements today (update after shipping)
 
 REGISTRATIONS REQUIRED (NOT IN THIS FOLDER — ACTION ITEMS)
 ----------------------------------------------------------

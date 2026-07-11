@@ -29,6 +29,11 @@ describe("resolveRequest", () => {
     expect(r.surface).toBe("marketing");
   });
 
+  it("excludes grievance marketing path", () => {
+    const r = resolveRequest("localhost:3000", "/grievance");
+    expect(r.surface).toBe("marketing");
+  });
+
   it("resolves pro subdomain", () => {
     const r = resolveRequest("demo.localhost:3000", "/");
     expect(r.surface).toBe("tenant-site");

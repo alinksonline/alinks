@@ -31,7 +31,12 @@ export async function sendEmailOtpAction(email: string) {
   if (!result.ok) {
     return { success: false as const, error: result.error ?? "Could not send code" };
   }
-  return { success: true as const, mode: result.mode ?? getAuthLoginMode() };
+  return {
+    success: true as const,
+    mode: result.mode ?? getAuthLoginMode(),
+    // When mode is "dev", email may not have been delivered (Resend sandbox).
+    devFallback: result.mode === "dev",
+  };
 }
 
 export async function resendOtpAction(phone: string) {
@@ -58,7 +63,7 @@ export async function verifyOtpAction(phone: string, otp: string, profile?: Tena
   if (!result.ok) {
     return { success: false as const, error: result.error ?? "Login failed" };
   }
-  return { success: true as const, role: result.role };
+  return { success: true as const, role: result.role, userId: result.userId };
 }
 
 export async function verifyEmailOtpAction(email: string, otp: string, profile?: TenantSignupProfile) {
@@ -66,7 +71,7 @@ export async function verifyEmailOtpAction(email: string, otp: string, profile?:
   if (!result.ok) {
     return { success: false as const, error: result.error ?? "Verification failed" };
   }
-  return { success: true as const, role: result.role };
+  return { success: true as const, role: result.role, userId: result.userId };
 }
 
 export async function verifyWidgetAccessTokenAction(
@@ -78,7 +83,7 @@ export async function verifyWidgetAccessTokenAction(
   if (!result.ok) {
     return { success: false as const, error: result.error ?? "Verification failed" };
   }
-  return { success: true as const, role: result.role };
+  return { success: true as const, role: result.role, userId: result.userId };
 }
 
 export async function logoutAction() {

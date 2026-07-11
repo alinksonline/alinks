@@ -1,15 +1,16 @@
 "use server";
 
-import { completeOnboardingAction } from "@/app/actions/business";
-import {
-  verifyEmailOtpAction,
-  verifyOtpAction,
-  verifyWidgetAccessTokenAction,
-} from "@/app/actions/auth";
-import type { AuthLoginMode } from "@/platform/auth/auth-mode";
+import { completeOnboardingForTenant } from "@/app/actions/business";
 import type { SiteTemplateId } from "@/core/types/page";
 import { isValidEmail, normalizeEmail } from "@/core/utils/email";
+import { tenDigitMobileError } from "@/core/utils/phone";
 import { isValidHandle, normalizeHandle } from "@/core/utils/slug";
+import type { AuthLoginMode } from "@/platform/auth/auth-mode";
+import {
+  verifyEmailOtp,
+  verifyMsg91WidgetAndCreateSession,
+  verifyOtp,
+} from "@/platform/auth/session";
 
 export type SignupPayload = {
   authMode: AuthLoginMode;
@@ -56,31 +57,48 @@ export async function completeSignupAction(input: SignupPayload) {
     return { success: false as const, error: "Describe what your business does (at least 10 characters)" };
   }
 
+  const businessName = input.businessName.trim();
+  if (!businessName) {
+    return { success: false as const, error: "Enter your business name" };
+  }
+
   const email = normalizeEmail(input.email);
   if (!isValidEmail(email)) {
     return { success: false as const, error: "Enter a valid email address" };
   }
 
-  const handle = normalizeHandle(input.handle || input.businessName);
+  const handle = normalizeHandle(input.handle || businessName);
   if (!isValidHandle(handle)) {
     return { success: false as const, error: "Choose a valid site handle (letters, numbers, hyphens)" };
   }
 
-  const profile = { email, name: input.businessName.trim() };
-  const auth =
-    input.msg91AccessToken && input.phone
-      ? await verifyWidgetAccessTokenAction(input.msg91AccessToken, input.phone, profile)
-      : input.authMode === "email"
-        ? await verifyEmailOtpAction(email, input.otp ?? "", profile)
-        : await verifyOtpAction(input.phone ?? "", input.otp ?? "", profile);
-  if (!auth.success) {
+  const usesEmail = input.authMode === "email";
+  if (!usesEmail) {
+    const phoneError = tenDigitMobileError(input.phone ?? "");
+    if (phoneError) {
+      return { success: false as const, error: phoneError };
+    }
+  }
+
+  const profile = { email, name: businessName };
+
+  // Verify identity + create session cookie for the *next* request.
+  // Do not call getSession() in this same action — Next.js does not expose
+  // cookies().set values via cookies().get until the following request.
+  const auth = input.msg91AccessToken && input.phone
+    ? await verifyMsg91WidgetAndCreateSession(input.msg91AccessToken, input.phone, profile)
+    : usesEmail
+      ? await verifyEmailOtp(email, input.otp ?? "", profile)
+      : await verifyOtp(input.phone ?? "", input.otp ?? "", profile);
+
+  if (!auth.ok || !auth.userId) {
     return { success: false as const, error: auth.error ?? "OTP verification failed" };
   }
 
-  const templateId = VERTICAL_TEMPLATE[input.vertical] ?? "general";
+  const templateId = VERTICAL_TEMPLATE[input.vertical] ?? input.templateId ?? "general";
 
-  const onboard = await completeOnboardingAction({
-    businessName: input.businessName.trim(),
+  const onboard = await completeOnboardingForTenant(auth.userId, {
+    businessName,
     handle,
     vertical: input.vertical,
     templateId,

@@ -1,0 +1,4 @@
+interface:
+  display_name: "ALINKS CodeRabbit"
+  short_description: "PR reviews, CLI, Agentic API key."
+  default_prompt: "Use this skill when running CodeRabbit reviews, npm run review, .coderabbit.yaml, or PR review workflow on alinks."

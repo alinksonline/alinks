@@ -1,0 +1,4 @@
+interface:
+  display_name: "ALINKS Compliance Guardrails"
+  short_description: "Security, DPDP, secrets, and deploy audit."
+  default_prompt: "Run the ALINKS compliance and security guardrail audit before shipping. Check secrets, headers, data boundaries, DPDP gaps, and third-party resilience."

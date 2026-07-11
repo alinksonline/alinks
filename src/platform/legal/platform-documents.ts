@@ -12,8 +12,8 @@ export type LegalDocumentSection = {
 };
 
 export type PlatformLegalDocument = {
-  id: "tos" | "privacy" | "aup";
-  slug: "/terms" | "/privacy" | "/aup";
+  id: "tos" | "privacy" | "aup" | "grievance";
+  slug: "/terms" | "/privacy" | "/aup" | "/grievance";
   title: string;
   checkboxLabel: string;
   subtitle: string;
@@ -567,6 +567,71 @@ export const PLATFORM_LEGAL_DOCS: Record<PlatformLegalDocument["id"], PlatformLe
           {
             type: "paragraph",
             text: "Artix is not obligated to pre-screen all content but may do so. Intermediary safe harbour is subject to due diligence compliance under applicable law.",
+          },
+        ],
+      },
+    ],
+  },
+  grievance: {
+    id: "grievance",
+    slug: "/grievance",
+    title: "DPDP Grievance Officer",
+    checkboxLabel: "Grievance notice",
+    subtitle: "Contact and grievance redressal under the Digital Personal Data Protection Act, 2023.",
+    draftNotice: DRAFT_NOTICE,
+    meta: [
+      `Version: ${LEGAL_DOC_VERSION}`,
+      "Data Fiduciary: Artix / Artix Private Limited",
+      "Product: ALINKS — https://alinks.online",
+      "Effective date: [DATE — lawyer to confirm]",
+    ],
+    sections: [
+      {
+        id: "officer",
+        title: "Grievance Officer",
+        blocks: [
+          {
+            type: "paragraph",
+            text: "In accordance with the Digital Personal Data Protection Act, 2023, Artix has appointed a Grievance Officer for privacy-related complaints regarding your ALINKS tenant account.",
+          },
+          {
+            type: "table",
+            headers: ["Contact", "Details"],
+            rows: [
+              ["Grievance Officer", "[FULL NAME — to be appointed]"],
+              ["Email", "grievance@alinks.online"],
+              ["Privacy requests", "privacy@alinks.online"],
+              ["Security issues", "security@alinks.online"],
+              ["Registered address", "[REGISTERED OFFICE — lawyer to confirm]"],
+            ],
+          },
+        ],
+      },
+      {
+        id: "rights",
+        title: "Your rights (tenant account data)",
+        blocks: [
+          {
+            type: "paragraph",
+            text: "You may request access, correction, erasure, or grievance redressal for personal data Artix processes about you as an ALINKS business owner (name, email, phone, billing metadata, session logs).",
+          },
+          {
+            type: "bullets",
+            items: [
+              "Export your account data: Dashboard → Settings → Export my data",
+              "Delete your account: Dashboard → Settings → Delete account",
+              "Response time: within [X] days per applicable rules [lawyer to set]",
+            ],
+          },
+        ],
+      },
+      {
+        id: "tenant-customers",
+        title: "End-customer data (not Artix)",
+        blocks: [
+          {
+            type: "paragraph",
+            text: "If your complaint is about a specific shop, salon, or clinic on ALINKS, contact that business directly. Artix does not control customer data stored in tenant Google Sheets or tenant-owned Supabase projects.",
           },
         ],
       },

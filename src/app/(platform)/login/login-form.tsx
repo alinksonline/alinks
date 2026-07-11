@@ -207,7 +207,9 @@ export function LoginForm({
             <p className="font-semibold text-brand-ink">Code sent to {mask}</p>
             <p className="mt-1 text-xs text-brand-ink/55">
               {usesEmail
-                ? "Check your inbox and spam folder. Code expires in 10 minutes."
+                ? process.env.NODE_ENV === "development"
+                  ? "Check inbox/spam, or on localhost enter DEV_OTP from .env if the email doesn’t arrive (Resend free tier only delivers to your Resend account email)."
+                  : "Check your inbox and spam folder. Code expires in 10 minutes."
                 : authMode === "dev"
                   ? "Dev mode: use DEV_OTP from your .env"
                   : "Enter the code from your SMS."}

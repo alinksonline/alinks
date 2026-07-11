@@ -211,7 +211,7 @@ export function SignupForm({ authMode, otpMode, widgetConfig }: SignupFormProps)
               step === s ? "bg-brand-purple/12 text-brand-purple" : "bg-brand-mist text-brand-ink/40",
             )}
           >
-            {s === "business" ? "1 · Your business" : "2 · Verify mobile"}
+            {s === "business" ? "1 · Your business" : usesEmail ? "2 · Verify email" : "2 · Verify mobile"}
           </span>
         ))}
       </div>
@@ -247,8 +247,9 @@ export function SignupForm({ authMode, otpMode, widgetConfig }: SignupFormProps)
               />
             </div>
             <p className="mt-1.5 text-xs text-brand-ink/45">
-              <strong>Handle ≠ username.</strong> This is your permanent site address (e.g.{" "}
-              <span className="font-mono">priya-salon</span>), not what you use to log in. Login is always your mobile number + OTP.
+              <strong>Handle ≠ login.</strong> This is your public site address (e.g.{" "}
+              <span className="font-mono">priya-salon</span>). You sign in with{" "}
+              {usesEmail ? "your email + code" : "your mobile number + OTP"}.
             </p>
           </div>
 
@@ -267,7 +268,9 @@ export function SignupForm({ authMode, otpMode, widgetConfig }: SignupFormProps)
               required
             />
             <p className="mt-1.5 text-xs text-brand-ink/45">
-              Account contact &amp; billing notices. You still sign in with mobile OTP, not email.
+              {usesEmail
+                ? "We email you a 6-digit sign-in code. Use this address every time you log in."
+                : "Account contact & billing notices. Sign in with your mobile number + SMS code."}
             </p>
           </div>
 
@@ -360,7 +363,9 @@ export function SignupForm({ authMode, otpMode, widgetConfig }: SignupFormProps)
               <>
                 <p className="font-semibold text-brand-ink">Check email at {codeHint}</p>
                 <p className="mt-1 text-xs text-brand-ink/55">
-                  6-digit code via Resend. Check spam if needed. Expires in 10 minutes.
+                  {process.env.NODE_ENV === "development"
+                    ? "6-digit code via Resend, or use DEV_OTP from .env on localhost if the email never arrives (Resend free tier often only reaches your Resend account email)."
+                    : "6-digit code via Resend. Check spam if needed. Expires in 10 minutes."}
                 </p>
               </>
             ) : otpMode === "msg91-widget" || otpMode === "msg91-api" ? (
@@ -383,7 +388,7 @@ export function SignupForm({ authMode, otpMode, widgetConfig }: SignupFormProps)
 
           <div>
             <label htmlFor="otp" className="mb-2 block text-xs font-semibold uppercase tracking-wide text-brand-ink/50">
-              OTP from SMS
+              {usesEmail ? "Sign-in code" : "OTP from SMS"}
             </label>
             <input
               id="otp"

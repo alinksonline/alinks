@@ -25,6 +25,11 @@ jobs:
 
       - run: npm ci
 
+      - name: Compliance & security guardrails
+        run: npm run guardrails:scan
+        env:
+          CI: true
+
       - run: npm run test
 
       - run: npm run lint

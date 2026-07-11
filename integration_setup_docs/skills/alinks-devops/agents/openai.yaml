@@ -1,0 +1,4 @@
+interface:
+  display_name: "ALINKS DevOps"
+  short_description: "Deploy, Vercel, Cloudflare, CI, env vars."
+  default_prompt: "Use this skill when deploying ALINKS, configuring Vercel/Cloudflare, GitHub CI, or production environment variables."

@@ -21,9 +21,10 @@ WHAT CI RUNS
     1. checkout code
     2. setup Node.js 20 with npm cache
     3. npm ci
-    4. npm run test
-    5. npm run lint
-    6. npm run build
+    4. npm run guardrails:scan  (compliance & security — fails on critical)
+    5. npm run test             (pretest also runs guardrails:scan)
+    6. npm run lint
+    7. npm run build
 
   Build env (CI-only placeholders — no secrets required):
     NEXT_PUBLIC_APP_URL=https://alinks.vercel.app

@@ -25,7 +25,23 @@ export async function sendResendEmail(
 
   const data = (await res.json().catch(() => ({}))) as ResendResponse;
   if (!res.ok) {
-    return { ok: false, error: data.message ?? `Resend error (${res.status})` };
+    const raw = data.message ?? `Resend error (${res.status})`;
+    const lower = raw.toLowerCase();
+    // Free-tier / sandbox Resend only delivers to the account owner until a domain is verified.
+    if (
+      lower.includes("only send testing emails") ||
+      lower.includes("verify a domain") ||
+      lower.includes("not authorized to send")
+    ) {
+      return {
+        ok: false,
+        error:
+          process.env.NODE_ENV === "production"
+            ? "Email delivery is limited — verify your sending domain in Resend, or contact support."
+            : `${raw} On localhost you can still complete login/signup with DEV_OTP from .env after tapping “Email me a code”.`,
+      };
+    }
+    return { ok: false, error: raw };
   }
 
   return { ok: true };

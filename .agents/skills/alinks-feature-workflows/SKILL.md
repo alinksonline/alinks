@@ -37,3 +37,11 @@ Use this for signup, login, booking, checkout, publish, connect Google, sync fai
 ## Verification
 
 Confirm the workflow has a clear entry point, exit point, error state, and recovery path before considering it done.
+
+Before marking any auth, signup, billing, storage, or publish workflow complete:
+
+```bash
+npm run guardrails:scan
+```
+
+Antigravity applies `.agent/rules/compliance-guardrails.md` automatically.

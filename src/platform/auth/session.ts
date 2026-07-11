@@ -73,10 +73,15 @@ async function persistSession(tenantId: string, role: SessionRole): Promise<void
   });
 }
 
+export type CreatedSession = {
+  role: SessionRole;
+  userId: string;
+};
+
 export async function createSessionFromEmail(
   email: string,
   profile?: TenantSignupProfile,
-): Promise<SessionRole> {
+): Promise<CreatedSession> {
   const db = getPlatformDb();
   if (!db) throw new Error("Database not connected");
 
@@ -109,10 +114,10 @@ export async function createSessionFromEmail(
   }
 
   await persistSession(tenant.id, role);
-  return role;
+  return { role, userId: tenant.id };
 }
 
-export async function createSession(phone: string, profile?: TenantSignupProfile): Promise<SessionRole> {
+export async function createSession(phone: string, profile?: TenantSignupProfile): Promise<CreatedSession> {
   const db = getPlatformDb();
   if (!db) throw new Error("Database not connected");
 
@@ -163,7 +168,7 @@ export async function createSession(phone: string, profile?: TenantSignupProfile
   }
 
   await persistSession(tenant.id, role);
-  return role;
+  return { role, userId: tenant.id };
 }
 
 export async function getSession(): Promise<Session | null> {
@@ -285,7 +290,15 @@ export async function sendEmailOtp(email: string): Promise<{
 
   const code = generateEmailOtpCode();
   const sent = await sendLoginOtpEmail(normalized, code);
-  if (!sent.ok) return { ok: false, error: sent.error };
+  if (!sent.ok) {
+    // Resend free tier often only delivers to the account owner until a domain
+    // is verified. On localhost, still open the code step and accept DEV_OTP.
+    if (env.NODE_ENV !== "production") {
+      recordOtpSend(normalized);
+      return { ok: true, mode: "dev" };
+    }
+    return { ok: false, error: sent.error };
+  }
 
   setEmailOtpCookie(normalized, code);
   recordOtpSend(normalized);
@@ -300,22 +313,39 @@ export async function resendEmailOtp(email: string): Promise<{
   return sendEmailOtp(email);
 }
 
+function isDevOtpMatch(otp: string): boolean {
+  const env = getEnv();
+  if (env.NODE_ENV === "production") return false;
+  const expected = env.DEV_OTP.replace(/\D/g, "");
+  const got = otp.replace(/\D/g, "");
+  return Boolean(expected) && got === expected;
+}
+
 export async function verifyEmailOtp(
   email: string,
   otp: string,
   profile?: TenantSignupProfile,
-): Promise<{ ok: boolean; role?: SessionRole; error?: string }> {
+): Promise<{ ok: boolean; role?: SessionRole; userId?: string; error?: string }> {
   const normalized = normalizeEmail(email);
   const env = getEnv();
 
   if (isResendConfigured()) {
-    if (!verifyEmailOtpCookie(normalized, otp)) {
-      return { ok: false, error: "Invalid or expired code — check your email or request a new one" };
+    // Cookie path (real email code). In local/dev, also accept DEV_OTP so auth
+    // works when Resend sandbox only delivers to the account owner email.
+    const cookieOk = verifyEmailOtpCookie(normalized, otp);
+    if (!cookieOk && !isDevOtpMatch(otp)) {
+      return {
+        ok: false,
+        error:
+          env.NODE_ENV === "production"
+            ? "Invalid or expired code — check your email or request a new one"
+            : `Invalid or expired code. On localhost you can also use DEV_OTP from .env (currently ${env.DEV_OTP}).`,
+      };
     }
   } else if (env.NODE_ENV === "production") {
     return { ok: false, error: "Email login is not configured" };
-  } else if (otp.replace(/\D/g, "") !== env.DEV_OTP.replace(/\D/g, "")) {
-    return { ok: false, error: "Invalid OTP" };
+  } else if (!isDevOtpMatch(otp)) {
+    return { ok: false, error: `Invalid OTP — use DEV_OTP from .env (${env.DEV_OTP})` };
   }
 
   if (!getPlatformDb()) {
@@ -329,8 +359,8 @@ export async function verifyEmailOtp(
   }
 
   try {
-    const role = await createSessionFromEmail(normalized, profile);
-    return { ok: true, role };
+    const session = await createSessionFromEmail(normalized, profile);
+    return { ok: true, role: session.role, userId: session.userId };
   } catch (e) {
     return { ok: false, error: e instanceof Error ? e.message : "Could not create session. Try again." };
   }
@@ -384,7 +414,7 @@ export async function verifyMsg91WidgetAndCreateSession(
   accessToken: string,
   phone: string,
   profile?: TenantSignupProfile,
-): Promise<{ ok: boolean; role?: SessionRole; error?: string }> {
+): Promise<{ ok: boolean; role?: SessionRole; userId?: string; error?: string }> {
   if (!isMsg91WidgetConfigured()) {
     return { ok: false, error: "MSG91 widget is not configured" };
   }
@@ -409,8 +439,8 @@ export async function verifyMsg91WidgetAndCreateSession(
   }
 
   try {
-    const role = await createSession(expectedPhone, profile);
-    return { ok: true, role };
+    const session = await createSession(expectedPhone, profile);
+    return { ok: true, role: session.role, userId: session.userId };
   } catch (e) {
     return { ok: false, error: e instanceof Error ? e.message : "Could not create session. Try again." };
   }
@@ -420,7 +450,7 @@ export async function verifyOtp(
   phone: string,
   otp: string,
   profile?: TenantSignupProfile,
-): Promise<{ ok: boolean; role?: SessionRole; error?: string }> {
+): Promise<{ ok: boolean; role?: SessionRole; userId?: string; error?: string }> {
   const env = getEnv();
 
   if (isMsg91ApiConfigured() && getOtpDeliveryMode() === "msg91-api") {
@@ -430,8 +460,8 @@ export async function verifyOtp(
     }
   } else if (env.NODE_ENV === "production") {
     return { ok: false, error: "Login is not configured. Add RESEND_API_KEY on Vercel." };
-  } else if (otp.replace(/\D/g, "") !== env.DEV_OTP.replace(/\D/g, "")) {
-    return { ok: false, error: "Invalid OTP" };
+  } else if (!isDevOtpMatch(otp)) {
+    return { ok: false, error: `Invalid OTP — use DEV_OTP from .env (${env.DEV_OTP})` };
   }
   if (!getPlatformDb()) {
     return {
@@ -443,8 +473,8 @@ export async function verifyOtp(
     };
   }
   try {
-    const role = await createSession(phone, profile);
-    return { ok: true, role };
+    const session = await createSession(phone, profile);
+    return { ok: true, role: session.role, userId: session.userId };
   } catch (e) {
     return { ok: false, error: e instanceof Error ? e.message : "Could not create session. Try again." };
   }

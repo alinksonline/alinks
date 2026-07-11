@@ -1,0 +1,4 @@
+interface:
+  display_name: "ALINKS DPDP Compliance"
+  short_description: "Audit and implement DPDP Act 2023 gaps."
+  default_prompt: "Use this skill when auditing or implementing ALINKS DPDP compliance, user rights, grievance page, or compliance folder checklists."

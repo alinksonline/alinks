@@ -11,11 +11,14 @@ Legal documents in this repo are drafts, not final legal advice. Product code sh
 
 ## Source Files
 
+- `legal/21-DPDP-ALINKS-STATUS-AUDIT.txt` — DPDP checklist vs implementation (living audit)
 - `legal/00-README-LEGAL-OVERVIEW.txt`
 - `legal/16-TOUCHPOINT-CHECKBOX-TEXT.txt`
 - `legal/20-LEGAL-ACCEPTANCE-MATRIX.txt`
 - `src/platform/db/schema/legal-acceptances.ts`
 - Baseline sections `5`, `5C`, `5B`, and Q014-Q020
+
+For DPDP-specific user rights (delete, export, grievance), also use `alinks-dpdp-compliance`.
 
 ## Publish Gate
 

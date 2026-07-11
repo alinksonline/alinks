@@ -30,8 +30,11 @@ Audit work is about proving what the system does, not what we hope it does. Comp
 
 - `ALINKS_BASELINE.txt`
 - `src/ARCHITECTURE.txt`
+- `legal/21-DPDP-ALINKS-STATUS-AUDIT.txt` — DPDP gap checklist
 - `legal/20-LEGAL-ACCEPTANCE-MATRIX.txt`
 - platform DB schema and routing code
+
+For DPDP implementation work, pair with `alinks-dpdp-compliance`.
 
 ## Verification
 

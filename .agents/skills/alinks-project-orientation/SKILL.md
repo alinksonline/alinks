@@ -1,6 +1,6 @@
 ---
 name: alinks-project-orientation
-description: Use when starting work in the ALINKS repository, when context is stale, when a task mentions the product vision, roadmap, legal docs, or when deciding whether current code or planning documents are authoritative.
+description: Use when starting work in the ALINKS repository, when context is stale, when a task mentions the product vision, roadmap, legal docs, or when deciding whether current code or planning documents are authoritative. Always run npm run guardrails:scan before completing code changes (Antigravity rule in .agent/rules/).
 ---
 
 # ALINKS Project Orientation

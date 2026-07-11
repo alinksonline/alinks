@@ -8,7 +8,8 @@ Live:    https://alinks.online  (Vercel + Cloudflare DNS)
 
 Read docs in this order for first launch:
   15-local-dev-quickstart.txt      → run app on your Mac
-  04-neon-postgres.txt             → production + dev database
+  LOCAL_DEV_SETUP.txt Option C     → Supabase Postgres for platform DB (if you already use Supabase)
+  04-neon-postgres.txt             → OR Neon Postgres (optional alternative)
   19-neon-vercel-marketplace.txt   → one-click Neon ↔ Vercel (optional shortcut)
   05-vercel-environment-variables.txt
   01-github.txt
@@ -42,6 +43,14 @@ Phase 4:
 Optional:
   12-openrouter-ai.txt
   23-coderabbit.txt                 → AI PR reviews + local CLI
+
+AGENT SKILLS (integration_setup_docs/skills/)
+---------------------------------------------
+  INDEX.md              — skill pack index
+  alinks-devops         — Vercel, Cloudflare, CI, env vars, deploy
+  alinks-coderabbit     — PR reviews, local CLI, Agentic API key
+
+Symlinked from .agents/skills/ and skills/ for agent discovery.
 
 ================================================================================
 CREDENTIALS FILE (DO NOT COMMIT)
@@ -95,7 +104,7 @@ Also see: LOCAL_DEV_SETUP.txt (repo root) for condensed local Postgres options.
 QUICK STATUS (what is live today)
 ================================================================================
   DONE     GitHub, Vercel, Cloudflare DNS, alinks.online SSL
-  NEEDED   DATABASE_URL on Vercel (Neon) — signup still needs this for prod
+  NEEDED   DATABASE_URL on Vercel (Supabase or Neon Postgres) — signup blocked without it
   PHASE 0  DEV_OTP=1111 bypass — replace before public launch (doc 14)
   STUBBED  Razorpay, Google OAuth, SMS, Redis, R2, Meta feed (code exists)
 

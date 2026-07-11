@@ -29,8 +29,11 @@ export async function GET(request: NextRequest) {
   }
 
   try {
-    const role = await createSessionFromEmail(google.email, { email: google.email, name: google.name });
-    const dest = role === "superadmin" ? "/superadmin" : "/dashboard";
+    const session = await createSessionFromEmail(google.email, {
+      email: google.email,
+      name: google.name,
+    });
+    const dest = session.role === "superadmin" ? "/superadmin" : "/dashboard";
     return NextResponse.redirect(`${getEnv().NEXT_PUBLIC_APP_URL}${dest}`);
   } catch {
     return NextResponse.redirect(`${getEnv().NEXT_PUBLIC_APP_URL}/login?error=session_failed`);

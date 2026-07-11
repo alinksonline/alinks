@@ -25,6 +25,7 @@ export function MarketingFooter() {
               <li><Link href="/terms">Terms</Link></li>
               <li><Link href="/privacy">Privacy</Link></li>
               <li><Link href="/aup">AUP</Link></li>
+              <li><Link href="/grievance">Grievance</Link></li>
             </ul>
           </div>
         </div>

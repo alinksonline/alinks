@@ -4,9 +4,9 @@ import { eq } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
 import type { AppLocale } from "@/core/i18n/messages";
 import { SUPPORTED_LOCALES } from "@/core/i18n/messages";
-import { getSession } from "@/platform/auth/session";
+import { destroySession, getSession } from "@/platform/auth/session";
 import { getPlatformDb } from "@/platform/db/client";
-import { tenants } from "@/platform/db/schema";
+import { businesses, tenants } from "@/platform/db/schema";
 
 const REGIONS = ["IN", "SG", "AE"] as const;
 
@@ -47,5 +47,74 @@ export async function updateAdsOptInAction(optIn: boolean) {
 
   await db.update(tenants).set({ adsOptIn: optIn, updatedAt: new Date() }).where(eq(tenants.id, session.userId));
   revalidatePath("/dashboard/settings");
+  return { success: true as const };
+}
+
+export async function exportTenantDataAction() {
+  const session = await getSession();
+  if (!session) return { success: false as const, error: "Unauthorized" };
+
+  const db = getPlatformDb();
+  if (!db) return { success: false as const, error: "Database not connected" };
+
+  const [tenant] = await db.select().from(tenants).where(eq(tenants.id, session.userId)).limit(1);
+  if (!tenant) return { success: false as const, error: "Account not found" };
+
+  const tenantBusinesses = await db
+    .select({
+      handle: businesses.handle,
+      name: businesses.name,
+      vertical: businesses.vertical,
+      isPublished: businesses.isPublished,
+      templateId: businesses.templateId,
+      storageBackend: businesses.storageBackend,
+      createdAt: businesses.createdAt,
+    })
+    .from(businesses)
+    .where(eq(businesses.tenantId, session.userId));
+
+  const payload = {
+    exportedAt: new Date().toISOString(),
+    account: {
+      email: tenant.email,
+      phone: tenant.phone,
+      name: tenant.name,
+      tier: tenant.tier,
+      status: tenant.status,
+      locale: tenant.locale,
+      region: tenant.region,
+      trialEndsAt: tenant.trialEndsAt,
+      createdAt: tenant.createdAt,
+    },
+    businesses: tenantBusinesses,
+    note:
+      "This export covers your ALINKS platform account and site configuration only. Customer orders, bookings, and patients in your Google Sheet or Supabase are not included — export those from your own storage.",
+  };
+
+  return { success: true as const, json: JSON.stringify(payload, null, 2) };
+}
+
+export async function deleteAccountAction(confirmText: string) {
+  const session = await getSession();
+  if (!session) return { success: false as const, error: "Unauthorized" };
+
+  if (confirmText.trim() !== "DELETE") {
+    return { success: false as const, error: 'Type DELETE (all caps) to confirm account deletion' };
+  }
+
+  if (session.role === "superadmin") {
+    return {
+      success: false as const,
+      error: "Superadmin accounts cannot be self-deleted. Contact support@alinks.online.",
+    };
+  }
+
+  const db = getPlatformDb();
+  if (!db) return { success: false as const, error: "Database not connected" };
+
+  const tenantId = session.userId;
+  await destroySession();
+  await db.delete(tenants).where(eq(tenants.id, tenantId));
+
   return { success: true as const };
 }

@@ -38,7 +38,7 @@ async function requestMeta() {
   };
 }
 
-export async function completeOnboardingAction(input: {
+export type OnboardingInput = {
   businessName: string;
   handle: string;
   vertical: string;
@@ -47,79 +47,90 @@ export async function completeOnboardingAction(input: {
   acceptTos: boolean;
   acceptPrivacy: boolean;
   acceptAup: boolean;
-}) {
+};
+
+/**
+ * Create the tenant's first business. Prefer this when the tenant id is already
+ * known (e.g. signup just created a session — cookie is not readable until the
+ * next request in Next.js Server Actions).
+ */
+export async function completeOnboardingForTenant(tenantId: string, input: OnboardingInput) {
+  if (!input.acceptTos || !input.acceptPrivacy || !input.acceptAup) {
+    return { success: false as const, error: "All legal checkboxes are required" };
+  }
+
+  const handle = normalizeHandle(input.handle);
+  if (!isValidHandle(handle)) {
+    return { success: false as const, error: "Invalid or reserved handle" };
+  }
+
+  const existing = await getBusinessForTenant(tenantId);
+  if (existing) {
+    return { success: false as const, error: "Business already exists" };
+  }
+
+  const db = getPlatformDb();
+  if (!db) return { success: false as const, error: "Database not connected" };
+
+  const handleTaken = await db.select().from(businesses).where(eq(businesses.handle, handle)).limit(1);
+  if (handleTaken[0]) return { success: false as const, error: "Handle already taken" };
+
+  const template = SITE_TEMPLATES[input.templateId] ?? SITE_TEMPLATES.general;
+  const trialEndsAt = new Date(Date.now() + 14 * 24 * 60 * 60 * 1000);
+
+  await db
+    .update(tenants)
+    .set({ tier: "pro", status: "trial", trialEndsAt, updatedAt: new Date() })
+    .where(eq(tenants.id, tenantId));
+
+  const meta = await requestMeta();
+  await recordLegalAcceptance({ tenantId, docType: LEGAL_DOC_TYPES.PLATFORM_TOS, ...meta });
+  await recordLegalAcceptance({ tenantId, docType: LEGAL_DOC_TYPES.PLATFORM_PRIVACY, ...meta });
+  await recordLegalAcceptance({ tenantId, docType: LEGAL_DOC_TYPES.PLATFORM_AUP, ...meta });
+
+  const regulatedVerticals = new Set(["clinic", "pharmacy"]);
+  const gateStatus = regulatedVerticals.has(input.vertical) ? "pending_review" : "approved";
+
+  const [business] = await db
+    .insert(businesses)
+    .values({
+      tenantId,
+      handle,
+      name: input.businessName.trim(),
+      vertical: input.vertical,
+      templateId: input.templateId,
+      verticalGateStatus: gateStatus,
+      theme: template.theme,
+      seoMeta: input.businessPurpose
+        ? { signupPurpose: input.businessPurpose.trim(), signupAt: new Date().toISOString() }
+        : {},
+      branding: { businessName: input.businessName.trim(), logoUrl: "", faviconUrl: "", coverUrl: "" },
+    })
+    .returning();
+
+  const pageRows = STANDARD_PAGE_SLUGS.map((slug) => ({
+    businessId: business.id,
+    slug,
+    title: PAGE_TITLES[slug],
+    content: template.pages[slug] ?? { blocks: [] },
+    isPublished: slug === "home",
+  }));
+
+  if (pageRows.length > MAX_PAGES_PER_BUSINESS) {
+    return { success: false as const, error: "Page limit exceeded" };
+  }
+
+  await db.insert(pages).values(pageRows);
+
+  revalidatePath("/dashboard");
+  revalidatePath("/editor");
+  return { success: true as const, handle };
+}
+
+export async function completeOnboardingAction(input: OnboardingInput) {
   try {
     const session = await requireSession();
-    if (!input.acceptTos || !input.acceptPrivacy || !input.acceptAup) {
-      return { success: false as const, error: "All legal checkboxes are required" };
-    }
-
-    const handle = normalizeHandle(input.handle);
-    if (!isValidHandle(handle)) {
-      return { success: false as const, error: "Invalid or reserved handle" };
-    }
-
-    const existing = await getBusinessForTenant(session.userId);
-    if (existing) {
-      return { success: false as const, error: "Business already exists" };
-    }
-
-    const db = getPlatformDb();
-    if (!db) return { success: false as const, error: "Database not connected" };
-
-    const handleTaken = await db.select().from(businesses).where(eq(businesses.handle, handle)).limit(1);
-    if (handleTaken[0]) return { success: false as const, error: "Handle already taken" };
-
-    const template = SITE_TEMPLATES[input.templateId] ?? SITE_TEMPLATES.general;
-    const trialEndsAt = new Date(Date.now() + 14 * 24 * 60 * 60 * 1000);
-
-    await db
-      .update(tenants)
-      .set({ tier: "pro", status: "trial", trialEndsAt, updatedAt: new Date() })
-      .where(eq(tenants.id, session.userId));
-
-    const meta = await requestMeta();
-    await recordLegalAcceptance({ tenantId: session.userId, docType: LEGAL_DOC_TYPES.PLATFORM_TOS, ...meta });
-    await recordLegalAcceptance({ tenantId: session.userId, docType: LEGAL_DOC_TYPES.PLATFORM_PRIVACY, ...meta });
-    await recordLegalAcceptance({ tenantId: session.userId, docType: LEGAL_DOC_TYPES.PLATFORM_AUP, ...meta });
-
-    const regulatedVerticals = new Set(["clinic", "pharmacy"]);
-    const gateStatus = regulatedVerticals.has(input.vertical) ? "pending_review" : "approved";
-
-    const [business] = await db
-      .insert(businesses)
-      .values({
-        tenantId: session.userId,
-        handle,
-        name: input.businessName.trim(),
-        vertical: input.vertical,
-        templateId: input.templateId,
-        verticalGateStatus: gateStatus,
-        theme: template.theme,
-        seoMeta: input.businessPurpose
-          ? { signupPurpose: input.businessPurpose.trim(), signupAt: new Date().toISOString() }
-          : {},
-        branding: { businessName: input.businessName.trim(), logoUrl: "", faviconUrl: "", coverUrl: "" },
-      })
-      .returning();
-
-    const pageRows = STANDARD_PAGE_SLUGS.map((slug) => ({
-      businessId: business.id,
-      slug,
-      title: PAGE_TITLES[slug],
-      content: template.pages[slug] ?? { blocks: [] },
-      isPublished: slug === "home",
-    }));
-
-    if (pageRows.length > MAX_PAGES_PER_BUSINESS) {
-      return { success: false as const, error: "Page limit exceeded" };
-    }
-
-    await db.insert(pages).values(pageRows);
-
-    revalidatePath("/dashboard");
-    revalidatePath("/editor");
-    return { success: true as const, handle };
+    return await completeOnboardingForTenant(session.userId, input);
   } catch (e) {
     return { success: false as const, error: e instanceof Error ? e.message : "Onboarding failed" };
   }

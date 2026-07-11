@@ -12,12 +12,14 @@
     "db:migrate": "drizzle-kit migrate",
     "db:studio": "drizzle-kit studio",
     "db:seed": "tsx src/platform/db/seed.ts",
+    "pretest": "npm run guardrails:scan",
     "test": "vitest run",
     "test:watch": "vitest",
     "review": "bash scripts/coderabbit-review.sh plain",
     "review:agent": "bash scripts/coderabbit-review.sh agent",
     "review:uncommitted": "bash scripts/coderabbit-review.sh uncommitted",
-    "review:doctor": "bash scripts/coderabbit-review.sh doctor"
+    "review:doctor": "bash scripts/coderabbit-review.sh doctor",
+    "guardrails:scan": "bash legal/skills/alinks-compliance-security-guardrails/scripts/guardrail-scan.sh"
   },
   "dependencies": {
     "@dnd-kit/core": "^6.3.1",

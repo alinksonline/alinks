@@ -1,0 +1,272 @@
+================================================================================
+01 — DPDP ACT 2023 — ALINKS COMPLIANCE STATUS AUDIT
+================================================================================
+Audit date: 2026-07-08
+Product: ALINKS (Vertical SaaS / Business OS for Indian SMBs)
+Law: Digital Personal Data Protection Act, 2023 + Rules (operational framework)
+Disclaimer: Planning audit only — NOT legal advice. Lawyer review required.
+================================================================================
+
+EXECUTIVE SUMMARY
+-----------------
+ALINKS is structurally aligned with DPDP "privacy by design" via its locked
+data model: Artix stores TENANT (business owner) data on platform Postgres;
+END-CUSTOMER PII is written to tenant-owned Google Sheets or BYO Supabase.
+
+Legal documents and consent logging are partially implemented in code.
+User rights tooling (delete account, export data, grievance page) is NOT yet
+shipped. Do NOT publicly claim "DPDP compliant" until gaps below are closed
+and a lawyer signs off.
+
+Overall readiness (product + ops): ~55%
+  Architecture & notice text:     strong
+  User rights in product:       weak
+  Lawyer / grievance officer:   not done
+
+================================================================================
+WHAT IS DPDP (QUICK REFERENCE)
+================================================================================
+India's law governing collection, use, storage, sharing, and erasure of
+digital personal data. Core obligations for ALINKS:
+
+  1. Clear notice before processing
+  2. Valid consent (or other lawful basis) for personal data
+  3. Purpose limitation — collect only what is needed
+  4. Security safeguards
+  5. Breach notification where required
+  6. Data principal rights: access, correction, erasure, grievance
+  7. Children's data — additional protections
+  8. Accountability via grievance officer and records
+
+================================================================================
+ALINKS DATA ROLES (DPDP-relevant)
+================================================================================
+
+TENANT DATA (business owner signs up for ALINKS)
+  Examples: name, email, phone, business name, vertical, billing, IP, session
+  Data fiduciary: Artix (for platform account data)
+  Storage: Platform Postgres (DATABASE_URL — Neon or Supabase Postgres)
+  Policy: Platform Privacy Policy (/privacy)
+
+END-CUSTOMER DATA (salon client, kirana buyer, clinic patient)
+  Examples: customer name, phone, order, booking, patient notes
+  Data fiduciary: TENANT (not Artix) — tenant publishes own Privacy Policy
+  Storage: Tenant Google Sheets OR tenant BYO Supabase — NOT Artix Postgres
+  Artix role: Processor / technical facilitator (transient memory only)
+
+This split is documented in:
+  - ALINKS_BASELINE.txt (data rule locked)
+  - src/ARCHITECTURE.txt
+  - platform-documents.ts Privacy §2–3
+  - legal/06-DATA-STORAGE-ADDENDUM-GOOGLE-SUPABASE.txt
+
+================================================================================
+CHECKLIST — YOUR DPDP LIST vs ALINKS TODAY
+================================================================================
+
+LEGEND: [DONE] [PARTIAL] [MISSING] [EXTERNAL]
+
+--- NOTICE & CONSENT ---
+
+[DONE]    Privacy Policy
+          Live: https://alinks.online/privacy
+          Code: src/platform/legal/platform-documents.ts (privacy)
+          Draft: legal/02-PLATFORM-PRIVACY-POLICY.txt
+
+[DONE]    Terms & Conditions
+          Live: /terms
+
+[DONE]    Acceptable Use Policy
+          Live: /aup
+
+[PARTIAL] Consent at signup
+          UI: signup-form.tsx — checkboxes for ToS, Privacy, AUP, responsibility
+          DB log: recordLegalAcceptance() at ONBOARDING complete (business.ts)
+          GAP: acceptances logged after OTP + onboarding, not at first checkbox
+          GAP: signup responsibility checkboxes not stored as separate doc types
+
+[MISSING] Cookie notice / cookie policy
+          Session cookie (alinks_session), email OTP cookie, Google OAuth state
+          No marketing-site cookie banner; no dedicated /cookies page
+
+--- USER RIGHTS (DPDP PRINCIPAL RIGHTS) ---
+
+[MISSING] Delete my account (self-service)
+          Baseline Q: Settings → Delete Account — described, not built
+          settings-form.tsx: region + ads only
+
+[MISSING] Export my data (self-service)
+          Baseline mentions export — no dashboard download (JSON/CSV)
+
+[MISSING] Withdraw consent (self-service)
+          Policy text exists; no UI to withdraw marketing/optional processing
+
+[PARTIAL] Access / correction requests
+          Policy §9 describes rights; no in-app form or ticket workflow
+
+[MISSING] Grievance officer public page
+          Draft: legal/18-DPDP-GRIEVANCE-OFFICER.txt
+          No route: /grievance on marketing site
+
+[EXTERNAL] Grievance officer appointed
+          plan-tracker.ts: E-03 blocked external
+
+--- SECURITY ---
+
+[DONE]    HTTPS in production
+          Vercel + Cloudflare (alinks.online)
+
+[PARTIAL] Secure authentication
+          OTP email (Resend) / SMS (MSG91) / Google OAuth — no passwords stored
+          Session token: SHA-256 hash in DB; HTTP-only cookie
+          N/A Argon2/bcrypt — no password table (acceptable for OTP-only)
+
+[PARTIAL] Encryption at rest
+          Depends on host DB (Supabase/Neon); policy claims encryption — verify
+          with provider; no application-layer field encryption for tenant PII
+
+[PARTIAL] Access controls
+          Session-based auth; superadmin role; business ownership checks
+          No 2FA for tenant dashboard yet
+
+[MISSING] Comprehensive audit logs
+          legal_acceptances table logs consent events only
+          No security event log (login, failed OTP, admin actions)
+
+[PARTIAL] Backups
+          Depends on DATABASE_URL provider — not documented in repo ops
+
+--- BREACH & OPS ---
+
+[PARTIAL] Breach notification
+          Privacy Policy §11 — commitment text only
+          No internal incident runbook in repo
+
+[EXTERNAL] Vendor DPAs / processor agreements
+          Razorpay, Resend, MSG91, Google, Vercel — contracts not in repo
+
+--- DATA MINIMIZATION ---
+
+[DONE]    Collect only what is needed (tenant signup)
+          Email auth mode: email + business fields; phone optional
+          No Aadhaar/PAN at signup (KYC only for payment onboarding path)
+
+[DONE]    Children
+          Policy §12: business product, not directed at under-18
+
+--- LEGAL ACCEPTANCE EVIDENCE ---
+
+[DONE]    legal_acceptances table
+          Schema: tenant_id, doc_type, doc_version, ip, user_agent, metadata
+          File: src/platform/db/schema/legal-acceptances.ts
+
+[DONE]    Publish gate
+          evaluatePublishGate() — requires platform legal acceptances
+          File: src/platform/legal/publish-gate.ts
+
+[DONE]    Payment / AI / commerce touchpoint logging (partial)
+          recordLegalAcceptance used in commerce.ts, ai.ts, business.ts
+
+--- THIRD-PARTY PROCESSORS (disclosed in Privacy §6) ---
+
+  Razorpay / PhonePe     — billing, sub-merchant KYC
+  Google                 — OAuth, Sheets API (tenant account)
+  Supabase               — tenant BYO connector
+  Cloudflare / Vercel    — hosting
+  MSG91 / Resend         — SMS OTP / email OTP
+  OpenRouter / Perplexity — AI generation (tenant content)
+
+================================================================================
+CODE & ROUTE REFERENCE
+================================================================================
+
+Live legal pages:
+  src/app/(marketing)/terms/page.tsx
+  src/app/(marketing)/privacy/page.tsx
+  src/app/(marketing)/aup/page.tsx
+  src/components/legal/legal-document-modal.tsx
+
+Consent UI:
+  src/components/platform/signup-form.tsx
+  src/components/legal/legal-agreement-field.tsx
+
+Acceptance logging:
+  src/platform/legal/acceptances.ts
+  src/app/actions/business.ts (onboarding)
+
+Auth / personal data collected:
+  src/platform/auth/session.ts
+  src/platform/email/resend.ts
+  tenants table: email, phone (unique), name
+
+Settings (no delete/export yet):
+  src/app/(platform)/(authenticated)/dashboard/settings/
+
+Superadmin compliance queues (sector gates, not DPDP):
+  src/app/(admin)/superadmin/compliance/page.tsx
+
+================================================================================
+SCORECARD
+================================================================================
+
+  Privacy by design (architecture)     80%  ████████░░
+  Notice & consent (legal text)        70%  ███████░░░
+  Consent evidence (logging)           60%  ██████░░░░
+  User rights (delete/export/withdraw)  20%  ██░░░░░░░░
+  Security controls                    60%  ██████░░░░
+  Operational compliance               30%  ███░░░░░░░
+  Lawyer / governance                  10%  █░░░░░░░░░
+
+================================================================================
+PRIORITY ROADMAP (PRODUCT — before public "DPDP compliant" claim)
+================================================================================
+
+P0 — Must ship
+  [ ] DATABASE_URL on Vercel production (auth + logging blocked without it)
+  [ ] /grievance page — publish Grievance Officer (legal/18)
+  [ ] Settings → Delete account (cascade tenant; retain billing per policy)
+  [ ] Settings → Export my data (tenant profile JSON, not customer Sheets)
+
+P1 — Should ship
+  [ ] Log legal acceptances at signup OTP verify (not only onboarding)
+  [ ] Cookie notice + essential cookies list (session, OTP)
+  [ ] In-app "Privacy request" link → grievance@ or form
+  [ ] Internal breach response runbook (ops doc in legal/, e.g. 22-BREACH-RESPONSE-RUNBOOK.txt)
+
+P2 — Lawyer / external
+  [ ] Lawyer finalize legal/01–14 and platform-documents.ts
+  [ ] Appoint DPDP Grievance Officer (board/proprietor letter)
+  [ ] Sign DPAs with Razorpay, Resend, MSG91, hosting providers
+  [ ] Confirm Significant Data Fiduciary status (likely NO at MVP scale)
+
+================================================================================
+TENANT OBLIGATIONS (remind tenants — not Artix DPDP scope for customer PII)
+================================================================================
+
+Each ALINKS tenant who collects customer data must:
+  - Publish Tenant Privacy Policy on their mini-site (template: legal/07)
+  - Obtain consent from their customers where required
+  - Honor deletion requests for data IN THEIR Sheet/Supabase
+  - Not use ALINKS for unlawful processing
+
+Artix provides templates and storage routing; tenant remains fiduciary to
+end-customers.
+
+================================================================================
+REFERENCES
+================================================================================
+
+  DPDP Act 2023 — MeitY
+  EY DPDP Rules guides (industry summaries)
+  legal/17-LAWYER-TASK-LIST.txt
+  legal/20-LEGAL-ACCEPTANCE-MATRIX.txt
+  ALINKS_BASELINE.txt Section 5C, Q014–Q020
+  src/platform/admin/plan-tracker.ts (E-02, E-03 external blockers)
+
+================================================================================
+REVISION LOG
+================================================================================
+
+  2026-07-08  Initial audit — codebase review + DPDP checklist mapping
+
+================================================================================
