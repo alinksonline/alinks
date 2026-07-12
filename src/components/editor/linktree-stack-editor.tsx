@@ -58,10 +58,10 @@ function StackCard({
 
   return (
     <div ref={setNodeRef} style={style} className="group relative">
-      <div className="absolute -left-1 top-1/2 z-10 flex -translate-y-1/2 flex-col gap-0.5 opacity-70">
+      <div className="absolute -left-0.5 top-1/2 z-10 flex -translate-y-1/2 opacity-60">
         <button
           type="button"
-          className="flex h-8 w-7 touch-none items-center justify-center rounded-lg bg-white/90 text-[10px] text-slate-400 shadow-sm ring-1 ring-black/5 active:bg-slate-100"
+          className="flex h-7 w-6 touch-none items-center justify-center rounded-md bg-white/95 text-[9px] leading-none text-slate-400 shadow-sm ring-1 ring-black/5 active:bg-slate-100"
           aria-label="Drag to reorder"
           {...attributes}
           {...listeners}
@@ -72,7 +72,7 @@ function StackCard({
       <button
         type="button"
         onClick={onEdit}
-        className="w-full pl-6 text-left active:scale-[0.99]"
+        className="w-full pl-5 text-left active:scale-[0.99]"
       >
         <div className={cn("pointer-events-none", block.visible === false && "grayscale")}>
           <BlockRenderer
@@ -83,18 +83,18 @@ function StackCard({
           />
         </div>
       </button>
-      <div className="mt-1 flex items-center justify-end gap-1 px-1">
+      <div className="mt-0.5 flex items-center justify-end gap-0.5 px-0.5">
         <button
           type="button"
           onClick={onToggle}
-          className="rounded-full px-2 py-1 text-[10px] font-semibold text-slate-400 active:bg-white"
+          className="rounded-full px-2 py-0.5 text-[10px] font-medium text-slate-400 active:bg-white"
         >
           {block.visible === false ? "Hidden · show" : "Hide"}
         </button>
         <button
           type="button"
           onClick={onRemove}
-          className="rounded-full px-2 py-1 text-[10px] font-semibold text-red-400 active:bg-red-50"
+          className="rounded-full px-2 py-0.5 text-[10px] font-medium text-red-400 active:bg-red-50"
         >
           Remove
         </button>
@@ -116,24 +116,24 @@ function HeroPreviewCard({
     <button
       type="button"
       onClick={onEdit}
-      className="mb-4 w-full overflow-hidden rounded-3xl text-left active:scale-[0.99]"
+      className="mb-3 w-full overflow-hidden rounded-2xl text-left active:scale-[0.99]"
     >
       <div
-        className="relative flex min-h-[160px] flex-col justify-end p-4 text-white"
+        className="relative flex min-h-[112px] flex-col justify-end p-3 text-white"
         style={{
           background: hero.imageUrl
             ? `linear-gradient(to top, rgba(0,0,0,.8), rgba(0,0,0,.2)), url(${hero.imageUrl}) center/cover`
             : `linear-gradient(145deg, ${primaryColor}, #0f172a)`,
         }}
       >
-        <span className="mb-2 self-start rounded-full bg-white/15 px-2 py-0.5 text-[9px] font-bold uppercase tracking-wider backdrop-blur">
+        <span className="mb-1.5 self-start rounded-full bg-white/15 px-2 py-0.5 text-[8px] font-bold uppercase tracking-wider backdrop-blur">
           Hero · tap to edit
         </span>
-        <p className="text-xl font-black leading-tight">{hero.title || "Your headline"}</p>
-        <p className="mt-1 text-sm text-white/85">{hero.tagline || "Your tagline"}</p>
+        <p className="text-base font-bold leading-snug">{hero.title || "Your headline"}</p>
+        <p className="mt-0.5 text-xs text-white/85">{hero.tagline || "Your tagline"}</p>
         {hero.ctaText ? (
           <span
-            className="mt-3 inline-flex min-h-10 items-center justify-center rounded-2xl px-4 text-sm font-bold"
+            className="mt-2 inline-flex min-h-8 items-center justify-center rounded-xl px-3 text-xs font-semibold"
             style={{ backgroundColor: primaryColor }}
           >
             {hero.ctaText}
@@ -420,22 +420,22 @@ function AddWidgetSheet({ onPick, onClose }: { onPick: (t: BlockType) => void; o
         className="fixed inset-x-0 bottom-0 z-50 mx-auto max-h-[min(85dvh,100%)] w-full max-w-[var(--app-max-width)] overflow-y-auto rounded-t-3xl bg-white shadow-2xl"
         style={{ paddingBottom: "var(--safe-bottom)" }}
       >
-        <div className="sticky top-0 z-10 border-b border-slate-100 bg-white/95 px-4 py-3 backdrop-blur">
-          <div className="mx-auto mb-2 h-1 w-10 rounded-full bg-slate-200" />
-          <h2 className="text-base font-bold">Add to your stack</h2>
-          <p className="text-xs text-slate-500">Tap a block — it appears on your page instantly</p>
+        <div className="sticky top-0 z-10 border-b border-slate-100 bg-white/95 px-4 py-2.5 backdrop-blur">
+          <div className="mx-auto mb-1.5 h-1 w-9 rounded-full bg-slate-200" />
+          <h2 className="text-sm font-bold">Add to your stack</h2>
+          <p className="text-[11px] text-slate-500">Tap a block — it appears on your page instantly</p>
         </div>
         <ul className="grid grid-cols-2 gap-2 p-3">
           {WIDGET_CATALOG.map((w) => (
             <li key={w.type}>
               <button
                 type="button"
-                className="flex h-full w-full flex-col items-start gap-1 rounded-2xl border border-slate-100 bg-slate-50 px-3 py-3.5 text-left active:scale-[0.98] active:bg-white"
+                className="flex h-full w-full flex-col items-start gap-0.5 rounded-xl border border-slate-100 bg-slate-50 px-2.5 py-2.5 text-left active:scale-[0.98] active:bg-white"
                 onClick={() => onPick(w.type)}
               >
-                <span className="text-2xl">{w.emoji}</span>
-                <span className="text-sm font-bold text-slate-900">{w.label}</span>
-                <span className="text-[11px] leading-snug text-slate-500">{w.hint}</span>
+                <span className="text-lg leading-none">{w.emoji}</span>
+                <span className="text-xs font-semibold text-slate-900">{w.label}</span>
+                <span className="text-[10px] leading-snug text-slate-500">{w.hint}</span>
               </button>
             </li>
           ))}
@@ -532,25 +532,29 @@ export function LinktreeStackEditor({
   };
 
   return (
-    <div className="pb-36">
-      {/* Soft studio background + phone stack */}
-      <div className="lt-studio rounded-3xl px-2 pb-4 pt-3">
-        {/* Profile header — like Linktree top */}
-        <div className="mb-4 flex flex-col items-center px-2 pt-2 text-center">
+    <div className="pb-32">
+      {/* Soft studio background + phone stack — padded so cards aren’t edge-to-edge */}
+      <div className="lt-studio rounded-2xl px-3 pb-5 pt-4">
+        {/* Profile header — compact Linktree top */}
+        <div className="mb-5 flex flex-col items-center px-1 pt-1 text-center">
           {profile?.logoUrl ? (
             // eslint-disable-next-line @next/next/no-img-element
-            <img src={profile.logoUrl} alt="" className="h-16 w-16 rounded-full object-cover shadow-md ring-2 ring-white" />
+            <img
+              src={profile.logoUrl}
+              alt=""
+              className="h-11 w-11 rounded-full object-cover shadow-sm ring-2 ring-white"
+            />
           ) : (
             <div
-              className="flex h-16 w-16 items-center justify-center rounded-full text-xl font-black text-white shadow-md"
+              className="flex h-11 w-11 items-center justify-center rounded-full text-sm font-bold text-white shadow-sm"
               style={{ backgroundColor: primaryColor }}
             >
               {(displayName || "A").slice(0, 1).toUpperCase()}
             </div>
           )}
-          <p className="mt-2 text-base font-bold text-slate-900">@{handle}</p>
-          <p className="text-xs text-slate-500">{displayName}</p>
-          <p className="mt-1 text-[10px] font-semibold uppercase tracking-widest text-slate-400">
+          <p className="mt-2 text-sm font-semibold text-slate-900">@{handle}</p>
+          <p className="mt-0.5 text-[11px] text-slate-500">{displayName}</p>
+          <p className="mt-1.5 text-[9px] font-semibold uppercase tracking-[0.14em] text-slate-400">
             Editing · {slug}
             {published ? " · live" : " · draft"}
           </p>
@@ -565,7 +569,7 @@ export function LinktreeStackEditor({
         )}
 
         {slug === "contact" && (
-          <p className="mb-3 px-2 text-center text-[11px] text-slate-500">
+          <p className="mb-3 px-1 text-center text-[11px] leading-snug text-slate-500">
             Contact details come from{" "}
             <Link href="/editor/business" className="font-semibold text-brand-purple underline">
               Business profile
@@ -575,7 +579,8 @@ export function LinktreeStackEditor({
 
         <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
           <SortableContext items={blocks.map((b) => b.id)} strategy={verticalListSortingStrategy}>
-            <div className="space-y-3 px-1">
+            {/* Gap between cards = breathing room; cards themselves stay compact */}
+            <div className="space-y-3.5 px-0.5">
               {blocks.map((block) => (
                 <StackCard
                   key={block.id}
@@ -599,7 +604,7 @@ export function LinktreeStackEditor({
         </DndContext>
 
         {!blocks.length && (
-          <p className="mx-2 mt-4 rounded-2xl border border-dashed border-slate-200 bg-white/60 px-4 py-10 text-center text-sm text-slate-400">
+          <p className="mt-3 rounded-xl border border-dashed border-slate-200 bg-white/60 px-4 py-8 text-center text-xs text-slate-400">
             Your stack is empty. Add your first block below.
           </p>
         )}
@@ -607,15 +612,19 @@ export function LinktreeStackEditor({
         <button
           type="button"
           onClick={() => setShowAdd(true)}
-          className="mx-1 mt-4 flex min-h-12 w-[calc(100%-0.5rem)] items-center justify-center gap-2 rounded-2xl bg-white text-sm font-bold text-slate-800 shadow-md ring-1 ring-black/5 active:scale-[0.99]"
+          className="mt-4 flex min-h-10 w-full items-center justify-center gap-2 rounded-xl bg-white text-xs font-semibold text-slate-800 shadow-sm ring-1 ring-black/5 active:scale-[0.99]"
         >
-          <span className="flex h-7 w-7 items-center justify-center rounded-full bg-slate-900 text-lg text-white">+</span>
+          <span className="flex h-5 w-5 items-center justify-center rounded-full bg-slate-900 text-sm leading-none text-white">
+            +
+          </span>
           Add block
         </button>
       </div>
 
-      {error && <p className="mt-3 px-1 text-sm text-red-600">{error}</p>}
-      {savedFlash && <p className="mt-3 px-1 text-center text-sm font-semibold text-emerald-600">Saved ✓</p>}
+      {error && <p className="mt-2 px-1 text-xs text-red-600">{error}</p>}
+      {savedFlash && (
+        <p className="mt-2 px-1 text-center text-xs font-semibold text-emerald-600">Saved ✓</p>
+      )}
 
       {editHero && content.hero && (
         <HeroEditSheet
@@ -642,13 +651,18 @@ export function LinktreeStackEditor({
 
       <div className="editor-sticky-actions">
         <div className="flex gap-2">
-          <Button type="button" className="min-h-12 flex-1 rounded-2xl" onClick={save} disabled={isPending}>
+          <Button
+            type="button"
+            className="min-h-10 flex-1 rounded-xl py-2 text-sm"
+            onClick={save}
+            disabled={isPending}
+          >
             {isPending ? "Saving…" : "Save"}
           </Button>
           <Button
             type="button"
             variant={published ? "secondary" : "bronze"}
-            className="min-h-12 flex-1 rounded-2xl"
+            className="min-h-10 flex-1 rounded-xl py-2 text-sm"
             onClick={togglePublish}
             disabled={isPending}
           >

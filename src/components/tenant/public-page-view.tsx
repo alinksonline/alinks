@@ -73,11 +73,11 @@ export function PublicPageView({ data }: { data: PublicPageData }) {
           </div>
         </section>
       )}
-      <main className="mx-auto w-full max-w-app px-3 py-5 pb-10">
+      <main className="mx-auto w-full max-w-app px-4 py-5 pb-10">
         {data.slug !== "home" && (
-          <h1 className="mb-4 text-2xl font-bold tracking-tight text-slate-900">{data.title}</h1>
+          <h1 className="mb-4 text-xl font-bold tracking-tight text-slate-900">{data.title}</h1>
         )}
-        <div className="space-y-3">
+        <div className="space-y-3.5">
           {blocks.map((block) => (
             <BlockRenderer
               key={block.id}

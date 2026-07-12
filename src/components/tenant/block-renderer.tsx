@@ -20,9 +20,11 @@ export function BlockRenderer({
   if (block.visible === false) return null;
 
   const data = block.data ?? {};
-  // Linktree-style full-width soft cards
+  // Compact Linktree cards — smaller type + padding so stack has breathing room
   const card =
-    "rounded-[1.35rem] border border-black/[0.04] bg-white px-4 py-[1.05rem] shadow-[0_1px_2px_rgba(0,0,0,0.04),0_8px_24px_-12px_rgba(0,0,0,0.12)]";
+    "rounded-2xl border border-black/[0.05] bg-white px-3.5 py-3 shadow-[0_1px_2px_rgba(0,0,0,0.04),0_6px_16px_-10px_rgba(0,0,0,0.1)]";
+  const titleCls = "text-sm font-semibold tracking-tight text-slate-900";
+  const bodyCls = "mt-1 text-xs leading-relaxed text-slate-500";
 
   switch (block.type) {
     case "link": {
@@ -33,7 +35,7 @@ export function BlockRenderer({
           href={href}
           target={href.startsWith("http") ? "_blank" : undefined}
           rel="noreferrer"
-          className={`${card} block text-center text-[15px] font-bold tracking-tight text-white active:scale-[0.98]`}
+          className={`${card} block py-2.5 text-center text-sm font-semibold tracking-tight text-white active:scale-[0.98]`}
           style={{ backgroundColor: primaryColor }}
         >
           {label}
@@ -50,13 +52,13 @@ export function BlockRenderer({
           href={missing ? undefined : href}
           target={missing ? undefined : "_blank"}
           rel="noreferrer"
-          className={`${card} flex flex-col items-center gap-0.5 text-center active:scale-[0.98] ${missing ? "opacity-60 pointer-events-none" : ""}`}
+          className={`${card} flex flex-col items-center gap-0.5 py-2.5 text-center active:scale-[0.98] ${missing ? "opacity-60 pointer-events-none" : ""}`}
           style={{ backgroundColor: "#25D366", color: "#fff" }}
         >
-          <span className="text-[15px] font-bold tracking-tight">{block.title || "WhatsApp"}</span>
-          {block.body ? <span className="text-xs text-white/90">{block.body}</span> : null}
+          <span className="text-sm font-semibold tracking-tight">{block.title || "WhatsApp"}</span>
+          {block.body ? <span className="text-[11px] text-white/90">{block.body}</span> : null}
           {missing ? (
-            <span className="text-[11px] text-white/80">Add WhatsApp in Business profile</span>
+            <span className="text-[10px] text-white/80">Add WhatsApp in Business profile</span>
           ) : null}
         </a>
       );
@@ -70,11 +72,11 @@ export function BlockRenderer({
       }
       return (
         <section className={`${card} text-center`}>
-          <h2 className="text-base font-bold text-slate-900">{block.title}</h2>
-          {block.body ? <p className="mt-1 text-sm text-slate-600">{block.body}</p> : null}
+          <h2 className={titleCls}>{block.title}</h2>
+          {block.body ? <p className={bodyCls}>{block.body}</p> : null}
           <a
             href={href}
-            className="mt-3 inline-flex min-h-11 w-full items-center justify-center rounded-xl px-4 py-3 text-sm font-bold text-white"
+            className="mt-2.5 inline-flex min-h-9 w-full items-center justify-center rounded-xl px-3 py-2 text-sm font-semibold text-white"
             style={{ backgroundColor: primaryColor }}
           >
             {data.buttonLabel || "Continue"}
@@ -89,25 +91,25 @@ export function BlockRenderer({
         : [{ name: block.title || "Service", price: "", duration: "", description: block.body }];
       return (
         <section className={card}>
-          <h2 className="text-base font-bold text-slate-900">{block.title}</h2>
-          {block.body ? <p className="mt-1 text-sm text-slate-500">{block.body}</p> : null}
-          <ul className="mt-3 space-y-2">
+          <h2 className={titleCls}>{block.title}</h2>
+          {block.body ? <p className={bodyCls}>{block.body}</p> : null}
+          <ul className="mt-2 space-y-1.5">
             {items.map((item, i) => (
               <li
                 key={`${item.name}-${i}`}
-                className="flex items-start justify-between gap-3 rounded-xl bg-slate-50 px-3 py-3"
+                className="flex items-start justify-between gap-2 rounded-xl bg-slate-50 px-2.5 py-2"
               >
                 <div className="min-w-0">
-                  <p className="font-semibold text-slate-900">{item.name}</p>
+                  <p className="text-sm font-medium text-slate-900">{item.name}</p>
                   {item.description ? (
-                    <p className="mt-0.5 text-xs text-slate-500">{item.description}</p>
+                    <p className="mt-0.5 text-[11px] text-slate-500">{item.description}</p>
                   ) : null}
                   {item.duration ? (
-                    <p className="mt-0.5 text-[11px] text-slate-400">{item.duration}</p>
+                    <p className="mt-0.5 text-[10px] text-slate-400">{item.duration}</p>
                   ) : null}
                 </div>
                 {item.price ? (
-                  <span className="shrink-0 text-sm font-bold" style={{ color: primaryColor }}>
+                  <span className="shrink-0 text-xs font-bold" style={{ color: primaryColor }}>
                     {item.price}
                   </span>
                 ) : null}
@@ -122,8 +124,8 @@ export function BlockRenderer({
       const lines = data.lines?.length ? data.lines : block.body ? block.body.split("\n") : [];
       return (
         <section className={card}>
-          <h2 className="text-base font-bold text-slate-900">{block.title || "Hours"}</h2>
-          <ul className="mt-2 space-y-1.5 text-sm text-slate-600">
+          <h2 className={titleCls}>{block.title || "Hours"}</h2>
+          <ul className="mt-1.5 space-y-1 text-xs text-slate-600">
             {lines.map((line, i) => (
               <li key={i} className="flex gap-2">
                 <span className="text-slate-300">•</span>
@@ -139,9 +141,9 @@ export function BlockRenderer({
       const hasAny = Boolean(data.phone || data.email || data.address);
       return (
         <section className={card}>
-          <h2 className="text-base font-bold text-slate-900">{block.title}</h2>
-          {block.body ? <p className="mt-1 text-sm text-slate-500">{block.body}</p> : null}
-          <div className="mt-3 space-y-2 text-sm text-slate-700">
+          <h2 className={titleCls}>{block.title}</h2>
+          {block.body ? <p className={bodyCls}>{block.body}</p> : null}
+          <div className="mt-2 space-y-1.5 text-xs text-slate-700">
             {data.phone ? (
               <a href={`tel:${data.phone.replace(/\D/g, "")}`} className="block font-medium underline">
                 📞 {data.phone}
@@ -154,7 +156,7 @@ export function BlockRenderer({
             ) : null}
             {data.address ? <p>📍 {data.address}</p> : null}
             {!hasAny ? (
-              <p className="text-xs text-amber-700">
+              <p className="text-[11px] text-amber-700">
                 No contact details yet — set them in Business profile.
               </p>
             ) : null}
@@ -167,20 +169,20 @@ export function BlockRenderer({
       const images = data.images?.filter((im) => im.url) ?? [];
       return (
         <section className={card}>
-          <h2 className="text-base font-bold text-slate-900">{block.title}</h2>
-          {block.body ? <p className="mt-1 text-sm text-slate-500">{block.body}</p> : null}
-          <div className="mt-3 grid grid-cols-2 gap-2">
+          <h2 className={titleCls}>{block.title}</h2>
+          {block.body ? <p className={bodyCls}>{block.body}</p> : null}
+          <div className="mt-2 grid grid-cols-2 gap-1.5">
             {images.slice(0, 6).map((im, i) => (
               // eslint-disable-next-line @next/next/no-img-element
               <img
                 key={i}
                 src={im.url}
                 alt={im.caption || block.title}
-                className="aspect-square w-full rounded-xl object-cover bg-slate-100"
+                className="aspect-square w-full rounded-lg object-cover bg-slate-100"
               />
             ))}
             {!images.length ? (
-              <p className="col-span-2 text-xs text-slate-400">Add photo URLs in the editor.</p>
+              <p className="col-span-2 text-[11px] text-slate-400">Add photo URLs in the editor.</p>
             ) : null}
           </div>
         </section>
@@ -190,8 +192,8 @@ export function BlockRenderer({
     case "features":
       return (
         <section className={card}>
-          <h2 className="text-base font-bold text-slate-900">{block.title}</h2>
-          <p className="mt-2 whitespace-pre-wrap text-sm leading-relaxed text-slate-600">{block.body}</p>
+          <h2 className={titleCls}>{block.title}</h2>
+          <p className="mt-1.5 whitespace-pre-wrap text-xs leading-relaxed text-slate-600">{block.body}</p>
         </section>
       );
 
@@ -200,8 +202,8 @@ export function BlockRenderer({
     default:
       return (
         <section className={card}>
-          <h2 className="text-base font-bold text-slate-900">{block.title}</h2>
-          <p className="mt-2 whitespace-pre-wrap text-sm leading-relaxed text-slate-600">{block.body}</p>
+          <h2 className={titleCls}>{block.title}</h2>
+          <p className="mt-1.5 whitespace-pre-wrap text-xs leading-relaxed text-slate-600">{block.body}</p>
         </section>
       );
   }
