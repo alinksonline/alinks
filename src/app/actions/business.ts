@@ -357,6 +357,7 @@ export async function publishWebsiteAction(businessId: string, confirmTenantLega
       .where(eq(pages.businessId, businessId));
 
     const handle = owned.handle;
+    revalidatePath("/dashboard");
     revalidatePath("/editor");
     revalidatePath("/editor/publish");
     revalidatePath(`/${handle}`);
@@ -366,6 +367,33 @@ export async function publishWebsiteAction(businessId: string, confirmTenantLega
     return { success: true as const, handle };
   } catch (e) {
     return { success: false as const, error: e instanceof Error ? e.message : "Publish failed" };
+  }
+}
+
+/** Take the mini-site offline (business flag). Pages stay ready for republish. */
+export async function unpublishWebsiteAction(businessId: string) {
+  try {
+    const session = await requireSession();
+    const owned = await assertBusinessOwnership(businessId, session.userId);
+    const db = getPlatformDb();
+    if (!db) return { success: false as const, error: "Database not connected" };
+
+    await db
+      .update(businesses)
+      .set({ isPublished: false, updatedAt: new Date() })
+      .where(eq(businesses.id, businessId));
+
+    const handle = owned.handle;
+    revalidatePath("/dashboard");
+    revalidatePath("/editor");
+    revalidatePath("/editor/publish");
+    revalidatePath(`/${handle}`);
+    for (const s of STANDARD_PAGE_SLUGS) {
+      revalidatePath(`/${handle}/${s}`);
+    }
+    return { success: true as const, handle };
+  } catch (e) {
+    return { success: false as const, error: e instanceof Error ? e.message : "Unpublish failed" };
   }
 }
 

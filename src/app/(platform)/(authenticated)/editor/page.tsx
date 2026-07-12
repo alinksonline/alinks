@@ -47,7 +47,18 @@ export default async function EditorHomePage() {
             </li>
           ))}
         </ul>
-        {!business.isPublished && (
+        {business.isPublished ? (
+          <p className="mt-3 rounded-xl border border-emerald-500/30 bg-emerald-500/10 px-3 py-2 text-[11px] leading-snug text-emerald-900 dark:text-emerald-100">
+            <span className="font-bold">Published 100%</span> — live at{" "}
+            <Link href={`/${business.handle}`} className="font-mono font-semibold underline">
+              /{business.handle}
+            </Link>
+            .{" "}
+            <Link href="/editor/publish" className="font-semibold underline">
+              Republish / Unpublish
+            </Link>
+          </p>
+        ) : (
           <p className="mt-3 rounded-xl border border-amber-500/30 bg-amber-500/10 px-3 py-2 text-[11px] leading-snug text-amber-900 dark:text-amber-100">
             Site is private —{" "}
             <Link href="/editor/publish" className="font-semibold underline">

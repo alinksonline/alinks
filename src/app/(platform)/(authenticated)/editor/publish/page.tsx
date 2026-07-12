@@ -17,11 +17,35 @@ export default async function PublishPage() {
     <>
       <EditorNav active="/editor/publish" />
       <PageShell className="py-3">
-        <h1 className="text-base font-bold tracking-tight text-brand-ink">Go live</h1>
-        <p className="mt-0.5 text-[11px] leading-relaxed text-brand-muted">
-          Make your site public at{" "}
-          <span className="font-mono font-semibold text-brand-ink">/{business.handle}</span>
-        </p>
+        <div className="flex items-start justify-between gap-2">
+          <div>
+            <h1 className="text-base font-bold tracking-tight text-brand-ink">
+              {business.isPublished ? "Site status" : "Go live"}
+            </h1>
+            <p className="mt-0.5 text-[11px] leading-relaxed text-brand-muted">
+              {business.isPublished ? (
+                <>
+                  Live at{" "}
+                  <span className="font-mono font-semibold text-brand-ink">/{business.handle}</span>
+                </>
+              ) : (
+                <>
+                  Make your site public at{" "}
+                  <span className="font-mono font-semibold text-brand-ink">/{business.handle}</span>
+                </>
+              )}
+            </p>
+          </div>
+          {business.isPublished ? (
+            <span className="shrink-0 rounded-full bg-emerald-600 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide text-white">
+              100%
+            </span>
+          ) : (
+            <span className="shrink-0 rounded-full bg-brand-mist px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide text-brand-muted">
+              Draft
+            </span>
+          )}
+        </div>
 
         <div className="mt-3 space-y-2">
           <Link href="/editor/business" className="ui-row active:scale-[0.99]">

@@ -2,7 +2,7 @@
 
 import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
-import { publishWebsiteAction } from "@/app/actions/business";
+import { publishWebsiteAction, unpublishWebsiteAction } from "@/app/actions/business";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/core/utils/cn";
 
@@ -27,8 +27,26 @@ export function PublishForm({
 
   if (isPublished) {
     return (
-      <div className="space-y-3 rounded-xl border border-emerald-500/30 bg-emerald-500/10 px-3 py-3.5">
-        <p className="text-sm font-bold text-emerald-700 dark:text-emerald-300">Your site is live</p>
+      <div className="space-y-3">
+        <div className="rounded-xl border border-emerald-500/35 bg-emerald-500/12 px-3 py-3">
+          <div className="flex items-center justify-between gap-2">
+            <p className="text-sm font-bold text-emerald-800 dark:text-emerald-200">Published 100%</p>
+            <span className="rounded-full bg-emerald-600 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide text-white">
+              Live
+            </span>
+          </div>
+          <p className="mt-1 text-[11px] leading-snug text-emerald-900/80 dark:text-emerald-100/85">
+            Your site is public at{" "}
+            <span className="font-mono font-semibold">/{handle}</span>
+          </p>
+          <div className="mt-2 h-1.5 overflow-hidden rounded-full bg-emerald-900/10 dark:bg-black/20">
+            <div className="h-full w-full rounded-full bg-emerald-500" />
+          </div>
+          <p className="mt-1 text-right text-[10px] font-semibold text-emerald-700 dark:text-emerald-300">
+            100%
+          </p>
+        </div>
+
         <a
           href={`/${handle}`}
           target="_blank"
@@ -37,6 +55,53 @@ export function PublishForm({
         >
           Open public site
         </a>
+
+        {error && (
+          <p className="rounded-lg bg-red-500/10 px-2.5 py-1.5 text-xs text-red-700 dark:text-red-300">
+            {error}
+          </p>
+        )}
+
+        <div className="grid grid-cols-2 gap-2">
+          <Button
+            type="button"
+            variant="secondary"
+            className="w-full"
+            disabled={isPending}
+            onClick={() => {
+              setError(null);
+              startTransition(async () => {
+                // Re-apply gates + re-publish all pages (refresh live content flags)
+                const result = await publishWebsiteAction(businessId, true);
+                if (!result.success) setError(result.error ?? "Could not republish");
+                else router.refresh();
+              });
+            }}
+          >
+            {isPending ? "…" : "Republish"}
+          </Button>
+          <Button
+            type="button"
+            variant="ghost"
+            className="w-full border-red-500/25 text-red-700 dark:text-red-300"
+            disabled={isPending}
+            onClick={() => {
+              if (!window.confirm("Unpublish your site? Visitors will no longer see it.")) return;
+              setError(null);
+              startTransition(async () => {
+                const result = await unpublishWebsiteAction(businessId);
+                if (!result.success) setError(result.error ?? "Could not unpublish");
+                else router.refresh();
+              });
+            }}
+          >
+            {isPending ? "…" : "Unpublish"}
+          </Button>
+        </div>
+
+        <p className="text-center text-[10px] text-brand-muted">
+          Republish refreshes public pages. Unpublish takes the whole site offline.
+        </p>
       </div>
     );
   }
@@ -45,6 +110,17 @@ export function PublishForm({
 
   return (
     <div className="space-y-3">
+      <div className="rounded-xl border border-brand-ink/10 bg-brand-surface px-3 py-2.5">
+        <div className="flex items-center justify-between gap-2">
+          <p className="text-xs font-semibold text-brand-ink">Publish progress</p>
+          <span className="text-[10px] font-bold text-brand-muted">Draft</span>
+        </div>
+        <div className="mt-2 h-1.5 overflow-hidden rounded-full bg-brand-mist">
+          <div className="h-full w-[35%] rounded-full bg-brand-purple/70" />
+        </div>
+        <p className="mt-1 text-[10px] text-brand-muted">Not public yet — confirm below to go live.</p>
+      </div>
+
       {blockers.length > 0 && (
         <div className="rounded-xl border border-amber-500/30 bg-amber-500/10 px-3 py-2.5">
           <p className="text-[10px] font-bold uppercase tracking-wide text-amber-800 dark:text-amber-200">
@@ -98,10 +174,7 @@ export function PublishForm({
           startTransition(async () => {
             const result = await publishWebsiteAction(businessId, confirm);
             if (!result.success) setError(result.error ?? "Could not publish");
-            else {
-              router.refresh();
-              router.push(`/editor/publish`);
-            }
+            else router.refresh();
           });
         }}
       >
