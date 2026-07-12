@@ -60,6 +60,7 @@ export default async function EditorPageSlug({ params }: { params: { slug: strin
           primaryColor={primaryColor}
           initialContent={content}
           isPublished={row.isPublished}
+          businessIsPublished={business.isPublished}
           profile={profile}
         />
       </PageShell>

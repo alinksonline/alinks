@@ -185,9 +185,18 @@ export async function savePageContentAction(businessId: string, slug: string, co
 export async function publishPageAction(businessId: string, slug: string, publish: boolean) {
   try {
     const session = await requireSession();
-    await assertBusinessOwnership(businessId, session.userId);
+    const business = await assertBusinessOwnership(businessId, session.userId);
     const db = getPlatformDb();
     if (!db) return { success: false as const, error: "Database not connected" };
+
+    // Going public requires the business site flag — page-only publish is not enough.
+    if (publish && !business.isPublished) {
+      return {
+        success: false as const,
+        error: "SITE_NOT_LIVE",
+        code: "SITE_NOT_LIVE" as const,
+      };
+    }
 
     await db
       .update(pages)
@@ -195,6 +204,8 @@ export async function publishPageAction(businessId: string, slug: string, publis
       .where(and(eq(pages.businessId, businessId), eq(pages.slug, slug)));
 
     revalidatePath("/editor");
+    revalidatePath(`/${business.handle}`);
+    revalidatePath(`/${business.handle}/${slug}`);
     return { success: true as const };
   } catch (e) {
     return { success: false as const, error: e instanceof Error ? e.message : "Publish failed" };
@@ -286,44 +297,73 @@ export async function updateBusinessProfileAction(
   }
 }
 
+/**
+ * Make the whole mini-site public:
+ * - log tenant Terms/Privacy confirmation
+ * - pass publish gates
+ * - set business.isPublished
+ * - publish all standard pages (so /handle actually shows content)
+ */
 export async function publishWebsiteAction(businessId: string, confirmTenantLegal: boolean) {
   try {
     const session = await requireSession();
-    await assertBusinessOwnership(businessId, session.userId);
+    const owned = await assertBusinessOwnership(businessId, session.userId);
 
     if (!confirmTenantLegal) {
       return { success: false as const, error: "Confirm tenant Terms & Privacy are published" };
     }
 
+    const db = getPlatformDb();
+    if (!db) return { success: false as const, error: "Database not connected" };
+
     const meta = await requestMeta();
+    const tenantId = session.userId;
+
+    // Defensive: onboarding should have logged platform legal; backfill if missing
+    // so tenants who signed up before a bug aren't permanently stuck.
+    const gatePre = await evaluatePublishGate(tenantId, { requireTenantLegalLogged: false });
+    if (gatePre.blockerKeys.includes(LEGAL_DOC_TYPES.PLATFORM_TOS)) {
+      await recordLegalAcceptance({ tenantId, docType: LEGAL_DOC_TYPES.PLATFORM_TOS, ...meta });
+    }
+    if (gatePre.blockerKeys.includes(LEGAL_DOC_TYPES.PLATFORM_PRIVACY)) {
+      await recordLegalAcceptance({ tenantId, docType: LEGAL_DOC_TYPES.PLATFORM_PRIVACY, ...meta });
+    }
+
     await recordLegalAcceptance({
-      tenantId: session.userId,
+      tenantId,
       docType: LEGAL_DOC_TYPES.TENANT_TOS_PUBLISHED,
       ...meta,
     });
     await recordLegalAcceptance({
-      tenantId: session.userId,
+      tenantId,
       docType: LEGAL_DOC_TYPES.TENANT_PRIVACY_PUBLISHED,
       ...meta,
     });
 
-    const gate = await evaluatePublishGate(session.userId);
+    const gate = await evaluatePublishGate(tenantId);
     if (!gate.ok) {
       return { success: false as const, error: gate.blockers.join("; ") };
     }
-
-    const db = getPlatformDb();
-    if (!db) return { success: false as const, error: "Database not connected" };
 
     await db
       .update(businesses)
       .set({ isPublished: true, updatedAt: new Date() })
       .where(eq(businesses.id, businessId));
 
-    const business = await assertBusinessOwnership(businessId, session.userId);
+    // Public routes require page.isPublished too — flip all pages for this site.
+    await db
+      .update(pages)
+      .set({ isPublished: true, updatedAt: new Date() })
+      .where(eq(pages.businessId, businessId));
+
+    const handle = owned.handle;
     revalidatePath("/editor");
-    revalidatePath(`/${business.handle}`);
-    return { success: true as const };
+    revalidatePath("/editor/publish");
+    revalidatePath(`/${handle}`);
+    for (const s of STANDARD_PAGE_SLUGS) {
+      revalidatePath(`/${handle}/${s}`);
+    }
+    return { success: true as const, handle };
   } catch (e) {
     return { success: false as const, error: e instanceof Error ? e.message : "Publish failed" };
   }

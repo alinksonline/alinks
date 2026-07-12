@@ -91,7 +91,11 @@ export function PublishForm({
           startTransition(async () => {
             const result = await publishWebsiteAction(businessId, confirm);
             if (!result.success) setError(result.error ?? "Could not publish");
-            else router.refresh();
+            else {
+              // Full navigation so “Your site is live” + public link refresh reliably
+              router.refresh();
+              router.push(`/editor/publish`);
+            }
           });
         }}
       >

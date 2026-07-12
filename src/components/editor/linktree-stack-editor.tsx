@@ -21,7 +21,11 @@ import {
   verticalListSortingStrategy,
 } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
-import { publishPageAction, savePageContentAction } from "@/app/actions/business";
+import {
+  publishPageAction,
+  publishWebsiteAction,
+  savePageContentAction,
+} from "@/app/actions/business";
 import { Button } from "@/components/ui/button";
 import { BlockRenderer } from "@/components/tenant/block-renderer";
 import type { BlockType, PageBlock, PageContent, PageHero, ServiceItem } from "@/core/types/page";
@@ -454,6 +458,7 @@ export function LinktreeStackEditor({
   primaryColor,
   initialContent,
   isPublished,
+  businessIsPublished = false,
   profile = null,
 }: {
   businessId: string;
@@ -462,7 +467,10 @@ export function LinktreeStackEditor({
   businessName: string;
   primaryColor: string;
   initialContent: PageContent;
+  /** This page’s draft/live flag */
   isPublished: boolean;
+  /** Whole mini-site is public at /{handle} */
+  businessIsPublished?: boolean;
   profile?: BusinessProfile | null;
 }) {
   const router = useRouter();
@@ -471,12 +479,16 @@ export function LinktreeStackEditor({
     blocks: Array.isArray(initialContent.blocks) ? initialContent.blocks : [],
   }));
   const [published, setPublished] = useState(isPublished);
+  const [siteLive, setSiteLive] = useState(businessIsPublished);
   const [error, setError] = useState<string | null>(null);
   const [savedFlash, setSavedFlash] = useState(false);
+  const [liveFlash, setLiveFlash] = useState(false);
   const [isPending, startTransition] = useTransition();
   const [editId, setEditId] = useState<string | null>(null);
   const [editHero, setEditHero] = useState(false);
   const [showAdd, setShowAdd] = useState(false);
+  const [showGoLiveConfirm, setShowGoLiveConfirm] = useState(false);
+  const [goLiveConfirm, setGoLiveConfirm] = useState(false);
 
   const blocks = content.blocks ?? [];
   const editing = useMemo(() => blocks.find((b) => b.id === editId) ?? null, [blocks, editId]);
@@ -520,14 +532,57 @@ export function LinktreeStackEditor({
     });
   };
 
+  /** Save draft, then make the whole site public (business + all pages). */
+  const goLive = (confirmLegal: boolean) => {
+    setError(null);
+    startTransition(async () => {
+      const saved = await savePageContentAction(businessId, slug, content);
+      if (!saved.success) {
+        setError(saved.error ?? "Save failed before publish");
+        return;
+      }
+      const live = await publishWebsiteAction(businessId, confirmLegal);
+      if (!live.success) {
+        setError(live.error ?? "Could not publish website");
+        return;
+      }
+      setSiteLive(true);
+      setPublished(true);
+      setShowGoLiveConfirm(false);
+      setGoLiveConfirm(false);
+      setLiveFlash(true);
+      setTimeout(() => setLiveFlash(false), 2500);
+      router.refresh();
+    });
+  };
+
   const togglePublish = () => {
+    setError(null);
+    // Site not public yet → full go-live flow (what users mean by “Publish”)
+    if (!siteLive) {
+      setShowGoLiveConfirm(true);
+      return;
+    }
     startTransition(async () => {
       const next = !published;
+      // Always persist latest blocks before flipping page visibility
+      const saved = await savePageContentAction(businessId, slug, content);
+      if (!saved.success) {
+        setError(saved.error ?? "Save failed before publish");
+        return;
+      }
       const result = await publishPageAction(businessId, slug, next);
       if (result.success) {
         setPublished(next);
         router.refresh();
-      } else setError(result.error ?? "Publish failed");
+        return;
+      }
+      if ("code" in result && result.code === "SITE_NOT_LIVE") {
+        setSiteLive(false);
+        setShowGoLiveConfirm(true);
+        return;
+      }
+      setError(result.error ?? "Publish failed");
     });
   };
 
@@ -556,9 +611,21 @@ export function LinktreeStackEditor({
           <p className="mt-0.5 text-[11px] text-slate-500">{displayName}</p>
           <p className="mt-1.5 text-[9px] font-semibold uppercase tracking-[0.14em] text-slate-400">
             Editing · {slug}
-            {published ? " · live" : " · draft"}
+            {!siteLive ? " · site draft" : published ? " · live" : " · page draft"}
           </p>
         </div>
+
+        {!siteLive && (
+          <p className="mb-3 rounded-xl border border-amber-200/80 bg-amber-50 px-3 py-2 text-center text-[11px] leading-snug text-amber-900">
+            Your site is still private. Tap <strong>Publish</strong> to go live at{" "}
+            <span className="font-mono">/{handle}</span>.
+          </p>
+        )}
+        {siteLive && liveFlash && (
+          <p className="mb-3 rounded-xl border border-emerald-200 bg-emerald-50 px-3 py-2 text-center text-[11px] font-semibold text-emerald-800">
+            Live at /{handle} ✓
+          </p>
+        )}
 
         {slug === "home" && content.hero && (
           <HeroPreviewCard
@@ -649,6 +716,61 @@ export function LinktreeStackEditor({
         />
       )}
 
+      {showGoLiveConfirm && (
+        <>
+          <div
+            className="fixed inset-0 z-40 bg-black/45"
+            onClick={() => !isPending && setShowGoLiveConfirm(false)}
+            aria-hidden
+          />
+          <div
+            role="dialog"
+            aria-modal="true"
+            className="fixed inset-x-0 bottom-0 z-50 mx-auto w-full max-w-[var(--app-max-width)] rounded-t-2xl bg-white px-4 pb-6 pt-3 shadow-2xl"
+            style={{ paddingBottom: "calc(1rem + var(--safe-bottom))" }}
+          >
+            <div className="mx-auto mb-3 h-1 w-9 rounded-full bg-slate-200" />
+            <h2 className="text-sm font-bold text-slate-900">Go live at /{handle}</h2>
+            <p className="mt-1 text-xs leading-relaxed text-slate-500">
+              This makes your whole mini-site public — not just this page. You can unpublish later from
+              settings if needed.
+            </p>
+            <label className="mt-3 flex cursor-pointer items-start gap-2.5 rounded-xl border border-slate-200 bg-slate-50 px-3 py-2.5">
+              <input
+                type="checkbox"
+                className="mt-0.5 h-4 w-4 shrink-0 rounded border-slate-300"
+                checked={goLiveConfirm}
+                onChange={(e) => setGoLiveConfirm(e.target.checked)}
+              />
+              <span className="text-xs leading-snug text-slate-700">
+                I confirm my Terms & Privacy on this site are accurate, and the independent-operator
+                footer is shown.
+              </span>
+            </label>
+            <div className="mt-3 flex gap-2">
+              <Button
+                type="button"
+                variant="secondary"
+                className="min-h-10 flex-1 rounded-xl py-2 text-sm"
+                disabled={isPending}
+                onClick={() => setShowGoLiveConfirm(false)}
+              >
+                Cancel
+              </Button>
+              <Button
+                type="button"
+                variant="bronze"
+                className="min-h-10 flex-1 rounded-xl py-2 text-sm"
+                disabled={isPending || !goLiveConfirm}
+                onClick={() => goLive(true)}
+              >
+                {isPending ? "Publishing…" : "Publish website"}
+              </Button>
+            </div>
+          </div>
+        </>
+      )}
+
       <div className="editor-sticky-actions">
         <div className="flex gap-2">
           <Button
@@ -661,12 +783,18 @@ export function LinktreeStackEditor({
           </Button>
           <Button
             type="button"
-            variant={published ? "secondary" : "bronze"}
+            variant={siteLive && published ? "secondary" : "bronze"}
             className="min-h-10 flex-1 rounded-xl py-2 text-sm"
             onClick={togglePublish}
             disabled={isPending}
           >
-            {published ? "Unpublish" : "Publish"}
+            {isPending
+              ? "…"
+              : !siteLive
+                ? "Publish"
+                : published
+                  ? "Unpublish page"
+                  : "Publish page"}
           </Button>
         </div>
       </div>
