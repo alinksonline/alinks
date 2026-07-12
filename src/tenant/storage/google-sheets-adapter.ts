@@ -242,7 +242,14 @@ export async function provisionTenantWorkbook(params: {
     error?: { message?: string };
   };
   if (!createRes.ok || !created.spreadsheetId) {
-    throw new Error(created.error?.message ?? "Failed to create Google Spreadsheet");
+    const msg = created.error?.message ?? "Failed to create Google Spreadsheet";
+    // Service accounts on consumer Gmail have 0 Drive storage — cannot own new files.
+    if (/quota|permission|storage/i.test(msg)) {
+      throw new Error(
+        `${msg}. Create a Sheet in your own Google Drive, share it as Editor with the ALINKS service account, then use “Save sheet connection”. Auto-create needs a Google Workspace Shared Drive (optional later).`,
+      );
+    }
+    throw new Error(msg);
   }
 
   const adapter = new GoogleSheetsAdapter(created.spreadsheetId);
