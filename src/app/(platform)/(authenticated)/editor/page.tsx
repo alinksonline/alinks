@@ -16,20 +16,24 @@ export default async function EditorHomePage() {
   return (
     <>
       <EditorNav active="/editor" />
-      <PageShell maxWidth="md" className="py-8">
-        <h1 className="text-2xl font-bold text-slate-900">Website builder</h1>
-        <p className="mt-1 text-sm text-slate-500">
+      <PageShell className="py-5">
+        <h1 className="text-xl font-bold tracking-tight text-brand-ink">Website builder</h1>
+        <p className="mt-1 text-sm leading-snug text-brand-ink/55">
           {business.name} · /{business.handle} · max 5 pages
         </p>
-        <ul className="mt-6 space-y-2">
+        <ul className="mt-5 space-y-2.5">
           {pageList.map((p) => (
             <li key={p.id}>
               <Link
                 href={`/editor/pages/${p.slug}`}
-                className="flex items-center justify-between rounded-xl border bg-white px-4 py-3 hover:border-slate-400"
+                className="flex min-h-[3.5rem] items-center justify-between gap-3 rounded-2xl border border-brand-ink/10 bg-brand-surface px-4 py-3.5 shadow-card active:scale-[0.99]"
               >
-                <span className="font-medium">{p.title}</span>
-                <span className={`text-xs font-bold uppercase ${p.isPublished ? "text-emerald-600" : "text-slate-400"}`}>
+                <span className="min-w-0 truncate font-semibold text-brand-ink">{p.title}</span>
+                <span
+                  className={`shrink-0 text-[10px] font-bold uppercase tracking-wide ${
+                    p.isPublished ? "text-emerald-600" : "text-brand-ink/35"
+                  }`}
+                >
                   {p.isPublished ? "Live" : "Draft"}
                 </span>
               </Link>
@@ -37,8 +41,12 @@ export default async function EditorHomePage() {
           ))}
         </ul>
         {!business.isPublished && (
-          <p className="mt-6 text-sm text-amber-700">
-            Site is draft — complete the <Link href="/editor/publish" className="underline">publish checklist</Link>.
+          <p className="mt-5 rounded-2xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-900">
+            Site is draft — complete the{" "}
+            <Link href="/editor/publish" className="font-semibold underline">
+              publish checklist
+            </Link>
+            .
           </p>
         )}
       </PageShell>

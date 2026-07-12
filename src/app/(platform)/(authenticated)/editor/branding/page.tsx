@@ -18,8 +18,8 @@ export default async function BrandingEditorPage() {
   return (
     <>
       <EditorNav active="/editor/branding" />
-      <PageShell maxWidth="md" className="py-8">
-        <h1 className="text-xl font-bold">Branding</h1>
+      <PageShell className="py-4">
+        <h1 className="text-lg font-bold tracking-tight text-brand-ink">Branding</h1>
         <div className="mt-6">
           <BrandingForm businessId={business.id} initial={branding} />
         </div>

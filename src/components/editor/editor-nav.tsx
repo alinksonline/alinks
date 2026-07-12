@@ -1,30 +1,48 @@
+"use client";
+
 import Link from "next/link";
+import { usePathname } from "next/navigation";
+import { cn } from "@/core/utils/cn";
 
 const links = [
-  { href: "/editor", label: "Pages" },
-  { href: "/editor/theme", label: "Theme" },
-  { href: "/editor/branding", label: "Brand" },
-  { href: "/editor/commerce", label: "Store" },
-  { href: "/editor/packages", label: "Packages" },
-  { href: "/editor/staff", label: "Staff" },
-  { href: "/editor/clinic", label: "Clinic" },
-  { href: "/editor/publish", label: "Publish" },
+  { href: "/editor", label: "Pages", match: (p: string) => p === "/editor" || p.startsWith("/editor/pages") },
+  { href: "/editor/theme", label: "Theme", match: (p: string) => p.startsWith("/editor/theme") },
+  { href: "/editor/branding", label: "Brand", match: (p: string) => p.startsWith("/editor/branding") },
+  { href: "/editor/commerce", label: "Store", match: (p: string) => p.startsWith("/editor/commerce") },
+  { href: "/editor/packages", label: "Pkgs", match: (p: string) => p.startsWith("/editor/packages") },
+  { href: "/editor/staff", label: "Staff", match: (p: string) => p.startsWith("/editor/staff") },
+  { href: "/editor/clinic", label: "Clinic", match: (p: string) => p.startsWith("/editor/clinic") },
+  { href: "/editor/publish", label: "Go live", match: (p: string) => p.startsWith("/editor/publish") },
 ];
 
+/** Horizontal chip nav — phone-width, sticky, scroll-snap for thumb use. */
 export function EditorNav({ active }: { active?: string }) {
+  const pathname = usePathname();
+
   return (
-    <nav className="flex gap-1 overflow-x-auto border-b bg-white px-2 py-2 text-sm">
-      {links.map((l) => (
-        <Link
-          key={l.href}
-          href={l.href}
-          className={`whitespace-nowrap rounded-lg px-3 py-2 ${
-            active === l.href ? "bg-slate-900 font-semibold text-white" : "text-slate-600 hover:bg-slate-100"
-          }`}
-        >
-          {l.label}
-        </Link>
-      ))}
+    <nav
+      className="editor-subnav sticky top-0 z-30 border-b border-brand-ink/8 bg-brand-surface/95 backdrop-blur-md"
+      aria-label="Website builder"
+    >
+      <div className="editor-subnav-scroll flex gap-1.5 overflow-x-auto overscroll-x-contain px-3 py-2.5 [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+        {links.map((l) => {
+          const isActive = active ? active === l.href : l.match(pathname);
+          return (
+            <Link
+              key={l.href}
+              href={l.href}
+              className={cn(
+                "snap-start whitespace-nowrap rounded-full px-3.5 py-2.5 text-xs font-semibold transition active:scale-[0.98]",
+                isActive
+                  ? "bg-brand-ink text-brand-cream shadow-soft"
+                  : "bg-brand-mist text-brand-ink/60 active:bg-brand-ink/10",
+              )}
+            >
+              {l.label}
+            </Link>
+          );
+        })}
+      </div>
     </nav>
   );
 }

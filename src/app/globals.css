@@ -276,6 +276,51 @@ body {
       border-bottom-right-radius: 2.5rem;
     }
   }
+
+  /* —— Website builder: mobile-only sticky chrome —— */
+  .editor-subnav {
+    max-width: var(--app-max-width);
+    margin-left: auto;
+    margin-right: auto;
+  }
+
+  .editor-subnav-scroll {
+    scroll-snap-type: x mandatory;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .editor-sticky-actions {
+    position: fixed;
+    bottom: calc(3.75rem + var(--safe-bottom));
+    left: 50%;
+    z-index: 40;
+    width: 100%;
+    max-width: var(--app-max-width);
+    transform: translateX(-50%);
+    border-top: 1px solid rgb(var(--color-brand-ink) / 0.08);
+    background-color: rgb(var(--color-brand-surface) / 0.96);
+    backdrop-filter: blur(14px);
+    -webkit-backdrop-filter: blur(14px);
+    padding: 0.75rem 1rem;
+  }
+
+  .editor-mobile-shell {
+    width: 100%;
+    max-width: var(--app-max-width);
+    margin-left: auto;
+    margin-right: auto;
+  }
+
+  /* Touch-friendly form controls inside builder */
+  .editor-mobile-shell input[type="text"],
+  .editor-mobile-shell input[type="url"],
+  .editor-mobile-shell input[type="email"],
+  .editor-mobile-shell input:not([type]),
+  .editor-mobile-shell textarea,
+  .editor-mobile-shell select {
+    font-size: 16px; /* prevent iOS zoom on focus */
+    min-height: 2.75rem;
+  }
 }
 
 @layer utilities {

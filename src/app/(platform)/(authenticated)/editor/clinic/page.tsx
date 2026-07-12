@@ -11,9 +11,9 @@ export default async function ClinicEditorPage() {
   return (
     <>
       <EditorNav active="/editor/clinic" />
-      <PageShell maxWidth="md" className="py-8">
-        <h1 className="text-xl font-bold">Clinic license</h1>
-        <p className="mt-2 text-sm text-slate-600">
+      <PageShell className="py-4">
+        <h1 className="text-lg font-bold tracking-tight text-brand-ink">Clinic license</h1>
+        <p className="mt-2 text-sm text-brand-ink/55">
           Submit NMC registration for superadmin review before clinic booking goes live.
         </p>
         <p className="mt-1 text-sm">

@@ -43,7 +43,7 @@ export function CommerceForm({
   const liveSheet = Boolean(spreadsheetId && !spreadsheetId.startsWith("dev-"));
 
   return (
-    <div className="space-y-8">
+    <div className="space-y-6 pb-8">
       <section className="space-y-4">
         <h2 className="font-semibold">Customer data storage (Google Sheets)</h2>
         <p className="text-sm text-slate-600">

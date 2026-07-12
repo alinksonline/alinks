@@ -13,9 +13,9 @@ export default async function StaffEditorPage() {
   return (
     <>
       <EditorNav active="/editor/staff" />
-      <PageShell maxWidth="md" className="py-8">
-        <h1 className="text-xl font-bold">Staff & slots</h1>
-        <p className="mt-2 text-sm text-slate-600">Salon and beauty staff with per-person slot capacity.</p>
+      <PageShell className="py-4">
+        <h1 className="text-lg font-bold tracking-tight text-brand-ink">Staff & slots</h1>
+        <p className="mt-2 text-sm text-brand-ink/55">Salon and beauty staff with per-person slot capacity.</p>
         <StaffForm businessId={business.id} staff={staff} />
       </PageShell>
     </>

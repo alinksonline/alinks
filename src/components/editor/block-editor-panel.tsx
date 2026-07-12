@@ -1,65 +1,95 @@
 "use client";
 
-import React from "react";
 import type { PageBlock } from "@/core/types/page";
 
-export function BlockEditorPanel({ 
-  block, 
-  onClose, 
-  onChange 
-}: { 
-  block: PageBlock; 
-  onClose: () => void; 
-  onChange: (b: PageBlock) => void 
+/**
+ * Mobile-first block editor: full-width bottom sheet (phone), not a desktop side drawer.
+ */
+export function BlockEditorPanel({
+  block,
+  onClose,
+  onChange,
+}: {
+  block: PageBlock;
+  onClose: () => void;
+  onChange: (b: PageBlock) => void;
 }) {
   return (
     <>
-      <div className="fixed inset-0 bg-black/20 z-40" onClick={onClose} />
-      <div className="fixed inset-y-0 right-0 w-96 bg-white shadow-xl z-50 border-l flex flex-col animate-in slide-in-from-right">
-        <div className="p-4 border-b flex justify-between items-center bg-gray-50">
-          <h2 className="font-bold text-lg capitalize">Edit {block.type} Block</h2>
-          <button onClick={onClose} className="text-gray-500 hover:text-gray-800 text-2xl font-light">&times;</button>
+      <div
+        className="fixed inset-0 z-40 bg-black/40 backdrop-blur-[2px]"
+        onClick={onClose}
+        aria-hidden
+      />
+      <div
+        role="dialog"
+        aria-modal="true"
+        aria-label={`Edit ${block.type} block`}
+        className="fixed inset-x-0 bottom-0 z-50 mx-auto flex max-h-[min(92dvh,100%)] w-full max-w-[var(--app-max-width)] flex-col rounded-t-3xl border border-brand-ink/10 bg-brand-surface shadow-device"
+        style={{ paddingBottom: "var(--safe-bottom)" }}
+      >
+        <div className="flex shrink-0 justify-center pb-1 pt-3">
+          <span className="h-1 w-10 rounded-full bg-brand-ink/15" aria-hidden />
         </div>
-        
-        <div className="p-6 space-y-6 flex-1 overflow-y-auto">
+
+        <div className="flex items-center justify-between gap-3 border-b border-brand-ink/8 px-4 pb-3">
+          <h2 className="min-w-0 truncate text-base font-bold capitalize text-brand-ink">
+            Edit {block.type}
+          </h2>
+          <button
+            type="button"
+            onClick={onClose}
+            className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full text-2xl font-light text-brand-ink/50 active:bg-brand-mist"
+            aria-label="Close"
+          >
+            &times;
+          </button>
+        </div>
+
+        <div className="min-h-0 flex-1 space-y-5 overflow-y-auto overscroll-contain px-4 py-4">
           <div className="space-y-2">
-            <label className="text-sm font-semibold text-gray-700">Section Title</label>
-            <input 
-              className="w-full rounded-lg border px-3 py-2" 
-              value={block.title} 
-              onChange={(e) => onChange({...block, title: e.target.value})} 
+            <label className="text-xs font-semibold uppercase tracking-wide text-brand-ink/50">
+              Section title
+            </label>
+            <input
+              className="premium-input"
+              value={block.title}
+              onChange={(e) => onChange({ ...block, title: e.target.value })}
+              autoComplete="off"
             />
           </div>
           <div className="space-y-2">
-            <label className="text-sm font-semibold text-gray-700">Section Description</label>
-            <textarea 
-              className="w-full rounded-lg border px-3 py-2 text-sm" 
-              value={block.body} 
-              onChange={(e) => onChange({...block, body: e.target.value})} 
-              rows={3}
+            <label className="text-xs font-semibold uppercase tracking-wide text-brand-ink/50">
+              Description
+            </label>
+            <textarea
+              className="premium-input min-h-[6.5rem] resize-y text-base leading-relaxed"
+              value={block.body}
+              onChange={(e) => onChange({ ...block, body: e.target.value })}
+              rows={4}
             />
           </div>
-          
-          {/* Specific Block Editing Logic */}
-          {block.type === 'services' && (
-            <div className="space-y-4 pt-4 border-t">
-              <div className="flex justify-between items-center">
-                <h3 className="font-semibold text-gray-900">Service Items</h3>
-                <button className="text-sm text-[var(--theme-primary)] font-medium">
-                  + Add Service
+
+          {block.type === "services" && (
+            <div className="space-y-3 border-t border-brand-ink/8 pt-4">
+              <div className="flex items-center justify-between gap-2">
+                <h3 className="font-semibold text-brand-ink">Service items</h3>
+                <button
+                  type="button"
+                  className="min-h-11 rounded-xl px-3 text-sm font-semibold text-brand-purple active:bg-brand-purple/10"
+                >
+                  + Add
                 </button>
               </div>
-              <p className="text-xs text-gray-500">Service list editing coming soon!</p>
+              <p className="text-xs leading-relaxed text-brand-ink/50">
+                Service list editing is next — save title and description for now.
+              </p>
             </div>
           )}
         </div>
-        
-        <div className="p-4 border-t bg-gray-50">
-          <button 
-            type="button" 
-            onClick={onClose} 
-            className="w-full bg-[var(--theme-primary)] text-white rounded-lg py-2 font-semibold hover:opacity-90 transition-opacity"
-          >
+
+        <div className="shrink-0 border-t border-brand-ink/8 bg-brand-surface px-4 py-3">
+          <button type="button" onClick={onClose} className="premium-btn-bronze">
             Done
           </button>
         </div>

@@ -18,9 +18,9 @@ export default async function PackagesEditorPage() {
   return (
     <>
       <EditorNav active="/editor/packages" />
-      <PageShell maxWidth="md" className="py-8">
-        <h1 className="text-xl font-bold">Salon packages</h1>
-        <p className="mt-2 text-sm text-slate-600">12 pre-made templates for pay-then-book.</p>
+      <PageShell className="py-4">
+        <h1 className="text-lg font-bold tracking-tight text-brand-ink">Salon packages</h1>
+        <p className="mt-2 text-sm text-brand-ink/55">12 pre-made templates for pay-then-book.</p>
         <PackagesPanel businessId={business.id} packages={packages} />
       </PageShell>
     </>

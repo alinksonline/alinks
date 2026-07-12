@@ -1,6 +1,5 @@
 "use client";
 
-import React from "react";
 import { useSortable } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
 import type { PageBlock } from "@/core/types/page";
@@ -13,46 +12,59 @@ interface SortableBlockProps {
   removeBlock: (id: string) => void;
 }
 
-export function SortableBlock({ id, block, index, onEdit, removeBlock }: SortableBlockProps) {
-  const { attributes, listeners, setNodeRef, transform, transition } = useSortable({ id });
+/** Mobile-first block card — large tap targets, drag handle separate from edit. */
+export function SortableBlock({ id, block, onEdit, removeBlock }: SortableBlockProps) {
+  const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({ id });
 
   const style = {
     transform: CSS.Transform.toString(transform),
     transition,
+    opacity: isDragging ? 0.92 : 1,
+    zIndex: isDragging ? 10 : undefined,
   };
 
   return (
-    <section ref={setNodeRef} style={style} className="space-y-2 rounded-xl border p-4 bg-white shadow-sm flex gap-2">
-      <div 
-        {...attributes} 
-        {...listeners} 
-        className="cursor-grab active:cursor-grabbing pt-2 text-gray-400 hover:text-gray-700"
+    <section
+      ref={setNodeRef}
+      style={style}
+      className="flex items-stretch gap-1 rounded-2xl border border-brand-ink/10 bg-brand-surface p-2 shadow-card"
+    >
+      <button
+        type="button"
+        {...attributes}
+        {...listeners}
+        className="flex w-11 shrink-0 touch-none items-center justify-center rounded-xl text-brand-ink/35 active:bg-brand-mist active:text-brand-ink/70"
+        aria-label="Drag to reorder"
       >
-        <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
+        <svg className="h-5 w-5" fill="currentColor" viewBox="0 0 24 24" aria-hidden>
           <path d="M8 5a2 2 0 100-4 2 2 0 000 4zm0 8a2 2 0 100-4 2 2 0 000 4zm2 6a2 2 0 11-4 0 2 2 0 014 0zm6-14a2 2 0 100-4 2 2 0 000 4zm0 8a2 2 0 100-4 2 2 0 000 4zm2 6a2 2 0 11-4 0 2 2 0 014 0z" />
         </svg>
-      </div>
-      <div className="flex-1 min-w-0 py-2">
-        <h3 className="font-semibold text-gray-900 truncate">{block.title || `Unnamed ${block.type} block`}</h3>
-        <p className="text-sm text-gray-500 truncate">{block.body || "No content added yet"}</p>
-      </div>
-      <div className="flex items-center gap-2">
-        <button
-          type="button"
-          onClick={() => onEdit(block.id)}
-          className="text-sm font-medium text-[var(--theme-primary)] hover:underline px-2 py-1"
-        >
-          Edit
-        </button>
-        <button 
-          type="button" 
-          onClick={() => removeBlock(block.id)}
-          className="text-gray-400 hover:text-red-600 font-bold px-2 py-1"
-          aria-label="Remove block"
-        >
-          &times;
-        </button>
-      </div>
+      </button>
+
+      <button
+        type="button"
+        onClick={() => onEdit(block.id)}
+        className="min-w-0 flex-1 rounded-xl px-2 py-3 text-left active:bg-brand-mist/80"
+      >
+        <p className="truncate text-sm font-semibold text-brand-ink">
+          {block.title || `Unnamed ${block.type}`}
+        </p>
+        <p className="mt-0.5 line-clamp-2 text-xs leading-snug text-brand-ink/50">
+          {block.body || "Tap to edit content"}
+        </p>
+        <p className="mt-1.5 text-[10px] font-semibold uppercase tracking-wider text-brand-purple/80">
+          {block.type}
+        </p>
+      </button>
+
+      <button
+        type="button"
+        onClick={() => removeBlock(block.id)}
+        className="flex w-11 shrink-0 items-center justify-center rounded-xl text-xl text-brand-ink/30 active:bg-red-50 active:text-red-600"
+        aria-label="Remove block"
+      >
+        &times;
+      </button>
     </section>
   );
 }

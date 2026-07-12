@@ -13,9 +13,9 @@ export default async function PublishPage() {
   return (
     <>
       <EditorNav active="/editor/publish" />
-      <PageShell maxWidth="md" className="py-8">
-        <h1 className="text-xl font-bold">Publish checklist</h1>
-        <p className="mt-2 text-sm text-slate-600">Q019 — all gates must pass before your site goes public.</p>
+      <PageShell className="py-4">
+        <h1 className="text-lg font-bold tracking-tight text-brand-ink">Publish checklist</h1>
+        <p className="mt-2 text-sm text-brand-ink/55">Q019 — all gates must pass before your site goes public.</p>
         {gate.blockers.length > 0 && (
           <ul className="mt-4 list-disc space-y-1 pl-5 text-sm text-amber-800">
             {gate.blockers.map((b) => (

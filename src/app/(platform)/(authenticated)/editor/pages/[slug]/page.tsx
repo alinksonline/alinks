@@ -28,9 +28,10 @@ export default async function EditorPageSlug({ params }: { params: { slug: strin
   return (
     <>
       <EditorNav active="/editor" />
-      <PageShell maxWidth="md" className="py-8">
-        <h1 className="text-xl font-bold">Edit: {row.title}</h1>
-        <div className="mt-6">
+      <PageShell className="py-4">
+        <h1 className="text-lg font-bold tracking-tight text-brand-ink">Edit: {row.title}</h1>
+        <p className="mt-0.5 text-xs text-brand-ink/45">Phone-first editor · changes save as draft until you publish</p>
+        <div className="mt-4">
           <PageEditorForm
             businessId={business.id}
             slug={params.slug}

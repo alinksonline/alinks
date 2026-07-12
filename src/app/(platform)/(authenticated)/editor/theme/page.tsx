@@ -19,8 +19,8 @@ export default async function ThemeEditorPage() {
   return (
     <>
       <EditorNav active="/editor/theme" />
-      <PageShell maxWidth="md" className="py-8">
-        <h1 className="text-xl font-bold">Theme settings</h1>
+      <PageShell className="py-4">
+        <h1 className="text-lg font-bold tracking-tight text-brand-ink">Theme settings</h1>
         <div className="mt-6">
           <ThemeForm businessId={business.id} initialTheme={theme} />
         </div>

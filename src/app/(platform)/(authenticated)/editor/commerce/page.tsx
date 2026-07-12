@@ -19,9 +19,9 @@ export default async function CommerceEditorPage() {
   return (
     <>
       <EditorNav active="/editor/commerce" />
-      <PageShell maxWidth="md" className="py-8">
-        <h1 className="text-xl font-bold">Commerce</h1>
-        <p className="mt-2 text-sm text-slate-600">
+      <PageShell className="py-4">
+        <h1 className="text-lg font-bold tracking-tight text-brand-ink">Commerce</h1>
+        <p className="mt-2 text-sm text-brand-ink/55">
           Lite WhatsApp catalog or Pro cart checkout. Orders append to your Google Sheet (not ALINKS database).
         </p>
         <div className="mt-6">

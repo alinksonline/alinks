@@ -10,9 +10,10 @@ import {
   closestCenter,
   KeyboardSensor,
   PointerSensor,
+  TouchSensor,
   useSensor,
   useSensors,
-  DragEndEvent,
+  type DragEndEvent,
 } from "@dnd-kit/core";
 import {
   arrayMove,
@@ -41,21 +42,11 @@ export function PageEditorForm({
   const [isPending, startTransition] = useTransition();
   const [selectedBlockId, setSelectedBlockId] = useState<string | null>(null);
 
-  const updateBlock = (index: number, field: "title" | "body", value: string) => {
-    setContent((prev) => {
-      const blocks = [...(prev.blocks ?? [])];
-      blocks[index] = { ...blocks[index], [field]: value };
-      return { ...prev, blocks };
-    });
-  };
-
   const updateBlockFull = (id: string, updatedBlock: PageContent["blocks"][0]) => {
     setContent((prev) => {
       const blocks = [...(prev.blocks ?? [])];
       const index = blocks.findIndex((b) => b.id === id);
-      if (index > -1) {
-        blocks[index] = updatedBlock;
-      }
+      if (index > -1) blocks[index] = updatedBlock;
       return { ...prev, blocks };
     });
   };
@@ -65,18 +56,17 @@ export function PageEditorForm({
       ...prev,
       blocks: prev.blocks?.filter((b) => b.id !== id) ?? [],
     }));
+    if (selectedBlockId === id) setSelectedBlockId(null);
   };
 
   const sensors = useSensors(
-    useSensor(PointerSensor),
-    useSensor(KeyboardSensor, {
-      coordinateGetter: sortableKeyboardCoordinates,
-    })
+    useSensor(PointerSensor, { activationConstraint: { distance: 8 } }),
+    useSensor(TouchSensor, { activationConstraint: { delay: 180, tolerance: 8 } }),
+    useSensor(KeyboardSensor, { coordinateGetter: sortableKeyboardCoordinates }),
   );
 
   const handleDragEnd = (event: DragEndEvent) => {
     const { active, over } = event;
-
     if (over && active.id !== over.id) {
       setContent((prev) => {
         const blocks = [...(prev.blocks ?? [])];
@@ -108,34 +98,39 @@ export function PageEditorForm({
   };
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4 pb-28">
       {slug === "home" && content.hero && (
-        <section className="space-y-3 rounded-xl border p-4">
-          <h2 className="font-semibold">Hero</h2>
+        <section className="space-y-3 rounded-2xl border border-brand-ink/10 bg-brand-surface p-4 shadow-card">
+          <h2 className="text-sm font-bold text-brand-ink">Hero (top of home)</h2>
           <input
-            className="w-full rounded-lg border px-3 py-2"
+            className="premium-input"
             value={content.hero.title}
-            onChange={(e) => setContent({ ...content, hero: { ...content.hero!, title: e.target.value } })}
+            onChange={(e) =>
+              setContent({ ...content, hero: { ...content.hero!, title: e.target.value } })
+            }
             placeholder="Hero title"
+            autoComplete="off"
           />
           <textarea
-            className="w-full rounded-lg border px-3 py-2"
+            className="premium-input min-h-[4.5rem] resize-y text-base"
             value={content.hero.tagline}
-            onChange={(e) => setContent({ ...content, hero: { ...content.hero!, tagline: e.target.value } })}
+            onChange={(e) =>
+              setContent({ ...content, hero: { ...content.hero!, tagline: e.target.value } })
+            }
             rows={2}
+            placeholder="Tagline"
           />
         </section>
       )}
-      <DndContext
-        sensors={sensors}
-        collisionDetection={closestCenter}
-        onDragEnd={handleDragEnd}
-      >
+
+      <p className="text-xs text-brand-ink/45">Hold the ⋮⋮ handle to reorder · tap a card to edit</p>
+
+      <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
         <SortableContext
           items={content.blocks?.map((b) => b.id) ?? []}
           strategy={verticalListSortingStrategy}
         >
-          <div className="space-y-4">
+          <div className="space-y-3">
             {content.blocks?.map((block, i) => (
               <SortableBlock
                 key={block.id}
@@ -149,24 +144,33 @@ export function PageEditorForm({
           </div>
         </SortableContext>
       </DndContext>
-      
-      {/* Slide-out Panel */}
+
       {selectedBlockId && content.blocks?.find((b) => b.id === selectedBlockId) && (
-        <BlockEditorPanel 
+        <BlockEditorPanel
           block={content.blocks.find((b) => b.id === selectedBlockId)!}
           onClose={() => setSelectedBlockId(null)}
           onChange={(b) => updateBlockFull(b.id, b)}
         />
       )}
-      
+
       {error && <p className="text-sm text-red-600">{error}</p>}
-      <div className="flex flex-wrap gap-2">
-        <Button type="button" onClick={save} disabled={isPending}>
-          Save draft
-        </Button>
-        <Button type="button" variant="secondary" onClick={togglePublish} disabled={isPending}>
-          {published ? "Unpublish page" : "Publish page"}
-        </Button>
+
+      {/* Sticky bottom actions above platform tab bar */}
+      <div className="editor-sticky-actions">
+        <div className="flex gap-2">
+          <Button type="button" className="min-h-12 flex-1" onClick={save} disabled={isPending}>
+            {isPending ? "Saving…" : "Save draft"}
+          </Button>
+          <Button
+            type="button"
+            variant="secondary"
+            className="min-h-12 flex-1"
+            onClick={togglePublish}
+            disabled={isPending}
+          >
+            {published ? "Unpublish" : "Publish page"}
+          </Button>
+        </div>
       </div>
     </div>
   );
