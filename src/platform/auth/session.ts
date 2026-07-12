@@ -16,6 +16,7 @@ import type { OtpDeliveryMode } from "@/platform/sms/otp-mode";
 import { getOtpDeliveryMode, isMsg91ApiConfigured, isMsg91WidgetConfigured } from "@/platform/sms/otp-mode";
 import { isMsg91RetrySessionMissing, resendLoginOtp, sendLoginOtp, verifyLoginOtp } from "@/platform/sms/msg91";
 import type { Session, SessionRole } from "@/core/types/auth";
+import { parseSessionRole } from "@/core/types/auth";
 import { isPlaceholderTenantEmail, isValidEmail, normalizeEmail } from "@/core/utils/email";
 import { syntheticPhoneForEmail } from "@/core/utils/synthetic-phone";
 import { requireTenDigitMobile, tenDigitMobileError } from "@/core/utils/phone";
@@ -36,11 +37,6 @@ function hashToken(token: string): string {
 
 function normalizePhone(phone: string): string {
   return requireTenDigitMobile(phone);
-}
-
-/** Platform role is stored on tenants.role — never elevated from SUPERADMIN_EMAIL env. */
-function asSessionRole(role: string | null | undefined): SessionRole {
-  return role === "superadmin" ? "superadmin" : "tenant";
 }
 
 async function persistSession(tenantId: string, role: SessionRole): Promise<void> {
@@ -106,7 +102,8 @@ export async function createSessionFromEmail(
       .where(eq(tenants.id, tenant.id));
   }
 
-  const role = asSessionRole(tenant.role);
+  // Exclusive: signup/login never promotes to superadmin; only tenants.role in DB.
+  const role = parseSessionRole(tenant.role);
   await persistSession(tenant.id, role);
   return { role, userId: tenant.id };
 }
@@ -160,39 +157,44 @@ export async function createSession(phone: string, profile?: TenantSignupProfile
       .where(eq(tenants.id, tenant.id));
   }
 
-  const role = asSessionRole(tenant.role);
+  const role = parseSessionRole(tenant.role);
   await persistSession(tenant.id, role);
   return { role, userId: tenant.id };
 }
 
 export async function getSession(): Promise<Session | null> {
-  const db = getPlatformDb();
-  if (!db) return null;
+  try {
+    const db = getPlatformDb();
+    if (!db) return null;
 
-  const token = cookies().get(SESSION_COOKIE)?.value;
-  if (!token) return null;
+    const token = cookies().get(SESSION_COOKIE)?.value;
+    if (!token) return null;
 
-  const rows = await db
-    .select({
-      userId: tenants.id,
-      phone: tenants.phone,
-      // Always read live role from tenants (DB source of truth)
-      role: tenants.role,
-      expiresAt: sessions.expiresAt,
-    })
-    .from(sessions)
-    .innerJoin(tenants, eq(sessions.tenantId, tenants.id))
-    .where(eq(sessions.tokenHash, hashToken(token)))
-    .limit(1);
+    const rows = await db
+      .select({
+        userId: tenants.id,
+        phone: tenants.phone,
+        // Always read live role from tenants (DB source of truth)
+        role: tenants.role,
+        expiresAt: sessions.expiresAt,
+      })
+      .from(sessions)
+      .innerJoin(tenants, eq(sessions.tenantId, tenants.id))
+      .where(eq(sessions.tokenHash, hashToken(token)))
+      .limit(1);
 
-  const row = rows[0];
-  if (!row || row.expiresAt < new Date()) return null;
+    const row = rows[0];
+    if (!row || row.expiresAt < new Date()) return null;
 
-  return {
-    userId: row.userId,
-    phone: row.phone,
-    role: asSessionRole(row.role),
-  };
+    return {
+      userId: row.userId,
+      phone: row.phone,
+      role: parseSessionRole(row.role),
+    };
+  } catch {
+    // Never crash RSC with a raw DB/pool error — treat as logged out
+    return null;
+  }
 }
 
 export async function requireAuth(): Promise<Session> {

@@ -13,17 +13,37 @@ export default async function EditorPageSlug({ params }: { params: { slug: strin
   const session = await requireAuth();
   const business = await requireBusiness(session);
   const db = getPlatformDb();
-  if (!db) return <div>DB not connected</div>;
+  if (!db) {
+    return (
+      <PageShell className="py-8">
+        <p className="text-sm text-amber-800">Database not connected. Try again in a moment.</p>
+      </PageShell>
+    );
+  }
 
-  const row = (
-    await db
-      .select()
-      .from(pages)
-      .where(and(eq(pages.businessId, business.id), eq(pages.slug, params.slug)))
-      .limit(1)
-  )[0];
+  let row: (typeof pages.$inferSelect) | undefined;
+  try {
+    row = (
+      await db
+        .select()
+        .from(pages)
+        .where(and(eq(pages.businessId, business.id), eq(pages.slug, params.slug)))
+        .limit(1)
+    )[0];
+  } catch {
+    return (
+      <PageShell className="py-8">
+        <p className="text-sm text-amber-800">Could not load this page (database busy). Pull to refresh or try again.</p>
+      </PageShell>
+    );
+  }
 
   if (!row) notFound();
+
+  const content = (row.content as PageContent | null) ?? { blocks: [] };
+  if (!Array.isArray(content.blocks)) {
+    content.blocks = [];
+  }
 
   return (
     <>
@@ -35,7 +55,7 @@ export default async function EditorPageSlug({ params }: { params: { slug: strin
           <PageEditorForm
             businessId={business.id}
             slug={params.slug}
-            initialContent={(row.content as PageContent) ?? { blocks: [] }}
+            initialContent={content}
             isPublished={row.isPublished}
           />
         </div>
