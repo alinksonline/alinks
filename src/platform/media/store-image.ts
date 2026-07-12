@@ -9,7 +9,7 @@ export type StoredMedia = {
   width: number;
   height: number;
   bytes: number;
-  storage: "blob" | "local";
+  storage: "blob" | "local" | "inline";
 };
 
 function mediaKey(tenantId: string, ext: string): string {
@@ -18,13 +18,16 @@ function mediaKey(tenantId: string, ext: string): string {
   return `alinks-media/${tenantId}/${day}/${id}.${ext}`;
 }
 
+function isVercelRuntime(): boolean {
+  return Boolean(process.env.VERCEL || process.env.AWS_LAMBDA_FUNCTION_NAME);
+}
+
 /**
  * Cloud-first media store.
- * - Production / when BLOB_READ_WRITE_TOKEN is set → Vercel Blob (persistent cloud CDN)
- * - Local dev without token → public/uploads (device/browser still loads via app URL)
- *
- * Tenant images are never kept only on one phone — cloud (or shared app URL) is the source of truth
- * so every device sees the same assets.
+ * 1. BLOB_READ_WRITE_TOKEN → Vercel Blob (best for production CDN)
+ * 2. Local filesystem public/uploads (dev only)
+ * 3. On Vercel without Blob → inline data: URL (WebP base64) so upload still works;
+ *    image is saved with the page content in the DB and works on every device.
  */
 export async function storeProcessedImage(
   tenantId: string,
@@ -34,36 +37,59 @@ export async function storeProcessedImage(
   const token = process.env.BLOB_READ_WRITE_TOKEN?.trim();
 
   if (token) {
-    const blob = await put(key, processed.buffer, {
-      access: "public",
-      contentType: processed.contentType,
-      token,
-      addRandomSuffix: false,
-    });
+    try {
+      const blob = await put(key, processed.buffer, {
+        access: "public",
+        contentType: processed.contentType,
+        token,
+        addRandomSuffix: false,
+      });
+      return {
+        url: blob.url,
+        width: processed.width,
+        height: processed.height,
+        bytes: processed.bytes,
+        storage: "blob",
+      };
+    } catch (e) {
+      const msg = e instanceof Error ? e.message : "Blob upload failed";
+      throw new Error(`Cloud storage failed: ${msg}`);
+    }
+  }
+
+  // Local laptop: write under public/
+  if (!isVercelRuntime()) {
+    const rel = path.join("uploads", tenantId, path.basename(key));
+    const abs = path.join(process.cwd(), "public", rel);
+    await mkdir(path.dirname(abs), { recursive: true });
+    await writeFile(abs, processed.buffer);
+
+    const base =
+      process.env.NEXT_PUBLIC_APP_URL?.replace(/\/$/, "") || "http://localhost:3000";
+
     return {
-      url: blob.url,
+      url: `${base}/${rel.replace(/\\/g, "/")}`,
       width: processed.width,
       height: processed.height,
       bytes: processed.bytes,
-      storage: "blob",
+      storage: "local",
     };
   }
 
-  // Local / no blob token: write under public so Next can serve it
-  const rel = path.join("uploads", tenantId, path.basename(key));
-  const abs = path.join(process.cwd(), "public", rel);
-  await mkdir(path.dirname(abs), { recursive: true });
-  await writeFile(abs, processed.buffer);
+  // Vercel without Blob token: inline WebP (saved in page JSON / DB).
+  // Cap: refuse huge payloads that would bloat the DB (~1.2MB raw ≈ 1.6MB base64).
+  if (processed.bytes > 1_200_000) {
+    throw new Error(
+      "Image is large and cloud storage is not configured. Add BLOB_READ_WRITE_TOKEN on Vercel (Storage → Blob), or use a smaller image.",
+    );
+  }
 
-  const base =
-    process.env.NEXT_PUBLIC_APP_URL?.replace(/\/$/, "") ||
-    (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : "http://localhost:3000");
-
+  const b64 = processed.buffer.toString("base64");
   return {
-    url: `${base}/${rel.replace(/\\/g, "/")}`,
+    url: `data:image/webp;base64,${b64}`,
     width: processed.width,
     height: processed.height,
     bytes: processed.bytes,
-    storage: "local",
+    storage: "inline",
   };
 }

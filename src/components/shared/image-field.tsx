@@ -151,10 +151,14 @@ export function ImageField({
 
       {hint ? <p className="text-[10px] leading-snug text-brand-muted">{hint}</p> : null}
       {meta ? <p className="text-[10px] font-medium text-emerald-700 dark:text-emerald-300">{meta}</p> : null}
-      {error ? <p className="text-[10px] text-red-600 dark:text-red-300">{error}</p> : null}
+      {error ? (
+        <p className="rounded-lg bg-red-500/10 px-2 py-1.5 text-[10px] leading-snug text-red-600 dark:text-red-300">
+          {error}
+        </p>
+      ) : null}
       <p className="text-[9px] leading-snug text-brand-muted">
-        Images are converted to WebP and saved in the cloud (or app storage) so they work on every
-        phone — not only the device that uploaded them.
+        Converted to WebP and stored so the image works on every device. Prefer cloud Blob in
+        production for large files.
       </p>
     </div>
   );
