@@ -12,6 +12,7 @@ import { parseBusinessProfile } from "@/core/types/business-profile";
 import { ensureContactPageBlocks } from "@/core/utils/resolve-block-profile";
 import { parseThemeConfig, resolveTenantTheme } from "@/core/utils/tenant-theme";
 import { BlockRenderer } from "./block-renderer";
+import { PublicSiteNav } from "./public-site-nav";
 
 /** Public mini-site page — themed layout base + Linktree-style stack. */
 export function PublicPageView({ data }: { data: PublicPageData }) {
@@ -45,7 +46,6 @@ export function PublicPageView({ data }: { data: PublicPageData }) {
   }
 
   const theme = parseThemeConfig(data.business.theme);
-  const navItems = ["home", "about", "services", "contact", "legal", "store"] as const;
 
   return (
     <TenantThemedLayout theme={theme}>
@@ -103,28 +103,11 @@ export function PublicPageView({ data }: { data: PublicPageData }) {
           ))}
         </div>
 
-        <nav className="mt-7 flex flex-wrap justify-center gap-1.5" aria-label="Site pages">
-          {navItems.map((s) => {
-            const href =
-              s === "home"
-                ? `/${data.business.handle}`
-                : s === "store"
-                  ? `/${data.business.handle}/store`
-                  : `/${data.business.handle}/${s}`;
-            const active =
-              (s === "home" && data.slug === "home") ||
-              (s !== "home" && s !== "store" && data.slug === s);
-            return (
-              <Link
-                key={s}
-                href={href}
-                className={active ? "t-chip t-chip-active capitalize" : "t-chip capitalize"}
-              >
-                {s}
-              </Link>
-            );
-          })}
-        </nav>
+        <PublicSiteNav
+          handle={data.business.handle}
+          vertical={data.business.vertical}
+          slug={data.slug}
+        />
       </main>
 
       <TenantFooter
