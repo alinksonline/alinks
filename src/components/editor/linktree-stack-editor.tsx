@@ -29,12 +29,12 @@ import {
 import { Button } from "@/components/ui/button";
 import { BlockRenderer } from "@/components/tenant/block-renderer";
 import { TenantThemedLayout } from "@/components/tenant/tenant-themed-layout";
-import type { BlockType, PageBlock, PageContent, PageHero, ServiceItem, ThemeConfig } from "@/core/types/page";
+import type { BlockType, PageBlock, PageContent, PageHero, ThemeConfig } from "@/core/types/page";
 import type { BusinessProfile } from "@/core/types/business-profile";
 import { cn } from "@/core/utils/cn";
-import { createBlock, WIDGET_CATALOG, widgetLabel } from "./widget-catalog";
+import { createBlock, WIDGET_CATALOG } from "./widget-catalog";
 import { WidgetTypeIcon } from "./widget-icons";
-import { LinkStyleEditor } from "./link-style-editor";
+import { WidgetEditSheet } from "./widget-edit-sheet";
 
 function StackCard({
   block,
@@ -211,235 +211,6 @@ function HeroEditSheet({
   );
 }
 
-function EditSheet({
-  block,
-  profile,
-  primaryColor,
-  accentColor,
-  onChange,
-  onClose,
-}: {
-  block: PageBlock;
-  profile?: BusinessProfile | null;
-  primaryColor: string;
-  accentColor: string;
-  onChange: (b: PageBlock) => void;
-  onClose: () => void;
-}) {
-  const data = block.data ?? {};
-  const setData = (patch: Partial<NonNullable<PageBlock["data"]>>) => {
-    onChange({ ...block, data: { ...data, ...patch } });
-  };
-  const items: ServiceItem[] = data.items ?? [];
-  const profileWa = profile?.whatsapp || profile?.phone || "";
-  const usesProfileContact = block.type === "contact" || block.type === "whatsapp";
-
-  return (
-    <>
-      <div className="fixed inset-0 z-40 bg-black/45" onClick={onClose} aria-hidden />
-      <div
-        role="dialog"
-        aria-modal="true"
-        className="fixed inset-x-0 bottom-0 z-50 mx-auto flex max-h-[min(90dvh,100%)] w-full max-w-[var(--app-max-width)] flex-col rounded-t-3xl bg-white shadow-2xl"
-        style={{ paddingBottom: "var(--safe-bottom)" }}
-      >
-        <div className="mx-auto mt-3 h-1 w-10 rounded-full bg-slate-200" />
-        <div className="flex items-center justify-between px-4 py-3">
-          <h2 className="flex items-center gap-2 text-sm font-bold text-slate-900">
-            <WidgetTypeIcon type={block.type} size={18} className="text-slate-600" />
-            {widgetLabel(block.type)}
-          </h2>
-          <button type="button" className="flex h-9 w-9 items-center justify-center text-xl text-slate-400" onClick={onClose}>
-            ×
-          </button>
-        </div>
-        <div className="min-h-0 flex-1 space-y-3 overflow-y-auto px-4 pb-4">
-          {usesProfileContact && profile && (
-            <div className="rounded-xl bg-emerald-50 px-3 py-2 text-xs leading-relaxed text-emerald-900">
-              <strong>Uses Business profile</strong> when fields are empty.
-              <br />
-              {profile.phone || "—"} · WA {profileWa || "—"} · {profile.email || "—"}
-              <br />
-              <Link href="/editor/business" className="font-semibold underline">
-                Edit profile →
-              </Link>
-            </div>
-          )}
-          {block.type !== "link" && (
-            <label className="block space-y-1">
-              <span className="text-xs font-semibold text-slate-500">Title</span>
-              <input className="premium-input" value={block.title} onChange={(e) => onChange({ ...block, title: e.target.value })} />
-            </label>
-          )}
-          {(block.type === "text" ||
-            block.type === "features" ||
-            block.type === "legal" ||
-            block.type === "cta" ||
-            block.type === "whatsapp" ||
-            block.type === "contact" ||
-            block.type === "services" ||
-            block.type === "gallery") && (
-            <label className="block space-y-1">
-              <span className="text-xs font-semibold text-slate-500">Description</span>
-              <textarea
-                className="premium-input min-h-[5rem] resize-y"
-                value={block.body}
-                onChange={(e) => onChange({ ...block, body: e.target.value })}
-                rows={3}
-              />
-            </label>
-          )}
-          {(block.type === "link" || block.type === "cta") && (
-            <>
-              <label className="block space-y-1">
-                <span className="text-xs font-semibold text-slate-500">Button label</span>
-                <input className="premium-input" value={data.buttonLabel ?? ""} onChange={(e) => setData({ buttonLabel: e.target.value })} />
-              </label>
-              <label className="block space-y-1">
-                <span className="text-xs font-semibold text-slate-500">Link</span>
-                <input
-                  className="premium-input font-mono text-sm"
-                  value={data.href ?? ""}
-                  onChange={(e) => setData({ href: e.target.value })}
-                  placeholder="https://… or /contact"
-                />
-              </label>
-            </>
-          )}
-          {block.type === "link" && (
-            <LinkStyleEditor
-              style={data.linkStyle}
-              label={data.buttonLabel || block.title || "Open link"}
-              href={data.href || "#"}
-              primaryColor={primaryColor}
-              accentColor={accentColor}
-              onChange={(linkStyle) => setData({ linkStyle })}
-            />
-          )}
-          {block.type === "whatsapp" && (
-            <>
-              <label className="block space-y-1">
-                <span className="text-xs font-semibold text-slate-500">WhatsApp override</span>
-                <input
-                  className="premium-input"
-                  value={data.phone ?? ""}
-                  onChange={(e) => setData({ phone: e.target.value })}
-                  placeholder={profileWa || "From Business profile"}
-                />
-              </label>
-              <label className="block space-y-1">
-                <span className="text-xs font-semibold text-slate-500">Message</span>
-                <input className="premium-input" value={data.message ?? ""} onChange={(e) => setData({ message: e.target.value })} />
-              </label>
-            </>
-          )}
-          {block.type === "contact" && (
-            <>
-              <label className="block space-y-1">
-                <span className="text-xs font-semibold text-slate-500">Phone override</span>
-                <input className="premium-input" value={data.phone ?? ""} onChange={(e) => setData({ phone: e.target.value })} placeholder={profile?.phone || "From profile"} />
-              </label>
-              <label className="block space-y-1">
-                <span className="text-xs font-semibold text-slate-500">Email override</span>
-                <input className="premium-input" value={data.email ?? ""} onChange={(e) => setData({ email: e.target.value })} placeholder={profile?.email || "From profile"} />
-              </label>
-              <label className="block space-y-1">
-                <span className="text-xs font-semibold text-slate-500">Address override</span>
-                <textarea className="premium-input" value={data.address ?? ""} onChange={(e) => setData({ address: e.target.value })} placeholder={profile?.address || "From profile"} rows={2} />
-              </label>
-            </>
-          )}
-          {block.type === "hours" && (
-            <label className="block space-y-1">
-              <span className="text-xs font-semibold text-slate-500">Hours (one line each)</span>
-              <textarea
-                className="premium-input min-h-[7rem] font-mono text-sm"
-                value={(data.lines ?? []).join("\n")}
-                onChange={(e) => setData({ lines: e.target.value.split("\n") })}
-                rows={5}
-              />
-            </label>
-          )}
-          {block.type === "gallery" && (
-            <label className="block space-y-1">
-              <span className="text-xs font-semibold text-slate-500">Image URLs (one per line)</span>
-              <textarea
-                className="premium-input min-h-[7rem] font-mono text-xs"
-                value={(data.images ?? []).map((i) => i.url).join("\n")}
-                onChange={(e) =>
-                  setData({
-                    images: e.target.value
-                      .split("\n")
-                      .map((u) => u.trim())
-                      .filter(Boolean)
-                      .slice(0, 6)
-                      .map((url) => ({ url })),
-                  })
-                }
-                rows={5}
-              />
-            </label>
-          )}
-          {block.type === "services" && (
-            <div className="space-y-3">
-              {items.map((item, idx) => (
-                <div key={idx} className="space-y-2 rounded-2xl bg-slate-50 p-3">
-                  <input
-                    className="premium-input"
-                    placeholder="Name"
-                    value={item.name}
-                    onChange={(e) => {
-                      const next = [...items];
-                      next[idx] = { ...item, name: e.target.value };
-                      setData({ items: next });
-                    }}
-                  />
-                  <div className="grid grid-cols-2 gap-2">
-                    <input
-                      className="premium-input"
-                      placeholder="₹ price"
-                      value={item.price ?? ""}
-                      onChange={(e) => {
-                        const next = [...items];
-                        next[idx] = { ...item, price: e.target.value };
-                        setData({ items: next });
-                      }}
-                    />
-                    <input
-                      className="premium-input"
-                      placeholder="Duration"
-                      value={item.duration ?? ""}
-                      onChange={(e) => {
-                        const next = [...items];
-                        next[idx] = { ...item, duration: e.target.value };
-                        setData({ items: next });
-                      }}
-                    />
-                  </div>
-                  <button type="button" className="text-xs font-semibold text-red-500" onClick={() => setData({ items: items.filter((_, i) => i !== idx) })}>
-                    Remove
-                  </button>
-                </div>
-              ))}
-              <button
-                type="button"
-                className="w-full rounded-2xl border border-dashed border-slate-300 py-3 text-sm font-bold text-brand-purple"
-                onClick={() => setData({ items: [...items, { name: "New service", price: "₹0", duration: "" }] })}
-              >
-                + Add service
-              </button>
-            </div>
-          )}
-        </div>
-        <div className="border-t border-slate-100 px-4 py-3">
-          <button type="button" className="premium-btn-bronze" onClick={onClose}>
-            Done
-          </button>
-        </div>
-      </div>
-    </>
-  );
-}
 
 function AddWidgetSheet({ onPick, onClose }: { onPick: (t: BlockType) => void; onClose: () => void }) {
   return (
@@ -762,7 +533,7 @@ export function LinktreeStackEditor({
         />
       )}
       {editing && (
-        <EditSheet
+        <WidgetEditSheet
           block={editing}
           profile={profile}
           primaryColor={primaryColor}
