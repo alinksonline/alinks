@@ -1,60 +1,190 @@
-import React from "react";
 import type { PageBlock } from "@/core/types/page";
 
-export function BlockRenderer({ block, primaryColor }: { block: PageBlock; primaryColor: string }) {
-  // If data exists, use it, else fallback to empty
-  const data = block.data || {};
+function waLink(phone?: string, message?: string): string {
+  const digits = (phone ?? "").replace(/\D/g, "");
+  const text = encodeURIComponent(message ?? "Hi!");
+  return digits ? `https://wa.me/${digits}?text=${text}` : "#";
+}
+
+/** Public mobile stack card for one section widget. */
+export function BlockRenderer({
+  block,
+  primaryColor,
+  handle,
+}: {
+  block: PageBlock;
+  primaryColor: string;
+  handle?: string;
+}) {
+  if (block.visible === false) return null;
+
+  const data = block.data ?? {};
+  const card = "rounded-2xl border border-black/5 bg-white px-4 py-4 shadow-sm";
 
   switch (block.type) {
-    case "services":
+    case "link": {
+      const href = data.href || "#";
+      const label = data.buttonLabel || block.title || "Open link";
       return (
-        <section className="py-12 bg-white rounded-xl shadow-sm border border-slate-100 px-6">
-          <div className="text-center mb-10">
-            <h2 className="text-3xl font-black text-slate-900 tracking-tight">{block.title}</h2>
-            {block.body && <p className="mt-4 text-slate-600 max-w-2xl mx-auto">{block.body}</p>}
-          </div>
-          
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            {/* Hardcoded placeholders for now since editor list editing is pending */}
-            {[1, 2, 3].map((item) => (
-              <div key={item} className="p-6 rounded-2xl bg-slate-50 border border-slate-100 hover:shadow-md transition-shadow">
-                <div 
-                  className="w-12 h-12 rounded-xl mb-4 flex items-center justify-center text-white font-bold"
-                  style={{ backgroundColor: primaryColor }}
-                >
-                  {item}
+        <a
+          href={href}
+          target={href.startsWith("http") ? "_blank" : undefined}
+          rel="noreferrer"
+          className={`${card} block text-center font-bold text-white active:scale-[0.99]`}
+          style={{ backgroundColor: primaryColor }}
+        >
+          {label}
+        </a>
+      );
+    }
+
+    case "whatsapp":
+      return (
+        <a
+          href={waLink(data.phone, data.message)}
+          target="_blank"
+          rel="noreferrer"
+          className={`${card} flex flex-col items-center gap-1 text-center active:scale-[0.99]`}
+          style={{ backgroundColor: "#25D366", color: "#fff" }}
+        >
+          <span className="text-lg font-bold">{block.title || "WhatsApp"}</span>
+          {block.body ? <span className="text-sm text-white/90">{block.body}</span> : null}
+        </a>
+      );
+
+    case "cta": {
+      let href = data.href || "/contact";
+      if (handle && href.startsWith("/") && !href.startsWith("//")) {
+        // Site-relative path on public mini-site
+        href = href === "/" ? `/${handle}` : `/${handle}${href}`;
+      }
+      return (
+        <section className={`${card} text-center`}>
+          <h2 className="text-base font-bold text-slate-900">{block.title}</h2>
+          {block.body ? <p className="mt-1 text-sm text-slate-600">{block.body}</p> : null}
+          <a
+            href={href}
+            className="mt-3 inline-flex min-h-11 w-full items-center justify-center rounded-xl px-4 py-3 text-sm font-bold text-white"
+            style={{ backgroundColor: primaryColor }}
+          >
+            {data.buttonLabel || "Continue"}
+          </a>
+        </section>
+      );
+    }
+
+    case "services": {
+      const items = data.items?.length
+        ? data.items
+        : [{ name: block.title || "Service", price: "", duration: "", description: block.body }];
+      return (
+        <section className={card}>
+          <h2 className="text-base font-bold text-slate-900">{block.title}</h2>
+          {block.body ? <p className="mt-1 text-sm text-slate-500">{block.body}</p> : null}
+          <ul className="mt-3 space-y-2">
+            {items.map((item, i) => (
+              <li
+                key={`${item.name}-${i}`}
+                className="flex items-start justify-between gap-3 rounded-xl bg-slate-50 px-3 py-3"
+              >
+                <div className="min-w-0">
+                  <p className="font-semibold text-slate-900">{item.name}</p>
+                  {item.description ? (
+                    <p className="mt-0.5 text-xs text-slate-500">{item.description}</p>
+                  ) : null}
+                  {item.duration ? (
+                    <p className="mt-0.5 text-[11px] text-slate-400">{item.duration}</p>
+                  ) : null}
                 </div>
-                <h3 className="font-bold text-lg text-slate-900">Service {item}</h3>
-                <p className="text-slate-600 mt-2 text-sm">Description of this service offering goes here. This will be customizable soon.</p>
-              </div>
+                {item.price ? (
+                  <span className="shrink-0 text-sm font-bold" style={{ color: primaryColor }}>
+                    {item.price}
+                  </span>
+                ) : null}
+              </li>
             ))}
+          </ul>
+        </section>
+      );
+    }
+
+    case "hours": {
+      const lines = data.lines?.length ? data.lines : block.body ? block.body.split("\n") : [];
+      return (
+        <section className={card}>
+          <h2 className="text-base font-bold text-slate-900">{block.title || "Hours"}</h2>
+          <ul className="mt-2 space-y-1.5 text-sm text-slate-600">
+            {lines.map((line, i) => (
+              <li key={i} className="flex gap-2">
+                <span className="text-slate-300">•</span>
+                <span>{line}</span>
+              </li>
+            ))}
+          </ul>
+        </section>
+      );
+    }
+
+    case "contact":
+      return (
+        <section className={card}>
+          <h2 className="text-base font-bold text-slate-900">{block.title}</h2>
+          {block.body ? <p className="mt-1 text-sm text-slate-500">{block.body}</p> : null}
+          <div className="mt-3 space-y-2 text-sm text-slate-700">
+            {data.phone ? (
+              <a href={`tel:${data.phone.replace(/\D/g, "")}`} className="block font-medium underline">
+                📞 {data.phone}
+              </a>
+            ) : null}
+            {data.email ? (
+              <a href={`mailto:${data.email}`} className="block underline">
+                ✉️ {data.email}
+              </a>
+            ) : null}
+            {data.address ? <p>📍 {data.address}</p> : null}
           </div>
         </section>
       );
+
+    case "gallery": {
+      const images = data.images?.filter((im) => im.url) ?? [];
+      return (
+        <section className={card}>
+          <h2 className="text-base font-bold text-slate-900">{block.title}</h2>
+          {block.body ? <p className="mt-1 text-sm text-slate-500">{block.body}</p> : null}
+          <div className="mt-3 grid grid-cols-2 gap-2">
+            {images.slice(0, 6).map((im, i) => (
+              // eslint-disable-next-line @next/next/no-img-element
+              <img
+                key={i}
+                src={im.url}
+                alt={im.caption || block.title}
+                className="aspect-square w-full rounded-xl object-cover bg-slate-100"
+              />
+            ))}
+            {!images.length ? (
+              <p className="col-span-2 text-xs text-slate-400">Add photo URLs in the editor.</p>
+            ) : null}
+          </div>
+        </section>
+      );
+    }
 
     case "features":
       return (
-        <section className="py-12">
-          <div className="flex flex-col md:flex-row gap-12 items-center">
-            <div className="flex-1">
-              <h2 className="text-3xl font-black text-slate-900 tracking-tight mb-4">{block.title}</h2>
-              <p className="text-slate-600 whitespace-pre-wrap text-lg leading-relaxed">{block.body}</p>
-            </div>
-            <div className="flex-1 bg-slate-100 rounded-3xl min-h-[300px] w-full flex items-center justify-center text-slate-400 border border-slate-200">
-              Image Placeholder
-            </div>
-          </div>
+        <section className={card}>
+          <h2 className="text-base font-bold text-slate-900">{block.title}</h2>
+          <p className="mt-2 whitespace-pre-wrap text-sm leading-relaxed text-slate-600">{block.body}</p>
         </section>
       );
 
+    case "legal":
+    case "text":
     default:
-      // Fallback for "text", "legal", "contact", etc.
       return (
-        <section className="rounded-xl border border-slate-200 bg-white p-8 shadow-sm">
-          <h2 className="font-bold text-2xl text-slate-900 mb-4">{block.title}</h2>
-          <div className="prose prose-slate max-w-none">
-            <p className="whitespace-pre-wrap text-slate-600 leading-relaxed">{block.body}</p>
-          </div>
+        <section className={card}>
+          <h2 className="text-base font-bold text-slate-900">{block.title}</h2>
+          <p className="mt-2 whitespace-pre-wrap text-sm leading-relaxed text-slate-600">{block.body}</p>
         </section>
       );
   }

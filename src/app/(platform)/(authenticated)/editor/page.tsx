@@ -19,7 +19,7 @@ export default async function EditorHomePage() {
       <PageShell className="py-5">
         <h1 className="text-xl font-bold tracking-tight text-brand-ink">Website builder</h1>
         <p className="mt-1 text-sm leading-snug text-brand-ink/55">
-          {business.name} · /{business.handle} · max 5 pages
+          {business.name} · /{business.handle} · Linktree-style stack · max 5 pages
         </p>
         <ul className="mt-5 space-y-2.5">
           {pageList.map((p) => (
