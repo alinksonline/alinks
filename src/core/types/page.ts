@@ -74,11 +74,24 @@ export interface ThemeConfig {
   borderRadius: string;
 }
 
+/** @deprecated Prefer BusinessProfile — kept for gradual migration */
 export interface BrandingConfig {
   logoUrl: string;
   faviconUrl: string;
   coverUrl: string;
   businessName: string;
+  email?: string;
+  phone?: string;
+  whatsapp?: string;
+  address?: string;
+  socials?: {
+    instagram?: string;
+    facebook?: string;
+    youtube?: string;
+    x?: string;
+  };
 }
+
+export type { BusinessProfile, SocialHandles } from "./business-profile";
 
 export type SiteTemplateId = "general" | "salon" | "ecommerce";

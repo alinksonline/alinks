@@ -7,18 +7,21 @@ import { TenantFooter } from "./tenant-footer";
 import { JsonLd } from "./json-ld";
 import { shouldShowAlinksWatermark } from "@/core/utils/branding";
 import type { Business } from "@/core/types/tenant";
+import { parseBusinessProfile } from "@/core/types/business-profile";
 import { BlockRenderer } from "./block-renderer";
 
 /** Public mini-site page — single mobile column (Linktree-style stack). */
 export function PublicPageView({ data }: { data: PublicPageData }) {
+  const profile = parseBusinessProfile(data.business.branding, data.business.name);
   const business: Business = {
     id: data.business.id,
     tenantId: "",
     handle: data.business.handle,
-    name: data.business.name,
+    name: profile.businessName || data.business.name,
     vertical: data.business.vertical as Business["vertical"],
     tier: data.business.tier,
     isPublished: true,
+    profile,
   };
 
   const hero = data.content.hero;
@@ -36,7 +39,7 @@ export function PublicPageView({ data }: { data: PublicPageData }) {
   return (
     <>
       <JsonLd data={schema} />
-      <SiteHeader business={business} />
+      <SiteHeader business={business} profile={profile} />
       {hero && data.slug === "home" && (
         <section
           className="relative flex min-h-[42vh] items-end bg-slate-900 px-4 pb-8 pt-16 text-white"
@@ -97,7 +100,11 @@ export function PublicPageView({ data }: { data: PublicPageData }) {
           </Link>
         </nav>
       </main>
-      <TenantFooter business={business} showAlinksBranding={shouldShowAlinksWatermark(data.business.tier)} />
+      <TenantFooter
+        business={business}
+        profile={profile}
+        showAlinksBranding={shouldShowAlinksWatermark(data.business.tier)}
+      />
     </>
   );
 }

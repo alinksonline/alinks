@@ -5,9 +5,10 @@ import { usePathname } from "next/navigation";
 import { cn } from "@/core/utils/cn";
 
 const links = [
+  { href: "/editor/business", label: "Business", match: (p: string) => p.startsWith("/editor/business") },
   { href: "/editor", label: "Pages", match: (p: string) => p === "/editor" || p.startsWith("/editor/pages") },
   { href: "/editor/theme", label: "Theme", match: (p: string) => p.startsWith("/editor/theme") },
-  { href: "/editor/branding", label: "Brand", match: (p: string) => p.startsWith("/editor/branding") },
+  { href: "/editor/branding", label: "Logo", match: (p: string) => p.startsWith("/editor/branding") },
   { href: "/editor/commerce", label: "Store", match: (p: string) => p.startsWith("/editor/commerce") },
   { href: "/editor/packages", label: "Pkgs", match: (p: string) => p.startsWith("/editor/packages") },
   { href: "/editor/staff", label: "Staff", match: (p: string) => p.startsWith("/editor/staff") },

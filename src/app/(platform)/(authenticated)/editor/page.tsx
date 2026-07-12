@@ -21,6 +21,16 @@ export default async function EditorHomePage() {
         <p className="mt-1 text-sm leading-snug text-brand-ink/55">
           {business.name} · /{business.handle} · Linktree-style stack · max 5 pages
         </p>
+        <Link
+          href="/editor/business"
+          className="mt-4 flex min-h-12 items-center justify-between rounded-2xl border border-brand-purple/20 bg-brand-purple/5 px-4 py-3 active:scale-[0.99]"
+        >
+          <span>
+            <span className="block text-sm font-bold text-brand-ink">Business profile</span>
+            <span className="block text-[11px] text-brand-ink/50">Name, phone, WhatsApp, social handles</span>
+          </span>
+          <span className="text-brand-purple">→</span>
+        </Link>
         <ul className="mt-5 space-y-2.5">
           {pageList.map((p) => (
             <li key={p.id}>

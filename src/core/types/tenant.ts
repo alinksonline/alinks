@@ -24,6 +24,8 @@ export interface TenantAccount {
   status: TenantAccountStatus;
 }
 
+import type { BusinessProfile } from "./business-profile";
+
 export interface Business {
   id: string;
   tenantId: string;
@@ -37,4 +39,6 @@ export interface Business {
   googleSpreadsheetId?: string | null;
   customDomain?: string | null;
   customDomainVerified?: boolean;
+  /** Parsed business profile (contact + socials + branding assets) */
+  profile?: BusinessProfile;
 }

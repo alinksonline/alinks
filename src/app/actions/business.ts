@@ -225,9 +225,64 @@ export async function updateBrandingAction(businessId: string, branding: Brandin
 
     await db.update(businesses).set({ branding, updatedAt: new Date() }).where(eq(businesses.id, businessId));
     revalidatePath("/editor/branding");
+    revalidatePath("/editor/business");
     return { success: true as const };
   } catch (e) {
     return { success: false as const, error: e instanceof Error ? e.message : "Branding update failed" };
+  }
+}
+
+/** Step 1 — Business profile (identity + contact + social handles). Source of truth for header/footer/contact. */
+export async function updateBusinessProfileAction(
+  businessId: string,
+  profileInput: import("@/core/types/business-profile").BusinessProfile,
+) {
+  try {
+    const session = await requireSession();
+    await assertBusinessOwnership(businessId, session.userId);
+    if (session.role === "superadmin") {
+      return { success: false as const, error: "Superadmin cannot edit tenant business profile" };
+    }
+
+    const db = getPlatformDb();
+    if (!db) return { success: false as const, error: "Database not connected" };
+
+    const { normalizeProfileForSave } = await import("@/core/utils/business-profile");
+    const { parseBusinessProfile } = await import("@/core/types/business-profile");
+
+    const existing = (
+      await db.select().from(businesses).where(eq(businesses.id, businessId)).limit(1)
+    )[0];
+    if (!existing) return { success: false as const, error: "Business not found" };
+
+    const prev = parseBusinessProfile(existing.branding, existing.name);
+    const next = normalizeProfileForSave({
+      ...prev,
+      ...profileInput,
+      socials: { ...prev.socials, ...profileInput.socials },
+    });
+
+    if (!next.businessName || next.businessName.length < 2) {
+      return { success: false as const, error: "Business name is required" };
+    }
+
+    // Persist full profile in branding jsonb + sync display name column
+    await db
+      .update(businesses)
+      .set({
+        name: next.businessName,
+        branding: next,
+        updatedAt: new Date(),
+      })
+      .where(eq(businesses.id, businessId));
+
+    revalidatePath("/editor/business");
+    revalidatePath("/editor/branding");
+    revalidatePath("/editor");
+    revalidatePath(`/${existing.handle}`);
+    return { success: true as const, profile: next };
+  } catch (e) {
+    return { success: false as const, error: e instanceof Error ? e.message : "Profile update failed" };
   }
 }
 
