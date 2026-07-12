@@ -11,6 +11,7 @@ import type { Business } from "@/core/types/tenant";
 import { parseBusinessProfile } from "@/core/types/business-profile";
 import { ensureContactPageBlocks } from "@/core/utils/resolve-block-profile";
 import { parseThemeConfig, resolveTenantTheme } from "@/core/utils/tenant-theme";
+import { resolveHeroPresentation } from "@/core/utils/hero-style";
 import { BlockRenderer } from "./block-renderer";
 import { PublicSiteNav } from "./public-site-nav";
 
@@ -52,39 +53,25 @@ export function PublicPageView({ data }: { data: PublicPageData }) {
       <JsonLd data={schema} />
       <SiteHeader business={business} profile={profile} />
 
-      {hero && data.slug === "home" && (
-        <section
-          className="relative flex min-h-[38vh] items-end px-4 pb-7 pt-14 text-white"
-          style={
-            hero.imageUrl
-              ? {
-                  backgroundImage: `linear-gradient(to top, rgba(0,0,0,.78), rgba(0,0,0,.2)), url(${hero.imageUrl})`,
-                  backgroundSize: "cover",
-                  backgroundPosition: "center",
-                }
-              : {
-                  background: `linear-gradient(145deg, ${primary}, ${resolved.accent})`,
-                }
-          }
-        >
-          <div className="mx-auto w-full max-w-app">
-            <h1 className="text-2xl font-black tracking-tight">{hero.title}</h1>
-            <p className="mt-1.5 text-sm text-white/90">{hero.tagline}</p>
-            {hero.ctaText ? (
-              <Link
-                href={`/${data.business.handle}${hero.ctaLink.startsWith("/") ? hero.ctaLink : `/${hero.ctaLink}`}`}
-                className="t-btn-primary mt-4 max-w-full"
-                style={{
-                  backgroundColor: "var(--t-surface)",
-                  color: "var(--t-primary)",
-                }}
-              >
-                {hero.ctaText}
-              </Link>
-            ) : null}
-          </div>
-        </section>
-      )}
+      {hero && data.slug === "home" && (() => {
+        const hp = resolveHeroPresentation(hero, primary, accent);
+        const ctaHref = `/${data.business.handle}${
+          hero.ctaLink?.startsWith("/") ? hero.ctaLink : `/${hero.ctaLink || "contact"}`
+        }`;
+        return (
+          <section style={hp.section}>
+            <div style={hp.inner}>
+              <h1 style={hp.title}>{hero.title}</h1>
+              <p style={hp.tagline}>{hero.tagline}</p>
+              {hp.showCta ? (
+                <Link href={ctaHref} style={hp.cta}>
+                  {hero.ctaText}
+                </Link>
+              ) : null}
+            </div>
+          </section>
+        );
+      })()}
 
       <main className="mx-auto w-full max-w-app px-3.5 py-4 pb-10">
         {data.slug !== "home" && (

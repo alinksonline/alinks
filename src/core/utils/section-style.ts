@@ -1,9 +1,20 @@
 import type { CSSProperties } from "react";
 import type { SectionStyle } from "@/core/types/section-style";
 import { DEFAULT_SECTION_STYLE } from "@/core/types/section-style";
+import { DEFAULT_LAYOUT, SECTION_LAYOUT_DIMS, type LayoutPresetId } from "@/core/types/layout-preset";
 
 export function mergeSectionStyle(raw?: SectionStyle | null): SectionStyle {
-  return { ...DEFAULT_SECTION_STYLE, ...raw };
+  const base = { ...DEFAULT_SECTION_STYLE, ...raw };
+  const layoutId = (base.layout ?? DEFAULT_LAYOUT) as LayoutPresetId;
+  const dims = SECTION_LAYOUT_DIMS[layoutId] ?? SECTION_LAYOUT_DIMS.pulse;
+  // Preset wins for layout geometry
+  return {
+    ...base,
+    layout: layoutId,
+    align: dims.align,
+    padding: dims.padding,
+    width: dims.width,
+  };
 }
 
 function radius(corners: SectionStyle["corners"]): string {
@@ -25,7 +36,7 @@ function padding(p: SectionStyle["padding"]): string {
     case "compact":
       return "0.55rem 0.75rem";
     case "roomy":
-      return "1.1rem 1.15rem";
+      return "1.15rem 1.2rem";
     case "normal":
     default:
       return "0.75rem 0.9rem";
@@ -58,7 +69,7 @@ function resolveToken(
   }
 }
 
-/** Card container + title/body colors from section style. */
+/** Card container + title/body colors from section style + layout preset. */
 export function resolveSectionCardCss(
   styleRaw: SectionStyle | undefined,
   primaryColor: string,
@@ -68,6 +79,7 @@ export function resolveSectionCardCss(
   title: CSSProperties;
   body: CSSProperties;
   row: CSSProperties;
+  layout: LayoutPresetId;
 } {
   const s = mergeSectionStyle(styleRaw);
   const primary = primaryColor;
@@ -76,9 +88,7 @@ export function resolveSectionCardCss(
   let backgroundColor = resolveToken(s.fillColorMode, s.customFill, primary, accent, "fill");
   if (s.fill === "soft") {
     backgroundColor = "var(--t-soft, rgba(15,23,42,0.06))";
-  } else if (s.fill === "transparent") {
-    backgroundColor = "transparent";
-  } else if (s.fill === "outline") {
+  } else if (s.fill === "transparent" || s.fill === "outline") {
     backgroundColor = "transparent";
   }
 
@@ -131,5 +141,5 @@ export function resolveSectionCardCss(
     border: `1px solid var(--t-border, rgba(15,23,42,0.1))`,
   };
 
-  return { card, title, body, row };
+  return { card, title, body, row, layout: s.layout ?? DEFAULT_LAYOUT };
 }

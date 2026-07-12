@@ -1,3 +1,6 @@
+import type { LayoutPresetId } from "./layout-preset";
+import { DEFAULT_LAYOUT } from "./layout-preset";
+
 /** Shared styling + layout for card-style widgets (Highlights, Text, Services, etc.). */
 export type SectionFill = "solid" | "soft" | "outline" | "transparent";
 export type SectionCorners = "sharp" | "soft" | "round" | "pill";
@@ -19,7 +22,12 @@ export type SectionStyle = {
   borderMode?: "none" | "solid";
   borderColorMode?: SectionColorMode;
   customBorderColor?: string;
-  /** Layout */
+  /**
+   * Layout — one of 5 presets (Pulse / Orbit / Snap / Frame / Bloom).
+   * Drives align, padding, width.
+   */
+  layout?: LayoutPresetId;
+  /** @deprecated use layout preset; kept for older saved blocks */
   align?: SectionAlign;
   padding?: SectionPadding;
   width?: SectionWidth;
@@ -35,9 +43,7 @@ export const DEFAULT_SECTION_STYLE: Required<
     | "corners"
     | "borderMode"
     | "borderColorMode"
-    | "align"
-    | "padding"
-    | "width"
+    | "layout"
   >
 > = {
   fill: "solid",
@@ -47,7 +53,5 @@ export const DEFAULT_SECTION_STYLE: Required<
   corners: "round",
   borderMode: "solid",
   borderColorMode: "ink",
-  align: "left",
-  padding: "normal",
-  width: "full",
+  layout: DEFAULT_LAYOUT,
 };

@@ -1,8 +1,12 @@
 import type { LinkButtonStyle } from "./link-button-style";
 import type { SectionStyle } from "./section-style";
+import type { HeroStyle } from "./hero-style";
+import type { LayoutPresetId } from "./layout-preset";
 
 export type { LinkButtonStyle } from "./link-button-style";
 export type { SectionStyle } from "./section-style";
+export type { HeroStyle } from "./hero-style";
+export type { LayoutPresetId } from "./layout-preset";
 
 export interface PageHero {
   title: string;
@@ -10,6 +14,10 @@ export interface PageHero {
   imageUrl: string;
   ctaText: string;
   ctaLink: string;
+  /** Pulse · Orbit · Snap · Frame · Bloom */
+  layout?: LayoutPresetId;
+  /** Styling tab options */
+  style?: HeroStyle;
 }
 
 /** Curated mobile section widgets (Linktree-style stack — not free layout). */

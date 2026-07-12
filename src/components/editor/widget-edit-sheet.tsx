@@ -8,7 +8,9 @@ import { cn } from "@/core/utils/cn";
 import { widgetLabel } from "./widget-catalog";
 import { WidgetTypeIcon } from "./widget-icons";
 import { LinkStyleEditor } from "./link-style-editor";
-import { SectionLayoutEditor, SectionStylingEditor } from "./section-style-editor";
+import { SectionStylingEditor } from "./section-style-editor";
+import { LayoutPresetPicker } from "./layout-preset-picker";
+import type { LayoutPresetId } from "@/core/types/layout-preset";
 
 type EditTab = "content" | "styling" | "layout";
 
@@ -337,45 +339,26 @@ export function WidgetEditSheet({
           )}
 
           {tab === "layout" && (
-            <>
-              {isLink ? (
-                <div className="space-y-3">
-                  <p className="text-[11px] leading-snug text-brand-muted">
-                    Drag the handle on the canvas to reorder this button in the stack. Icon side is under{" "}
-                    <strong>Styling</strong>.
-                  </p>
-                  <div>
-                    <p className="mb-1 text-[10px] font-semibold text-brand-muted">Icon side</p>
-                    <div className="flex gap-1">
-                      {(["left", "right"] as const).map((side) => (
-                        <button
-                          key={side}
-                          type="button"
-                          className={cn(
-                            "rounded-lg border px-2.5 py-1 text-[10px] font-semibold capitalize",
-                            (data.linkStyle?.iconSide ?? "right") === side
-                              ? "border-brand-purple/40 bg-brand-purple/10 text-brand-ink"
-                              : "border-brand-ink/10 bg-brand-surface text-brand-muted",
-                          )}
-                          onClick={() =>
-                            setData({
-                              linkStyle: { ...data.linkStyle, iconSide: side },
-                            })
-                          }
-                        >
-                          {side}
-                        </button>
-                      ))}
-                    </div>
-                  </div>
-                </div>
-              ) : isCard ? (
-                <SectionLayoutEditor
-                  style={data.sectionStyle}
-                  onChange={(sectionStyle) => setData({ sectionStyle })}
-                />
-              ) : null}
-            </>
+            <div className="space-y-3">
+              <LayoutPresetPicker
+                value={
+                  isLink
+                    ? data.linkStyle?.layout
+                    : data.sectionStyle?.layout
+                }
+                onChange={(layout: LayoutPresetId) => {
+                  if (isLink) {
+                    setData({ linkStyle: { ...data.linkStyle, layout } });
+                  } else {
+                    setData({ sectionStyle: { ...data.sectionStyle, layout } });
+                  }
+                }}
+              />
+              <p className="text-[10px] leading-snug text-brand-muted">
+                Five fixed layouts for every section. Reorder widgets with the drag handle on the
+                canvas.
+              </p>
+            </div>
           )}
         </div>
 

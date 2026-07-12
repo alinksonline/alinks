@@ -31,20 +31,13 @@ export function BlockRenderer({
   const accent = accentColor || primaryColor;
   const sectionCss = resolveSectionCardCss(data.sectionStyle, primary, accent);
 
-  // WhatsApp keeps brand green; still respects section layout padding/width via wrapper
+  // Respect layout preset (Pulse–Bloom) for non-card wrappers
   const layoutWrap = (node: ReactNode) => {
-    const align = data.sectionStyle?.align;
-    const width = data.sectionStyle?.width;
-    if (!align && !width) return node;
+    const width = sectionCss.card.width;
+    const marginLeft = sectionCss.card.marginLeft;
+    const marginRight = sectionCss.card.marginRight;
     return (
-      <div
-        style={{
-          width: width === "inset" ? "92%" : "100%",
-          marginLeft: width === "inset" ? "auto" : undefined,
-          marginRight: width === "inset" ? "auto" : undefined,
-          textAlign: align,
-        }}
-      >
+      <div style={{ width: width ?? "100%", marginLeft, marginRight }}>
         {node}
       </div>
     );

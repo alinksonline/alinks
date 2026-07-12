@@ -1,3 +1,5 @@
+import type { LayoutPresetId } from "./layout-preset";
+
 /** Link button visual controls (Linktree-style stack). */
 export type LinkThickness = "thin" | "medium" | "thick";
 export type LinkFill = "solid" | "gradient";
@@ -34,6 +36,8 @@ export type LinkButtonStyle = {
   iconName?: LinkIconName;
   iconUrl?: string;
   iconSide?: "left" | "right";
+  /** Pulse · Orbit · Snap · Frame · Bloom */
+  layout?: LayoutPresetId;
 };
 
 export const DEFAULT_LINK_STYLE: Required<

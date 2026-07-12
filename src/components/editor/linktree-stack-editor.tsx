@@ -35,6 +35,8 @@ import { cn } from "@/core/utils/cn";
 import { createBlock, WIDGET_CATALOG } from "./widget-catalog";
 import { WidgetTypeIcon } from "./widget-icons";
 import { WidgetEditSheet } from "./widget-edit-sheet";
+import { HeroEditSheet } from "./hero-edit-sheet";
+import { resolveHeroPresentation } from "@/core/utils/hero-style";
 
 function StackCard({
   block,
@@ -116,101 +118,39 @@ function StackCard({
 function HeroPreviewCard({
   hero,
   primaryColor,
+  accentColor,
   onEdit,
 }: {
   hero: PageHero;
   primaryColor: string;
+  accentColor: string;
   onEdit: () => void;
 }) {
+  const p = resolveHeroPresentation(hero, primaryColor, accentColor);
   return (
     <button
       type="button"
       onClick={onEdit}
-      className="mb-3 w-full overflow-hidden rounded-2xl text-left active:scale-[0.99]"
+      className="mb-3 w-full overflow-hidden text-left active:scale-[0.99]"
+      style={{ borderRadius: p.section.borderRadius ?? "1rem" }}
     >
-      <div
-        className="relative flex min-h-[112px] flex-col justify-end p-3 text-white"
-        style={{
-          background: hero.imageUrl
-            ? `linear-gradient(to top, rgba(0,0,0,.8), rgba(0,0,0,.2)), url(${hero.imageUrl}) center/cover`
-            : `linear-gradient(145deg, ${primaryColor}, #0f172a)`,
-        }}
-      >
-        <span className="mb-1.5 self-start rounded-full bg-white/15 px-2 py-0.5 text-[8px] font-bold uppercase tracking-wider backdrop-blur">
-          Hero · tap to edit
-        </span>
-        <p className="text-base font-bold leading-snug">{hero.title || "Your headline"}</p>
-        <p className="mt-0.5 text-xs text-white/85">{hero.tagline || "Your tagline"}</p>
-        {hero.ctaText ? (
-          <span
-            className="mt-2 inline-flex min-h-8 items-center justify-center rounded-xl px-3 text-xs font-semibold"
-            style={{ backgroundColor: primaryColor }}
-          >
-            {hero.ctaText}
+      <div style={{ ...p.section, minHeight: "7.5rem" }}>
+        <div style={{ ...p.inner, padding: "2rem 0.75rem 0.75rem" }}>
+          <span className="mb-1.5 inline-block rounded-full bg-white/15 px-2 py-0.5 text-[8px] font-bold uppercase tracking-wider backdrop-blur">
+            Hero · tap to edit · {p.layout}
           </span>
-        ) : null}
+          <p style={{ ...p.title, fontSize: "1rem" }}>{hero.title || "Your headline"}</p>
+          <p style={{ ...p.tagline, fontSize: "0.7rem" }}>{hero.tagline || "Your tagline"}</p>
+          {p.showCta ? (
+            <span style={{ ...p.cta, marginTop: "0.5rem", minHeight: "1.75rem", fontSize: "0.7rem", width: "100%" }}>
+              {hero.ctaText}
+            </span>
+          ) : null}
+        </div>
       </div>
     </button>
   );
 }
-
-function HeroEditSheet({
-  hero,
-  onChange,
-  onClose,
-}: {
-  hero: PageHero;
-  onChange: (h: PageHero) => void;
-  onClose: () => void;
-}) {
-  return (
-    <>
-      <div className="fixed inset-0 z-40 bg-black/45" onClick={onClose} aria-hidden />
-      <div
-        className="fixed inset-x-0 bottom-0 z-50 mx-auto flex max-h-[min(88dvh,100%)] w-full max-w-[var(--app-max-width)] flex-col rounded-t-3xl bg-white shadow-2xl"
-        style={{ paddingBottom: "var(--safe-bottom)" }}
-      >
-        <div className="mx-auto mt-3 h-1 w-10 rounded-full bg-slate-200" />
-        <div className="flex items-center justify-between px-4 py-3">
-          <h2 className="text-base font-bold">Edit hero</h2>
-          <button type="button" className="flex h-10 w-10 items-center justify-center text-2xl text-slate-400" onClick={onClose}>
-            ×
-          </button>
-        </div>
-        <div className="space-y-3 overflow-y-auto px-4 pb-4">
-          <label className="block space-y-1">
-            <span className="text-xs font-semibold text-slate-500">Headline</span>
-            <input className="premium-input" value={hero.title} onChange={(e) => onChange({ ...hero, title: e.target.value })} />
-          </label>
-          <label className="block space-y-1">
-            <span className="text-xs font-semibold text-slate-500">Tagline</span>
-            <textarea className="premium-input min-h-[4.5rem]" value={hero.tagline} onChange={(e) => onChange({ ...hero, tagline: e.target.value })} rows={2} />
-          </label>
-          <label className="block space-y-1">
-            <span className="text-xs font-semibold text-slate-500">Cover image URL</span>
-            <input className="premium-input font-mono text-xs" value={hero.imageUrl} onChange={(e) => onChange({ ...hero, imageUrl: e.target.value })} placeholder="https://…" />
-          </label>
-          <div className="grid grid-cols-2 gap-2">
-            <label className="block space-y-1">
-              <span className="text-xs font-semibold text-slate-500">Button</span>
-              <input className="premium-input" value={hero.ctaText} onChange={(e) => onChange({ ...hero, ctaText: e.target.value })} />
-            </label>
-            <label className="block space-y-1">
-              <span className="text-xs font-semibold text-slate-500">Link</span>
-              <input className="premium-input font-mono text-xs" value={hero.ctaLink} onChange={(e) => onChange({ ...hero, ctaLink: e.target.value })} placeholder="/contact" />
-            </label>
-          </div>
-        </div>
-        <div className="border-t px-4 py-3">
-          <button type="button" className="premium-btn-bronze" onClick={onClose}>
-            Done
-          </button>
-        </div>
-      </div>
-    </>
-  );
-}
-
 
 function AddWidgetSheet({ onPick, onClose }: { onPick: (t: BlockType) => void; onClose: () => void }) {
   return (
@@ -451,6 +391,7 @@ export function LinktreeStackEditor({
           <HeroPreviewCard
             hero={content.hero}
             primaryColor={primaryColor}
+            accentColor={accentColor}
             onEdit={() => setEditHero(true)}
           />
         )}
@@ -528,6 +469,8 @@ export function LinktreeStackEditor({
       {editHero && content.hero && (
         <HeroEditSheet
           hero={content.hero}
+          primaryColor={primaryColor}
+          accentColor={accentColor}
           onChange={(h) => setContent((c) => ({ ...c, hero: h }))}
           onClose={() => setEditHero(false)}
         />
