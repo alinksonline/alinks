@@ -63,15 +63,32 @@ STEP 4 — TENANT CONNECT FLOW (product)
     "I understand customer data will be stored in MY Google Account"
 
 --------------------------------------------------------------------------------
-STEP 5 — SERVICE ACCOUNT (optional / server automation)
+STEP 5 — SERVICE ACCOUNT (IMPLEMENTED — primary path)
 --------------------------------------------------------------------------------
-  If using service account instead of per-tenant OAuth:
-    1. Create service account in Google Cloud
-    2. Download JSON key
-    3. Vercel env: GOOGLE_SERVICE_ACCOUNT_JSON=(entire JSON one line)
-    4. Share each tenant Sheet with service account email
+  ALINKS writes via service account (server-side Sheets + Drive APIs).
 
-  Per-tenant OAuth is preferred for BYO data ownership.
+  1. Create service account in Google Cloud
+  2. Download JSON key
+  3. Vercel + .env:
+       GOOGLE_SERVICE_ACCOUNT_JSON=<entire JSON one line>
+       STORAGE_DEV_MODE=false   (or omit)
+  4. Enable Google Sheets API + Google Drive API
+
+  Tenant UX (Editor → Commerce):
+    A) "Create Google Sheet for my business" — ALINKS creates workbook with tabs
+       Orders, Appointments, Customers, Patients, Products, Activity Log
+       and shares Editor with the tenant's login email.
+    B) Paste existing Spreadsheet ID/URL — share that sheet with the service
+       account email as Editor, then Save.
+
+  Code: src/tenant/storage/google-sheets-adapter.ts
+        src/tenant/storage/get-adapter.ts
+        provisionGoogleSheetAction / connectGoogleSheetAction
+
+  Retry failed writes: POST /api/storage/process-queue
+    (superadmin session, or Authorization: Bearer CRON_SECRET)
+
+  Per-tenant OAuth refresh tokens remain a future enhancement.
 
 --------------------------------------------------------------------------------
 STEP 6 — DEV WITHOUT GOOGLE

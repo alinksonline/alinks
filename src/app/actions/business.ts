@@ -59,6 +59,19 @@ export async function completeOnboardingForTenant(tenantId: string, input: Onboa
     return { success: false as const, error: "All legal checkboxes are required" };
   }
 
+  const db = getPlatformDb();
+  if (!db) return { success: false as const, error: "Database not connected" };
+
+  // Exclusive roles: superadmin is not a platform client and must not own tenant sites.
+  const account = (await db.select().from(tenants).where(eq(tenants.id, tenantId)).limit(1))[0];
+  if (!account) return { success: false as const, error: "Account not found" };
+  if (account.role === "superadmin") {
+    return {
+      success: false as const,
+      error: "Superadmin accounts cannot be tenants. Use a separate client account for a business site.",
+    };
+  }
+
   const handle = normalizeHandle(input.handle);
   if (!isValidHandle(handle)) {
     return { success: false as const, error: "Invalid or reserved handle" };
@@ -68,9 +81,6 @@ export async function completeOnboardingForTenant(tenantId: string, input: Onboa
   if (existing) {
     return { success: false as const, error: "Business already exists" };
   }
-
-  const db = getPlatformDb();
-  if (!db) return { success: false as const, error: "Database not connected" };
 
   const handleTaken = await db.select().from(businesses).where(eq(businesses.handle, handle)).limit(1);
   if (handleTaken[0]) return { success: false as const, error: "Handle already taken" };
@@ -264,24 +274,146 @@ export async function publishWebsiteAction(businessId: string, confirmTenantLega
   }
 }
 
-export async function connectGoogleSheetAction(businessId: string, spreadsheetId: string) {
+function extractSpreadsheetId(input: string): string {
+  const raw = input.trim();
+  const fromUrl = raw.match(/\/spreadsheets\/d\/([a-zA-Z0-9-_]+)/);
+  if (fromUrl?.[1]) return fromUrl[1];
+  return raw.replace(/[?#].*$/, "");
+}
+
+/** Link an existing Google Spreadsheet (must be shared with the ALINKS service account). */
+export async function connectGoogleSheetAction(businessId: string, spreadsheetIdOrUrl: string) {
   try {
     const session = await requireSession();
     await assertBusinessOwnership(businessId, session.userId);
+    if (session.role === "superadmin") {
+      return { success: false as const, error: "Superadmin cannot connect tenant Sheets" };
+    }
+
     const db = getPlatformDb();
     if (!db) return { success: false as const, error: "Database not connected" };
 
+    const spreadsheetId = extractSpreadsheetId(spreadsheetIdOrUrl);
+    if (!spreadsheetId || spreadsheetId.length < 10) {
+      return { success: false as const, error: "Paste a valid Google Spreadsheet ID or full URL" };
+    }
+
+    const { isGoogleSheetsConfigured } = await import("@/tenant/storage/google-auth");
+    const { verifySpreadsheetAccess } = await import("@/tenant/storage/google-sheets-adapter");
+
+    if (isGoogleSheetsConfigured() && !spreadsheetId.startsWith("dev-")) {
+      const check = await verifySpreadsheetAccess(spreadsheetId);
+      if (!check.ok) {
+        return {
+          success: false as const,
+          error:
+            check.error ??
+            "Cannot access this spreadsheet. Share it as Editor with the ALINKS service account email.",
+        };
+      }
+    }
+
     await db
       .update(businesses)
-      .set({ googleSpreadsheetId: spreadsheetId.trim(), updatedAt: new Date() })
+      .set({
+        googleSpreadsheetId: spreadsheetId,
+        storageBackend: "google_sheets",
+        updatedAt: new Date(),
+      })
       .where(eq(businesses.id, businessId));
 
     const meta = await requestMeta();
     await recordLegalAcceptance({ tenantId: session.userId, docType: LEGAL_DOC_TYPES.GOOGLE_CONNECT, ...meta });
 
     revalidatePath("/editor/commerce");
-    return { success: true as const };
+    return {
+      success: true as const,
+      spreadsheetId,
+      spreadsheetUrl: `https://docs.google.com/spreadsheets/d/${spreadsheetId}`,
+    };
   } catch (e) {
     return { success: false as const, error: e instanceof Error ? e.message : "Connect failed" };
+  }
+}
+
+/** Create a new ALINKS workbook in Google Drive (service account) and share with the tenant email. */
+export async function provisionGoogleSheetAction(businessId: string, acceptDataAddendum: boolean) {
+  try {
+    const session = await requireSession();
+    const business = await assertBusinessOwnership(businessId, session.userId);
+    if (session.role === "superadmin") {
+      return { success: false as const, error: "Superadmin cannot provision tenant Sheets" };
+    }
+    if (!acceptDataAddendum) {
+      return {
+        success: false as const,
+        error: "Confirm that customer data will be stored in Google Sheets (your business data ownership)",
+      };
+    }
+
+    const db = getPlatformDb();
+    if (!db) return { success: false as const, error: "Database not connected" };
+
+    const { isGoogleSheetsConfigured, getServiceAccountEmail } = await import("@/tenant/storage/google-auth");
+    if (!isGoogleSheetsConfigured()) {
+      return {
+        success: false as const,
+        error:
+          "Google Sheets is not configured on the server (GOOGLE_SERVICE_ACCOUNT_JSON). Contact support or use STORAGE_DEV_MODE for local testing.",
+      };
+    }
+
+    const tenant = (await db.select().from(tenants).where(eq(tenants.id, session.userId)).limit(1))[0];
+    const { provisionTenantWorkbook } = await import("@/tenant/storage/google-sheets-adapter");
+    const workbook = await provisionTenantWorkbook({
+      businessName: business.name,
+      handle: business.handle,
+      shareWithEmail: tenant?.email && !tenant.email.endsWith("@alinks.local") ? tenant.email : undefined,
+    });
+
+    await db
+      .update(businesses)
+      .set({
+        googleSpreadsheetId: workbook.spreadsheetId,
+        storageBackend: "google_sheets",
+        updatedAt: new Date(),
+      })
+      .where(eq(businesses.id, businessId));
+
+    const meta = await requestMeta();
+    await recordLegalAcceptance({
+      tenantId: session.userId,
+      docType: LEGAL_DOC_TYPES.GOOGLE_CONNECT,
+      metadata: { spreadsheetId: workbook.spreadsheetId, provisioned: true },
+      ...meta,
+    });
+
+    revalidatePath("/editor/commerce");
+    return {
+      success: true as const,
+      spreadsheetId: workbook.spreadsheetId,
+      spreadsheetUrl: workbook.spreadsheetUrl,
+      serviceAccountEmail: getServiceAccountEmail(),
+    };
+  } catch (e) {
+    return { success: false as const, error: e instanceof Error ? e.message : "Could not create spreadsheet" };
+  }
+}
+
+export async function getStorageStatusAction(businessId: string) {
+  try {
+    const session = await requireSession();
+    await assertBusinessOwnership(businessId, session.userId);
+    const { resolveStorageBackend } = await import("@/tenant/storage/get-adapter");
+    const { isGoogleSheetsConfigured, getServiceAccountEmail } = await import("@/tenant/storage/google-auth");
+    const resolved = await resolveStorageBackend(businessId);
+    return {
+      success: true as const,
+      ...resolved,
+      googleConfigured: isGoogleSheetsConfigured(),
+      serviceAccountEmail: getServiceAccountEmail(),
+    };
+  } catch (e) {
+    return { success: false as const, error: e instanceof Error ? e.message : "Status failed" };
   }
 }

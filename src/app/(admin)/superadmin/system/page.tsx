@@ -41,6 +41,7 @@ export default async function SuperadminSystemPage() {
             <li>MSG91 widget: {isMsg91WidgetConfigured() ? "set" : "not set"}</li>
             <li>MSG91 API template: {env.MSG91_AUTH_KEY && env.MSG91_OTP_TEMPLATE_ID ? "set" : "not set"}</li>
             <li>STORAGE_DEV_MODE: {env.STORAGE_DEV_MODE ?? "auto"}</li>
+            <li>GOOGLE_SERVICE_ACCOUNT_JSON: {env.GOOGLE_SERVICE_ACCOUNT_JSON ? "set" : "missing (dev file storage)"}</li>
           </ul>
         </div>
       </div>

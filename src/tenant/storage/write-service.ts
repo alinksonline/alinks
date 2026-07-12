@@ -15,12 +15,17 @@ export async function writeToTenantStorage(
   const adapter = await getStorageAdapter(businessId);
   try {
     await adapter.appendRow(tab, row);
-    await adapter.appendRow("Activity Log", {
-      action: "write",
-      tab,
-      businessId,
-      at: new Date().toISOString(),
-    });
+    try {
+      await adapter.appendRow("Activity Log", {
+        action: "write",
+        tab,
+        business_id: businessId,
+        at: new Date().toISOString(),
+        detail: "ok",
+      });
+    } catch {
+      // Activity log failure must not fail the primary write
+    }
     await cacheDel(cacheKey(businessId, tab));
     return { ok: true };
   } catch (e) {
