@@ -23,7 +23,8 @@ Use with `alinks-compliance-security-guardrails` skill. Mark each: PASS | FAIL |
 - [ ] `DATABASE_URL` set (Supabase Postgres URI)
 - [ ] Email or SMS OTP configured for production (not dev-only)
 - [ ] `DEV_OTP` not in Vercel Production
-- [ ] `SUPERADMIN_EMAIL` / `SUPERADMIN_PHONE` set intentionally
+- [ ] Superadmin is only accounts with `tenants.role = 'superadmin'` (not env email elevation)
+- [ ] `SUPERADMIN_PHONE` used for seed bootstrap only (optional)
 - [ ] `requireAuth()` / `requireSuperadmin()` on protected routes
 - [ ] Business ownership checks on tenant mutations
 

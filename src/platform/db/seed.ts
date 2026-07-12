@@ -93,13 +93,20 @@ async function seed() {
         email: "benjamin@alinks.online",
         phone: superadminPhone,
         name: "Benjamin Anand",
+        role: "superadmin",
         tier: "enterprise",
         status: "active",
       })
       .returning();
+  } else if (superadmin.role !== "superadmin") {
+    await db
+      .update(tenants)
+      .set({ role: "superadmin", tier: "enterprise", status: "active", updatedAt: new Date() })
+      .where(eq(tenants.id, superadmin.id));
+    superadmin = { ...superadmin, role: "superadmin" };
   }
 
-  console.log("Superadmin:", superadmin.id, `(phone: ${superadminPhone})`);
+  console.log("Superadmin (DB role):", superadmin.id, `(phone: ${superadminPhone})`);
 
   let demoTenant = (await db.select().from(tenants).where(eq(tenants.phone, "9876543210")).limit(1))[0];
   if (!demoTenant) {
@@ -109,6 +116,7 @@ async function seed() {
         email: "demo@alinks.online",
         phone: "9876543210",
         name: "Demo Tenant",
+        role: "tenant",
         tier: "pro",
         status: "trial",
         trialEndsAt,
@@ -117,7 +125,7 @@ async function seed() {
   } else {
     await db
       .update(tenants)
-      .set({ tier: "pro", trialEndsAt, status: "trial" })
+      .set({ role: "tenant", tier: "pro", trialEndsAt, status: "trial", updatedAt: new Date() })
       .where(eq(tenants.id, demoTenant.id));
   }
 

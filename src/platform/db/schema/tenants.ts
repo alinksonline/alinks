@@ -6,6 +6,8 @@ export const tenants = pgTable("tenants", {
   email: varchar("email", { length: 255 }).notNull().unique(),
   phone: varchar("phone", { length: 20 }).notNull().unique(),
   name: varchar("name", { length: 120 }),
+  /** Platform account role: tenant = client, superadmin = Artix operator (DB source of truth) */
+  role: varchar("role", { length: 20 }).notNull().default("tenant"),
   tier: varchar("tier", { length: 20 }).notNull().default("basic"),
   status: varchar("status", { length: 20 }).notNull().default("trial"),
   trialEndsAt: timestamp("trial_ends_at", { withTimezone: true }),

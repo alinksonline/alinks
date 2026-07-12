@@ -12,7 +12,7 @@ export async function sendResendEmail(
     return { ok: false, error: "Email service is not configured" };
   }
 
-  const from = env.RESEND_FROM_EMAIL?.trim() || "ALINKS <onboarding@resend.dev>";
+  const from = env.RESEND_FROM_EMAIL?.trim() || "ALINKS <onboarding@alinks.online>";
 
   const res = await fetch("https://api.resend.com/emails", {
     method: "POST",

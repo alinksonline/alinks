@@ -29,6 +29,13 @@
       "when": 1752081600000,
       "tag": "0003_phase3_phase4",
       "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "7",
+      "when": 1752307200000,
+      "tag": "0004_tenant_platform_role",
+      "breakpoints": true
     }
   ]
 }

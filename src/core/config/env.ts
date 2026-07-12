@@ -22,8 +22,8 @@ function defaultPlatformHost(rootDomain: string): string {
 const envSchema = z.object({
   NODE_ENV: z.enum(["development", "test", "production"]).default("development"),
   DATABASE_URL: z.string().url().optional(),
+  /** Used only by db:seed to find/create the bootstrap superadmin row — not for login elevation */
   SUPERADMIN_PHONE: z.string().default("9999999999"),
-  SUPERADMIN_EMAIL: z.string().email().optional(),
   DEV_OTP: z.string().default("1111"),
   RESEND_API_KEY: z.string().optional(),
   RESEND_FROM_EMAIL: z.string().optional(),
@@ -61,7 +61,6 @@ export function getEnv(): Env {
     NODE_ENV: process.env.NODE_ENV,
     DATABASE_URL: process.env.DATABASE_URL,
     SUPERADMIN_PHONE: process.env.SUPERADMIN_PHONE,
-    SUPERADMIN_EMAIL: process.env.SUPERADMIN_EMAIL,
     DEV_OTP: process.env.DEV_OTP,
     RESEND_API_KEY: process.env.RESEND_API_KEY,
     RESEND_FROM_EMAIL: process.env.RESEND_FROM_EMAIL,

@@ -9,7 +9,14 @@ export function getPlatformDb() {
     return null;
   }
   if (!client) {
-    const sql = postgres(process.env.DATABASE_URL, { max: 10 });
+    // prepare:false required for Supabase pooler (transaction/session).
+    // Keep max low for serverless (Vercel) connection limits.
+    const sql = postgres(process.env.DATABASE_URL, {
+      max: 5,
+      prepare: false,
+      ssl: "require",
+      connect_timeout: 15,
+    });
     client = drizzle(sql, { schema });
   }
   return client;

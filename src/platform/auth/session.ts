@@ -38,17 +38,9 @@ function normalizePhone(phone: string): string {
   return requireTenDigitMobile(phone);
 }
 
-function resolveSessionRole(email: string, phone: string): SessionRole {
-  const env = getEnv();
-  if (env.SUPERADMIN_EMAIL && normalizeEmail(email) === normalizeEmail(env.SUPERADMIN_EMAIL)) {
-    return "superadmin";
-  }
-  try {
-    if (normalizePhone(phone) === normalizePhone(env.SUPERADMIN_PHONE)) return "superadmin";
-  } catch {
-    // phone may be synthetic for email-only accounts
-  }
-  return "tenant";
+/** Platform role is stored on tenants.role — never elevated from SUPERADMIN_EMAIL env. */
+function asSessionRole(role: string | null | undefined): SessionRole {
+  return role === "superadmin" ? "superadmin" : "tenant";
 }
 
 async function persistSession(tenantId: string, role: SessionRole): Promise<void> {
@@ -89,19 +81,20 @@ export async function createSessionFromEmail(
   if (!isValidEmail(normalizedEmail)) throw new Error("Invalid email address");
 
   const phone = syntheticPhoneForEmail(normalizedEmail);
-  const role = resolveSessionRole(normalizedEmail, phone);
 
   const existing = await db.select().from(tenants).where(eq(tenants.email, normalizedEmail)).limit(1);
   let tenant = existing[0];
 
   if (!tenant) {
+    // New signups are always platform clients (tenant). Superadmin is set only in DB/seed.
     const [created] = await db
       .insert(tenants)
       .values({
         email: normalizedEmail,
         phone,
-        name: profile?.name?.trim() || (role === "superadmin" ? "ALINKS Superadmin" : "New Tenant"),
-        tier: role === "superadmin" ? "enterprise" : "basic",
+        name: profile?.name?.trim() || "New Tenant",
+        role: "tenant",
+        tier: "basic",
         status: "active",
       })
       .returning();
@@ -113,6 +106,7 @@ export async function createSessionFromEmail(
       .where(eq(tenants.id, tenant.id));
   }
 
+  const role = asSessionRole(tenant.role);
   await persistSession(tenant.id, role);
   return { role, userId: tenant.id };
 }
@@ -126,8 +120,6 @@ export async function createSession(phone: string, profile?: TenantSignupProfile
   if (signupEmail && !isValidEmail(signupEmail)) {
     throw new Error("Invalid email address");
   }
-
-  const role = resolveSessionRole(signupEmail ?? `${normalized}@alinks.local`, normalized);
 
   if (signupEmail) {
     const emailTaken = await db.select().from(tenants).where(eq(tenants.email, signupEmail)).limit(1);
@@ -145,8 +137,9 @@ export async function createSession(phone: string, profile?: TenantSignupProfile
       .values({
         email: signupEmail ?? `${normalized}@alinks.local`,
         phone: normalized,
-        name: profile?.name?.trim() || (role === "superadmin" ? "ALINKS Superadmin" : "New Tenant"),
-        tier: role === "superadmin" ? "enterprise" : "basic",
+        name: profile?.name?.trim() || "New Tenant",
+        role: "tenant",
+        tier: "basic",
         status: "active",
       })
       .returning();
@@ -167,6 +160,7 @@ export async function createSession(phone: string, profile?: TenantSignupProfile
       .where(eq(tenants.id, tenant.id));
   }
 
+  const role = asSessionRole(tenant.role);
   await persistSession(tenant.id, role);
   return { role, userId: tenant.id };
 }
@@ -182,7 +176,8 @@ export async function getSession(): Promise<Session | null> {
     .select({
       userId: tenants.id,
       phone: tenants.phone,
-      role: sessions.role,
+      // Always read live role from tenants (DB source of truth)
+      role: tenants.role,
       expiresAt: sessions.expiresAt,
     })
     .from(sessions)
@@ -196,7 +191,7 @@ export async function getSession(): Promise<Session | null> {
   return {
     userId: row.userId,
     phone: row.phone,
-    role: row.role as SessionRole,
+    role: asSessionRole(row.role),
   };
 }
 
