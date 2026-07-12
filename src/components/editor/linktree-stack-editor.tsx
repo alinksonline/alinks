@@ -28,7 +28,8 @@ import {
 } from "@/app/actions/business";
 import { Button } from "@/components/ui/button";
 import { BlockRenderer } from "@/components/tenant/block-renderer";
-import type { BlockType, PageBlock, PageContent, PageHero, ServiceItem } from "@/core/types/page";
+import { TenantThemedLayout } from "@/components/tenant/tenant-themed-layout";
+import type { BlockType, PageBlock, PageContent, PageHero, ServiceItem, ThemeConfig } from "@/core/types/page";
 import type { BusinessProfile } from "@/core/types/business-profile";
 import { cn } from "@/core/utils/cn";
 import { createBlock, WIDGET_CATALOG, widgetLabel } from "./widget-catalog";
@@ -483,6 +484,7 @@ export function LinktreeStackEditor({
   businessName,
   primaryColor,
   accentColor = "#7c3aed",
+  theme = null,
   initialContent,
   isPublished,
   businessIsPublished = false,
@@ -494,6 +496,8 @@ export function LinktreeStackEditor({
   businessName: string;
   primaryColor: string;
   accentColor?: string;
+  /** Full theme so editor stack matches public themed widgets */
+  theme?: ThemeConfig | Record<string, unknown> | null;
   initialContent: PageContent;
   /** This page’s draft/live flag */
   isPublished: boolean;
@@ -614,10 +618,19 @@ export function LinktreeStackEditor({
     });
   };
 
+  const previewTheme: ThemeConfig = {
+    mode: (theme as ThemeConfig | null)?.mode ?? "light",
+    primaryColor,
+    accentColor,
+    fontFamily: (theme as ThemeConfig | null)?.fontFamily ?? "Inter",
+    borderRadius: (theme as ThemeConfig | null)?.borderRadius ?? "12px",
+  };
+
   return (
     <div className="pb-32">
-      {/* Soft studio background + phone stack — padded so cards aren’t edge-to-edge */}
-      <div className="lt-studio rounded-2xl px-3 pb-5 pt-4">
+      {/* Studio frame + themed stack (same tokens as public site so all widgets contrast correctly) */}
+      <div className="lt-studio overflow-hidden rounded-2xl">
+        <TenantThemedLayout theme={previewTheme} fallbackPrimary={primaryColor} className="!min-h-0 px-3 pb-5 pt-4">
         {/* Profile header — compact Linktree top */}
         <div className="mb-5 flex flex-col items-center px-1 pt-1 text-center">
           {profile?.logoUrl ? (
@@ -625,19 +638,27 @@ export function LinktreeStackEditor({
             <img
               src={profile.logoUrl}
               alt=""
-              className="h-11 w-11 rounded-full object-cover shadow-sm ring-2 ring-white"
+              className="h-11 w-11 rounded-full object-cover shadow-sm ring-2"
+              style={{ boxShadow: "0 0 0 2px var(--t-surface)" }}
             />
           ) : (
             <div
-              className="flex h-11 w-11 items-center justify-center rounded-full text-sm font-bold text-white shadow-sm"
-              style={{ backgroundColor: primaryColor }}
+              className="flex h-11 w-11 items-center justify-center rounded-full text-sm font-bold shadow-sm"
+              style={{ backgroundColor: primaryColor, color: "var(--t-on-primary, #fff)" }}
             >
               {(displayName || "A").slice(0, 1).toUpperCase()}
             </div>
           )}
-          <p className="mt-2 text-sm font-semibold text-slate-900">@{handle}</p>
-          <p className="mt-0.5 text-[11px] text-slate-500">{displayName}</p>
-          <p className="mt-1.5 text-[9px] font-semibold uppercase tracking-[0.14em] text-slate-400">
+          <p className="mt-2 text-sm font-semibold" style={{ color: "var(--t-ink)" }}>
+            @{handle}
+          </p>
+          <p className="mt-0.5 text-[11px]" style={{ color: "var(--t-muted)" }}>
+            {displayName}
+          </p>
+          <p
+            className="mt-1.5 text-[9px] font-semibold uppercase tracking-[0.14em]"
+            style={{ color: "var(--t-muted)" }}
+          >
             Editing · {slug}
             {!siteLive ? " · site draft" : published ? " · live" : " · page draft"}
           </p>
@@ -708,13 +729,24 @@ export function LinktreeStackEditor({
         <button
           type="button"
           onClick={() => setShowAdd(true)}
-          className="mt-4 flex min-h-10 w-full items-center justify-center gap-2 rounded-xl bg-white text-xs font-semibold text-slate-800 shadow-sm ring-1 ring-black/5 active:scale-[0.99]"
+          className="mt-4 flex min-h-10 w-full items-center justify-center gap-2 text-xs font-semibold active:scale-[0.99]"
+          style={{
+            borderRadius: "var(--t-radius)",
+            backgroundColor: "var(--t-surface)",
+            color: "var(--t-ink)",
+            boxShadow: "0 1px 2px rgba(0,0,0,0.06)",
+            border: "1px solid var(--t-border)",
+          }}
         >
-          <span className="flex h-5 w-5 items-center justify-center rounded-full bg-slate-900 text-sm leading-none text-white">
+          <span
+            className="flex h-5 w-5 items-center justify-center rounded-full text-sm leading-none"
+            style={{ backgroundColor: "var(--t-primary)", color: "var(--t-on-primary, #fff)" }}
+          >
             +
           </span>
           Add block
         </button>
+        </TenantThemedLayout>
       </div>
 
       {error && <p className="mt-2 px-1 text-xs text-red-600">{error}</p>}

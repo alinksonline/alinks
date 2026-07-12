@@ -60,6 +60,13 @@ export default async function EditorPageSlug({ params }: { params: { slug: strin
           businessName={profile.businessName || business.name}
           primaryColor={primaryColor}
           accentColor={accentColor}
+          theme={{
+            mode: theme?.mode ?? "light",
+            primaryColor,
+            accentColor,
+            fontFamily: theme?.fontFamily ?? "Inter",
+            borderRadius: theme?.borderRadius ?? "12px",
+          }}
           initialContent={content}
           isPublished={row.isPublished}
           businessIsPublished={business.isPublished}
