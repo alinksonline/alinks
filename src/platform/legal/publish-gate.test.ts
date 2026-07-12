@@ -6,4 +6,9 @@ describe("publish gate constants", () => {
     expect(LEGAL_DOC_TYPES.PLATFORM_TOS).toBe("PLATFORM_TOS");
     expect(LEGAL_DOC_TYPES.TENANT_TOS_PUBLISHED).toBe("TENANT_TOS_PUBLISHED");
   });
+
+  it("separates platform legal from tenant confirm (UI vs action)", () => {
+    // UI must not require TENANT_* before checkbox; action records then re-checks
+    expect(LEGAL_DOC_TYPES.TENANT_TOS_PUBLISHED).not.toBe(LEGAL_DOC_TYPES.PLATFORM_TOS);
+  });
 });
