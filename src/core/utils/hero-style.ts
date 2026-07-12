@@ -2,26 +2,28 @@ import type { CSSProperties } from "react";
 import type { PageHero } from "@/core/types/page";
 import type { HeroStyle } from "@/core/types/hero-style";
 import { DEFAULT_HERO_STYLE } from "@/core/types/hero-style";
+import type { MediaOverlay } from "@/core/types/media-bg";
 import {
   DEFAULT_LAYOUT,
   HERO_LAYOUT_DIMS,
   type LayoutPresetId,
 } from "@/core/types/layout-preset";
+import { backgroundCss, hexToRgba, overlayCss } from "@/core/utils/media-bg";
 
-export function mergeHeroStyle(raw?: HeroStyle | null): Required<HeroStyle> {
+export function mergeHeroStyle(raw?: HeroStyle | null): HeroStyle {
   return { ...DEFAULT_HERO_STYLE, ...raw };
 }
 
-function overlayAlpha(level: HeroStyle["overlay"]): number {
-  switch (level) {
-    case "soft":
-      return 0.45;
-    case "strong":
-      return 0.88;
-    case "medium":
-    default:
-      return 0.72;
-  }
+function legacyOverlay(level: HeroStyle["overlay"]): MediaOverlay {
+  const o = level === "soft" ? 0.45 : level === "strong" ? 0.88 : 0.72;
+  return {
+    kind: "gradient",
+    angle: 180,
+    stops: [
+      { color: "#000000", opacity: o, at: 0 },
+      { color: "#000000", opacity: o * 0.35, at: 100 },
+    ],
+  };
 }
 
 function heroHeight(h: "sm" | "md" | "lg"): string {
@@ -68,6 +70,7 @@ export function resolveHeroPresentation(
   accentColor: string,
 ): {
   section: CSSProperties;
+  overlayLayer?: CSSProperties;
   inner: CSSProperties;
   title: CSSProperties;
   tagline: CSSProperties;
@@ -78,27 +81,14 @@ export function resolveHeroPresentation(
   const layout = (hero.layout ?? DEFAULT_LAYOUT) as LayoutPresetId;
   const dims = HERO_LAYOUT_DIMS[layout] ?? HERO_LAYOUT_DIMS.pulse;
   const style = mergeHeroStyle(hero.style);
-  const a = overlayAlpha(style.overlay);
   const hasImage = Boolean(hero.imageUrl?.trim());
 
-  let background: string;
-  if (hasImage) {
-    background = `linear-gradient(to top, rgba(0,0,0,${a}), rgba(0,0,0,${a * 0.35})), url(${hero.imageUrl}) center/cover`;
-  } else if (style.useThemeGradient) {
-    background = `linear-gradient(145deg, ${primaryColor}, ${accentColor})`;
-  } else {
-    background = primaryColor;
-  }
-
-  const section: CSSProperties = {
+  let base: CSSProperties = {
     position: "relative",
     display: "flex",
     alignItems: "flex-end",
     minHeight: heroHeight(dims.height),
     color: "#fff",
-    background,
-    backgroundSize: hasImage ? "cover" : undefined,
-    backgroundPosition: hasImage ? "center" : undefined,
     width: dims.inset ? "92%" : "100%",
     marginLeft: dims.inset ? "auto" : undefined,
     marginRight: dims.inset ? "auto" : undefined,
@@ -106,7 +96,41 @@ export function resolveHeroPresentation(
     overflow: "hidden",
   };
 
+  if (hasImage) {
+    base = {
+      ...base,
+      backgroundImage: `url(${hero.imageUrl})`,
+      backgroundSize: "cover",
+      backgroundPosition: "center",
+    };
+  } else if (style.mediaBackground && style.mediaBackground.kind !== "none") {
+    base = { ...base, ...backgroundCss(style.mediaBackground) };
+  } else if (style.useThemeGradient !== false) {
+    base = {
+      ...base,
+      backgroundImage: `linear-gradient(145deg, ${primaryColor}, ${accentColor})`,
+    };
+  } else {
+    base = { ...base, backgroundColor: primaryColor };
+  }
+
+  const mediaOverlay: MediaOverlay | undefined =
+    style.mediaOverlay ??
+    (hasImage ? legacyOverlay(style.overlay) : { kind: "none" });
+
+  const oCss = overlayCss(mediaOverlay);
+  const overlayLayer: CSSProperties | undefined = oCss
+    ? {
+        position: "absolute",
+        inset: 0,
+        background: oCss,
+        pointerEvents: "none",
+      }
+    : undefined;
+
   const inner: CSSProperties = {
+    position: "relative",
+    zIndex: 1,
     width: "100%",
     maxWidth: "var(--app-max-width, 430px)",
     margin: "0 auto",
@@ -128,20 +152,17 @@ export function resolveHeroPresentation(
     lineHeight: 1.4,
   };
 
-  let ctaBg = primaryColor;
+  let ctaBg: string = primaryColor;
   let ctaColor = "#fff";
   let ctaBorder = "none";
   if (style.ctaStyle === "ghost") {
     ctaBg = "rgba(255,255,255,0.15)";
-    ctaColor = "#fff";
   } else if (style.ctaStyle === "outline") {
     ctaBg = "transparent";
-    ctaColor = "#fff";
     ctaBorder = "1.5px solid rgba(255,255,255,0.85)";
   } else if (style.ctaStyle === "gradient") {
     ctaBg = `linear-gradient(135deg, ${primaryColor}, ${accentColor})`;
   } else {
-    // solid — light surface CTA for contrast on dark hero
     ctaBg = "var(--t-surface, #fff)";
     ctaColor = primaryColor;
   }
@@ -165,7 +186,8 @@ export function resolveHeroPresentation(
   };
 
   return {
-    section,
+    section: base,
+    overlayLayer,
     inner,
     title,
     tagline,
@@ -174,3 +196,6 @@ export function resolveHeroPresentation(
     showCta: Boolean(hero.ctaText?.trim()),
   };
 }
+
+// re-export for convenience
+export { hexToRgba };

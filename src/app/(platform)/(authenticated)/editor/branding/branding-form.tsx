@@ -3,6 +3,7 @@
 import { useState, useTransition } from "react";
 import { updateBrandingAction } from "@/app/actions/business";
 import { Button } from "@/components/ui/button";
+import { ImageField } from "@/components/shared/image-field";
 import type { BrandingConfig } from "@/core/types/page";
 
 export function BrandingForm({ businessId, initial }: { businessId: string; initial: BrandingConfig }) {
@@ -31,17 +32,26 @@ export function BrandingForm({ businessId, initial }: { businessId: string; init
           autoComplete="organization"
         />
       </label>
-      <label className="block space-y-1.5">
-        <span className="text-xs font-semibold uppercase tracking-wide text-brand-ink/50">Logo URL</span>
-        <input
-          className="premium-input font-mono text-sm"
-          placeholder="https://…"
-          value={branding.logoUrl}
-          onChange={(e) => setBranding({ ...branding, logoUrl: e.target.value })}
-          inputMode="url"
-          autoComplete="off"
-        />
-      </label>
+
+      <ImageField
+        label="Logo"
+        value={branding.logoUrl}
+        onChange={(logoUrl) => setBranding({ ...branding, logoUrl })}
+        hint="Square logo works best. Converted to WebP and stored in the cloud."
+      />
+
+      <ImageField
+        label="Cover image"
+        value={branding.coverUrl ?? ""}
+        onChange={(coverUrl) => setBranding({ ...branding, coverUrl })}
+      />
+
+      <ImageField
+        label="Favicon"
+        value={branding.faviconUrl ?? ""}
+        onChange={(faviconUrl) => setBranding({ ...branding, faviconUrl })}
+      />
+
       {message && <p className="text-sm text-brand-ink/70">{message}</p>}
 
       <div className="editor-sticky-actions">

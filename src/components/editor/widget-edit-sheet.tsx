@@ -11,6 +11,7 @@ import { LinkStyleEditor } from "./link-style-editor";
 import { SectionStylingEditor } from "./section-style-editor";
 import { LayoutPresetPicker } from "./layout-preset-picker";
 import type { LayoutPresetId } from "@/core/types/layout-preset";
+import { ImageField } from "@/components/shared/image-field";
 
 type EditTab = "content" | "styling" | "layout";
 
@@ -234,24 +235,39 @@ export function WidgetEditSheet({
               )}
 
               {block.type === "gallery" && (
-                <label className="block space-y-1">
-                  <span className="text-[11px] font-semibold text-brand-muted">Image URLs (one per line)</span>
-                  <textarea
-                    className="premium-input min-h-[7rem] font-mono text-xs"
-                    value={(data.images ?? []).map((i) => i.url).join("\n")}
-                    onChange={(e) =>
-                      setData({
-                        images: e.target.value
-                          .split("\n")
-                          .map((u) => u.trim())
-                          .filter(Boolean)
-                          .slice(0, 6)
-                          .map((url) => ({ url })),
-                      })
-                    }
-                    rows={5}
+                <div className="space-y-3">
+                  <ImageField
+                    label="Add photo"
+                    value=""
+                    onChange={(url) => {
+                      if (!url) return;
+                      const prev = data.images ?? [];
+                      if (prev.length >= 6) return;
+                      setData({ images: [...prev, { url }].slice(0, 6) });
+                    }}
+                    hint="Upload or import — each photo becomes WebP. Max 6."
                   />
-                </label>
+                  <ul className="space-y-2">
+                    {(data.images ?? []).map((im, i) => (
+                      <li key={`${im.url}-${i}`} className="flex items-center gap-2">
+                        {/* eslint-disable-next-line @next/next/no-img-element */}
+                        <img src={im.url} alt="" className="h-12 w-12 rounded-lg object-cover" />
+                        <span className="min-w-0 flex-1 truncate font-mono text-[10px] text-brand-muted">
+                          {im.url}
+                        </span>
+                        <button
+                          type="button"
+                          className="text-[10px] font-semibold text-red-500"
+                          onClick={() =>
+                            setData({ images: (data.images ?? []).filter((_, j) => j !== i) })
+                          }
+                        >
+                          Remove
+                        </button>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
               )}
 
               {block.type === "services" && (

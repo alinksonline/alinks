@@ -135,6 +135,7 @@ function HeroPreviewCard({
       style={{ borderRadius: p.section.borderRadius ?? "1rem" }}
     >
       <div style={{ ...p.section, minHeight: "7.5rem" }}>
+        {p.overlayLayer ? <div aria-hidden style={p.overlayLayer} /> : null}
         <div style={{ ...p.inner, padding: "2rem 0.75rem 0.75rem" }}>
           <span className="mb-1.5 inline-block rounded-full bg-white/15 px-2 py-0.5 text-[8px] font-bold uppercase tracking-wider backdrop-blur">
             Hero · tap to edit · {p.layout}

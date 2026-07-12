@@ -3,6 +3,7 @@
 import { useState, useTransition } from "react";
 import { updateBusinessProfileAction } from "@/app/actions/business";
 import { Button } from "@/components/ui/button";
+import { ImageField } from "@/components/shared/image-field";
 import type { BusinessProfile } from "@/core/types/business-profile";
 import { defaultBusinessProfile } from "@/core/types/business-profile";
 
@@ -134,16 +135,12 @@ export function BusinessProfileForm({
 
       <section className="space-y-3">
         <h2 className="text-xs font-bold uppercase tracking-wide text-brand-ink/45">Logo (optional)</h2>
-        <label className="block space-y-1.5">
-          <span className="text-sm font-semibold text-brand-ink">Logo image URL</span>
-          <input
-            className="premium-input font-mono text-sm"
-            value={profile.logoUrl}
-            onChange={(e) => set("logoUrl")(e.target.value)}
-            placeholder="https://…"
-            inputMode="url"
-          />
-        </label>
+        <ImageField
+          label="Logo image"
+          value={profile.logoUrl}
+          onChange={(logoUrl) => set("logoUrl")(logoUrl)}
+          hint="Upload from phone or import URL → WebP in cloud storage."
+        />
       </section>
 
       {message && <p className="text-sm text-brand-ink/70">{message}</p>}

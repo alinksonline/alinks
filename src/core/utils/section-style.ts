@@ -2,6 +2,7 @@ import type { CSSProperties } from "react";
 import type { SectionStyle } from "@/core/types/section-style";
 import { DEFAULT_SECTION_STYLE } from "@/core/types/section-style";
 import { DEFAULT_LAYOUT, SECTION_LAYOUT_DIMS, type LayoutPresetId } from "@/core/types/layout-preset";
+import { overlayCss } from "@/core/utils/media-bg";
 
 export function mergeSectionStyle(raw?: SectionStyle | null): SectionStyle {
   const base = { ...DEFAULT_SECTION_STYLE, ...raw };
@@ -76,6 +77,7 @@ export function resolveSectionCardCss(
   accentColor: string,
 ): {
   card: CSSProperties;
+  overlay?: CSSProperties;
   title: CSSProperties;
   body: CSSProperties;
   row: CSSProperties;
@@ -105,8 +107,15 @@ export function resolveSectionCardCss(
         ? s.customBodyColor
         : "var(--t-muted, #64748b)";
 
+  const hasBgImage = Boolean(s.backgroundImageUrl?.trim());
+
   const card: CSSProperties = {
-    backgroundColor,
+    position: "relative",
+    overflow: "hidden",
+    backgroundColor: hasBgImage ? undefined : backgroundColor,
+    backgroundImage: hasBgImage ? `url(${s.backgroundImageUrl})` : undefined,
+    backgroundSize: hasBgImage ? "cover" : undefined,
+    backgroundPosition: hasBgImage ? "center" : undefined,
     color: titleColor,
     borderRadius: radius(s.corners),
     border: s.borderMode === "none" ? "1px solid transparent" : `1px solid ${borderColor}`,
@@ -120,6 +129,11 @@ export function resolveSectionCardCss(
         ? "none"
         : "0 1px 2px rgba(0,0,0,0.04), 0 6px 16px -10px rgba(0,0,0,0.1)",
   };
+
+  const o = overlayCss(s.mediaOverlay);
+  const overlay: CSSProperties | undefined = o
+    ? { position: "absolute", inset: 0, background: o, pointerEvents: "none" }
+    : undefined;
 
   const title: CSSProperties = {
     fontSize: "0.875rem",
@@ -141,5 +155,5 @@ export function resolveSectionCardCss(
     border: `1px solid var(--t-border, rgba(15,23,42,0.1))`,
   };
 
-  return { card, title, body, row, layout: s.layout ?? DEFAULT_LAYOUT };
+  return { card, overlay, title, body, row, layout: s.layout ?? DEFAULT_LAYOUT };
 }

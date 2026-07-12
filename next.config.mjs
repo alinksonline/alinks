@@ -9,10 +9,16 @@ const securityHeaders = [
 
 const nextConfig = {
   reactStrictMode: true,
+  // sharp is native — keep it external for API image processing routes
+  experimental: {
+    serverComponentsExternalPackages: ["sharp"],
+  },
   images: {
     remotePatterns: [
       { protocol: "https", hostname: "**.alinks.online" },
       { protocol: "https", hostname: "**.r2.cloudflarestorage.com" },
+      { protocol: "https", hostname: "**.public.blob.vercel-storage.com" },
+      { protocol: "https", hostname: "**.blob.vercel-storage.com" },
     ],
   },
   async headers() {

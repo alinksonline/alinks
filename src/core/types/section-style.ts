@@ -1,5 +1,6 @@
 import type { LayoutPresetId } from "./layout-preset";
 import { DEFAULT_LAYOUT } from "./layout-preset";
+import type { MediaBackground, MediaOverlay } from "./media-bg";
 
 /** Shared styling + layout for card-style widgets (Highlights, Text, Services, etc.). */
 export type SectionFill = "solid" | "soft" | "outline" | "transparent";
@@ -22,6 +23,10 @@ export type SectionStyle = {
   borderMode?: "none" | "solid";
   borderColorMode?: SectionColorMode;
   customBorderColor?: string;
+  /** Optional section background image (WebP URL after upload/import) */
+  backgroundImageUrl?: string;
+  mediaBackground?: MediaBackground;
+  mediaOverlay?: MediaOverlay;
   /**
    * Layout — one of 5 presets (Pulse / Orbit / Snap / Frame / Bloom).
    * Drives align, padding, width.

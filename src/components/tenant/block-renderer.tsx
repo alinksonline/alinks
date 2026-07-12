@@ -6,6 +6,21 @@ import { whatsappUrl } from "@/core/utils/business-profile";
 import { resolveSectionCardCss } from "@/core/utils/section-style";
 import { LinkButton } from "./link-button";
 
+function CardShell({
+  sectionCss,
+  children,
+}: {
+  sectionCss: ReturnType<typeof resolveSectionCardCss>;
+  children: ReactNode;
+}) {
+  return (
+    <section style={sectionCss.card}>
+      {sectionCss.overlay ? <div aria-hidden style={sectionCss.overlay} /> : null}
+      <div style={{ position: "relative", zIndex: 1 }}>{children}</div>
+    </section>
+  );
+}
+
 /**
  * Public + editor stack cards.
  * Card widgets use sectionStyle (styling + layout); link uses linkStyle.
@@ -94,7 +109,7 @@ export function BlockRenderer({
         href = href === "/" ? `/${handle}` : `/${handle}${href}`;
       }
       return (
-        <section style={sectionCss.card}>
+        <CardShell sectionCss={sectionCss}>
           <h2 style={sectionCss.title}>{block.title}</h2>
           {block.body ? <p style={sectionCss.body}>{block.body}</p> : null}
           <a
@@ -108,7 +123,7 @@ export function BlockRenderer({
           >
             {data.buttonLabel || "Continue"}
           </a>
-        </section>
+        </CardShell>
       );
     }
 
@@ -117,7 +132,7 @@ export function BlockRenderer({
         ? data.items
         : [{ name: block.title || "Service", price: "", duration: "", description: block.body }];
       return (
-        <section style={sectionCss.card}>
+        <CardShell sectionCss={sectionCss}>
           <h2 style={sectionCss.title}>{block.title}</h2>
           {block.body ? <p style={sectionCss.body}>{block.body}</p> : null}
           <ul className="mt-2 space-y-1.5">
@@ -150,14 +165,14 @@ export function BlockRenderer({
               </li>
             ))}
           </ul>
-        </section>
+        </CardShell>
       );
     }
 
     case "hours": {
       const lines = data.lines?.length ? data.lines : block.body ? block.body.split("\n") : [];
       return (
-        <section style={sectionCss.card}>
+        <CardShell sectionCss={sectionCss}>
           <h2 style={sectionCss.title}>{block.title || "Hours"}</h2>
           <ul className="mt-1.5 space-y-1 text-xs">
             {lines.map((line, i) => (
@@ -167,14 +182,14 @@ export function BlockRenderer({
               </li>
             ))}
           </ul>
-        </section>
+        </CardShell>
       );
     }
 
     case "contact": {
       const hasAny = Boolean(data.phone || data.email || data.address);
       return (
-        <section style={sectionCss.card}>
+        <CardShell sectionCss={sectionCss}>
           <h2 style={sectionCss.title}>{block.title}</h2>
           {block.body ? <p style={sectionCss.body}>{block.body}</p> : null}
           <div className="mt-2 space-y-1.5 text-xs">
@@ -199,14 +214,14 @@ export function BlockRenderer({
               </p>
             ) : null}
           </div>
-        </section>
+        </CardShell>
       );
     }
 
     case "gallery": {
       const images = data.images?.filter((im) => im.url) ?? [];
       return (
-        <section style={sectionCss.card}>
+        <CardShell sectionCss={sectionCss}>
           <h2 style={sectionCss.title}>{block.title}</h2>
           {block.body ? <p style={sectionCss.body}>{block.body}</p> : null}
           <div className="mt-2 grid grid-cols-2 gap-1.5">
@@ -229,7 +244,7 @@ export function BlockRenderer({
               </p>
             ) : null}
           </div>
-        </section>
+        </CardShell>
       );
     }
 
@@ -238,12 +253,12 @@ export function BlockRenderer({
     case "text":
     default:
       return (
-        <section style={sectionCss.card}>
+        <CardShell sectionCss={sectionCss}>
           <h2 style={sectionCss.title}>{block.title}</h2>
           <p className="mt-1.5 whitespace-pre-wrap text-xs leading-relaxed" style={sectionCss.body}>
             {block.body}
           </p>
-        </section>
+        </CardShell>
       );
   }
 }

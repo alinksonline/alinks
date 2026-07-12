@@ -60,6 +60,7 @@ export function PublicPageView({ data }: { data: PublicPageData }) {
         }`;
         return (
           <section style={hp.section}>
+            {hp.overlayLayer ? <div aria-hidden style={hp.overlayLayer} /> : null}
             <div style={hp.inner}>
               <h1 style={hp.title}>{hero.title}</h1>
               <p style={hp.tagline}>{hero.tagline}</p>

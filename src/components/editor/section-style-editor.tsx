@@ -4,6 +4,9 @@ import type { ReactNode } from "react";
 import type { SectionStyle } from "@/core/types/section-style";
 import { DEFAULT_SECTION_STYLE } from "@/core/types/section-style";
 import { cn } from "@/core/utils/cn";
+import { ImageField } from "@/components/shared/image-field";
+import { OverlayEditor } from "@/components/shared/overlay-editor";
+import type { MediaOverlay } from "@/core/types/media-bg";
 
 function Chip({
   active,
@@ -52,6 +55,17 @@ export function SectionStylingEditor({
 
   return (
     <div className="space-y-3">
+      <ImageField
+        label="Section background image"
+        value={s.backgroundImageUrl ?? ""}
+        onChange={(backgroundImageUrl) => set({ backgroundImageUrl })}
+        hint="Optional. Upload or import URL → WebP cloud storage."
+      />
+      <OverlayEditor
+        label="Section overlay"
+        value={(s.mediaOverlay as MediaOverlay | undefined) ?? { kind: "none" }}
+        onChange={(mediaOverlay) => set({ mediaOverlay })}
+      />
       <Group label="Fill">
         {(["solid", "soft", "outline", "transparent"] as const).map((f) => (
           <Chip key={f} active={s.fill === f} onClick={() => set({ fill: f })}>

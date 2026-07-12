@@ -8,6 +8,10 @@ import type { LayoutPresetId } from "@/core/types/layout-preset";
 import { cn } from "@/core/utils/cn";
 import { LayoutPresetPicker } from "./layout-preset-picker";
 import { resolveHeroPresentation } from "@/core/utils/hero-style";
+import { ImageField } from "@/components/shared/image-field";
+import { OverlayEditor } from "@/components/shared/overlay-editor";
+import type { MediaOverlay } from "@/core/types/media-bg";
+import { DEFAULT_OVERLAY_GRADIENT } from "@/core/types/media-bg";
 
 type EditTab = "content" | "styling" | "layout";
 
@@ -103,6 +107,7 @@ export function HeroEditSheet({
         <div className="min-h-0 flex-1 space-y-3 overflow-y-auto px-4 py-3">
           {/* Live mini preview */}
           <div className="overflow-hidden rounded-xl" style={preview.section}>
+            {preview.overlayLayer ? <div style={preview.overlayLayer} /> : null}
             <div style={preview.inner}>
               <p style={{ ...preview.title, fontSize: "1rem" }}>{hero.title || "Headline"}</p>
               <p style={{ ...preview.tagline, fontSize: "0.7rem" }}>{hero.tagline || "Tagline"}</p>
@@ -133,15 +138,12 @@ export function HeroEditSheet({
                   rows={2}
                 />
               </label>
-              <label className="block space-y-1">
-                <span className="text-[11px] font-semibold text-brand-muted">Cover image URL</span>
-                <input
-                  className="premium-input font-mono text-xs"
-                  value={hero.imageUrl}
-                  onChange={(e) => onChange({ ...hero, imageUrl: e.target.value })}
-                  placeholder="https://…"
-                />
-              </label>
+              <ImageField
+                label="Cover image"
+                value={hero.imageUrl}
+                onChange={(url) => onChange({ ...hero, imageUrl: url })}
+                hint="Upload from phone or import a URL — always stored as compressed WebP."
+              />
               <div className="grid grid-cols-2 gap-2">
                 <label className="block space-y-1">
                   <span className="text-[11px] font-semibold text-brand-muted">Button</span>
@@ -168,16 +170,14 @@ export function HeroEditSheet({
 
           {tab === "styling" && (
             <div className="space-y-3">
-              <div>
-                <p className="mb-1 text-[10px] font-semibold text-brand-muted">Photo overlay</p>
-                <div className="flex flex-wrap gap-1">
-                  {(["soft", "medium", "strong"] as const).map((o) => (
-                    <Chip key={o} active={style.overlay === o} onClick={() => setStyle({ overlay: o })}>
-                      {o}
-                    </Chip>
-                  ))}
-                </div>
-              </div>
+              <OverlayEditor
+                label="Overlay (on image / background)"
+                value={
+                  (style.mediaOverlay as MediaOverlay | undefined) ??
+                  DEFAULT_OVERLAY_GRADIENT
+                }
+                onChange={(mediaOverlay) => setStyle({ mediaOverlay })}
+              />
               <label className="flex items-center justify-between gap-2 rounded-xl border border-brand-ink/10 px-3 py-2">
                 <span className="text-[11px] font-semibold text-brand-ink">Theme gradient if no photo</span>
                 <input
