@@ -1,30 +1,31 @@
 import type { BlockType, PageBlock } from "@/core/types/page";
+import { DEFAULT_LINK_STYLE } from "@/core/types/link-button-style";
 
 export type WidgetDef = {
   type: BlockType;
   label: string;
   hint: string;
-  emoji: string;
 };
 
-/** Fixed set of mobile section widgets (curated — not Elementor). */
+/** Fixed set of mobile section widgets (curated — not Elementor). Icons are 2D SVGs. */
 export const WIDGET_CATALOG: WidgetDef[] = [
-  { type: "link", label: "Link button", hint: "One big tap target (Linktree-style)", emoji: "🔗" },
-  { type: "whatsapp", label: "WhatsApp", hint: "Chat / order on WhatsApp", emoji: "💬" },
-  { type: "text", label: "Text / story", hint: "Paragraph about your business", emoji: "📝" },
-  { type: "features", label: "Highlights", hint: "Why customers choose you", emoji: "✨" },
-  { type: "services", label: "Services list", hint: "Name, price, duration", emoji: "✂️" },
-  { type: "cta", label: "Call to action", hint: "Book, order, or visit button", emoji: "👉" },
-  { type: "hours", label: "Opening hours", hint: "Mon–Sun schedule", emoji: "🕐" },
-  { type: "contact", label: "Contact", hint: "Phone, address, email", emoji: "📍" },
-  { type: "gallery", label: "Photo gallery", hint: "Up to 6 image URLs", emoji: "📷" },
-  { type: "legal", label: "Legal text", hint: "Terms or privacy copy", emoji: "📄" },
+  { type: "link", label: "Link button", hint: "Styled tap button with icon & border" },
+  { type: "whatsapp", label: "WhatsApp", hint: "Chat / order on WhatsApp" },
+  { type: "text", label: "Text / story", hint: "Paragraph about your business" },
+  { type: "features", label: "Highlights", hint: "Why customers choose you" },
+  { type: "services", label: "Services list", hint: "Name, price, duration" },
+  { type: "cta", label: "Call to action", hint: "Book, order, or visit button" },
+  { type: "hours", label: "Opening hours", hint: "Mon–Sun schedule" },
+  { type: "contact", label: "Contact", hint: "Phone, address, email" },
+  { type: "gallery", label: "Photo gallery", hint: "Up to 6 image URLs" },
+  { type: "legal", label: "Legal text", hint: "Terms or privacy copy" },
 ];
 
 export function createBlock(type: BlockType): PageBlock {
-  const id = typeof crypto !== "undefined" && crypto.randomUUID
-    ? crypto.randomUUID()
-    : `b-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
+  const id =
+    typeof crypto !== "undefined" && crypto.randomUUID
+      ? crypto.randomUUID()
+      : `b-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
 
   const base = { id, type, visible: true as const };
 
@@ -34,14 +35,26 @@ export function createBlock(type: BlockType): PageBlock {
         ...base,
         title: "Follow us",
         body: "",
-        data: { href: "https://instagram.com", buttonLabel: "Open Instagram" },
+        data: {
+          href: "https://instagram.com",
+          buttonLabel: "Open Instagram",
+          linkStyle: {
+            ...DEFAULT_LINK_STYLE,
+            iconKind: "icon",
+            iconName: "instagram",
+            iconSide: "right",
+            thickness: "medium",
+            fill: "solid",
+            corners: "round",
+            borderMode: "none",
+          },
+        },
       };
     case "whatsapp":
       return {
         ...base,
         title: "Chat on WhatsApp",
         body: "We reply fast during business hours.",
-        // phone empty → public site uses Business profile WhatsApp
         data: { phone: "", message: "Hi! I found you on ALINKS." },
       };
     case "text":
@@ -81,7 +94,6 @@ export function createBlock(type: BlockType): PageBlock {
         ...base,
         title: "Visit or call",
         body: "We are happy to help.",
-        // empty contact fields → public site uses Business profile
         data: { phone: "", address: "", email: "" },
       };
     case "gallery":

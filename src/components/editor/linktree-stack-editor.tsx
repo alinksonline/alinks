@@ -32,10 +32,13 @@ import type { BlockType, PageBlock, PageContent, PageHero, ServiceItem } from "@
 import type { BusinessProfile } from "@/core/types/business-profile";
 import { cn } from "@/core/utils/cn";
 import { createBlock, WIDGET_CATALOG, widgetLabel } from "./widget-catalog";
+import { WidgetTypeIcon } from "./widget-icons";
+import { LinkStyleEditor } from "./link-style-editor";
 
 function StackCard({
   block,
   primaryColor,
+  accentColor,
   profile,
   handle,
   onEdit,
@@ -44,6 +47,7 @@ function StackCard({
 }: {
   block: PageBlock;
   primaryColor: string;
+  accentColor?: string;
   profile?: BusinessProfile | null;
   handle?: string;
   onEdit: () => void;
@@ -82,6 +86,7 @@ function StackCard({
           <BlockRenderer
             block={{ ...block, visible: true }}
             primaryColor={primaryColor}
+            accentColor={accentColor}
             profile={profile}
             handle={handle}
           />
@@ -208,11 +213,15 @@ function HeroEditSheet({
 function EditSheet({
   block,
   profile,
+  primaryColor,
+  accentColor,
   onChange,
   onClose,
 }: {
   block: PageBlock;
   profile?: BusinessProfile | null;
+  primaryColor: string;
+  accentColor: string;
   onChange: (b: PageBlock) => void;
   onClose: () => void;
 }) {
@@ -235,14 +244,17 @@ function EditSheet({
       >
         <div className="mx-auto mt-3 h-1 w-10 rounded-full bg-slate-200" />
         <div className="flex items-center justify-between px-4 py-3">
-          <h2 className="text-base font-bold text-slate-900">{widgetLabel(block.type)}</h2>
-          <button type="button" className="flex h-10 w-10 items-center justify-center text-2xl text-slate-400" onClick={onClose}>
+          <h2 className="flex items-center gap-2 text-sm font-bold text-slate-900">
+            <WidgetTypeIcon type={block.type} size={18} className="text-slate-600" />
+            {widgetLabel(block.type)}
+          </h2>
+          <button type="button" className="flex h-9 w-9 items-center justify-center text-xl text-slate-400" onClick={onClose}>
             ×
           </button>
         </div>
-        <div className="min-h-0 flex-1 space-y-4 overflow-y-auto px-4 pb-4">
+        <div className="min-h-0 flex-1 space-y-3 overflow-y-auto px-4 pb-4">
           {usesProfileContact && profile && (
-            <div className="rounded-2xl bg-emerald-50 px-3 py-2.5 text-xs leading-relaxed text-emerald-900">
+            <div className="rounded-xl bg-emerald-50 px-3 py-2 text-xs leading-relaxed text-emerald-900">
               <strong>Uses Business profile</strong> when fields are empty.
               <br />
               {profile.phone || "—"} · WA {profileWa || "—"} · {profile.email || "—"}
@@ -252,10 +264,12 @@ function EditSheet({
               </Link>
             </div>
           )}
-          <label className="block space-y-1">
-            <span className="text-xs font-semibold text-slate-500">Title</span>
-            <input className="premium-input" value={block.title} onChange={(e) => onChange({ ...block, title: e.target.value })} />
-          </label>
+          {block.type !== "link" && (
+            <label className="block space-y-1">
+              <span className="text-xs font-semibold text-slate-500">Title</span>
+              <input className="premium-input" value={block.title} onChange={(e) => onChange({ ...block, title: e.target.value })} />
+            </label>
+          )}
           {(block.type === "text" ||
             block.type === "features" ||
             block.type === "legal" ||
@@ -290,6 +304,16 @@ function EditSheet({
                 />
               </label>
             </>
+          )}
+          {block.type === "link" && (
+            <LinkStyleEditor
+              style={data.linkStyle}
+              label={data.buttonLabel || block.title || "Open link"}
+              href={data.href || "#"}
+              primaryColor={primaryColor}
+              accentColor={accentColor}
+              onChange={(linkStyle) => setData({ linkStyle })}
+            />
           )}
           {block.type === "whatsapp" && (
             <>
@@ -434,10 +458,12 @@ function AddWidgetSheet({ onPick, onClose }: { onPick: (t: BlockType) => void; o
             <li key={w.type}>
               <button
                 type="button"
-                className="flex h-full w-full flex-col items-start gap-0.5 rounded-xl border border-slate-100 bg-slate-50 px-2.5 py-2.5 text-left active:scale-[0.98] active:bg-white"
+                className="flex h-full w-full flex-col items-start gap-1 rounded-xl border border-slate-100 bg-slate-50 px-2.5 py-2.5 text-left active:scale-[0.98] active:bg-white"
                 onClick={() => onPick(w.type)}
               >
-                <span className="text-lg leading-none">{w.emoji}</span>
+                <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-white text-slate-700 ring-1 ring-slate-200">
+                  <WidgetTypeIcon type={w.type} size={18} />
+                </span>
                 <span className="text-xs font-semibold text-slate-900">{w.label}</span>
                 <span className="text-[10px] leading-snug text-slate-500">{w.hint}</span>
               </button>
@@ -456,6 +482,7 @@ export function LinktreeStackEditor({
   handle,
   businessName,
   primaryColor,
+  accentColor = "#7c3aed",
   initialContent,
   isPublished,
   businessIsPublished = false,
@@ -466,6 +493,7 @@ export function LinktreeStackEditor({
   handle: string;
   businessName: string;
   primaryColor: string;
+  accentColor?: string;
   initialContent: PageContent;
   /** This page’s draft/live flag */
   isPublished: boolean;
@@ -653,6 +681,7 @@ export function LinktreeStackEditor({
                   key={block.id}
                   block={block}
                   primaryColor={primaryColor}
+                  accentColor={accentColor}
                   profile={profile}
                   handle={handle}
                   onEdit={() => setEditId(block.id)}
@@ -701,7 +730,14 @@ export function LinktreeStackEditor({
         />
       )}
       {editing && (
-        <EditSheet block={editing} profile={profile} onChange={updateBlock} onClose={() => setEditId(null)} />
+        <EditSheet
+          block={editing}
+          profile={profile}
+          primaryColor={primaryColor}
+          accentColor={accentColor}
+          onChange={updateBlock}
+          onClose={() => setEditId(null)}
+        />
       )}
       {showAdd && (
         <AddWidgetSheet

@@ -30,6 +30,7 @@ export function PublicPageView({ data }: { data: PublicPageData }) {
   const hero = data.content.hero;
   const resolved = resolveTenantTheme(data.business.theme);
   const primary = resolved.primary;
+  const accent = resolved.accent;
   const env = getEnv();
   const schema = buildLocalBusinessSchema({
     name: profile.businessName || data.business.name,
@@ -95,6 +96,7 @@ export function PublicPageView({ data }: { data: PublicPageData }) {
               key={block.id}
               block={block}
               primaryColor={primary}
+              accentColor={accent}
               handle={data.business.handle}
               profile={profile}
             />

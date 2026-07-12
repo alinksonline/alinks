@@ -46,6 +46,7 @@ export default async function EditorPageSlug({ params }: { params: { slug: strin
 
   const theme = (business.theme as ThemeConfig | null) ?? null;
   const primaryColor = theme?.primaryColor ?? business.themePrimary ?? "#5b21b6";
+  const accentColor = theme?.accentColor ?? "#7c3aed";
   const profile = parseBusinessProfile(business.branding, business.name);
 
   return (
@@ -58,6 +59,7 @@ export default async function EditorPageSlug({ params }: { params: { slug: strin
           handle={business.handle}
           businessName={profile.businessName || business.name}
           primaryColor={primaryColor}
+          accentColor={accentColor}
           initialContent={content}
           isPublished={row.isPublished}
           businessIsPublished={business.isPublished}

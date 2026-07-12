@@ -2,17 +2,20 @@ import type { BusinessProfile } from "@/core/types/business-profile";
 import type { PageBlock } from "@/core/types/page";
 import { resolveBlockWithProfile } from "@/core/utils/resolve-block-profile";
 import { whatsappUrl } from "@/core/utils/business-profile";
+import { LinkButton } from "./link-button";
 
 /** Public mobile stack card — uses tenant theme CSS vars when inside `.tenant-theme`. */
 export function BlockRenderer({
   block: rawBlock,
   primaryColor,
+  accentColor,
   handle,
   profile,
 }: {
   block: PageBlock;
   /** Fallback if CSS vars unavailable (e.g. editor preview) */
   primaryColor: string;
+  accentColor?: string;
   handle?: string;
   profile?: BusinessProfile | null;
 }) {
@@ -21,6 +24,7 @@ export function BlockRenderer({
 
   const data = block.data ?? {};
   const primary = "var(--t-primary, " + primaryColor + ")";
+  const accent = accentColor || primaryColor;
   const card = "t-card px-3.5 py-3";
   const titleCls = "text-sm font-semibold tracking-tight t-ink";
   const bodyCls = "mt-1 text-xs leading-relaxed t-muted";
@@ -30,19 +34,13 @@ export function BlockRenderer({
       const href = data.href || "#";
       const label = data.buttonLabel || block.title || "Open link";
       return (
-        <a
+        <LinkButton
           href={href}
-          target={href.startsWith("http") ? "_blank" : undefined}
-          rel="noreferrer"
-          className={`${card} block py-2.5 text-center text-sm font-semibold tracking-tight active:scale-[0.98]`}
-          style={{
-            backgroundColor: primary,
-            color: "var(--t-on-primary, #fff)",
-            borderColor: "transparent",
-          }}
-        >
-          {label}
-        </a>
+          label={label}
+          linkStyle={data.linkStyle}
+          primaryColor={primaryColor}
+          accentColor={accent}
+        />
       );
     }
 

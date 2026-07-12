@@ -1,3 +1,7 @@
+import type { LinkButtonStyle } from "./link-button-style";
+
+export type { LinkButtonStyle } from "./link-button-style";
+
 export interface PageHero {
   title: string;
   tagline: string;
@@ -47,6 +51,8 @@ export type BlockData = {
   href?: string;
   buttonLabel?: string;
   imageUrl?: string;
+  /** Link button visual style (thickness, fill, corners, border, icon) */
+  linkStyle?: LinkButtonStyle;
 };
 
 export interface PageBlock {
