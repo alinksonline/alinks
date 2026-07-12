@@ -29,6 +29,7 @@ const config: Config = {
           cream: "rgb(var(--color-brand-cream) / <alpha-value>)",
           mist: "rgb(var(--color-brand-mist) / <alpha-value>)",
           surface: "rgb(var(--color-brand-surface) / <alpha-value>)",
+          muted: "rgb(var(--color-brand-muted) / <alpha-value>)",
           bronze: "rgb(var(--color-brand-purple) / <alpha-value>)",
           "bronze-light": "rgb(var(--color-brand-purple-light) / <alpha-value>)",
           "bronze-dark": "rgb(var(--color-brand-purple-dark) / <alpha-value>)",

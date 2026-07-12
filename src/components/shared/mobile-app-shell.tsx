@@ -4,8 +4,10 @@ import { cn } from "@/core/utils/cn";
 export type MobileShellVariant = "marketing" | "platform" | "tenant";
 
 const shellInner: Record<MobileShellVariant, string> = {
-  marketing: "bg-brand-cream",
-  platform: "bg-brand-cream",
+  /* alinks-chrome = platform/marketing surfaces where dark-mode contrast remaps apply */
+  marketing: "alinks-chrome bg-brand-cream",
+  platform: "alinks-chrome bg-brand-cream",
+  /* Tenant public mini-sites keep their own light Linktree cards */
   tenant: "bg-brand-surface",
 };
 

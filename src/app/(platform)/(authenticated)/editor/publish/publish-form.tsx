@@ -27,13 +27,13 @@ export function PublishForm({
 
   if (isPublished) {
     return (
-      <div className="space-y-4 rounded-2xl border border-emerald-200 bg-emerald-50 px-4 py-5">
-        <p className="text-base font-bold text-emerald-800">Your site is live</p>
+      <div className="space-y-3 rounded-xl border border-emerald-500/30 bg-emerald-500/10 px-3 py-3.5">
+        <p className="text-sm font-bold text-emerald-700 dark:text-emerald-300">Your site is live</p>
         <a
           href={`/${handle}`}
           target="_blank"
           rel="noreferrer"
-          className="inline-flex min-h-12 w-full items-center justify-center rounded-2xl bg-emerald-700 text-sm font-bold text-white active:scale-[0.99]"
+          className="premium-btn-bronze"
         >
           Open public site
         </a>
@@ -44,14 +44,16 @@ export function PublishForm({
   const ready = canPublish && confirm;
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-3">
       {blockers.length > 0 && (
-        <div className="rounded-2xl border border-amber-200 bg-amber-50 px-4 py-3">
-          <p className="text-xs font-bold uppercase tracking-wide text-amber-800">Still needed</p>
-          <ul className="mt-2 space-y-2">
+        <div className="rounded-xl border border-amber-500/30 bg-amber-500/10 px-3 py-2.5">
+          <p className="text-[10px] font-bold uppercase tracking-wide text-amber-800 dark:text-amber-200">
+            Still needed
+          </p>
+          <ul className="mt-1.5 space-y-1">
             {blockers.map((b) => (
-              <li key={b} className="flex gap-2 text-sm leading-snug text-amber-900">
-                <span className="mt-0.5 shrink-0 text-amber-600">•</span>
+              <li key={b} className="flex gap-1.5 text-xs leading-snug text-amber-900 dark:text-amber-100">
+                <span className="mt-0.5 shrink-0 text-amber-600 dark:text-amber-300">•</span>
                 <span>{b}</span>
               </li>
             ))}
@@ -62,29 +64,34 @@ export function PublishForm({
       {canPublish && (
         <label
           className={cn(
-            "flex min-h-[3.25rem] cursor-pointer items-start gap-3 rounded-2xl border px-4 py-3.5 active:bg-brand-mist/50",
-            confirm ? "border-brand-purple/30 bg-brand-purple/5" : "border-brand-ink/10 bg-white",
+            "flex cursor-pointer items-start gap-2.5 rounded-xl border px-3 py-2.5 active:bg-brand-mist/40",
+            confirm
+              ? "border-brand-purple/40 bg-brand-purple/10"
+              : "border-brand-ink/12 bg-brand-surface",
           )}
         >
           <input
             type="checkbox"
-            className="mt-1 h-5 w-5 shrink-0 rounded border-brand-ink/20"
+            className="mt-0.5 h-4 w-4 shrink-0 rounded border-brand-ink/25 bg-brand-surface accent-brand-purple"
             checked={confirm}
             onChange={(e) => setConfirm(e.target.checked)}
           />
-          <span className="text-sm leading-snug text-brand-ink">
-            I confirm my Terms & Privacy on this site are accurate, and the independent-operator footer is shown.
+          <span className="text-xs leading-snug text-brand-ink">
+            I confirm my Terms & Privacy on this site are accurate, and the independent-operator footer
+            is shown.
           </span>
         </label>
       )}
 
       {error && (
-        <p className="rounded-xl bg-red-50 px-3 py-2 text-sm text-red-700">{error}</p>
+        <p className="rounded-lg bg-red-500/10 px-2.5 py-1.5 text-xs text-red-700 dark:text-red-300">
+          {error}
+        </p>
       )}
 
       <Button
         type="button"
-        className="min-h-12 w-full rounded-2xl"
+        className="w-full"
         disabled={isPending || !ready}
         onClick={() => {
           setError(null);
@@ -92,7 +99,6 @@ export function PublishForm({
             const result = await publishWebsiteAction(businessId, confirm);
             if (!result.success) setError(result.error ?? "Could not publish");
             else {
-              // Full navigation so “Your site is live” + public link refresh reliably
               router.refresh();
               router.push(`/editor/publish`);
             }
@@ -103,12 +109,12 @@ export function PublishForm({
       </Button>
 
       {!canPublish && (
-        <p className="text-center text-[11px] text-brand-ink/45">
+        <p className="text-center text-[10px] text-brand-muted">
           Fix the items above, then return here to go live.
         </p>
       )}
       {canPublish && !confirm && (
-        <p className="text-center text-[11px] text-brand-ink/45">Tick the box to enable Publish.</p>
+        <p className="text-center text-[10px] text-brand-muted">Tick the box to enable Publish.</p>
       )}
     </div>
   );

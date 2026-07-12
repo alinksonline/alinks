@@ -29,7 +29,7 @@ export function PlatformTabBar({ role, locale = "en" }: { role: SessionRole; loc
 
   return (
     <nav className="platform-tab-bar" aria-label="Main navigation">
-      <div className="flex h-[3.75rem] items-stretch justify-around px-1">
+      <div className="flex h-14 items-stretch justify-around px-0.5">
         {tabs.map((tab) => {
           const active = tab.match(pathname);
           return (
@@ -37,13 +37,13 @@ export function PlatformTabBar({ role, locale = "en" }: { role: SessionRole; loc
               key={tab.href}
               href={tab.href}
               className={cn(
-                "flex min-w-0 flex-1 flex-col items-center justify-center gap-0.5 px-1 text-[10px] font-semibold transition",
-                active ? "text-brand-turquoise" : "text-brand-ink/45",
+                "flex min-w-0 flex-1 flex-col items-center justify-center gap-0.5 px-0.5 text-[10px] font-semibold transition",
+                active ? "text-brand-turquoise" : "text-brand-muted",
               )}
             >
               <span
                 className={cn(
-                  "h-1 w-8 rounded-full transition",
+                  "h-0.5 w-6 rounded-full transition",
                   active ? "bg-brand-gradient" : "bg-transparent",
                 )}
               />

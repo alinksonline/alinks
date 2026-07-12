@@ -25,7 +25,7 @@ export function EditorNav({ active }: { active?: string }) {
       className="editor-subnav sticky top-0 z-30 border-b border-brand-ink/8 bg-brand-surface/95 backdrop-blur-md"
       aria-label="Website builder"
     >
-      <div className="editor-subnav-scroll flex gap-1.5 overflow-x-auto overscroll-x-contain px-3 py-2.5 [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+      <div className="editor-subnav-scroll flex gap-1 overflow-x-auto overscroll-x-contain px-2.5 py-1.5 [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
         {links.map((l) => {
           const isActive = active ? active === l.href : l.match(pathname);
           return (
@@ -33,10 +33,10 @@ export function EditorNav({ active }: { active?: string }) {
               key={l.href}
               href={l.href}
               className={cn(
-                "snap-start whitespace-nowrap rounded-full px-3.5 py-2.5 text-xs font-semibold transition active:scale-[0.98]",
+                "snap-start whitespace-nowrap rounded-full px-2.5 py-1 text-[11px] font-semibold transition active:scale-[0.98]",
                 isActive
-                  ? "bg-brand-ink text-brand-cream shadow-soft"
-                  : "bg-brand-mist text-brand-ink/60 active:bg-brand-ink/10",
+                  ? "bg-brand-ink text-brand-cream shadow-soft dark:bg-brand-ink dark:text-brand-cream"
+                  : "bg-brand-mist text-brand-muted active:bg-brand-ink/10",
               )}
             >
               {l.label}

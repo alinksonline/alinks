@@ -8,6 +8,8 @@
   --color-brand-cream: 250 249 247;
   --color-brand-mist: 240 238 234;
   --color-brand-surface: 255 255 255;
+  /* Secondary copy — always readable on cream/surface */
+  --color-brand-muted: 87 83 78;
   --color-brand-purple: 91 33 182;
   --color-brand-purple-light: 124 58 237;
   --color-brand-purple-dark: 76 29 149;
@@ -20,9 +22,15 @@
   --safe-bottom: env(safe-area-inset-bottom, 0px);
   --safe-left: env(safe-area-inset-left, 0px);
   --safe-right: env(safe-area-inset-right, 0px);
-  --shadow-card: 0 1px 2px rgba(28, 25, 23, 0.04), 0 8px 24px -8px rgba(28, 25, 23, 0.12);
-  --shadow-soft: 0 4px 14px -4px rgba(28, 25, 23, 0.15);
-  --shadow-accent: 0 8px 24px -6px rgba(91, 33, 182, 0.28), 0 4px 12px -4px rgba(13, 148, 136, 0.2);
+  /* Compact control rhythm */
+  --ctrl-h: 2.25rem;
+  --ctrl-px: 0.75rem;
+  --ctrl-py: 0.45rem;
+  --ctrl-radius: 0.625rem;
+  --ctrl-font: 0.8125rem;
+  --shadow-card: 0 1px 2px rgba(28, 25, 23, 0.04), 0 6px 18px -8px rgba(28, 25, 23, 0.1);
+  --shadow-soft: 0 2px 10px -4px rgba(28, 25, 23, 0.12);
+  --shadow-accent: 0 6px 18px -6px rgba(91, 33, 182, 0.28), 0 3px 10px -4px rgba(13, 148, 136, 0.18);
   --shadow-device: 0 0 0 1px rgba(28, 25, 23, 0.06), 0 32px 64px -24px rgba(28, 25, 23, 0.22);
   --premium-radial: radial-gradient(ellipse 80% 60% at 50% -10%, rgba(124, 58, 237, 0.14), transparent 65%),
     radial-gradient(ellipse 60% 40% at 80% 0%, rgba(45, 212, 191, 0.12), transparent 55%);
@@ -32,21 +40,25 @@
 
 .dark {
   color-scheme: dark;
-  --color-brand-ink: 245 243 255;
-  --color-brand-cream: 18 14 28;
-  --color-brand-mist: 12 10 20;
-  --color-brand-surface: 24 20 36;
-  --color-brand-purple: 139 92 246;
-  --color-brand-purple-light: 167 139 250;
-  --color-brand-purple-dark: 109 40 217;
+  /* Near-white ink on dark surfaces — high contrast body text */
+  --color-brand-ink: 244 242 250;
+  --color-brand-cream: 14 12 22;
+  --color-brand-mist: 28 24 42;
+  /* Elevated cards slightly lighter than page cream */
+  --color-brand-surface: 32 28 48;
+  /* Readable secondary on dark (not washed-out ink/40) */
+  --color-brand-muted: 168 162 190;
+  --color-brand-purple: 167 139 250;
+  --color-brand-purple-light: 196 181 253;
+  --color-brand-purple-dark: 124 58 237;
   --color-brand-turquoise: 45 212 191;
   --color-brand-turquoise-light: 94 234 212;
   --color-brand-turquoise-dark: 20 184 166;
-  --app-frame-bg: 6 4 12;
-  --shadow-card: 0 1px 2px rgba(0, 0, 0, 0.35), 0 8px 24px -8px rgba(0, 0, 0, 0.45);
-  --shadow-soft: 0 4px 14px -4px rgba(0, 0, 0, 0.4);
-  --shadow-accent: 0 8px 24px -6px rgba(139, 92, 246, 0.35), 0 4px 12px -4px rgba(45, 212, 191, 0.22);
-  --shadow-device: 0 0 0 1px rgba(255, 255, 255, 0.06), 0 32px 64px -24px rgba(0, 0, 0, 0.65);
+  --app-frame-bg: 6 5 12;
+  --shadow-card: 0 1px 2px rgba(0, 0, 0, 0.4), 0 8px 22px -10px rgba(0, 0, 0, 0.55);
+  --shadow-soft: 0 2px 12px -4px rgba(0, 0, 0, 0.45);
+  --shadow-accent: 0 6px 18px -6px rgba(139, 92, 246, 0.4), 0 3px 10px -4px rgba(45, 212, 191, 0.22);
+  --shadow-device: 0 0 0 1px rgba(255, 255, 255, 0.07), 0 32px 64px -24px rgba(0, 0, 0, 0.7);
   --premium-radial: radial-gradient(ellipse 80% 60% at 50% -10%, rgba(139, 92, 246, 0.22), transparent 65%),
     radial-gradient(ellipse 60% 40% at 80% 0%, rgba(45, 212, 191, 0.16), transparent 55%);
   --premium-mesh: radial-gradient(at 0% 0%, rgba(139, 92, 246, 0.12) 0%, transparent 50%),
@@ -145,39 +157,48 @@ body {
   }
 
   .premium-subtext {
-    font-size: 0.875rem;
-    line-height: 1.625;
-    color: rgb(var(--color-brand-ink) / 0.65);
+    font-size: 0.8125rem;
+    line-height: 1.5;
+    color: rgb(var(--color-brand-muted));
   }
 
   .premium-card {
     overflow: hidden;
-    border-radius: 1rem;
-    border: 1px solid rgb(var(--color-brand-ink) / 0.08);
+    border-radius: 0.75rem;
+    border: 1px solid rgb(var(--color-brand-ink) / 0.1);
     background-color: rgb(var(--color-brand-surface));
     box-shadow: var(--shadow-card);
   }
 
   .premium-card-soft {
     overflow: hidden;
-    border-radius: 1rem;
-    border: 1px solid rgb(var(--color-brand-ink) / 0.06);
-    background-color: rgb(var(--color-brand-mist) / 0.6);
+    border-radius: 0.75rem;
+    border: 1px solid rgb(var(--color-brand-ink) / 0.08);
+    background-color: rgb(var(--color-brand-mist) / 0.85);
   }
 
+  /* Compact, elegant controls — used app-wide */
   .premium-btn-primary {
     display: inline-flex;
     width: 100%;
+    min-height: var(--ctrl-h);
     align-items: center;
     justify-content: center;
-    border-radius: 0.75rem;
+    border-radius: var(--ctrl-radius);
     background-color: rgb(var(--color-brand-ink));
-    padding: 0.875rem 1.25rem;
-    font-size: 0.875rem;
+    padding: var(--ctrl-py) var(--ctrl-px);
+    font-size: var(--ctrl-font);
     font-weight: 600;
+    letter-spacing: -0.01em;
     color: rgb(var(--color-brand-cream));
     box-shadow: var(--shadow-soft);
-    transition: transform 0.15s ease, opacity 0.15s ease;
+    transition: transform 0.12s ease, opacity 0.12s ease;
+  }
+
+  .dark .premium-btn-primary {
+    /* Ink is light in dark mode — invert for solid CTA fill */
+    background-color: rgb(244 242 250);
+    color: rgb(18 14 28);
   }
 
   .premium-btn-primary:active {
@@ -185,26 +206,28 @@ body {
   }
 
   .premium-btn-primary:disabled {
-    opacity: 0.5;
+    opacity: 0.45;
   }
 
   .premium-btn-bronze {
     display: inline-flex;
     width: 100%;
+    min-height: var(--ctrl-h);
     align-items: center;
     justify-content: center;
-    border-radius: 0.75rem;
+    border-radius: var(--ctrl-radius);
     background: linear-gradient(
       135deg,
       rgb(var(--color-brand-purple)),
       rgb(var(--color-brand-turquoise))
     );
-    padding: 0.875rem 1.25rem;
-    font-size: 0.875rem;
+    padding: var(--ctrl-py) var(--ctrl-px);
+    font-size: var(--ctrl-font);
     font-weight: 600;
+    letter-spacing: -0.01em;
     color: #fff;
     box-shadow: var(--shadow-accent);
-    transition: transform 0.15s ease, opacity 0.15s ease;
+    transition: transform 0.12s ease, opacity 0.12s ease;
   }
 
   .premium-btn-bronze:active {
@@ -212,22 +235,24 @@ body {
   }
 
   .premium-btn-bronze:disabled {
-    opacity: 0.5;
+    opacity: 0.45;
   }
 
   .premium-btn-ghost {
     display: inline-flex;
     width: 100%;
+    min-height: var(--ctrl-h);
     align-items: center;
     justify-content: center;
-    border-radius: 0.75rem;
-    border: 1px solid rgb(var(--color-brand-ink) / 0.1);
+    border-radius: var(--ctrl-radius);
+    border: 1px solid rgb(var(--color-brand-ink) / 0.12);
     background-color: rgb(var(--color-brand-surface));
-    padding: 0.875rem 1.25rem;
-    font-size: 0.875rem;
+    padding: var(--ctrl-py) var(--ctrl-px);
+    font-size: var(--ctrl-font);
     font-weight: 600;
+    letter-spacing: -0.01em;
     color: rgb(var(--color-brand-ink));
-    transition: transform 0.15s ease;
+    transition: transform 0.12s ease;
   }
 
   .premium-btn-ghost:active {
@@ -236,23 +261,43 @@ body {
 
   .premium-input {
     width: 100%;
-    border-radius: 0.75rem;
-    border: 1px solid rgb(var(--color-brand-ink) / 0.1);
+    min-height: var(--ctrl-h);
+    border-radius: var(--ctrl-radius);
+    border: 1px solid rgb(var(--color-brand-ink) / 0.14);
     background-color: rgb(var(--color-brand-surface));
-    padding: 0.875rem 1rem;
+    padding: 0.5rem 0.75rem;
+    /* 16px avoids iOS focus zoom; still compact via padding */
     font-size: 1rem;
+    line-height: 1.35;
     color: rgb(var(--color-brand-ink));
     outline: none;
-    transition: border-color 0.15s ease, box-shadow 0.15s ease;
+    transition: border-color 0.12s ease, box-shadow 0.12s ease;
   }
 
   .premium-input::placeholder {
-    color: rgb(var(--color-brand-ink) / 0.35);
+    color: rgb(var(--color-brand-muted) / 0.85);
   }
 
   .premium-input:focus {
-    border-color: rgb(var(--color-brand-turquoise) / 0.5);
-    box-shadow: 0 0 0 2px rgb(var(--color-brand-turquoise) / 0.18);
+    border-color: rgb(var(--color-brand-purple) / 0.55);
+    box-shadow: 0 0 0 2px rgb(var(--color-brand-purple) / 0.18);
+  }
+
+  /* Compact list row / nav chip */
+  .ui-row {
+    display: flex;
+    min-height: 2.5rem;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.5rem;
+    border-radius: var(--ctrl-radius);
+    border: 1px solid rgb(var(--color-brand-ink) / 0.1);
+    background-color: rgb(var(--color-brand-surface));
+    padding: 0.5rem 0.75rem;
+  }
+
+  .ui-muted {
+    color: rgb(var(--color-brand-muted));
   }
 
   .platform-tab-bar {
@@ -263,8 +308,8 @@ body {
     width: 100%;
     max-width: var(--app-max-width);
     transform: translateX(-50%);
-    border-top: 1px solid rgb(var(--color-brand-ink) / 0.08);
-    background-color: rgb(var(--color-brand-surface) / 0.95);
+    border-top: 1px solid rgb(var(--color-brand-ink) / 0.1);
+    background-color: rgb(var(--color-brand-surface) / 0.96);
     backdrop-filter: blur(16px);
     -webkit-backdrop-filter: blur(16px);
     padding-bottom: var(--safe-bottom);
@@ -320,7 +365,7 @@ body {
   .editor-mobile-shell textarea,
   .editor-mobile-shell select {
     font-size: 16px; /* prevent iOS zoom on focus */
-    min-height: 2.75rem;
+    min-height: var(--ctrl-h);
   }
 
   /* Linktree studio canvas behind the stack */
@@ -329,6 +374,13 @@ body {
       radial-gradient(ellipse 120% 80% at 50% -20%, rgba(124, 58, 237, 0.12), transparent 55%),
       radial-gradient(ellipse 80% 50% at 100% 50%, rgba(45, 212, 191, 0.08), transparent 50%),
       linear-gradient(180deg, #f4f2f8 0%, #ebe8f0 100%);
+  }
+
+  .dark .lt-studio {
+    background:
+      radial-gradient(ellipse 120% 80% at 50% -20%, rgba(139, 92, 246, 0.18), transparent 55%),
+      radial-gradient(ellipse 80% 50% at 100% 50%, rgba(45, 212, 191, 0.1), transparent 50%),
+      linear-gradient(180deg, #1a1628 0%, #12101c 100%);
   }
 }
 
@@ -355,5 +407,42 @@ body {
 
   .bg-premium-mesh {
     background-image: var(--premium-mesh);
+  }
+
+  /*
+   * Dark-mode contrast safety net (platform + marketing only via .alinks-chrome):
+   * Hardcoded bg-white + text-brand-ink becomes light-on-white when ink flips dark.
+   * Remap pure white fills to elevated surface so body/muted text stays readable.
+   */
+  .dark .alinks-chrome .bg-white {
+    background-color: rgb(var(--color-brand-surface)) !important;
+  }
+
+  .dark .alinks-chrome .bg-white\/90,
+  .dark .alinks-chrome .bg-white\/95 {
+    background-color: rgb(var(--color-brand-surface) / 0.95) !important;
+  }
+
+  .dark .alinks-chrome .text-slate-900,
+  .dark .alinks-chrome .text-slate-800 {
+    color: rgb(var(--color-brand-ink));
+  }
+
+  .dark .alinks-chrome .text-slate-600,
+  .dark .alinks-chrome .text-slate-500 {
+    color: rgb(var(--color-brand-muted));
+  }
+
+  .dark .alinks-chrome .text-slate-400 {
+    color: rgb(var(--color-brand-muted) / 0.85);
+  }
+
+  .dark .alinks-chrome .border-slate-100,
+  .dark .alinks-chrome .border-slate-200 {
+    border-color: rgb(var(--color-brand-ink) / 0.12);
+  }
+
+  .dark .alinks-chrome .bg-slate-50 {
+    background-color: rgb(var(--color-brand-mist));
   }
 }

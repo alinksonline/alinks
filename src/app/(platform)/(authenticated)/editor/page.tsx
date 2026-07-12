@@ -16,32 +16,29 @@ export default async function EditorHomePage() {
   return (
     <>
       <EditorNav active="/editor" />
-      <PageShell className="py-5">
-        <h1 className="text-xl font-bold tracking-tight text-brand-ink">Website builder</h1>
-        <p className="mt-1 text-sm leading-snug text-brand-ink/55">
-          {business.name} · /{business.handle} · Linktree-style stack · max 5 pages
+      <PageShell className="py-3">
+        <h1 className="text-base font-bold tracking-tight text-brand-ink">Website builder</h1>
+        <p className="mt-0.5 text-[11px] leading-snug text-brand-muted">
+          {business.name} · /{business.handle} · max 5 pages
         </p>
         <Link
           href="/editor/business"
-          className="mt-4 flex min-h-12 items-center justify-between rounded-2xl border border-brand-purple/20 bg-brand-purple/5 px-4 py-3 active:scale-[0.99]"
+          className="mt-3 flex items-center justify-between gap-2 rounded-xl border border-brand-purple/25 bg-brand-purple/10 px-3 py-2 active:scale-[0.99]"
         >
-          <span>
-            <span className="block text-sm font-bold text-brand-ink">Business profile</span>
-            <span className="block text-[11px] text-brand-ink/50">Name, phone, WhatsApp, social handles</span>
+          <span className="min-w-0">
+            <span className="block text-xs font-semibold text-brand-ink">Business profile</span>
+            <span className="block text-[10px] text-brand-muted">Name, phone, WhatsApp, social</span>
           </span>
-          <span className="text-brand-purple">→</span>
+          <span className="shrink-0 text-sm text-brand-purple">→</span>
         </Link>
-        <ul className="mt-5 space-y-2.5">
+        <ul className="mt-3 space-y-1.5">
           {pageList.map((p) => (
             <li key={p.id}>
-              <Link
-                href={`/editor/pages/${p.slug}`}
-                className="flex min-h-[3.5rem] items-center justify-between gap-3 rounded-2xl border border-brand-ink/10 bg-brand-surface px-4 py-3.5 shadow-card active:scale-[0.99]"
-              >
-                <span className="min-w-0 truncate font-semibold text-brand-ink">{p.title}</span>
+              <Link href={`/editor/pages/${p.slug}`} className="ui-row active:scale-[0.99]">
+                <span className="min-w-0 truncate text-xs font-semibold text-brand-ink">{p.title}</span>
                 <span
                   className={`shrink-0 text-[10px] font-bold uppercase tracking-wide ${
-                    p.isPublished ? "text-emerald-600" : "text-brand-ink/35"
+                    p.isPublished ? "text-emerald-600 dark:text-emerald-400" : "text-brand-muted"
                   }`}
                 >
                   {p.isPublished ? "Live" : "Draft"}
@@ -51,12 +48,12 @@ export default async function EditorHomePage() {
           ))}
         </ul>
         {!business.isPublished && (
-          <p className="mt-5 rounded-2xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-900">
-            Site is draft — complete the{" "}
+          <p className="mt-3 rounded-xl border border-amber-500/30 bg-amber-500/10 px-3 py-2 text-[11px] leading-snug text-amber-900 dark:text-amber-100">
+            Site is private —{" "}
             <Link href="/editor/publish" className="font-semibold underline">
-              publish checklist
-            </Link>
-            .
+              Go live
+            </Link>{" "}
+            when ready.
           </p>
         )}
       </PageShell>

@@ -52,7 +52,7 @@ export function ThemeForm({ businessId, initialTheme }: { businessId: string; in
       {message && <p className="text-sm text-brand-ink/70">{message}</p>}
 
       <div className="editor-sticky-actions">
-        <Button type="submit" className="min-h-12 w-full" disabled={isPending}>
+        <Button type="submit" className="w-full" disabled={isPending}>
           {isPending ? "Applying…" : "Apply theme"}
         </Button>
       </div>
