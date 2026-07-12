@@ -20,7 +20,9 @@ export function BlockRenderer({
   if (block.visible === false) return null;
 
   const data = block.data ?? {};
-  const card = "rounded-2xl border border-black/5 bg-white px-4 py-4 shadow-sm";
+  // Linktree-style full-width soft cards
+  const card =
+    "rounded-[1.35rem] border border-black/[0.04] bg-white px-4 py-[1.05rem] shadow-[0_1px_2px_rgba(0,0,0,0.04),0_8px_24px_-12px_rgba(0,0,0,0.12)]";
 
   switch (block.type) {
     case "link": {
@@ -31,7 +33,7 @@ export function BlockRenderer({
           href={href}
           target={href.startsWith("http") ? "_blank" : undefined}
           rel="noreferrer"
-          className={`${card} block text-center font-bold text-white active:scale-[0.99]`}
+          className={`${card} block text-center text-[15px] font-bold tracking-tight text-white active:scale-[0.98]`}
           style={{ backgroundColor: primaryColor }}
         >
           {label}
@@ -48,13 +50,13 @@ export function BlockRenderer({
           href={missing ? undefined : href}
           target={missing ? undefined : "_blank"}
           rel="noreferrer"
-          className={`${card} flex flex-col items-center gap-1 text-center active:scale-[0.99] ${missing ? "opacity-60 pointer-events-none" : ""}`}
+          className={`${card} flex flex-col items-center gap-0.5 text-center active:scale-[0.98] ${missing ? "opacity-60 pointer-events-none" : ""}`}
           style={{ backgroundColor: "#25D366", color: "#fff" }}
         >
-          <span className="text-lg font-bold">{block.title || "WhatsApp"}</span>
-          {block.body ? <span className="text-sm text-white/90">{block.body}</span> : null}
+          <span className="text-[15px] font-bold tracking-tight">{block.title || "WhatsApp"}</span>
+          {block.body ? <span className="text-xs text-white/90">{block.body}</span> : null}
           {missing ? (
-            <span className="text-xs text-white/80">Add WhatsApp in Business profile</span>
+            <span className="text-[11px] text-white/80">Add WhatsApp in Business profile</span>
           ) : null}
         </a>
       );

@@ -2,6 +2,7 @@
 
 import { useMemo, useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
+import Link from "next/link";
 import {
   DndContext,
   closestCenter,
@@ -23,15 +24,16 @@ import { CSS } from "@dnd-kit/utilities";
 import { publishPageAction, savePageContentAction } from "@/app/actions/business";
 import { Button } from "@/components/ui/button";
 import { BlockRenderer } from "@/components/tenant/block-renderer";
-import type { BlockType, PageBlock, PageContent, ServiceItem } from "@/core/types/page";
-import { cn } from "@/core/utils/cn";
+import type { BlockType, PageBlock, PageContent, PageHero, ServiceItem } from "@/core/types/page";
 import type { BusinessProfile } from "@/core/types/business-profile";
+import { cn } from "@/core/utils/cn";
 import { createBlock, WIDGET_CATALOG, widgetLabel } from "./widget-catalog";
 
 function StackCard({
   block,
   primaryColor,
   profile,
+  handle,
   onEdit,
   onToggle,
   onRemove,
@@ -39,6 +41,7 @@ function StackCard({
   block: PageBlock;
   primaryColor: string;
   profile?: BusinessProfile | null;
+  handle?: string;
   onEdit: () => void;
   onToggle: () => void;
   onRemove: () => void;
@@ -49,57 +52,152 @@ function StackCard({
   const style = {
     transform: CSS.Transform.toString(transform),
     transition,
-    opacity: isDragging ? 0.9 : block.visible === false ? 0.45 : 1,
+    zIndex: isDragging ? 20 : undefined,
+    opacity: isDragging ? 0.95 : block.visible === false ? 0.4 : 1,
   };
 
   return (
-    <div ref={setNodeRef} style={style} className="flex items-stretch gap-1">
-      <button
-        type="button"
-        className="flex w-9 shrink-0 touch-none items-center justify-center rounded-xl text-brand-ink/30 active:bg-brand-mist"
-        aria-label="Drag to reorder"
-        {...attributes}
-        {...listeners}
-      >
-        ⋮⋮
-      </button>
+    <div ref={setNodeRef} style={style} className="group relative">
+      <div className="absolute -left-1 top-1/2 z-10 flex -translate-y-1/2 flex-col gap-0.5 opacity-70">
+        <button
+          type="button"
+          className="flex h-8 w-7 touch-none items-center justify-center rounded-lg bg-white/90 text-[10px] text-slate-400 shadow-sm ring-1 ring-black/5 active:bg-slate-100"
+          aria-label="Drag to reorder"
+          {...attributes}
+          {...listeners}
+        >
+          ⋮⋮
+        </button>
+      </div>
       <button
         type="button"
         onClick={onEdit}
-        className="min-w-0 flex-1 overflow-hidden rounded-2xl text-left active:scale-[0.99]"
+        className="w-full pl-6 text-left active:scale-[0.99]"
       >
-        <div className={cn(block.visible === false && "grayscale")}>
+        <div className={cn("pointer-events-none", block.visible === false && "grayscale")}>
           <BlockRenderer
             block={{ ...block, visible: true }}
             primaryColor={primaryColor}
             profile={profile}
+            handle={handle}
           />
         </div>
-        <p className="mt-1 px-1 text-[10px] font-semibold uppercase tracking-wide text-brand-ink/40">
-          {widgetLabel(block.type)}
-          {block.visible === false ? " · hidden" : ""} · tap to edit
-        </p>
       </button>
-      <div className="flex w-10 shrink-0 flex-col gap-1 py-1">
+      <div className="mt-1 flex items-center justify-end gap-1 px-1">
         <button
           type="button"
           onClick={onToggle}
-          className="flex h-9 items-center justify-center rounded-lg text-xs font-bold text-brand-ink/50 active:bg-brand-mist"
-          aria-label={block.visible === false ? "Show" : "Hide"}
-          title={block.visible === false ? "Show on site" : "Hide on site"}
+          className="rounded-full px-2 py-1 text-[10px] font-semibold text-slate-400 active:bg-white"
         >
-          {block.visible === false ? "👁" : "◉"}
+          {block.visible === false ? "Hidden · show" : "Hide"}
         </button>
         <button
           type="button"
           onClick={onRemove}
-          className="flex h-9 items-center justify-center rounded-lg text-lg text-brand-ink/30 active:bg-red-50 active:text-red-600"
-          aria-label="Remove"
+          className="rounded-full px-2 py-1 text-[10px] font-semibold text-red-400 active:bg-red-50"
         >
-          ×
+          Remove
         </button>
       </div>
     </div>
+  );
+}
+
+function HeroPreviewCard({
+  hero,
+  primaryColor,
+  onEdit,
+}: {
+  hero: PageHero;
+  primaryColor: string;
+  onEdit: () => void;
+}) {
+  return (
+    <button
+      type="button"
+      onClick={onEdit}
+      className="mb-4 w-full overflow-hidden rounded-3xl text-left active:scale-[0.99]"
+    >
+      <div
+        className="relative flex min-h-[160px] flex-col justify-end p-4 text-white"
+        style={{
+          background: hero.imageUrl
+            ? `linear-gradient(to top, rgba(0,0,0,.8), rgba(0,0,0,.2)), url(${hero.imageUrl}) center/cover`
+            : `linear-gradient(145deg, ${primaryColor}, #0f172a)`,
+        }}
+      >
+        <span className="mb-2 self-start rounded-full bg-white/15 px-2 py-0.5 text-[9px] font-bold uppercase tracking-wider backdrop-blur">
+          Hero · tap to edit
+        </span>
+        <p className="text-xl font-black leading-tight">{hero.title || "Your headline"}</p>
+        <p className="mt-1 text-sm text-white/85">{hero.tagline || "Your tagline"}</p>
+        {hero.ctaText ? (
+          <span
+            className="mt-3 inline-flex min-h-10 items-center justify-center rounded-2xl px-4 text-sm font-bold"
+            style={{ backgroundColor: primaryColor }}
+          >
+            {hero.ctaText}
+          </span>
+        ) : null}
+      </div>
+    </button>
+  );
+}
+
+function HeroEditSheet({
+  hero,
+  onChange,
+  onClose,
+}: {
+  hero: PageHero;
+  onChange: (h: PageHero) => void;
+  onClose: () => void;
+}) {
+  return (
+    <>
+      <div className="fixed inset-0 z-40 bg-black/45" onClick={onClose} aria-hidden />
+      <div
+        className="fixed inset-x-0 bottom-0 z-50 mx-auto flex max-h-[min(88dvh,100%)] w-full max-w-[var(--app-max-width)] flex-col rounded-t-3xl bg-white shadow-2xl"
+        style={{ paddingBottom: "var(--safe-bottom)" }}
+      >
+        <div className="mx-auto mt-3 h-1 w-10 rounded-full bg-slate-200" />
+        <div className="flex items-center justify-between px-4 py-3">
+          <h2 className="text-base font-bold">Edit hero</h2>
+          <button type="button" className="flex h-10 w-10 items-center justify-center text-2xl text-slate-400" onClick={onClose}>
+            ×
+          </button>
+        </div>
+        <div className="space-y-3 overflow-y-auto px-4 pb-4">
+          <label className="block space-y-1">
+            <span className="text-xs font-semibold text-slate-500">Headline</span>
+            <input className="premium-input" value={hero.title} onChange={(e) => onChange({ ...hero, title: e.target.value })} />
+          </label>
+          <label className="block space-y-1">
+            <span className="text-xs font-semibold text-slate-500">Tagline</span>
+            <textarea className="premium-input min-h-[4.5rem]" value={hero.tagline} onChange={(e) => onChange({ ...hero, tagline: e.target.value })} rows={2} />
+          </label>
+          <label className="block space-y-1">
+            <span className="text-xs font-semibold text-slate-500">Cover image URL</span>
+            <input className="premium-input font-mono text-xs" value={hero.imageUrl} onChange={(e) => onChange({ ...hero, imageUrl: e.target.value })} placeholder="https://…" />
+          </label>
+          <div className="grid grid-cols-2 gap-2">
+            <label className="block space-y-1">
+              <span className="text-xs font-semibold text-slate-500">Button</span>
+              <input className="premium-input" value={hero.ctaText} onChange={(e) => onChange({ ...hero, ctaText: e.target.value })} />
+            </label>
+            <label className="block space-y-1">
+              <span className="text-xs font-semibold text-slate-500">Link</span>
+              <input className="premium-input font-mono text-xs" value={hero.ctaLink} onChange={(e) => onChange({ ...hero, ctaLink: e.target.value })} placeholder="/contact" />
+            </label>
+          </div>
+        </div>
+        <div className="border-t px-4 py-3">
+          <button type="button" className="premium-btn-bronze" onClick={onClose}>
+            Done
+          </button>
+        </div>
+      </div>
+    </>
   );
 }
 
@@ -115,54 +213,45 @@ function EditSheet({
   onClose: () => void;
 }) {
   const data = block.data ?? {};
-
   const setData = (patch: Partial<NonNullable<PageBlock["data"]>>) => {
     onChange({ ...block, data: { ...data, ...patch } });
   };
-
   const items: ServiceItem[] = data.items ?? [];
   const profileWa = profile?.whatsapp || profile?.phone || "";
   const usesProfileContact = block.type === "contact" || block.type === "whatsapp";
 
   return (
     <>
-      <div className="fixed inset-0 z-40 bg-black/40" onClick={onClose} aria-hidden />
+      <div className="fixed inset-0 z-40 bg-black/45" onClick={onClose} aria-hidden />
       <div
         role="dialog"
         aria-modal="true"
-        className="fixed inset-x-0 bottom-0 z-50 mx-auto flex max-h-[min(90dvh,100%)] w-full max-w-[var(--app-max-width)] flex-col rounded-t-3xl border border-brand-ink/10 bg-brand-surface shadow-device"
+        className="fixed inset-x-0 bottom-0 z-50 mx-auto flex max-h-[min(90dvh,100%)] w-full max-w-[var(--app-max-width)] flex-col rounded-t-3xl bg-white shadow-2xl"
         style={{ paddingBottom: "var(--safe-bottom)" }}
       >
-        <div className="flex justify-center pt-3">
-          <span className="h-1 w-10 rounded-full bg-brand-ink/15" />
-        </div>
-        <div className="flex items-center justify-between px-4 pb-2 pt-2">
-          <h2 className="text-base font-bold text-brand-ink">{widgetLabel(block.type)}</h2>
-          <button type="button" className="flex h-11 w-11 items-center justify-center text-2xl text-brand-ink/40" onClick={onClose}>
+        <div className="mx-auto mt-3 h-1 w-10 rounded-full bg-slate-200" />
+        <div className="flex items-center justify-between px-4 py-3">
+          <h2 className="text-base font-bold text-slate-900">{widgetLabel(block.type)}</h2>
+          <button type="button" className="flex h-10 w-10 items-center justify-center text-2xl text-slate-400" onClick={onClose}>
             ×
           </button>
         </div>
         <div className="min-h-0 flex-1 space-y-4 overflow-y-auto px-4 pb-4">
           {usesProfileContact && profile && (
-            <div className="rounded-xl border border-brand-turquoise/20 bg-brand-turquoise/5 px-3 py-2.5 text-xs leading-relaxed text-brand-ink/70">
-              <strong className="text-brand-turquoise-dark">From Business profile</strong>
+            <div className="rounded-2xl bg-emerald-50 px-3 py-2.5 text-xs leading-relaxed text-emerald-900">
+              <strong>Uses Business profile</strong> when fields are empty.
               <br />
-              Phone: {profile.phone || "—"} · WhatsApp: {profileWa || "—"}
+              {profile.phone || "—"} · WA {profileWa || "—"} · {profile.email || "—"}
               <br />
-              Email: {profile.email || "—"}
-              <br />
-              Leave fields blank below to always use profile. Override only if this section needs different numbers.
-              {" "}
-              <a href="/editor/business" className="font-semibold text-brand-purple underline">
+              <Link href="/editor/business" className="font-semibold underline">
                 Edit profile →
-              </a>
+              </Link>
             </div>
           )}
           <label className="block space-y-1">
-            <span className="text-xs font-semibold uppercase text-brand-ink/45">Title</span>
+            <span className="text-xs font-semibold text-slate-500">Title</span>
             <input className="premium-input" value={block.title} onChange={(e) => onChange({ ...block, title: e.target.value })} />
           </label>
-
           {(block.type === "text" ||
             block.type === "features" ||
             block.type === "legal" ||
@@ -172,7 +261,7 @@ function EditSheet({
             block.type === "services" ||
             block.type === "gallery") && (
             <label className="block space-y-1">
-              <span className="text-xs font-semibold uppercase text-brand-ink/45">Subtitle / body</span>
+              <span className="text-xs font-semibold text-slate-500">Description</span>
               <textarea
                 className="premium-input min-h-[5rem] resize-y"
                 value={block.body}
@@ -181,111 +270,70 @@ function EditSheet({
               />
             </label>
           )}
-
           {(block.type === "link" || block.type === "cta") && (
             <>
               <label className="block space-y-1">
-                <span className="text-xs font-semibold uppercase text-brand-ink/45">Button label</span>
-                <input
-                  className="premium-input"
-                  value={data.buttonLabel ?? ""}
-                  onChange={(e) => setData({ buttonLabel: e.target.value })}
-                />
+                <span className="text-xs font-semibold text-slate-500">Button label</span>
+                <input className="premium-input" value={data.buttonLabel ?? ""} onChange={(e) => setData({ buttonLabel: e.target.value })} />
               </label>
               <label className="block space-y-1">
-                <span className="text-xs font-semibold uppercase text-brand-ink/45">Link URL</span>
+                <span className="text-xs font-semibold text-slate-500">Link</span>
                 <input
                   className="premium-input font-mono text-sm"
                   value={data.href ?? ""}
                   onChange={(e) => setData({ href: e.target.value })}
                   placeholder="https://… or /contact"
-                  inputMode="url"
                 />
               </label>
             </>
           )}
-
           {block.type === "whatsapp" && (
             <>
               <label className="block space-y-1">
-                <span className="text-xs font-semibold uppercase text-brand-ink/45">
-                  WhatsApp override (optional)
-                </span>
+                <span className="text-xs font-semibold text-slate-500">WhatsApp override</span>
                 <input
                   className="premium-input"
                   value={data.phone ?? ""}
                   onChange={(e) => setData({ phone: e.target.value })}
-                  placeholder={profileWa || "Uses Business profile WhatsApp"}
-                  inputMode="tel"
+                  placeholder={profileWa || "From Business profile"}
                 />
               </label>
               <label className="block space-y-1">
-                <span className="text-xs font-semibold uppercase text-brand-ink/45">Pre-filled message</span>
-                <input
-                  className="premium-input"
-                  value={data.message ?? ""}
-                  onChange={(e) => setData({ message: e.target.value })}
-                  placeholder={`Hi! I found ${profile?.businessName || "you"} on ALINKS.`}
-                />
+                <span className="text-xs font-semibold text-slate-500">Message</span>
+                <input className="premium-input" value={data.message ?? ""} onChange={(e) => setData({ message: e.target.value })} />
               </label>
             </>
           )}
-
           {block.type === "contact" && (
             <>
               <label className="block space-y-1">
-                <span className="text-xs font-semibold uppercase text-brand-ink/45">Phone override (optional)</span>
-                <input
-                  className="premium-input"
-                  value={data.phone ?? ""}
-                  onChange={(e) => setData({ phone: e.target.value })}
-                  placeholder={profile?.phone || "Uses Business profile"}
-                  inputMode="tel"
-                />
+                <span className="text-xs font-semibold text-slate-500">Phone override</span>
+                <input className="premium-input" value={data.phone ?? ""} onChange={(e) => setData({ phone: e.target.value })} placeholder={profile?.phone || "From profile"} />
               </label>
               <label className="block space-y-1">
-                <span className="text-xs font-semibold uppercase text-brand-ink/45">Email override (optional)</span>
-                <input
-                  className="premium-input"
-                  value={data.email ?? ""}
-                  onChange={(e) => setData({ email: e.target.value })}
-                  placeholder={profile?.email || "Uses Business profile"}
-                  inputMode="email"
-                />
+                <span className="text-xs font-semibold text-slate-500">Email override</span>
+                <input className="premium-input" value={data.email ?? ""} onChange={(e) => setData({ email: e.target.value })} placeholder={profile?.email || "From profile"} />
               </label>
               <label className="block space-y-1">
-                <span className="text-xs font-semibold uppercase text-brand-ink/45">Address override (optional)</span>
-                <textarea
-                  className="premium-input"
-                  value={data.address ?? ""}
-                  onChange={(e) => setData({ address: e.target.value })}
-                  placeholder={profile?.address || "Uses Business profile"}
-                  rows={2}
-                />
+                <span className="text-xs font-semibold text-slate-500">Address override</span>
+                <textarea className="premium-input" value={data.address ?? ""} onChange={(e) => setData({ address: e.target.value })} placeholder={profile?.address || "From profile"} rows={2} />
               </label>
             </>
           )}
-
           {block.type === "hours" && (
             <label className="block space-y-1">
-              <span className="text-xs font-semibold uppercase text-brand-ink/45">Hours (one line each)</span>
+              <span className="text-xs font-semibold text-slate-500">Hours (one line each)</span>
               <textarea
                 className="premium-input min-h-[7rem] font-mono text-sm"
                 value={(data.lines ?? []).join("\n")}
-                onChange={(e) =>
-                  setData({
-                    lines: e.target.value.split("\n"),
-                  })
-                }
+                onChange={(e) => setData({ lines: e.target.value.split("\n") })}
                 rows={5}
-                placeholder={"Mon–Sat: 10am–8pm\nSunday: Closed"}
               />
             </label>
           )}
-
           {block.type === "gallery" && (
             <label className="block space-y-1">
-              <span className="text-xs font-semibold uppercase text-brand-ink/45">Image URLs (one per line, max 6)</span>
+              <span className="text-xs font-semibold text-slate-500">Image URLs (one per line)</span>
               <textarea
                 className="premium-input min-h-[7rem] font-mono text-xs"
                 value={(data.images ?? []).map((i) => i.url).join("\n")}
@@ -303,12 +351,10 @@ function EditSheet({
               />
             </label>
           )}
-
           {block.type === "services" && (
             <div className="space-y-3">
-              <p className="text-xs font-semibold uppercase text-brand-ink/45">Service items</p>
               {items.map((item, idx) => (
-                <div key={idx} className="space-y-2 rounded-xl border border-brand-ink/10 p-3">
+                <div key={idx} className="space-y-2 rounded-2xl bg-slate-50 p-3">
                   <input
                     className="premium-input"
                     placeholder="Name"
@@ -341,18 +387,14 @@ function EditSheet({
                       }}
                     />
                   </div>
-                  <button
-                    type="button"
-                    className="text-xs font-semibold text-red-600"
-                    onClick={() => setData({ items: items.filter((_, i) => i !== idx) })}
-                  >
-                    Remove item
+                  <button type="button" className="text-xs font-semibold text-red-500" onClick={() => setData({ items: items.filter((_, i) => i !== idx) })}>
+                    Remove
                   </button>
                 </div>
               ))}
               <button
                 type="button"
-                className="w-full rounded-xl border border-dashed border-brand-ink/20 py-3 text-sm font-semibold text-brand-purple"
+                className="w-full rounded-2xl border border-dashed border-slate-300 py-3 text-sm font-bold text-brand-purple"
                 onClick={() => setData({ items: [...items, { name: "New service", price: "₹0", duration: "" }] })}
               >
                 + Add service
@@ -360,7 +402,7 @@ function EditSheet({
             </div>
           )}
         </div>
-        <div className="border-t border-brand-ink/8 px-4 py-3">
+        <div className="border-t border-slate-100 px-4 py-3">
           <button type="button" className="premium-btn-bronze" onClick={onClose}>
             Done
           </button>
@@ -373,29 +415,27 @@ function EditSheet({
 function AddWidgetSheet({ onPick, onClose }: { onPick: (t: BlockType) => void; onClose: () => void }) {
   return (
     <>
-      <div className="fixed inset-0 z-40 bg-black/40" onClick={onClose} aria-hidden />
+      <div className="fixed inset-0 z-40 bg-black/45" onClick={onClose} aria-hidden />
       <div
-        className="fixed inset-x-0 bottom-0 z-50 mx-auto max-h-[min(85dvh,100%)] w-full max-w-[var(--app-max-width)] overflow-y-auto rounded-t-3xl border border-brand-ink/10 bg-brand-surface shadow-device"
+        className="fixed inset-x-0 bottom-0 z-50 mx-auto max-h-[min(85dvh,100%)] w-full max-w-[var(--app-max-width)] overflow-y-auto rounded-t-3xl bg-white shadow-2xl"
         style={{ paddingBottom: "var(--safe-bottom)" }}
       >
-        <div className="sticky top-0 border-b border-brand-ink/8 bg-brand-surface px-4 py-3">
-          <div className="mx-auto mb-2 h-1 w-10 rounded-full bg-brand-ink/15" />
-          <h2 className="text-base font-bold">Add section</h2>
-          <p className="text-xs text-brand-ink/45">Mobile widgets only — stacked like Linktree</p>
+        <div className="sticky top-0 z-10 border-b border-slate-100 bg-white/95 px-4 py-3 backdrop-blur">
+          <div className="mx-auto mb-2 h-1 w-10 rounded-full bg-slate-200" />
+          <h2 className="text-base font-bold">Add to your stack</h2>
+          <p className="text-xs text-slate-500">Tap a block — it appears on your page instantly</p>
         </div>
-        <ul className="divide-y divide-brand-ink/6 p-2">
+        <ul className="grid grid-cols-2 gap-2 p-3">
           {WIDGET_CATALOG.map((w) => (
             <li key={w.type}>
               <button
                 type="button"
-                className="flex w-full items-center gap-3 rounded-xl px-3 py-3.5 text-left active:bg-brand-mist"
+                className="flex h-full w-full flex-col items-start gap-1 rounded-2xl border border-slate-100 bg-slate-50 px-3 py-3.5 text-left active:scale-[0.98] active:bg-white"
                 onClick={() => onPick(w.type)}
               >
-                <span className="text-xl">{w.emoji}</span>
-                <span className="min-w-0 flex-1">
-                  <span className="block text-sm font-bold text-brand-ink">{w.label}</span>
-                  <span className="block text-xs text-brand-ink/50">{w.hint}</span>
-                </span>
+                <span className="text-2xl">{w.emoji}</span>
+                <span className="text-sm font-bold text-slate-900">{w.label}</span>
+                <span className="text-[11px] leading-snug text-slate-500">{w.hint}</span>
               </button>
             </li>
           ))}
@@ -405,6 +445,7 @@ function AddWidgetSheet({ onPick, onClose }: { onPick: (t: BlockType) => void; o
   );
 }
 
+/** Linktree-style live stack editor — looks like the public mobile page. */
 export function LinktreeStackEditor({
   businessId,
   slug,
@@ -434,10 +475,12 @@ export function LinktreeStackEditor({
   const [savedFlash, setSavedFlash] = useState(false);
   const [isPending, startTransition] = useTransition();
   const [editId, setEditId] = useState<string | null>(null);
+  const [editHero, setEditHero] = useState(false);
   const [showAdd, setShowAdd] = useState(false);
 
   const blocks = content.blocks ?? [];
   const editing = useMemo(() => blocks.find((b) => b.id === editId) ?? null, [blocks, editId]);
+  const displayName = profile?.businessName || businessName;
 
   const sensors = useSensors(
     useSensor(PointerSensor, { activationConstraint: { distance: 8 } }),
@@ -472,7 +515,7 @@ export function LinktreeStackEditor({
         return;
       }
       setSavedFlash(true);
-      setTimeout(() => setSavedFlash(false), 1500);
+      setTimeout(() => setSavedFlash(false), 1600);
       router.refresh();
     });
   };
@@ -489,115 +532,100 @@ export function LinktreeStackEditor({
   };
 
   return (
-    <div className="pb-32">
-      {/* Live phone stack preview header */}
-      <div className="mb-3 rounded-2xl border border-brand-ink/8 bg-brand-ink px-4 py-3 text-brand-cream">
-        <p className="text-[10px] font-semibold uppercase tracking-widest text-brand-cream/50">Live stack · {slug}</p>
-        <p className="truncate text-sm font-bold">{businessName}</p>
-        <p className="text-xs text-brand-cream/55">/{handle}</p>
-        {profile && (profile.phone || profile.whatsapp || profile.email) ? (
-          <p className="mt-1 truncate text-[11px] text-brand-cream/45">
-            Profile: {[profile.phone, profile.whatsapp && `WA ${profile.whatsapp}`, profile.email]
-              .filter(Boolean)
-              .join(" · ")}
+    <div className="pb-36">
+      {/* Soft studio background + phone stack */}
+      <div className="lt-studio rounded-3xl px-2 pb-4 pt-3">
+        {/* Profile header — like Linktree top */}
+        <div className="mb-4 flex flex-col items-center px-2 pt-2 text-center">
+          {profile?.logoUrl ? (
+            // eslint-disable-next-line @next/next/no-img-element
+            <img src={profile.logoUrl} alt="" className="h-16 w-16 rounded-full object-cover shadow-md ring-2 ring-white" />
+          ) : (
+            <div
+              className="flex h-16 w-16 items-center justify-center rounded-full text-xl font-black text-white shadow-md"
+              style={{ backgroundColor: primaryColor }}
+            >
+              {(displayName || "A").slice(0, 1).toUpperCase()}
+            </div>
+          )}
+          <p className="mt-2 text-base font-bold text-slate-900">@{handle}</p>
+          <p className="text-xs text-slate-500">{displayName}</p>
+          <p className="mt-1 text-[10px] font-semibold uppercase tracking-widest text-slate-400">
+            Editing · {slug}
+            {published ? " · live" : " · draft"}
           </p>
-        ) : (
-          <a href="/editor/business" className="mt-1 inline-block text-[11px] font-semibold text-brand-turquoise-light underline">
-            Add phone & WhatsApp in Business profile →
-          </a>
+        </div>
+
+        {slug === "home" && content.hero && (
+          <HeroPreviewCard
+            hero={content.hero}
+            primaryColor={primaryColor}
+            onEdit={() => setEditHero(true)}
+          />
         )}
+
+        {slug === "contact" && (
+          <p className="mb-3 px-2 text-center text-[11px] text-slate-500">
+            Contact details come from{" "}
+            <Link href="/editor/business" className="font-semibold text-brand-purple underline">
+              Business profile
+            </Link>
+          </p>
+        )}
+
+        <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
+          <SortableContext items={blocks.map((b) => b.id)} strategy={verticalListSortingStrategy}>
+            <div className="space-y-3 px-1">
+              {blocks.map((block) => (
+                <StackCard
+                  key={block.id}
+                  block={block}
+                  primaryColor={primaryColor}
+                  profile={profile}
+                  handle={handle}
+                  onEdit={() => setEditId(block.id)}
+                  onToggle={() => updateBlock({ ...block, visible: block.visible === false ? true : false })}
+                  onRemove={() => {
+                    setContent((prev) => ({
+                      ...prev,
+                      blocks: (prev.blocks ?? []).filter((b) => b.id !== block.id),
+                    }));
+                    if (editId === block.id) setEditId(null);
+                  }}
+                />
+              ))}
+            </div>
+          </SortableContext>
+        </DndContext>
+
+        {!blocks.length && (
+          <p className="mx-2 mt-4 rounded-2xl border border-dashed border-slate-200 bg-white/60 px-4 py-10 text-center text-sm text-slate-400">
+            Your stack is empty. Add your first block below.
+          </p>
+        )}
+
+        <button
+          type="button"
+          onClick={() => setShowAdd(true)}
+          className="mx-1 mt-4 flex min-h-12 w-[calc(100%-0.5rem)] items-center justify-center gap-2 rounded-2xl bg-white text-sm font-bold text-slate-800 shadow-md ring-1 ring-black/5 active:scale-[0.99]"
+        >
+          <span className="flex h-7 w-7 items-center justify-center rounded-full bg-slate-900 text-lg text-white">+</span>
+          Add block
+        </button>
       </div>
 
-      {slug === "contact" && (
-        <div className="mb-3 rounded-2xl border border-brand-turquoise/20 bg-brand-turquoise/5 px-4 py-3 text-xs leading-relaxed text-brand-ink/70">
-          <strong>Contact page</strong> uses your Business profile for phone, email, WhatsApp and address.
-          Widgets below can override, or leave empty to stay in sync.
-        </div>
-      )}
+      {error && <p className="mt-3 px-1 text-sm text-red-600">{error}</p>}
+      {savedFlash && <p className="mt-3 px-1 text-center text-sm font-semibold text-emerald-600">Saved ✓</p>}
 
-      {slug === "home" && content.hero && (
-        <section className="mb-3 space-y-2 rounded-2xl border border-brand-ink/10 bg-brand-surface p-3">
-          <p className="text-[10px] font-bold uppercase tracking-wide text-brand-ink/40">Hero (home only)</p>
-          <input
-            className="premium-input"
-            value={content.hero.title}
-            onChange={(e) => setContent({ ...content, hero: { ...content.hero!, title: e.target.value } })}
-            placeholder="Hero title"
-          />
-          <textarea
-            className="premium-input min-h-[3.5rem]"
-            value={content.hero.tagline}
-            onChange={(e) => setContent({ ...content, hero: { ...content.hero!, tagline: e.target.value } })}
-            rows={2}
-            placeholder="Tagline"
-          />
-          <div className="grid grid-cols-2 gap-2">
-            <input
-              className="premium-input text-sm"
-              value={content.hero.ctaText}
-              onChange={(e) => setContent({ ...content, hero: { ...content.hero!, ctaText: e.target.value } })}
-              placeholder="Button text"
-            />
-            <input
-              className="premium-input font-mono text-xs"
-              value={content.hero.ctaLink}
-              onChange={(e) => setContent({ ...content, hero: { ...content.hero!, ctaLink: e.target.value } })}
-              placeholder="/contact"
-            />
-          </div>
-        </section>
-      )}
-
-      <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
-        <SortableContext items={blocks.map((b) => b.id)} strategy={verticalListSortingStrategy}>
-          <div className="space-y-3">
-            {blocks.map((block) => (
-              <StackCard
-                key={block.id}
-                block={block}
-                primaryColor={primaryColor}
-                profile={profile}
-                onEdit={() => setEditId(block.id)}
-                onToggle={() =>
-                  updateBlock({ ...block, visible: block.visible === false ? true : false })
-                }
-                onRemove={() => {
-                  setContent((prev) => ({
-                    ...prev,
-                    blocks: (prev.blocks ?? []).filter((b) => b.id !== block.id),
-                  }));
-                  if (editId === block.id) setEditId(null);
-                }}
-              />
-            ))}
-          </div>
-        </SortableContext>
-      </DndContext>
-
-      {!blocks.length && (
-        <p className="rounded-2xl border border-dashed border-brand-ink/15 px-4 py-8 text-center text-sm text-brand-ink/45">
-          No sections yet. Tap + Add section to build this page.
-        </p>
-      )}
-
-      <button
-        type="button"
-        onClick={() => setShowAdd(true)}
-        className="mt-4 flex min-h-12 w-full items-center justify-center gap-2 rounded-2xl border-2 border-dashed border-brand-purple/30 bg-brand-purple/5 text-sm font-bold text-brand-purple active:scale-[0.99]"
-      >
-        + Add section
-      </button>
-
-      {error && <p className="mt-3 text-sm text-red-600">{error}</p>}
-      {savedFlash && <p className="mt-3 text-sm font-medium text-emerald-600">Saved</p>}
-
-      {editing && (
-        <EditSheet
-          block={editing}
-          profile={profile}
-          onChange={updateBlock}
-          onClose={() => setEditId(null)}
+      {editHero && content.hero && (
+        <HeroEditSheet
+          hero={content.hero}
+          onChange={(h) => setContent((c) => ({ ...c, hero: h }))}
+          onClose={() => setEditHero(false)}
         />
+      )}
+      {editing && (
+        <EditSheet block={editing} profile={profile} onChange={updateBlock} onClose={() => setEditId(null)} />
       )}
       {showAdd && (
         <AddWidgetSheet
@@ -614,10 +642,16 @@ export function LinktreeStackEditor({
 
       <div className="editor-sticky-actions">
         <div className="flex gap-2">
-          <Button type="button" className="min-h-12 flex-1" onClick={save} disabled={isPending}>
+          <Button type="button" className="min-h-12 flex-1 rounded-2xl" onClick={save} disabled={isPending}>
             {isPending ? "Saving…" : "Save"}
           </Button>
-          <Button type="button" variant="secondary" className="min-h-12 flex-1" onClick={togglePublish} disabled={isPending}>
+          <Button
+            type="button"
+            variant={published ? "secondary" : "bronze"}
+            className="min-h-12 flex-1 rounded-2xl"
+            onClick={togglePublish}
+            disabled={isPending}
+          >
             {published ? "Unpublish" : "Publish"}
           </Button>
         </div>

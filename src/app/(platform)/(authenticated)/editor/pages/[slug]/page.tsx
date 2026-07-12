@@ -51,23 +51,17 @@ export default async function EditorPageSlug({ params }: { params: { slug: strin
   return (
     <>
       <EditorNav active="/editor" />
-      <PageShell className="py-3">
-        <h1 className="text-lg font-bold tracking-tight text-brand-ink">{row.title}</h1>
-        <p className="mt-0.5 text-xs text-brand-ink/45">
-          Linktree-style stack · contact/WhatsApp use Business profile
-        </p>
-        <div className="mt-3">
-          <LinktreeStackEditor
-            businessId={business.id}
-            slug={params.slug}
-            handle={business.handle}
-            businessName={profile.businessName || business.name}
-            primaryColor={primaryColor}
-            initialContent={content}
-            isPublished={row.isPublished}
-            profile={profile}
-          />
-        </div>
+      <PageShell className="px-2 py-2">
+        <LinktreeStackEditor
+          businessId={business.id}
+          slug={params.slug}
+          handle={business.handle}
+          businessName={profile.businessName || business.name}
+          primaryColor={primaryColor}
+          initialContent={content}
+          isPublished={row.isPublished}
+          profile={profile}
+        />
       </PageShell>
     </>
   );

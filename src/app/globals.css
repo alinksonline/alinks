@@ -321,6 +321,14 @@ body {
     font-size: 16px; /* prevent iOS zoom on focus */
     min-height: 2.75rem;
   }
+
+  /* Linktree studio canvas behind the stack */
+  .lt-studio {
+    background:
+      radial-gradient(ellipse 120% 80% at 50% -20%, rgba(124, 58, 237, 0.12), transparent 55%),
+      radial-gradient(ellipse 80% 50% at 100% 50%, rgba(45, 212, 191, 0.08), transparent 50%),
+      linear-gradient(180deg, #f4f2f8 0%, #ebe8f0 100%);
+  }
 }
 
 @layer utilities {
