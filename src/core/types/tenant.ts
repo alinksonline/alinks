@@ -25,6 +25,7 @@ export interface TenantAccount {
 }
 
 import type { BusinessProfile } from "./business-profile";
+import type { ThemeConfig } from "./page";
 
 export interface Business {
   id: string;
@@ -41,4 +42,7 @@ export interface Business {
   customDomainVerified?: boolean;
   /** Parsed business profile (contact + socials + branding assets) */
   profile?: BusinessProfile;
+  /** Tenant mini-site theme (colors, mode, radius, font) */
+  theme?: ThemeConfig | Record<string, unknown> | null;
+  branding?: Record<string, unknown> | null;
 }

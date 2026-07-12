@@ -4,14 +4,16 @@ import { getEnv } from "@/core/config/env";
 import { buildLocalBusinessSchema } from "@/platform/ai/seo";
 import { SiteHeader } from "./site-header";
 import { TenantFooter } from "./tenant-footer";
+import { TenantThemedLayout } from "./tenant-themed-layout";
 import { JsonLd } from "./json-ld";
 import { shouldShowAlinksWatermark } from "@/core/utils/branding";
 import type { Business } from "@/core/types/tenant";
 import { parseBusinessProfile } from "@/core/types/business-profile";
 import { ensureContactPageBlocks } from "@/core/utils/resolve-block-profile";
+import { parseThemeConfig, resolveTenantTheme } from "@/core/utils/tenant-theme";
 import { BlockRenderer } from "./block-renderer";
 
-/** Public mini-site page — single mobile column (Linktree-style stack). */
+/** Public mini-site page — themed layout base + Linktree-style stack. */
 export function PublicPageView({ data }: { data: PublicPageData }) {
   const profile = parseBusinessProfile(data.business.branding, data.business.name);
   const business: Business = {
@@ -26,7 +28,8 @@ export function PublicPageView({ data }: { data: PublicPageData }) {
   };
 
   const hero = data.content.hero;
-  const primary = (data.business.theme as { primaryColor?: string })?.primaryColor ?? "#0f172a";
+  const resolved = resolveTenantTheme(data.business.theme);
+  const primary = resolved.primary;
   const env = getEnv();
   const schema = buildLocalBusinessSchema({
     name: profile.businessName || data.business.name,
@@ -36,36 +39,44 @@ export function PublicPageView({ data }: { data: PublicPageData }) {
   });
 
   let blocks = (data.content.blocks ?? []).filter((b) => b.visible !== false);
-  // Contact page always surfaces profile-driven contact + WhatsApp
   if (data.slug === "contact") {
     blocks = ensureContactPageBlocks(blocks, profile).filter((b) => b.visible !== false);
   }
 
+  const theme = parseThemeConfig(data.business.theme);
+  const navItems = ["home", "about", "services", "contact", "legal", "store"] as const;
+
   return (
-    <>
+    <TenantThemedLayout theme={theme}>
       <JsonLd data={schema} />
       <SiteHeader business={business} profile={profile} />
+
       {hero && data.slug === "home" && (
         <section
-          className="relative flex min-h-[42vh] items-end bg-slate-900 px-4 pb-8 pt-16 text-white"
+          className="relative flex min-h-[38vh] items-end px-4 pb-7 pt-14 text-white"
           style={
             hero.imageUrl
               ? {
-                  backgroundImage: `linear-gradient(to top, rgba(0,0,0,.75), rgba(0,0,0,.25)), url(${hero.imageUrl})`,
+                  backgroundImage: `linear-gradient(to top, rgba(0,0,0,.78), rgba(0,0,0,.2)), url(${hero.imageUrl})`,
                   backgroundSize: "cover",
                   backgroundPosition: "center",
                 }
-              : undefined
+              : {
+                  background: `linear-gradient(145deg, ${primary}, ${resolved.accent})`,
+                }
           }
         >
-          <div className="w-full max-w-app mx-auto">
-            <h1 className="text-3xl font-black tracking-tight">{hero.title}</h1>
-            <p className="mt-2 text-base text-white/85">{hero.tagline}</p>
+          <div className="mx-auto w-full max-w-app">
+            <h1 className="text-2xl font-black tracking-tight">{hero.title}</h1>
+            <p className="mt-1.5 text-sm text-white/90">{hero.tagline}</p>
             {hero.ctaText ? (
               <Link
                 href={`/${data.business.handle}${hero.ctaLink.startsWith("/") ? hero.ctaLink : `/${hero.ctaLink}`}`}
-                className="mt-5 inline-flex min-h-11 w-full items-center justify-center rounded-2xl px-6 py-3 text-sm font-bold text-white"
-                style={{ backgroundColor: primary }}
+                className="t-btn-primary mt-4 max-w-full"
+                style={{
+                  backgroundColor: "var(--t-surface)",
+                  color: "var(--t-primary)",
+                }}
               >
                 {hero.ctaText}
               </Link>
@@ -73,11 +84,12 @@ export function PublicPageView({ data }: { data: PublicPageData }) {
           </div>
         </section>
       )}
-      <main className="mx-auto w-full max-w-app px-4 py-5 pb-10">
+
+      <main className="mx-auto w-full max-w-app px-3.5 py-4 pb-10">
         {data.slug !== "home" && (
-          <h1 className="mb-4 text-xl font-bold tracking-tight text-slate-900">{data.title}</h1>
+          <h1 className="t-ink mb-3 text-lg font-bold tracking-tight">{data.title}</h1>
         )}
-        <div className="space-y-3.5">
+        <div className="space-y-3">
           {blocks.map((block) => (
             <BlockRenderer
               key={block.id}
@@ -88,29 +100,36 @@ export function PublicPageView({ data }: { data: PublicPageData }) {
             />
           ))}
         </div>
-        <nav className="mt-8 flex flex-wrap justify-center gap-2 text-xs">
-          {["home", "about", "services", "contact", "legal"].map((s) => (
-            <Link
-              key={s}
-              href={s === "home" ? `/${data.business.handle}` : `/${data.business.handle}/${s}`}
-              className="rounded-full bg-slate-100 px-3 py-1.5 capitalize text-slate-600"
-            >
-              {s}
-            </Link>
-          ))}
-          <Link
-            href={`/${data.business.handle}/store`}
-            className="rounded-full bg-slate-100 px-3 py-1.5 text-slate-600"
-          >
-            store
-          </Link>
+
+        <nav className="mt-7 flex flex-wrap justify-center gap-1.5" aria-label="Site pages">
+          {navItems.map((s) => {
+            const href =
+              s === "home"
+                ? `/${data.business.handle}`
+                : s === "store"
+                  ? `/${data.business.handle}/store`
+                  : `/${data.business.handle}/${s}`;
+            const active =
+              (s === "home" && data.slug === "home") ||
+              (s !== "home" && s !== "store" && data.slug === s);
+            return (
+              <Link
+                key={s}
+                href={href}
+                className={active ? "t-chip t-chip-active capitalize" : "t-chip capitalize"}
+              >
+                {s}
+              </Link>
+            );
+          })}
         </nav>
       </main>
+
       <TenantFooter
         business={business}
         profile={profile}
         showAlinksBranding={shouldShowAlinksWatermark(data.business.tier)}
       />
-    </>
+    </TenantThemedLayout>
   );
 }

@@ -19,10 +19,22 @@ export default async function ThemeEditorPage() {
   return (
     <>
       <EditorNav active="/editor/theme" />
-      <PageShell className="py-4">
-        <h1 className="text-lg font-bold tracking-tight text-brand-ink">Theme settings</h1>
-        <div className="mt-6">
-          <ThemeForm businessId={business.id} initialTheme={theme} />
+      <PageShell className="py-3">
+        <h1 className="text-base font-bold tracking-tight text-brand-ink">Theme</h1>
+        <p className="mt-0.5 text-[11px] text-brand-muted">
+          Full layout base for your public site — 100% of pages use this theme.
+        </p>
+        <div className="mt-3">
+          <ThemeForm
+            businessId={business.id}
+            initialTheme={{
+              mode: theme.mode ?? "light",
+              primaryColor: theme.primaryColor || "#0f172a",
+              accentColor: theme.accentColor || "#7c3aed",
+              fontFamily: theme.fontFamily || "Inter",
+              borderRadius: theme.borderRadius || "12px",
+            }}
+          />
         </div>
       </PageShell>
     </>

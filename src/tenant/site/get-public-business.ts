@@ -18,6 +18,8 @@ function toBusiness(row: typeof businesses.$inferSelect, tier: SubscriptionTier)
     googleSpreadsheetId: row.googleSpreadsheetId,
     customDomain: row.customDomain,
     customDomainVerified: row.customDomainVerified,
+    theme: (row.theme as Business["theme"]) ?? null,
+    branding: (row.branding as Business["branding"]) ?? null,
   };
 }
 

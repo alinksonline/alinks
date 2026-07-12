@@ -215,12 +215,17 @@ export async function publishPageAction(businessId: string, slug: string, publis
 export async function updateThemeAction(businessId: string, theme: ThemeConfig) {
   try {
     const session = await requireSession();
-    await assertBusinessOwnership(businessId, session.userId);
+    const owned = await assertBusinessOwnership(businessId, session.userId);
     const db = getPlatformDb();
     if (!db) return { success: false as const, error: "Database not connected" };
 
     await db.update(businesses).set({ theme, updatedAt: new Date() }).where(eq(businesses.id, businessId));
     revalidatePath("/editor/theme");
+    revalidatePath(`/${owned.handle}`);
+    revalidatePath(`/${owned.handle}/store`);
+    for (const s of STANDARD_PAGE_SLUGS) {
+      revalidatePath(`/${owned.handle}/${s}`);
+    }
     return { success: true as const };
   } catch (e) {
     return { success: false as const, error: e instanceof Error ? e.message : "Theme update failed" };

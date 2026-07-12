@@ -3,7 +3,7 @@ import type { PageBlock } from "@/core/types/page";
 import { resolveBlockWithProfile } from "@/core/utils/resolve-block-profile";
 import { whatsappUrl } from "@/core/utils/business-profile";
 
-/** Public mobile stack card for one section widget. */
+/** Public mobile stack card — uses tenant theme CSS vars when inside `.tenant-theme`. */
 export function BlockRenderer({
   block: rawBlock,
   primaryColor,
@@ -11,20 +11,19 @@ export function BlockRenderer({
   profile,
 }: {
   block: PageBlock;
+  /** Fallback if CSS vars unavailable (e.g. editor preview) */
   primaryColor: string;
   handle?: string;
-  /** Business profile — fills WhatsApp/contact when widget fields empty */
   profile?: BusinessProfile | null;
 }) {
   const block = resolveBlockWithProfile(rawBlock, profile);
   if (block.visible === false) return null;
 
   const data = block.data ?? {};
-  // Compact Linktree cards — smaller type + padding so stack has breathing room
-  const card =
-    "rounded-2xl border border-black/[0.05] bg-white px-3.5 py-3 shadow-[0_1px_2px_rgba(0,0,0,0.04),0_6px_16px_-10px_rgba(0,0,0,0.1)]";
-  const titleCls = "text-sm font-semibold tracking-tight text-slate-900";
-  const bodyCls = "mt-1 text-xs leading-relaxed text-slate-500";
+  const primary = "var(--t-primary, " + primaryColor + ")";
+  const card = "t-card px-3.5 py-3";
+  const titleCls = "text-sm font-semibold tracking-tight t-ink";
+  const bodyCls = "mt-1 text-xs leading-relaxed t-muted";
 
   switch (block.type) {
     case "link": {
@@ -35,8 +34,12 @@ export function BlockRenderer({
           href={href}
           target={href.startsWith("http") ? "_blank" : undefined}
           rel="noreferrer"
-          className={`${card} block py-2.5 text-center text-sm font-semibold tracking-tight text-white active:scale-[0.98]`}
-          style={{ backgroundColor: primaryColor }}
+          className={`${card} block py-2.5 text-center text-sm font-semibold tracking-tight active:scale-[0.98]`}
+          style={{
+            backgroundColor: primary,
+            color: "var(--t-on-primary, #fff)",
+            borderColor: "transparent",
+          }}
         >
           {label}
         </a>
@@ -52,8 +55,8 @@ export function BlockRenderer({
           href={missing ? undefined : href}
           target={missing ? undefined : "_blank"}
           rel="noreferrer"
-          className={`${card} flex flex-col items-center gap-0.5 py-2.5 text-center active:scale-[0.98] ${missing ? "opacity-60 pointer-events-none" : ""}`}
-          style={{ backgroundColor: "#25D366", color: "#fff" }}
+          className={`${card} flex flex-col items-center gap-0.5 py-2.5 text-center active:scale-[0.98] ${missing ? "pointer-events-none opacity-60" : ""}`}
+          style={{ backgroundColor: "#25D366", color: "#fff", borderColor: "transparent" }}
         >
           <span className="text-sm font-semibold tracking-tight">{block.title || "WhatsApp"}</span>
           {block.body ? <span className="text-[11px] text-white/90">{block.body}</span> : null}
@@ -67,7 +70,6 @@ export function BlockRenderer({
     case "cta": {
       let href = data.href || "/contact";
       if (handle && href.startsWith("/") && !href.startsWith("//")) {
-        // Site-relative path on public mini-site
         href = href === "/" ? `/${handle}` : `/${handle}${href}`;
       }
       return (
@@ -76,8 +78,8 @@ export function BlockRenderer({
           {block.body ? <p className={bodyCls}>{block.body}</p> : null}
           <a
             href={href}
-            className="mt-2.5 inline-flex min-h-9 w-full items-center justify-center rounded-xl px-3 py-2 text-sm font-semibold text-white"
-            style={{ backgroundColor: primaryColor }}
+            className="t-btn-primary mt-2.5"
+            style={{ backgroundColor: primary, color: "var(--t-on-primary, #fff)" }}
           >
             {data.buttonLabel || "Continue"}
           </a>
@@ -97,19 +99,20 @@ export function BlockRenderer({
             {items.map((item, i) => (
               <li
                 key={`${item.name}-${i}`}
-                className="flex items-start justify-between gap-2 rounded-xl bg-slate-50 px-2.5 py-2"
+                className="flex items-start justify-between gap-2 rounded-[var(--t-radius-sm,0.75rem)] px-2.5 py-2"
+                style={{ backgroundColor: "var(--t-soft, #f8fafc)" }}
               >
                 <div className="min-w-0">
-                  <p className="text-sm font-medium text-slate-900">{item.name}</p>
+                  <p className="t-ink text-sm font-medium">{item.name}</p>
                   {item.description ? (
-                    <p className="mt-0.5 text-[11px] text-slate-500">{item.description}</p>
+                    <p className="t-muted mt-0.5 text-[11px]">{item.description}</p>
                   ) : null}
                   {item.duration ? (
-                    <p className="mt-0.5 text-[10px] text-slate-400">{item.duration}</p>
+                    <p className="t-muted mt-0.5 text-[10px]">{item.duration}</p>
                   ) : null}
                 </div>
                 {item.price ? (
-                  <span className="shrink-0 text-xs font-bold" style={{ color: primaryColor }}>
+                  <span className="shrink-0 text-xs font-bold" style={{ color: primary }}>
                     {item.price}
                   </span>
                 ) : null}
@@ -125,10 +128,10 @@ export function BlockRenderer({
       return (
         <section className={card}>
           <h2 className={titleCls}>{block.title || "Hours"}</h2>
-          <ul className="mt-1.5 space-y-1 text-xs text-slate-600">
+          <ul className="t-muted mt-1.5 space-y-1 text-xs">
             {lines.map((line, i) => (
               <li key={i} className="flex gap-2">
-                <span className="text-slate-300">•</span>
+                <span style={{ color: "var(--t-border)" }}>•</span>
                 <span>{line}</span>
               </li>
             ))}
@@ -143,14 +146,14 @@ export function BlockRenderer({
         <section className={card}>
           <h2 className={titleCls}>{block.title}</h2>
           {block.body ? <p className={bodyCls}>{block.body}</p> : null}
-          <div className="mt-2 space-y-1.5 text-xs text-slate-700">
+          <div className="mt-2 space-y-1.5 text-xs" style={{ color: "var(--t-ink)" }}>
             {data.phone ? (
-              <a href={`tel:${data.phone.replace(/\D/g, "")}`} className="block font-medium underline">
+              <a href={`tel:${data.phone.replace(/\D/g, "")}`} className="t-link block font-medium">
                 📞 {data.phone}
               </a>
             ) : null}
             {data.email ? (
-              <a href={`mailto:${data.email}`} className="block underline">
+              <a href={`mailto:${data.email}`} className="t-link block">
                 ✉️ {data.email}
               </a>
             ) : null}
@@ -178,11 +181,15 @@ export function BlockRenderer({
                 key={i}
                 src={im.url}
                 alt={im.caption || block.title}
-                className="aspect-square w-full rounded-lg object-cover bg-slate-100"
+                className="aspect-square w-full object-cover"
+                style={{
+                  borderRadius: "var(--t-radius-sm, 0.5rem)",
+                  backgroundColor: "var(--t-soft)",
+                }}
               />
             ))}
             {!images.length ? (
-              <p className="col-span-2 text-[11px] text-slate-400">Add photo URLs in the editor.</p>
+              <p className="t-muted col-span-2 text-[11px]">Add photo URLs in the editor.</p>
             ) : null}
           </div>
         </section>
@@ -193,7 +200,7 @@ export function BlockRenderer({
       return (
         <section className={card}>
           <h2 className={titleCls}>{block.title}</h2>
-          <p className="mt-1.5 whitespace-pre-wrap text-xs leading-relaxed text-slate-600">{block.body}</p>
+          <p className="t-muted mt-1.5 whitespace-pre-wrap text-xs leading-relaxed">{block.body}</p>
         </section>
       );
 
@@ -203,7 +210,7 @@ export function BlockRenderer({
       return (
         <section className={card}>
           <h2 className={titleCls}>{block.title}</h2>
-          <p className="mt-1.5 whitespace-pre-wrap text-xs leading-relaxed text-slate-600">{block.body}</p>
+          <p className="t-muted mt-1.5 whitespace-pre-wrap text-xs leading-relaxed">{block.body}</p>
         </section>
       );
   }
