@@ -25,17 +25,20 @@ import { Button } from "@/components/ui/button";
 import { BlockRenderer } from "@/components/tenant/block-renderer";
 import type { BlockType, PageBlock, PageContent, ServiceItem } from "@/core/types/page";
 import { cn } from "@/core/utils/cn";
+import type { BusinessProfile } from "@/core/types/business-profile";
 import { createBlock, WIDGET_CATALOG, widgetLabel } from "./widget-catalog";
 
 function StackCard({
   block,
   primaryColor,
+  profile,
   onEdit,
   onToggle,
   onRemove,
 }: {
   block: PageBlock;
   primaryColor: string;
+  profile?: BusinessProfile | null;
   onEdit: () => void;
   onToggle: () => void;
   onRemove: () => void;
@@ -66,7 +69,11 @@ function StackCard({
         className="min-w-0 flex-1 overflow-hidden rounded-2xl text-left active:scale-[0.99]"
       >
         <div className={cn(block.visible === false && "grayscale")}>
-          <BlockRenderer block={{ ...block, visible: true }} primaryColor={primaryColor} />
+          <BlockRenderer
+            block={{ ...block, visible: true }}
+            primaryColor={primaryColor}
+            profile={profile}
+          />
         </div>
         <p className="mt-1 px-1 text-[10px] font-semibold uppercase tracking-wide text-brand-ink/40">
           {widgetLabel(block.type)}
@@ -98,10 +105,12 @@ function StackCard({
 
 function EditSheet({
   block,
+  profile,
   onChange,
   onClose,
 }: {
   block: PageBlock;
+  profile?: BusinessProfile | null;
   onChange: (b: PageBlock) => void;
   onClose: () => void;
 }) {
@@ -112,6 +121,8 @@ function EditSheet({
   };
 
   const items: ServiceItem[] = data.items ?? [];
+  const profileWa = profile?.whatsapp || profile?.phone || "";
+  const usesProfileContact = block.type === "contact" || block.type === "whatsapp";
 
   return (
     <>
@@ -132,6 +143,21 @@ function EditSheet({
           </button>
         </div>
         <div className="min-h-0 flex-1 space-y-4 overflow-y-auto px-4 pb-4">
+          {usesProfileContact && profile && (
+            <div className="rounded-xl border border-brand-turquoise/20 bg-brand-turquoise/5 px-3 py-2.5 text-xs leading-relaxed text-brand-ink/70">
+              <strong className="text-brand-turquoise-dark">From Business profile</strong>
+              <br />
+              Phone: {profile.phone || "—"} · WhatsApp: {profileWa || "—"}
+              <br />
+              Email: {profile.email || "—"}
+              <br />
+              Leave fields blank below to always use profile. Override only if this section needs different numbers.
+              {" "}
+              <a href="/editor/business" className="font-semibold text-brand-purple underline">
+                Edit profile →
+              </a>
+            </div>
+          )}
           <label className="block space-y-1">
             <span className="text-xs font-semibold uppercase text-brand-ink/45">Title</span>
             <input className="premium-input" value={block.title} onChange={(e) => onChange({ ...block, title: e.target.value })} />
@@ -182,12 +208,14 @@ function EditSheet({
           {block.type === "whatsapp" && (
             <>
               <label className="block space-y-1">
-                <span className="text-xs font-semibold uppercase text-brand-ink/45">WhatsApp number</span>
+                <span className="text-xs font-semibold uppercase text-brand-ink/45">
+                  WhatsApp override (optional)
+                </span>
                 <input
                   className="premium-input"
                   value={data.phone ?? ""}
                   onChange={(e) => setData({ phone: e.target.value })}
-                  placeholder="919876543210"
+                  placeholder={profileWa || "Uses Business profile WhatsApp"}
                   inputMode="tel"
                 />
               </label>
@@ -197,6 +225,7 @@ function EditSheet({
                   className="premium-input"
                   value={data.message ?? ""}
                   onChange={(e) => setData({ message: e.target.value })}
+                  placeholder={`Hi! I found ${profile?.businessName || "you"} on ALINKS.`}
                 />
               </label>
             </>
@@ -205,16 +234,34 @@ function EditSheet({
           {block.type === "contact" && (
             <>
               <label className="block space-y-1">
-                <span className="text-xs font-semibold uppercase text-brand-ink/45">Phone</span>
-                <input className="premium-input" value={data.phone ?? ""} onChange={(e) => setData({ phone: e.target.value })} inputMode="tel" />
+                <span className="text-xs font-semibold uppercase text-brand-ink/45">Phone override (optional)</span>
+                <input
+                  className="premium-input"
+                  value={data.phone ?? ""}
+                  onChange={(e) => setData({ phone: e.target.value })}
+                  placeholder={profile?.phone || "Uses Business profile"}
+                  inputMode="tel"
+                />
               </label>
               <label className="block space-y-1">
-                <span className="text-xs font-semibold uppercase text-brand-ink/45">Email</span>
-                <input className="premium-input" value={data.email ?? ""} onChange={(e) => setData({ email: e.target.value })} inputMode="email" />
+                <span className="text-xs font-semibold uppercase text-brand-ink/45">Email override (optional)</span>
+                <input
+                  className="premium-input"
+                  value={data.email ?? ""}
+                  onChange={(e) => setData({ email: e.target.value })}
+                  placeholder={profile?.email || "Uses Business profile"}
+                  inputMode="email"
+                />
               </label>
               <label className="block space-y-1">
-                <span className="text-xs font-semibold uppercase text-brand-ink/45">Address</span>
-                <textarea className="premium-input" value={data.address ?? ""} onChange={(e) => setData({ address: e.target.value })} rows={2} />
+                <span className="text-xs font-semibold uppercase text-brand-ink/45">Address override (optional)</span>
+                <textarea
+                  className="premium-input"
+                  value={data.address ?? ""}
+                  onChange={(e) => setData({ address: e.target.value })}
+                  placeholder={profile?.address || "Uses Business profile"}
+                  rows={2}
+                />
               </label>
             </>
           )}
@@ -366,6 +413,7 @@ export function LinktreeStackEditor({
   primaryColor,
   initialContent,
   isPublished,
+  profile = null,
 }: {
   businessId: string;
   slug: string;
@@ -374,6 +422,7 @@ export function LinktreeStackEditor({
   primaryColor: string;
   initialContent: PageContent;
   isPublished: boolean;
+  profile?: BusinessProfile | null;
 }) {
   const router = useRouter();
   const [content, setContent] = useState<PageContent>(() => ({
@@ -446,7 +495,25 @@ export function LinktreeStackEditor({
         <p className="text-[10px] font-semibold uppercase tracking-widest text-brand-cream/50">Live stack · {slug}</p>
         <p className="truncate text-sm font-bold">{businessName}</p>
         <p className="text-xs text-brand-cream/55">/{handle}</p>
+        {profile && (profile.phone || profile.whatsapp || profile.email) ? (
+          <p className="mt-1 truncate text-[11px] text-brand-cream/45">
+            Profile: {[profile.phone, profile.whatsapp && `WA ${profile.whatsapp}`, profile.email]
+              .filter(Boolean)
+              .join(" · ")}
+          </p>
+        ) : (
+          <a href="/editor/business" className="mt-1 inline-block text-[11px] font-semibold text-brand-turquoise-light underline">
+            Add phone & WhatsApp in Business profile →
+          </a>
+        )}
       </div>
+
+      {slug === "contact" && (
+        <div className="mb-3 rounded-2xl border border-brand-turquoise/20 bg-brand-turquoise/5 px-4 py-3 text-xs leading-relaxed text-brand-ink/70">
+          <strong>Contact page</strong> uses your Business profile for phone, email, WhatsApp and address.
+          Widgets below can override, or leave empty to stay in sync.
+        </div>
+      )}
 
       {slug === "home" && content.hero && (
         <section className="mb-3 space-y-2 rounded-2xl border border-brand-ink/10 bg-brand-surface p-3">
@@ -489,6 +556,7 @@ export function LinktreeStackEditor({
                 key={block.id}
                 block={block}
                 primaryColor={primaryColor}
+                profile={profile}
                 onEdit={() => setEditId(block.id)}
                 onToggle={() =>
                   updateBlock({ ...block, visible: block.visible === false ? true : false })
@@ -524,7 +592,12 @@ export function LinktreeStackEditor({
       {savedFlash && <p className="mt-3 text-sm font-medium text-emerald-600">Saved</p>}
 
       {editing && (
-        <EditSheet block={editing} onChange={updateBlock} onClose={() => setEditId(null)} />
+        <EditSheet
+          block={editing}
+          profile={profile}
+          onChange={updateBlock}
+          onClose={() => setEditId(null)}
+        />
       )}
       {showAdd && (
         <AddWidgetSheet

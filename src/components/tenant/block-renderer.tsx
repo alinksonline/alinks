@@ -1,21 +1,22 @@
+import type { BusinessProfile } from "@/core/types/business-profile";
 import type { PageBlock } from "@/core/types/page";
-
-function waLink(phone?: string, message?: string): string {
-  const digits = (phone ?? "").replace(/\D/g, "");
-  const text = encodeURIComponent(message ?? "Hi!");
-  return digits ? `https://wa.me/${digits}?text=${text}` : "#";
-}
+import { resolveBlockWithProfile } from "@/core/utils/resolve-block-profile";
+import { whatsappUrl } from "@/core/utils/business-profile";
 
 /** Public mobile stack card for one section widget. */
 export function BlockRenderer({
-  block,
+  block: rawBlock,
   primaryColor,
   handle,
+  profile,
 }: {
   block: PageBlock;
   primaryColor: string;
   handle?: string;
+  /** Business profile — fills WhatsApp/contact when widget fields empty */
+  profile?: BusinessProfile | null;
 }) {
+  const block = resolveBlockWithProfile(rawBlock, profile);
   if (block.visible === false) return null;
 
   const data = block.data ?? {};
@@ -38,19 +39,26 @@ export function BlockRenderer({
       );
     }
 
-    case "whatsapp":
+    case "whatsapp": {
+      const phone = data.phone || "";
+      const href = phone ? whatsappUrl(phone, data.message) : "#";
+      const missing = !phone;
       return (
         <a
-          href={waLink(data.phone, data.message)}
-          target="_blank"
+          href={missing ? undefined : href}
+          target={missing ? undefined : "_blank"}
           rel="noreferrer"
-          className={`${card} flex flex-col items-center gap-1 text-center active:scale-[0.99]`}
+          className={`${card} flex flex-col items-center gap-1 text-center active:scale-[0.99] ${missing ? "opacity-60 pointer-events-none" : ""}`}
           style={{ backgroundColor: "#25D366", color: "#fff" }}
         >
           <span className="text-lg font-bold">{block.title || "WhatsApp"}</span>
           {block.body ? <span className="text-sm text-white/90">{block.body}</span> : null}
+          {missing ? (
+            <span className="text-xs text-white/80">Add WhatsApp in Business profile</span>
+          ) : null}
         </a>
       );
+    }
 
     case "cta": {
       let href = data.href || "/contact";
@@ -125,7 +133,8 @@ export function BlockRenderer({
       );
     }
 
-    case "contact":
+    case "contact": {
+      const hasAny = Boolean(data.phone || data.email || data.address);
       return (
         <section className={card}>
           <h2 className="text-base font-bold text-slate-900">{block.title}</h2>
@@ -142,9 +151,15 @@ export function BlockRenderer({
               </a>
             ) : null}
             {data.address ? <p>📍 {data.address}</p> : null}
+            {!hasAny ? (
+              <p className="text-xs text-amber-700">
+                No contact details yet — set them in Business profile.
+              </p>
+            ) : null}
           </div>
         </section>
       );
+    }
 
     case "gallery": {
       const images = data.images?.filter((im) => im.url) ?? [];

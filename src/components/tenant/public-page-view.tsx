@@ -8,6 +8,7 @@ import { JsonLd } from "./json-ld";
 import { shouldShowAlinksWatermark } from "@/core/utils/branding";
 import type { Business } from "@/core/types/tenant";
 import { parseBusinessProfile } from "@/core/types/business-profile";
+import { ensureContactPageBlocks } from "@/core/utils/resolve-block-profile";
 import { BlockRenderer } from "./block-renderer";
 
 /** Public mini-site page — single mobile column (Linktree-style stack). */
@@ -28,13 +29,17 @@ export function PublicPageView({ data }: { data: PublicPageData }) {
   const primary = (data.business.theme as { primaryColor?: string })?.primaryColor ?? "#0f172a";
   const env = getEnv();
   const schema = buildLocalBusinessSchema({
-    name: data.business.name,
+    name: profile.businessName || data.business.name,
     handle: data.business.handle,
     vertical: data.business.vertical,
     url: `${env.NEXT_PUBLIC_APP_URL}/${data.business.handle}`,
   });
 
-  const blocks = (data.content.blocks ?? []).filter((b) => b.visible !== false);
+  let blocks = (data.content.blocks ?? []).filter((b) => b.visible !== false);
+  // Contact page always surfaces profile-driven contact + WhatsApp
+  if (data.slug === "contact") {
+    blocks = ensureContactPageBlocks(blocks, profile).filter((b) => b.visible !== false);
+  }
 
   return (
     <>
@@ -79,6 +84,7 @@ export function PublicPageView({ data }: { data: PublicPageData }) {
               block={block}
               primaryColor={primary}
               handle={data.business.handle}
+              profile={profile}
             />
           ))}
         </div>

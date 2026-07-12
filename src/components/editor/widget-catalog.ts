@@ -41,7 +41,8 @@ export function createBlock(type: BlockType): PageBlock {
         ...base,
         title: "Chat on WhatsApp",
         body: "We reply fast during business hours.",
-        data: { phone: "91XXXXXXXXXX", message: "Hi! I found you on ALINKS." },
+        // phone empty → public site uses Business profile WhatsApp
+        data: { phone: "", message: "Hi! I found you on ALINKS." },
       };
     case "text":
       return { ...base, title: "Our story", body: "Tell customers who you are and what you do." };
@@ -80,7 +81,8 @@ export function createBlock(type: BlockType): PageBlock {
         ...base,
         title: "Visit or call",
         body: "We are happy to help.",
-        data: { phone: "91XXXXXXXXXX", address: "Your area, City", email: "" },
+        // empty contact fields → public site uses Business profile
+        data: { phone: "", address: "", email: "" },
       };
     case "gallery":
       return {
