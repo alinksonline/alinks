@@ -38,8 +38,8 @@ export function PlanPricingCards({
       <div className="flex flex-col gap-4 sm:flex-row sm:flex-wrap sm:items-center sm:gap-6">
         <div
           className={cn(
-            "inline-flex w-full max-w-xs rounded border p-1 sm:w-auto",
-            isDark ? "border-brand-cream/10 bg-brand-ink/80" : "border-brand-ink/10 bg-white",
+            "inline-flex w-full max-w-xs rounded-lg border p-1 sm:w-auto",
+            isDark ? "border-white/10 bg-white/5 backdrop-blur-sm" : "border-brand-ink/10 bg-white",
           )}
         >
           {BILLING_CYCLES.map((option) => (
@@ -48,13 +48,13 @@ export function PlanPricingCards({
               type="button"
               onClick={() => setCycle(option)}
               className={cn(
-                "flex-1 rounded px-4 py-2.5 font-mono text-[10px] uppercase tracking-wider transition-all sm:flex-none sm:px-5",
+                "flex-1 rounded-md px-4 py-2.5 font-mono text-[10px] uppercase tracking-wider transition-all sm:flex-none sm:px-5",
                 cycle === option
                   ? isDark
-                    ? "bg-brand-purple/20 text-brand-turquoise-light"
+                    ? "bg-brand-turquoise/20 text-brand-turquoise-light font-bold"
                     : "bg-brand-ink text-white"
                   : isDark
-                    ? "text-brand-cream/50 hover:text-brand-cream"
+                    ? "text-zinc-400 hover:text-white"
                     : "text-brand-ink/50 hover:text-brand-ink",
               )}
             >
@@ -82,11 +82,11 @@ export function PlanPricingCards({
             <div
               key={tier}
               className={cn(
-                "flex min-w-0 flex-col rounded-lg border p-5 sm:p-6",
+                "flex min-w-0 flex-col rounded-2xl border p-5 sm:p-6 transition-all",
                 isDark
                   ? cn(
-                      "bg-brand-ink/60 backdrop-blur-sm",
-                      isPro ? "border-brand-turquoise/40 shadow-accent" : "border-brand-cream/10",
+                      "bg-white/5 backdrop-blur-md shadow-[0_8px_30px_rgb(0,0,0,0.3)]",
+                      isPro ? "border-brand-turquoise/40 ring-1 ring-brand-purple/20" : "border-white/10",
                     )
                   : cn("bg-white", isPro ? "border-brand-purple/30 shadow-accent" : "border-brand-ink/10"),
                 isCurrent && "ring-2 ring-brand-turquoise",
@@ -97,12 +97,12 @@ export function PlanPricingCards({
                   <p className={cn("font-mono text-[10px] uppercase", isDark ? "text-brand-turquoise-light" : "text-brand-purple")}>
                     tier.{tier}
                   </p>
-                  <h3 className={cn("mt-1 font-display text-lg font-semibold", isDark ? "text-brand-cream" : "text-brand-ink")}>
+                  <h3 className={cn("mt-1 font-display text-lg font-semibold", isDark ? "text-white" : "text-brand-ink")}>
                     {details.label}
                   </h3>
                 </div>
                 {isPro && variant === "marketing" && (
-                  <span className="rounded-full border border-brand-turquoise/30 bg-brand-purple/20 px-2 py-0.5 font-mono text-[9px] text-brand-turquoise-light">
+                  <span className="rounded-full border border-brand-turquoise/30 bg-brand-turquoise/10 px-2 py-0.5 font-mono text-[9px] text-brand-turquoise-light shadow-[0_0_10px_rgba(45,212,191,0.2)]">
                     popular
                   </span>
                 )}
@@ -110,11 +110,11 @@ export function PlanPricingCards({
 
               <div className="mt-5">
                 {cycle === "annual" && (
-                  <p className={cn("font-mono text-sm line-through", isDark ? "text-zinc-600" : "text-stone-400")}>
+                  <p className={cn("font-mono text-sm line-through", isDark ? "text-zinc-500" : "text-stone-400")}>
                     ₹{formatInr(listPrice)}
                   </p>
                 )}
-                <p className={cn("font-display text-3xl font-bold", isDark ? "text-brand-cream" : "text-brand-ink")}>
+                <p className={cn("font-display text-3xl font-bold", isDark ? "text-white" : "text-brand-ink")}>
                   ₹{formatInr(perMonth)}
                   <span className={cn("text-sm font-normal", isDark ? "text-zinc-500" : "text-stone-400")}>/mo</span>
                 </p>
@@ -128,7 +128,7 @@ export function PlanPricingCards({
               <ul className={cn("mt-5 flex-1 space-y-2 font-mono text-[11px] sm:text-xs", isDark ? "text-zinc-400" : "text-stone-600")}>
                 {details.highlights.map((item) => (
                   <li key={item} className="flex gap-2 break-words">
-                    <span className={isDark ? "text-brand-turquoise-light" : "text-brand-turquoise"}>✓</span>
+                    <span className={isDark ? "text-brand-turquoise-light drop-shadow-md" : "text-brand-turquoise"}>✓</span>
                     {item}
                   </li>
                 ))}
@@ -136,9 +136,21 @@ export function PlanPricingCards({
 
               {variant === "marketing" ? (
                 <Link href="/signup" className="mt-6 block sm:mt-8">
-                  <Button variant={isPro ? "bronze" : "ghost"} className={isDark && !isPro ? "!border-brand-cream/15 !text-brand-cream" : ""}>
-                    {isPro ? "Start Pro trial" : "Get started"}
-                  </Button>
+                  {isPro ? (
+                    <Button
+                      variant="primary"
+                      className="h-10 w-full rounded-full border border-white/10 bg-gradient-to-r from-brand-purple-dark to-brand-turquoise-dark text-sm font-semibold text-white shadow-[0_0_20px_rgba(139,92,246,0.3)] transition-all hover:from-brand-purple hover:to-brand-turquoise"
+                    >
+                      Start Pro trial
+                    </Button>
+                  ) : (
+                    <Button
+                      variant="ghost"
+                      className="h-10 w-full rounded-full border border-white/15 text-sm font-medium text-white hover:bg-white/10"
+                    >
+                      Get started
+                    </Button>
+                  )}
                 </Link>
               ) : (
                 <Button className="mt-6 w-full font-mono text-xs" variant="secondary" disabled>
