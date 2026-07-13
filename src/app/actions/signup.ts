@@ -95,6 +95,14 @@ export async function completeSignupAction(input: SignupPayload) {
     return { success: false as const, error: auth.error ?? "OTP verification failed" };
   }
 
+  // Tenant ≠ superadmin: operators cannot register a client business on the same account.
+  if (auth.role === "superadmin") {
+    return {
+      success: false as const,
+      error: "Superadmin cannot sign up as a tenant. Use a different email for a business site.",
+    };
+  }
+
   const templateId = VERTICAL_TEMPLATE[input.vertical] ?? input.templateId ?? "general";
 
   const onboard = await completeOnboardingForTenant(auth.userId, {
@@ -112,5 +120,6 @@ export async function completeSignupAction(input: SignupPayload) {
     return { success: false as const, error: onboard.error ?? "Could not create your business" };
   }
 
-  return { success: true as const, handle: onboard.handle, role: auth.role };
+  // Always tenant after successful client signup (superadmin blocked above).
+  return { success: true as const, handle: onboard.handle, role: "tenant" as const };
 }

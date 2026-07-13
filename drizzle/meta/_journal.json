@@ -36,6 +36,13 @@
       "when": 1752307200000,
       "tag": "0004_tenant_platform_role",
       "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "7",
+      "when": 1752310800000,
+      "tag": "0005_exclusive_platform_roles",
+      "breakpoints": true
     }
   ]
 }

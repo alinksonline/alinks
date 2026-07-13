@@ -90,23 +90,35 @@ async function seed() {
     [superadmin] = await db
       .insert(tenants)
       .values({
-        email: "benjamin@alinks.online",
+        email: "admin@alinks.online",
         phone: superadminPhone,
-        name: "Benjamin Anand",
+        name: "ALINKS Admin",
         role: "superadmin",
         tier: "enterprise",
         status: "active",
       })
       .returning();
-  } else if (superadmin.role !== "superadmin") {
+  } else {
     await db
       .update(tenants)
-      .set({ role: "superadmin", tier: "enterprise", status: "active", updatedAt: new Date() })
+      .set({
+        email: "admin@alinks.online",
+        name: "ALINKS Admin",
+        role: "superadmin",
+        tier: "enterprise",
+        status: "active",
+        updatedAt: new Date(),
+      })
       .where(eq(tenants.id, superadmin.id));
-    superadmin = { ...superadmin, role: "superadmin" };
+    superadmin = {
+      ...superadmin,
+      email: "admin@alinks.online",
+      name: "ALINKS Admin",
+      role: "superadmin",
+    };
   }
 
-  console.log("Superadmin (DB role):", superadmin.id, `(phone: ${superadminPhone})`);
+  console.log("Platform superadmin (DB):", superadmin.id, `(${superadmin.email}, phone ${superadminPhone})`);
 
   let demoTenant = (await db.select().from(tenants).where(eq(tenants.phone, "9876543210")).limit(1))[0];
   if (!demoTenant) {

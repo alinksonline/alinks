@@ -1,0 +1,5 @@
+S.No.,Date Time,Request ID,User IP,Sender ID,Mobile No.,Message,Reason,Error, 
+1,2026-07-07 23:26:44,366767777a52557a4e334c66,122.183.36.102,ALINKS,919160425142,,Request discarded as Template ID Missing or Invalid Template.,400 
+2,2026-07-07 23:18:15,36676777726f737542584178,122.183.36.102,,919160425142,,Request discarded as Template ID Missing or Invalid Template.,400 
+3,2026-07-07 23:18:15,36676777726f556955693165,122.183.36.102,ALINKS,9160425142,,Request discarded as Template ID Missing or Invalid Template.,400 
+4,2026-07-07 23:18:15,36676777726f716f41793556,122.183.36.102,,9160425142,,Request discarded as Template ID Missing or Invalid Template.,400 

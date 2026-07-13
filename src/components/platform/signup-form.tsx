@@ -183,7 +183,8 @@ export function SignupForm({ authMode, otpMode, widgetConfig }: SignupFormProps)
           setError(result.error ?? "Signup failed");
           return;
         }
-        router.push(result.role === "superadmin" ? "/superadmin" : "/editor");
+        // Signup is only for platform clients (tenants) — never superadmin.
+        router.push("/editor");
         router.refresh();
       } catch (e) {
         setError(e instanceof Error ? e.message : "Signup failed");

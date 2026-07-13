@@ -8,10 +8,11 @@ ALTER TABLE "tenants" ADD COLUMN IF NOT EXISTS "role" varchar(20) DEFAULT 'tenan
 -- Default everyone to platform client first
 UPDATE "tenants" SET "role" = 'tenant', "updated_at" = now();--> statement-breakpoint
 
--- Seed / bootstrap superadmin only (phone 9999999999 or benjamin@alinks.online)
+-- Seed / bootstrap platform superadmin only (phone 9999999999 or admin@alinks.online)
 UPDATE "tenants"
 SET "role" = 'superadmin', "tier" = 'enterprise', "status" = 'active', "updated_at" = now()
 WHERE "phone" = '9999999999'
+   OR lower("email") = 'admin@alinks.online'
    OR lower("email") = 'benjamin@alinks.online';--> statement-breakpoint
 
 -- Keep Gmail test account as client (explicit)
