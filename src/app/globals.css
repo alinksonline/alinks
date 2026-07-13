@@ -557,32 +557,4 @@ body {
     background-color: var(--t-soft);
     color: var(--t-muted);
   }
-
-  .glass-panel {
-    background: rgba(255, 255, 255, 0.03);
-    backdrop-filter: blur(16px);
-    -webkit-backdrop-filter: blur(16px);
-    border: 1px solid rgba(255, 255, 255, 0.1);
-  }
-
-  .neon-glow {
-    box-shadow: 0 0 20px rgba(45, 212, 191, 0.3), 0 0 40px rgba(124, 58, 237, 0.2);
-  }
-
-  .text-gradient-electric {
-    background: linear-gradient(to right, #2dd4bf, #a78bfa);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
-  }
-
-  .animate-float {
-    animation: float 6s ease-in-out infinite;
-  }
-
-  @keyframes float {
-    0% { transform: translateY(0px); }
-    50% { transform: translateY(-20px); }
-    100% { transform: translateY(0px); }
-  }
 }

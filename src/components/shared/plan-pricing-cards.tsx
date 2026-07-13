@@ -31,9 +31,7 @@ export function PlanPricingCards({
 }: PlanPricingCardsProps) {
   const [cycle, setCycle] = useState<BillingCycle>(defaultCycle);
   const maxSave = getMaxAnnualSavingsPercent();
-  
-  // Marketing variant is forced dark. Billing variant is responsive to system theme.
-  const isMarketing = variant === "marketing";
+  const isDark = variant === "marketing";
 
   return (
     <div className="min-w-0">
@@ -41,7 +39,7 @@ export function PlanPricingCards({
         <div
           className={cn(
             "inline-flex w-full max-w-xs rounded border p-1 sm:w-auto",
-            isMarketing ? "border-brand-cream/10 bg-brand-ink/80" : "border-brand-ink/10 dark:border-brand-cream/10 bg-white dark:bg-brand-surface",
+            isDark ? "border-brand-cream/10 bg-brand-ink/80" : "border-brand-ink/10 bg-white",
           )}
         >
           {BILLING_CYCLES.map((option) => (
@@ -52,12 +50,12 @@ export function PlanPricingCards({
               className={cn(
                 "flex-1 rounded px-4 py-2.5 font-mono text-[10px] uppercase tracking-wider transition-all sm:flex-none sm:px-5",
                 cycle === option
-                  ? isMarketing
+                  ? isDark
                     ? "bg-brand-purple/20 text-brand-turquoise-light"
-                    : "bg-brand-ink text-white dark:bg-brand-purple/20 dark:text-brand-turquoise-light"
-                  : isMarketing
+                    : "bg-brand-ink text-white"
+                  : isDark
                     ? "text-brand-cream/50 hover:text-brand-cream"
-                    : "text-brand-ink/50 hover:text-brand-ink dark:text-brand-cream/50 dark:hover:text-brand-cream",
+                    : "text-brand-ink/50 hover:text-brand-ink",
               )}
             >
               {option}
@@ -65,7 +63,7 @@ export function PlanPricingCards({
           ))}
         </div>
         {cycle === "annual" && (
-          <span className={cn("font-mono text-[10px]", isMarketing ? "text-zinc-500" : "text-stone-400 dark:text-zinc-500")}>
+          <span className={cn("font-mono text-[10px]", isDark ? "text-zinc-500" : "text-stone-400")}>
             save_up_to_{maxSave}%
           </span>
         )}
@@ -85,31 +83,26 @@ export function PlanPricingCards({
               key={tier}
               className={cn(
                 "flex min-w-0 flex-col rounded-lg border p-5 sm:p-6",
-                isMarketing
+                isDark
                   ? cn(
                       "bg-brand-ink/60 backdrop-blur-sm",
                       isPro ? "border-brand-turquoise/40 shadow-accent" : "border-brand-cream/10",
                     )
-                  : cn("bg-white dark:bg-brand-surface", isPro ? "border-brand-purple/30 dark:border-brand-turquoise/40 shadow-accent" : "border-brand-ink/10 dark:border-brand-cream/10"),
+                  : cn("bg-white", isPro ? "border-brand-purple/30 shadow-accent" : "border-brand-ink/10"),
                 isCurrent && "ring-2 ring-brand-turquoise",
               )}
             >
               <div className="flex flex-wrap items-start justify-between gap-2">
                 <div>
-                  <p className={cn("font-mono text-[10px] uppercase", isMarketing ? "text-brand-turquoise-light" : "text-brand-purple dark:text-brand-turquoise-light")}>
+                  <p className={cn("font-mono text-[10px] uppercase", isDark ? "text-brand-turquoise-light" : "text-brand-purple")}>
                     tier.{tier}
                   </p>
-                  <h3 className={cn("mt-1 font-display text-lg font-semibold", isMarketing ? "text-brand-cream" : "text-brand-ink dark:text-brand-cream")}>
+                  <h3 className={cn("mt-1 font-display text-lg font-semibold", isDark ? "text-brand-cream" : "text-brand-ink")}>
                     {details.label}
                   </h3>
                 </div>
-                {isPro && isMarketing && (
+                {isPro && variant === "marketing" && (
                   <span className="rounded-full border border-brand-turquoise/30 bg-brand-purple/20 px-2 py-0.5 font-mono text-[9px] text-brand-turquoise-light">
-                    popular
-                  </span>
-                )}
-                {isPro && !isMarketing && (
-                  <span className="rounded-full border border-brand-purple/30 dark:border-brand-turquoise/30 bg-brand-purple/10 dark:bg-brand-purple/20 px-2 py-0.5 font-mono text-[9px] text-brand-purple dark:text-brand-turquoise-light">
                     popular
                   </span>
                 )}
@@ -117,33 +110,33 @@ export function PlanPricingCards({
 
               <div className="mt-5">
                 {cycle === "annual" && (
-                  <p className={cn("font-mono text-sm line-through", isMarketing ? "text-zinc-600" : "text-stone-400 dark:text-zinc-600")}>
+                  <p className={cn("font-mono text-sm line-through", isDark ? "text-zinc-600" : "text-stone-400")}>
                     ₹{formatInr(listPrice)}
                   </p>
                 )}
-                <p className={cn("font-display text-3xl font-bold", isMarketing ? "text-brand-cream" : "text-brand-ink dark:text-brand-cream")}>
+                <p className={cn("font-display text-3xl font-bold", isDark ? "text-brand-cream" : "text-brand-ink")}>
                   ₹{formatInr(perMonth)}
-                  <span className={cn("text-sm font-normal", isMarketing ? "text-zinc-500" : "text-stone-400 dark:text-zinc-500")}>/mo</span>
+                  <span className={cn("text-sm font-normal", isDark ? "text-zinc-500" : "text-stone-400")}>/mo</span>
                 </p>
-                <p className={cn("mt-2 break-words font-mono text-[10px]", isMarketing ? "text-zinc-500" : "text-stone-400 dark:text-zinc-500")}>
+                <p className={cn("mt-2 break-words font-mono text-[10px]", isDark ? "text-zinc-500" : "text-stone-400")}>
                   {cycle === "annual"
                     ? `billed_yearly=₹${formatInr(getAnnualBilledTotal(tier))}${savings.percent > 0 ? ` · −${savings.percent}%` : ""}`
                     : "cycle=monthly · list_price"}
                 </p>
               </div>
 
-              <ul className={cn("mt-5 flex-1 space-y-2 font-mono text-[11px] sm:text-xs", isMarketing ? "text-zinc-400" : "text-stone-600 dark:text-zinc-400")}>
+              <ul className={cn("mt-5 flex-1 space-y-2 font-mono text-[11px] sm:text-xs", isDark ? "text-zinc-400" : "text-stone-600")}>
                 {details.highlights.map((item) => (
                   <li key={item} className="flex gap-2 break-words">
-                    <span className={isMarketing ? "text-brand-turquoise-light" : "text-brand-turquoise dark:text-brand-turquoise-light"}>✓</span>
+                    <span className={isDark ? "text-brand-turquoise-light" : "text-brand-turquoise"}>✓</span>
                     {item}
                   </li>
                 ))}
               </ul>
 
-              {isMarketing ? (
+              {variant === "marketing" ? (
                 <Link href="/signup" className="mt-6 block sm:mt-8">
-                  <Button variant={isPro ? "bronze" : "ghost"} className={!isPro ? "!border-brand-cream/15 !text-brand-cream" : ""}>
+                  <Button variant={isPro ? "bronze" : "ghost"} className={isDark && !isPro ? "!border-brand-cream/15 !text-brand-cream" : ""}>
                     {isPro ? "Start Pro trial" : "Get started"}
                   </Button>
                 </Link>
@@ -158,7 +151,7 @@ export function PlanPricingCards({
       </div>
 
       {cycle === "annual" && (
-        <p className={cn("mt-6 text-center font-mono text-[10px] leading-relaxed", isMarketing ? "text-zinc-600" : "text-stone-400 dark:text-zinc-600")}>
+        <p className={cn("mt-6 text-center font-mono text-[10px] leading-relaxed", isDark ? "text-zinc-600" : "text-stone-400")}>
           founders_lock({LAUNCH_STACK.foundersLockLimit}) · FIRST100({LAUNCH_STACK.first100PayMonths}→
           {LAUNCH_STACK.first100GetMonths})
         </p>
