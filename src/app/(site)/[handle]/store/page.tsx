@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
+import Link from "next/link";
 import { SiteHeader } from "@/components/tenant/site-header";
 import { TenantFooter } from "@/components/tenant/tenant-footer";
 import { TenantThemedLayout } from "@/components/tenant/tenant-themed-layout";
@@ -11,7 +12,6 @@ import { parseBusinessProfile } from "@/core/types/business-profile";
 import type { Business } from "@/core/types/tenant";
 import { getPublicBusinessByHandle } from "@/tenant/site/get-public-business";
 import { getCatalogByHandle } from "@/tenant/storage/catalog";
-import Link from "next/link";
 
 export async function generateMetadata({ params }: { params: { handle: string } }): Promise<Metadata> {
   const business = await getPublicBusinessByHandle(params.handle);
@@ -31,35 +31,44 @@ export default async function StorePage({ params }: { params: { handle: string }
   const profile = parseBusinessProfile(row.branding, row.name);
   const business: Business = { ...row, profile };
   const proCheckout = canUseProCheckout(business.tier, business.checkoutMode ?? "lite");
+  const isSalon = business.vertical === "salon" || business.vertical === "beauty";
 
   return (
     <TenantThemedLayout theme={business.theme}>
       <SiteHeader business={business} profile={profile} />
-      <main className="mx-auto max-w-app px-3.5 py-5 pb-10">
-        <h1 className="t-ink text-lg font-bold tracking-tight">Shop</h1>
-        <p className="t-muted mt-0.5 text-xs leading-snug">
-          {proCheckout
-            ? "Add items to cart and checkout"
-            : "Tap Order — we’ll open WhatsApp with your request"}
+
+      <section className="t-page-hero">
+        <p className="text-[10px] font-bold uppercase tracking-[0.18em]" style={{ color: "var(--t-primary)" }}>
+          Catalog
         </p>
+        <h1 className="t-ink mt-1.5 text-2xl font-bold tracking-tight">Shop</h1>
+        <p className="t-muted mt-1.5 max-w-sm text-sm leading-relaxed">
+          {proCheckout
+            ? "Add items to your cart and checkout with UPI, card, or COD."
+            : "Tap order — we open WhatsApp with your request ready to send."}
+        </p>
+      </section>
+
+      <main className="mx-auto max-w-app px-3.5 py-4 pb-4">
         <StoreCatalog business={business} products={products} proCheckout={proCheckout} />
-        {(business.vertical === "salon" || business.vertical === "beauty") && (
-          <Link href={`/${params.handle}/book`} className="t-link mt-5 inline-block text-xs font-semibold">
-            Book a package
-          </Link>
-        )}
-        <PublicSiteNav
-          handle={params.handle}
-          vertical={business.vertical}
-          slug="home"
-          path="store"
-        />
+        {isSalon ? (
+          <div className="mt-6 text-center">
+            <Link
+              href={`/${params.handle}/book`}
+              className="t-btn-primary mx-auto !w-auto !px-6"
+            >
+              Book a package instead
+            </Link>
+          </div>
+        ) : null}
       </main>
+
       <TenantFooter
         business={business}
         profile={profile}
         showAlinksBranding={shouldShowAlinksWatermark(business.tier)}
       />
+      <PublicSiteNav handle={params.handle} vertical={business.vertical} slug="home" path="store" />
     </TenantThemedLayout>
   );
 }

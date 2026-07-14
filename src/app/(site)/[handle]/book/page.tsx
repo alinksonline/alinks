@@ -4,6 +4,7 @@ import { BookingForm } from "@/components/tenant/booking-form";
 import { SiteHeader } from "@/components/tenant/site-header";
 import { TenantFooter } from "@/components/tenant/tenant-footer";
 import { TenantThemedLayout } from "@/components/tenant/tenant-themed-layout";
+import { PublicSiteNav } from "@/components/tenant/public-site-nav";
 import { shouldShowAlinksWatermark } from "@/core/utils/branding";
 import { parseBusinessProfile } from "@/core/types/business-profile";
 import { isRazorpayConfigured } from "@/platform/payments/razorpay";
@@ -20,25 +21,47 @@ export default async function BookPage({ params }: { params: { handle: string } 
 
   const profile = parseBusinessProfile(row.branding, row.name);
   const business = { ...row, profile };
+  const fromPrice = Math.min(...packages.map((p) => p.price));
 
   return (
     <TenantThemedLayout theme={business.theme}>
       <SiteHeader business={business} profile={profile} />
-      <main className="mx-auto max-w-app px-3.5 py-6">
-        <h1 className="t-ink text-lg font-bold">Book a package</h1>
-        <p className="t-muted mt-0.5 text-xs">Pay-then-book — slots saved to your sheet</p>
-        <div className="mt-4">
-          <BookingForm handle={params.handle} packages={packages} devMode={!isRazorpayConfigured()} />
+
+      <section className="t-page-hero">
+        <p className="text-[10px] font-bold uppercase tracking-[0.18em]" style={{ color: "var(--t-primary)" }}>
+          Appointments
+        </p>
+        <h1 className="t-ink mt-1.5 text-2xl font-bold tracking-tight">Book a package</h1>
+        <p className="t-muted mt-1.5 max-w-sm text-sm leading-relaxed">
+          Pick a service, choose a slot, and pay to lock it in. Bookings land in the salon&apos;s Google Sheet.
+        </p>
+        <div className="mt-4 flex flex-wrap gap-2">
+          <span className="t-chip t-chip-active">From ₹{fromPrice}</span>
+          <span className="t-chip">{packages.length} packages</span>
+          <span className="t-chip">Pay-then-book</span>
         </div>
-        <Link href={`/${params.handle}/store`} className="t-link mt-5 inline-block text-xs">
-          View catalog
-        </Link>
+      </section>
+
+      <main className="mx-auto w-full max-w-app px-3.5 py-5 pb-4">
+        <BookingForm handle={params.handle} packages={packages} devMode={!isRazorpayConfigured()} />
+
+        <div className="mt-6 flex flex-wrap items-center justify-center gap-3 text-xs">
+          <Link href={`/${params.handle}/store`} className="t-link font-semibold no-underline">
+            Browse shop
+          </Link>
+          <span className="t-muted">·</span>
+          <Link href={`/${params.handle}`} className="t-link font-semibold no-underline">
+            Back to home
+          </Link>
+        </div>
       </main>
+
       <TenantFooter
         business={business}
         profile={profile}
         showAlinksBranding={shouldShowAlinksWatermark(business.tier)}
       />
+      <PublicSiteNav handle={params.handle} vertical={business.vertical} slug="home" path="book" />
     </TenantThemedLayout>
   );
 }

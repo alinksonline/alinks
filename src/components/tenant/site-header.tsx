@@ -18,49 +18,55 @@ export function SiteHeader({
 
   const wa = profile.whatsapp || profile.phone;
   const displayName = profile.businessName || business.name;
+  const isSalon = business.vertical === "salon" || business.vertical === "beauty";
 
   return (
     <header className="t-header sticky top-0 z-40">
-      <div className="mx-auto flex h-12 w-full max-w-app items-center justify-between gap-2 px-3">
-        <Link href={`/${business.handle}`} className="flex min-w-0 items-center gap-2">
+      <div className="mx-auto flex h-14 w-full max-w-app items-center justify-between gap-2 px-3.5">
+        <Link href={`/${business.handle}`} className="flex min-w-0 items-center gap-2.5">
           {profile.logoUrl ? (
             // eslint-disable-next-line @next/next/no-img-element
             <img
               src={profile.logoUrl}
               alt=""
-              className="h-7 w-7 shrink-0 rounded-full object-cover ring-1 ring-[var(--t-border)]"
+              className="h-9 w-9 shrink-0 rounded-2xl object-cover ring-1 ring-[var(--t-border)]"
             />
           ) : (
             <span
-              className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full text-[11px] font-bold text-[var(--t-on-primary)]"
+              className="flex h-9 w-9 shrink-0 items-center justify-center rounded-2xl text-sm font-bold text-[var(--t-on-primary)] shadow-sm"
               style={{ backgroundColor: "var(--t-primary)" }}
             >
               {displayName.slice(0, 1).toUpperCase()}
             </span>
           )}
-          <span className="t-ink truncate text-sm font-bold tracking-tight">{displayName}</span>
+          <span className="min-w-0">
+            <span className="t-ink block truncate text-sm font-bold tracking-tight">{displayName}</span>
+            <span className="t-muted block truncate text-[10px] font-medium uppercase tracking-wider">
+              {business.vertical}
+            </span>
+          </span>
         </Link>
+
         <div className="flex shrink-0 items-center gap-1.5">
+          {isSalon ? (
+            <Link
+              href={`/${business.handle}/book`}
+              className="rounded-full px-3 py-1.5 text-[11px] font-bold text-[var(--t-on-primary)]"
+              style={{ backgroundColor: "var(--t-primary)" }}
+            >
+              Book
+            </Link>
+          ) : null}
           {wa ? (
             <a
               href={whatsappUrl(wa)}
               target="_blank"
               rel="noreferrer"
-              className="rounded-full bg-[#25D366] px-2.5 py-1 text-[10px] font-bold text-white"
+              className="rounded-full bg-[#25D366] px-3 py-1.5 text-[11px] font-bold text-white shadow-sm"
             >
-              WhatsApp
+              Chat
             </a>
-          ) : (
-            <span
-              className="rounded-full px-2 py-0.5 font-mono text-[10px] uppercase tracking-wide"
-              style={{
-                backgroundColor: "var(--t-primary-soft)",
-                color: "var(--t-primary)",
-              }}
-            >
-              {business.vertical}
-            </span>
-          )}
+          ) : null}
         </div>
       </div>
     </header>

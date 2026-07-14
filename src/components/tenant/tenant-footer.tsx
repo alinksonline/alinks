@@ -19,13 +19,13 @@ export function TenantFooter({
   const name = profile.businessName || business.name;
 
   return (
-    <footer className="t-footer px-4 py-7 text-center text-xs">
-      <p className="t-ink text-sm font-bold">{name}</p>
+    <footer className="t-footer px-4 pb-4 pt-8 text-center text-xs">
+      <p className="t-ink text-base font-bold tracking-tight">{name}</p>
 
-      <div className="mt-2.5 flex flex-col items-center gap-1 text-xs">
+      <div className="mt-4 flex flex-wrap items-center justify-center gap-2">
         {profile.phone ? (
-          <a href={telUrl(profile.phone)} className="t-link">
-            {profile.phone}
+          <a href={telUrl(profile.phone)} className="t-chip no-underline">
+            Call
           </a>
         ) : null}
         {wa ? (
@@ -33,18 +33,21 @@ export function TenantFooter({
             href={whatsappUrl(wa)}
             target="_blank"
             rel="noreferrer"
-            className="font-semibold text-[#128C7E] underline"
+            className="rounded-full bg-[#25D366] px-3 py-1.5 text-[11px] font-bold text-white no-underline"
           >
             WhatsApp
           </a>
         ) : null}
         {profile.email ? (
-          <a href={`mailto:${profile.email}`} className="t-link">
-            {profile.email}
+          <a href={`mailto:${profile.email}`} className="t-chip no-underline">
+            Email
           </a>
         ) : null}
-        {profile.address ? <p className="t-muted max-w-xs">{profile.address}</p> : null}
       </div>
+
+      {profile.address ? (
+        <p className="t-muted mx-auto mt-3 max-w-xs text-[11px] leading-relaxed">{profile.address}</p>
+      ) : null}
 
       {socials.length > 0 && (
         <div className="mt-3 flex flex-wrap justify-center gap-1.5">
@@ -54,7 +57,7 @@ export function TenantFooter({
               href={s.href}
               target="_blank"
               rel="noreferrer"
-              className="t-card px-2.5 py-1 text-[11px] font-semibold no-underline"
+              className="t-chip no-underline"
             >
               {s.label}
             </a>
@@ -62,25 +65,24 @@ export function TenantFooter({
         </div>
       )}
 
-      <p className="t-muted mx-auto mt-4 max-w-lg px-2 text-[10px] leading-relaxed">
-        This site is operated independently by the business named above. Artix provides software only
-        and is not the seller, service provider, or data controller for customer transactions.
-      </p>
-      <p className="t-muted mt-1.5 text-[10px]">
-        Operated independently by <strong className="t-ink">{name}</strong> — not Artix.
-      </p>
-      <p className="mt-2">
-        <Link href={`/${business.handle}/legal`} className="t-link text-[11px]">
-          Terms & Privacy
-        </Link>
-      </p>
-      {showAlinksBranding && (
-        <p className="mt-2.5">
-          <Link href="https://alinks.online" className="t-muted text-[10px] no-underline">
-            Powered by ALINKS
-          </Link>
+      <div className="mx-auto mt-6 max-w-sm space-y-2 border-t border-[var(--t-border)] pt-4">
+        <p className="t-muted text-[10px] leading-relaxed">
+          Operated independently by <strong className="t-ink">{name}</strong>. Artix provides software only.
         </p>
-      )}
+        <p className="flex flex-wrap items-center justify-center gap-2">
+          <Link href={`/${business.handle}/legal`} className="t-link text-[11px] font-semibold no-underline">
+            Terms & Privacy
+          </Link>
+          {showAlinksBranding ? (
+            <>
+              <span className="t-muted">·</span>
+              <Link href="https://alinks.online" className="t-muted text-[10px] no-underline">
+                Powered by ALINKS
+              </Link>
+            </>
+          ) : null}
+        </p>
+      </div>
     </footer>
   );
 }

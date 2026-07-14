@@ -27,12 +27,18 @@ export function CheckoutForm({
   const [method, setMethod] = useState<"upi" | "card" | "cod">("upi");
   const [acceptTerms, setAcceptTerms] = useState(false);
   const [message, setMessage] = useState("");
+  const [messageTone, setMessageTone] = useState<"error" | "success" | "info">("info");
 
   const total = items.reduce((s, i) => s + i.price * i.qty, 0);
 
+  function setStatus(text: string, tone: "error" | "success" | "info" = "info") {
+    setMessage(text);
+    setMessageTone(tone);
+  }
+
   return (
     <form
-      className="space-y-4"
+      className="space-y-5"
       onSubmit={(e) => {
         e.preventDefault();
         startTransition(async () => {
@@ -47,12 +53,12 @@ export function CheckoutForm({
           });
 
           if (!result.success) {
-            setMessage(result.error);
+            setStatus(result.error, "error");
             return;
           }
 
           if (result.paymentMethod === "cod") {
-            setMessage(`Order placed! COD order ${result.orderId}`);
+            setStatus(`Order placed! COD order ${result.orderId}`, "success");
             router.push(`/${handle}/store`);
             return;
           }
@@ -64,21 +70,21 @@ export function CheckoutForm({
               paymentMethod: method === "card" ? "card" : "upi",
             });
             if (paid.success) {
-              setMessage(`Payment successful! Order ${paid.orderId} saved to your sheet.`);
+              setStatus(`Payment successful! Order ${paid.orderId} saved to your sheet.`, "success");
               router.push(`/${handle}/store`);
             } else {
-              setMessage(paid.error);
+              setStatus(paid.error, "error");
             }
             return;
           }
 
           if (!RAZORPAY_KEY_ID) {
-            setMessage("Payment gateway is not configured on the client.");
+            setStatus("Payment gateway is not configured on the client.", "error");
             return;
           }
 
           if (!result.razorpayOrderId || !result.sessionId || !result.pendingOrder) {
-            setMessage("Could not start payment. Try again.");
+            setStatus("Could not start payment. Try again.", "error");
             return;
           }
 
@@ -90,8 +96,8 @@ export function CheckoutForm({
               name: result.businessName ?? "ALINKS Store",
               description: `Order ${result.orderId}`,
               prefill: { name, contact: phone },
-              onDismiss: () => setMessage("Payment cancelled."),
-              onFailure: (err) => setMessage(err),
+              onDismiss: () => setStatus("Payment cancelled.", "info"),
+              onFailure: (err) => setStatus(err, "error"),
               onSuccess: async (payment) => {
                 const verified = await verifyPaymentViaApi({
                   razorpay_order_id: payment.razorpay_order_id,
@@ -103,60 +109,142 @@ export function CheckoutForm({
                 });
 
                 if (!verified.success) {
-                  setMessage(verified.error ?? "Payment verification failed");
+                  setStatus(verified.error ?? "Payment verification failed", "error");
                   return;
                 }
 
-                setMessage(`Payment successful! Order ${verified.orderId ?? result.orderId} saved.`);
+                setStatus(`Payment successful! Order ${verified.orderId ?? result.orderId} saved.`, "success");
                 router.push(`/${handle}/store`);
               },
             });
           } catch (err) {
-            setMessage(err instanceof Error ? err.message : "Could not open payment");
+            setStatus(err instanceof Error ? err.message : "Could not open payment", "error");
           }
         });
       }}
     >
-      <div className="premium-card-soft p-4 text-sm">
+      <div className="t-card space-y-2 p-4">
+        <p className="t-label !mb-2">Order summary</p>
         {items.map((i) => (
-          <p key={i.productId}>
-            {i.name} × {i.qty} — ₹{i.price * i.qty}
-          </p>
+          <div key={i.productId} className="flex justify-between gap-2 text-sm">
+            <span className="t-ink">
+              {i.name} × {i.qty}
+            </span>
+            <span className="t-muted">₹{i.price * i.qty}</span>
+          </div>
         ))}
-        <p className="mt-2 font-bold">Total: ₹{total}</p>
+        <div className="flex justify-between border-t border-[var(--t-border)] pt-2 text-sm font-bold">
+          <span className="t-ink">Total</span>
+          <span style={{ color: "var(--t-primary)" }}>₹{total}</span>
+        </div>
       </div>
 
-      <input className="premium-input" placeholder="Your name" value={name} onChange={(e) => setName(e.target.value)} required />
-      <input className="premium-input" placeholder="Phone" value={phone} onChange={(e) => setPhone(e.target.value)} required />
-      <input className="premium-input" placeholder="Address (optional)" value={address} onChange={(e) => setAddress(e.target.value)} />
-
-      <div className="flex flex-wrap gap-2">
-        <label className="flex items-center gap-2 rounded-lg border px-3 py-2 text-sm">
-          <input type="radio" checked={method === "upi"} onChange={() => setMethod("upi")} />
-          UPI / GPay / PhonePe {devMode && "(simulated)"}
-        </label>
-        <label className="flex items-center gap-2 rounded-lg border px-3 py-2 text-sm">
-          <input type="radio" checked={method === "card"} onChange={() => setMethod("card")} />
-          Card
-        </label>
-        {codEnabled && (
-          <label className="flex items-center gap-2 rounded-lg border px-3 py-2 text-sm">
-            <input type="radio" checked={method === "cod"} onChange={() => setMethod("cod")} />
-            Cash on delivery
+      <div className="space-y-3">
+        <div className="t-input-group">
+          <label className="t-label" htmlFor="checkout-name">
+            Your name
           </label>
-        )}
+          <input
+            id="checkout-name"
+            className="t-input"
+            placeholder="e.g. Rahul"
+            value={name}
+            onChange={(e) => setName(e.target.value)}
+            required
+          />
+        </div>
+        <div className="t-input-group">
+          <label className="t-label" htmlFor="checkout-phone">
+            Phone
+          </label>
+          <input
+            id="checkout-phone"
+            className="t-input"
+            placeholder="10-digit mobile"
+            inputMode="numeric"
+            value={phone}
+            onChange={(e) => setPhone(e.target.value.replace(/\D/g, "").slice(0, 10))}
+            required
+          />
+        </div>
+        <div className="t-input-group">
+          <label className="t-label" htmlFor="checkout-address">
+            Address (optional)
+          </label>
+          <input
+            id="checkout-address"
+            className="t-input"
+            placeholder="Delivery address"
+            value={address}
+            onChange={(e) => setAddress(e.target.value)}
+          />
+        </div>
       </div>
 
-      <label className="flex items-start gap-2 text-sm text-slate-600">
-        <input type="checkbox" checked={acceptTerms} onChange={(e) => setAcceptTerms(e.target.checked)} />
-        I agree to the store checkout terms and privacy notice.
-      </label>
+      <div>
+        <p className="t-label">Payment method</p>
+        <div className="mt-2 space-y-2">
+          {(
+            [
+              {
+                id: "upi" as const,
+                label: "UPI / GPay / PhonePe",
+                hint: devMode ? "Simulated in demo" : "Instant",
+              },
+              { id: "card" as const, label: "Card", hint: "Debit / credit" },
+              ...(codEnabled
+                ? [{ id: "cod" as const, label: "Cash on delivery", hint: "Pay when you receive" }]
+                : []),
+            ] as const
+          ).map((opt) => (
+            <button
+              key={opt.id}
+              type="button"
+              className="t-package-card"
+              data-selected={method === opt.id ? "true" : "false"}
+              onClick={() => setMethod(opt.id)}
+              aria-pressed={method === opt.id}
+            >
+              <div className="flex items-center justify-between gap-2">
+                <span className="text-sm font-bold">{opt.label}</span>
+                <span className="t-muted text-[10px] font-medium">{opt.hint}</span>
+              </div>
+            </button>
+          ))}
+        </div>
+      </div>
 
-      <button type="submit" disabled={isPending || items.length === 0} className="premium-btn-bronze disabled:opacity-50">
+      <button
+        type="button"
+        className="t-package-card"
+        data-selected={acceptTerms ? "true" : "false"}
+        onClick={() => setAcceptTerms((v) => !v)}
+        aria-pressed={acceptTerms}
+      >
+        <p className="text-sm font-semibold">I agree to checkout terms & privacy</p>
+        <p className="t-muted mt-0.5 text-xs leading-relaxed">
+          Required before placing your order.
+        </p>
+      </button>
+
+      <button type="submit" disabled={isPending || items.length === 0 || !acceptTerms} className="t-btn-primary">
         {isPending ? "Processing…" : method === "cod" ? "Place COD order" : `Pay ₹${total}`}
       </button>
 
-      {message && <p className="text-sm text-slate-700">{message}</p>}
+      {message ? (
+        <p
+          className={
+            messageTone === "error"
+              ? "t-banner t-banner-error"
+              : messageTone === "success"
+                ? "t-banner t-banner-success"
+                : "t-banner"
+          }
+          role="status"
+        >
+          {message}
+        </p>
+      ) : null}
     </form>
   );
 }

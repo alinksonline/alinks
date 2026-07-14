@@ -74,9 +74,11 @@ export function PublicPageView({ data }: { data: PublicPageData }) {
         );
       })()}
 
-      <main className="mx-auto w-full max-w-app px-3.5 py-4 pb-10">
+      <main className="mx-auto w-full max-w-app px-3.5 py-4 pb-4">
         {data.slug !== "home" && (
-          <h1 className="t-ink mb-3 text-lg font-bold tracking-tight">{data.title}</h1>
+          <div className="mb-4">
+            <h1 className="t-ink text-xl font-bold tracking-tight">{data.title}</h1>
+          </div>
         )}
         <div className="space-y-3">
           {blocks.map((block) => (
@@ -90,18 +92,17 @@ export function PublicPageView({ data }: { data: PublicPageData }) {
             />
           ))}
         </div>
-
-        <PublicSiteNav
-          handle={data.business.handle}
-          vertical={data.business.vertical}
-          slug={data.slug}
-        />
       </main>
 
       <TenantFooter
         business={business}
         profile={profile}
         showAlinksBranding={shouldShowAlinksWatermark(data.business.tier)}
+      />
+      <PublicSiteNav
+        handle={data.business.handle}
+        vertical={data.business.vertical}
+        slug={data.slug}
       />
     </TenantThemedLayout>
   );
