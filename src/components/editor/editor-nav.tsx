@@ -36,9 +36,9 @@ const ALL_LINKS: NavLink[] = [
   },
   {
     href: "/editor/commerce",
-    label: "Pay",
+    label: "Billing",
     match: (p) => p.startsWith("/editor/commerce"),
-    /** Checkout / COD / Sheets — not product catalog */
+    /** Customer payments: checkout, COD, orders sheet — not product catalog */
     verticals: ["salon", "beauty", "kirana", "grocery", "ecommerce", "restaurant", "pharmacy", "general"],
   },
   {

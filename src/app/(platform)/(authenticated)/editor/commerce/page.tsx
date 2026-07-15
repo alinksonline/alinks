@@ -28,12 +28,12 @@ export default async function CommerceEditorPage() {
     <>
       <EditorNav active="/editor/commerce" vertical={business.vertical} />
       <PageShell className="py-3 pb-10">
-        <p className="premium-label">Payments</p>
+        <p className="premium-label">Billing</p>
         <h1 className="premium-heading mt-1 text-lg">How customers pay you</h1>
         <p className="premium-subtext mt-1.5 max-w-sm">
           {isSalon
-            ? "Connect your sheet, turn on checkout, and set COD. Packages you sell live under Packages — not here."
-            : "Connect your sheet, enable on-site checkout (UPI / card), and control cash on delivery."}
+            ? "Checkout, COD, and your orders sheet. What you sell lives under Packages — not here."
+            : "Checkout, COD, and your orders sheet. Enable UPI / card when you’re on Pro."}
         </p>
         <div className="mt-5">
           <CommerceForm

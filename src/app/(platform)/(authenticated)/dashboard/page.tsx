@@ -8,10 +8,10 @@ const quickLinks = [
   { href: "/editor", label: "Website builder", desc: "Pages, theme, branding" },
   { href: "/editor/publish", label: "Go live", desc: "Publish, republish, unpublish" },
   { href: "/dashboard/share", label: "Tap & Blast", desc: "WhatsApp & QR sharing" },
-  { href: "/editor/commerce", label: "Store & checkout", desc: "Products, UPI, COD" },
+  { href: "/editor/commerce", label: "Billing", desc: "Checkout, UPI, COD, orders sheet" },
   { href: "/dashboard/domain", label: "Custom domain", desc: "Connect your URL" },
   { href: "/dashboard/ai", label: "ALINKS AI", desc: "SEO & captions" },
-  { href: "/billing", label: "Plans & billing", desc: "Trial, upgrade, promos" },
+  { href: "/billing", label: "Your plan", desc: "ALINKS trial, upgrade, promos" },
   { href: "/dashboard/settings", label: "Settings", desc: "Locale & integrations" },
 ];
 
