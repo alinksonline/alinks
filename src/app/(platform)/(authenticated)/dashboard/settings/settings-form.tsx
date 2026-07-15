@@ -29,7 +29,7 @@ export function SettingsForm({ region, adsOptIn }: { region: string; adsOptIn: b
   return (
     <>
       <SettingsSection
-        step="02 · Preferences"
+        step="03 · Preferences"
         title="Region"
         description="Used for defaults (currency display, local copy). Does not change your ALINKS plan."
       >
@@ -61,7 +61,7 @@ export function SettingsForm({ region, adsOptIn }: { region: string; adsOptIn: b
       </SettingsSection>
 
       <SettingsSection
-        step="03 · Preferences"
+        step="04 · Preferences"
         title="Publisher ads"
         description="Optional ALINKS ad slots on your public site (Basic tiers)."
       >
@@ -91,7 +91,7 @@ export function SettingsForm({ region, adsOptIn }: { region: string; adsOptIn: b
       </SettingsSection>
 
       <SettingsSection
-        step="04 · Account"
+        step="05 · Account"
         title="Export my data"
         description="Download platform account and business config as JSON. Does not include customer rows in your Google Sheet."
       >
@@ -122,7 +122,7 @@ export function SettingsForm({ region, adsOptIn }: { region: string; adsOptIn: b
       </SettingsSection>
 
       <SettingsSection
-        step="05 · Danger zone"
+        step="06 · Danger zone"
         title="Delete account"
         description="Permanently remove your ALINKS account and site config on our platform. Customer data in your own Sheet is not deleted by Artix."
         variant="danger"

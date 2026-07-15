@@ -17,11 +17,13 @@ export function OrdersSheetForm({
   spreadsheetId,
   googleConfigured,
   serviceAccountEmail,
+  stepLabel = "A · Google Sheets",
 }: {
   businessId: string;
   spreadsheetId: string;
   googleConfigured: boolean;
   serviceAccountEmail: string | null;
+  stepLabel?: string;
 }) {
   const [sheetId, setSheetId] = useState(spreadsheetId === "dev-sheet-demo" ? "" : spreadsheetId);
   const [acceptData, setAcceptData] = useState(false);
@@ -43,9 +45,9 @@ export function OrdersSheetForm({
 
   return (
     <SettingsSection
-      step="01 · Data"
-      title="Orders & bookings sheet"
-      description="Customer orders and bookings are written to your Google Sheet — not the ALINKS platform database."
+      step={stepLabel}
+      title="Google Sheets (default)"
+      description="Simple default: customer orders and bookings go into your Google Sheet. Free for you — no Supabase bill."
     >
       <div className="flex items-center justify-between gap-2">
         <span className="text-[12px] text-brand-muted">Status</span>

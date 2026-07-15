@@ -93,9 +93,9 @@ export function CommerceForm({
       {!liveSheet ? (
         <div className="rounded-xl border border-amber-500/25 bg-amber-500/10 px-3 py-2.5 text-[12px] text-amber-950 dark:text-amber-100">
           <p className="font-semibold">Orders sheet not connected</p>
-          <p className="mt-0.5 opacity-90">Connect under Settings so paid orders land in your workbook.</p>
-          <Link href="/dashboard/settings" className="mt-2 inline-block font-bold text-brand-purple underline">
-            Open Settings →
+          <p className="mt-0.5 opacity-90">Connect under Data so paid orders land in your workbook.</p>
+          <Link href="/dashboard/data" className="mt-2 inline-block font-bold text-brand-purple underline">
+            Open Data →
           </Link>
         </div>
       ) : null}

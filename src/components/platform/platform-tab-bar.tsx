@@ -15,7 +15,16 @@ function buildTabs(locale: AppLocale, role: SessionRole): Tab[] {
     { href: "/editor", label: t(locale, "nav.website"), match: (p) => p.startsWith("/editor") },
     { href: "/dashboard/share", label: t(locale, "nav.share"), match: (p) => p.startsWith("/dashboard/share") },
     { href: "/billing", label: t(locale, "nav.billing"), match: (p) => p.startsWith("/billing") },
-    { href: "/dashboard/settings", label: t(locale, "nav.settings"), match: (p) => p.startsWith("/dashboard/settings") || p.startsWith("/dashboard/domain") || p.startsWith("/dashboard/ai") },
+    {
+      href: "/dashboard/settings",
+      label: t(locale, "nav.settings"),
+      match: (p) =>
+        p.startsWith("/dashboard/settings") ||
+        p.startsWith("/dashboard/domain") ||
+        p.startsWith("/dashboard/ai") ||
+        p.startsWith("/dashboard/data") ||
+        p.startsWith("/dashboard/integrations"),
+    },
   ];
   if (role === "superadmin") {
     tabs.push({ href: "/superadmin", label: "Admin", match: (p) => p.startsWith("/superadmin") });

@@ -8,11 +8,12 @@ const quickLinks = [
   { href: "/editor", label: "Website builder", desc: "Pages, theme, branding" },
   { href: "/editor/publish", label: "Go live", desc: "Publish, republish, unpublish" },
   { href: "/dashboard/share", label: "Tap & Blast", desc: "WhatsApp & QR sharing" },
-  { href: "/editor/commerce", label: "Checkout", desc: "Customers pay you · UPI, COD, sheet" },
+  { href: "/editor/commerce", label: "Checkout", desc: "Customers pay you · Razorpay, COD" },
+  { href: "/dashboard/data", label: "Data", desc: "Sheets or Supabase for orders" },
   { href: "/dashboard/domain", label: "Custom domain", desc: "Connect your URL" },
   { href: "/dashboard/ai", label: "ALINKS AI", desc: "SEO & captions" },
   { href: "/billing", label: "Billing", desc: "You pay ALINKS · plan, trial, upgrade" },
-  { href: "/dashboard/settings", label: "Settings", desc: "Locale & integrations" },
+  { href: "/dashboard/settings", label: "Settings", desc: "App prefs & account" },
 ];
 
 export default async function DashboardPage() {
