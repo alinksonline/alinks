@@ -70,12 +70,15 @@ export default function ComingSoonPage() {
             The reveal is almost here.
           </p>
 
-          {/* Decorative pulse ring */}
-          <div className="relative mt-14 flex h-28 w-28 items-center justify-center" aria-hidden>
-            <span className="absolute inset-0 animate-ping rounded-full border border-brand-turquoise/30 opacity-40" />
-            <span className="absolute inset-3 rounded-full border border-brand-purple/25" />
-            <span className="absolute inset-6 rounded-full bg-gradient-to-br from-brand-purple/30 to-brand-turquoise/25 blur-sm" />
-            <span className="relative h-12 w-12 rounded-2xl bg-gradient-to-br from-brand-purple to-brand-turquoise shadow-[0_0_40px_rgba(45,212,191,0.45)]" />
+          {/* Center brand mark — real logo image */}
+          <div className="relative mx-auto mt-12 flex items-center justify-center">
+            <div
+              className="pointer-events-none absolute h-40 w-40 rounded-full bg-brand-purple/20 blur-3xl sm:h-48 sm:w-48"
+              aria-hidden
+            />
+            <div className="relative rounded-3xl border border-white/10 bg-white/[0.04] px-8 py-7 shadow-[0_20px_60px_rgba(0,0,0,0.45)] backdrop-blur-md">
+              <AlinksLogo height={48} variant="dark" priority />
+            </div>
           </div>
         </main>
 
