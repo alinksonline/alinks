@@ -36,15 +36,16 @@ const ALL_LINKS: NavLink[] = [
   },
   {
     href: "/editor/commerce",
-    label: "Store",
+    label: "Pay",
     match: (p) => p.startsWith("/editor/commerce"),
-    // Shop / catalog — not clinic-only medical
+    /** Checkout / COD / Sheets — not product catalog */
     verticals: ["salon", "beauty", "kirana", "grocery", "ecommerce", "restaurant", "pharmacy", "general"],
   },
   {
     href: "/editor/packages",
-    label: "Pkgs",
+    label: "Packages",
     match: (p) => p.startsWith("/editor/packages"),
+    /** Salon sellable catalog (pay-then-book) — this is the salon “shop” */
     verticals: ["salon", "beauty"],
   },
   {

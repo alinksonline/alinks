@@ -26,9 +26,11 @@ export default async function PackagesEditorPage() {
     <>
       <EditorNav active="/editor/packages" vertical={business.vertical} />
       <PageShell className="py-4">
-        <h1 className="text-lg font-bold tracking-tight text-brand-ink">Salon packages</h1>
-        <p className="mt-2 text-sm text-brand-ink/55">
-          Pre-made packages for pay-then-book — customers pay, then pick a slot.
+        <p className="premium-label">Your shop</p>
+        <h1 className="premium-heading mt-1 text-lg">Packages</h1>
+        <p className="premium-subtext mt-1.5 max-w-sm">
+          This is what customers buy on your salon site (pay-then-book). Payment methods (UPI, card, COD)
+          are under <strong>Pay</strong> — not here.
         </p>
         <PackagesPanel businessId={business.id} packages={packages} />
       </PageShell>

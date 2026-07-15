@@ -9,22 +9,33 @@ import { tenants } from "@/platform/db/schema";
 import { getServiceAccountEmail, isGoogleSheetsConfigured } from "@/tenant/storage/google-auth";
 import { resolveStorageBackend } from "@/tenant/storage/get-adapter";
 
+/**
+ * Payments & checkout setup — not product catalog.
+ * Salon catalog of services = /editor/packages.
+ * Kirana product catalog = future Shop tab.
+ */
 export default async function CommerceEditorPage() {
   const session = await requireAuth();
   const business = await requireBusiness(session);
   const db = getPlatformDb();
-  const tenant = db ? (await db.select().from(tenants).where(eq(tenants.id, session.userId)).limit(1))[0] : null;
+  const tenant = db
+    ? (await db.select().from(tenants).where(eq(tenants.id, session.userId)).limit(1))[0]
+    : null;
   const storage = await resolveStorageBackend(business.id);
+  const isSalon = business.vertical === "salon" || business.vertical === "beauty";
 
   return (
     <>
       <EditorNav active="/editor/commerce" vertical={business.vertical} />
-      <PageShell className="py-4">
-        <h1 className="text-lg font-bold tracking-tight text-brand-ink">Commerce</h1>
-        <p className="mt-2 text-sm text-brand-ink/55">
-          Lite WhatsApp catalog or Pro cart checkout. Orders append to your Google Sheet (not ALINKS database).
+      <PageShell className="py-3 pb-10">
+        <p className="premium-label">Payments</p>
+        <h1 className="premium-heading mt-1 text-lg">How customers pay you</h1>
+        <p className="premium-subtext mt-1.5 max-w-sm">
+          {isSalon
+            ? "Connect your sheet, turn on checkout, and set COD. Packages you sell live under Packages — not here."
+            : "Connect your sheet, enable on-site checkout (UPI / card), and control cash on delivery."}
         </p>
-        <div className="mt-6">
+        <div className="mt-5">
           <CommerceForm
             businessId={business.id}
             spreadsheetId={business.googleSpreadsheetId ?? ""}
@@ -34,6 +45,7 @@ export default async function CommerceEditorPage() {
             storageKind={storage.kind}
             googleConfigured={isGoogleSheetsConfigured()}
             serviceAccountEmail={getServiceAccountEmail()}
+            vertical={business.vertical}
           />
         </div>
       </PageShell>
