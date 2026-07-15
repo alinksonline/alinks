@@ -84,18 +84,14 @@ export default function ComingSoonPage() {
             <p className="font-mono text-[10px] uppercase tracking-[0.2em] text-zinc-500">
               A unit of
             </p>
-            <div className="flex items-center gap-2.5 rounded-full border border-white/10 bg-white/[0.04] px-4 py-2 backdrop-blur-md">
-              <Image
-                src="/favicon.png"
-                alt="Artix"
-                width={28}
-                height={28}
-                className="h-7 w-7 rounded-lg object-cover ring-1 ring-white/15"
-              />
-              <span className="font-display text-base font-bold tracking-[0.12em] text-white">
-                ARTIX
-              </span>
-            </div>
+            <Image
+              src="/assets/artix-logo.png"
+              alt="Artix — Branding, Creative, Designs"
+              width={200}
+              height={81}
+              className="h-auto w-[180px] max-w-[70vw] object-contain sm:w-[200px]"
+              priority
+            />
           </div>
         </footer>
       </div>
