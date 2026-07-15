@@ -79,18 +79,17 @@ export default function ComingSoonPage() {
           </div>
         </main>
 
-        <footer className="mt-auto border-t border-white/10 pt-6">
-          <div className="flex flex-col items-center gap-3">
-            <p className="font-mono text-[10px] uppercase tracking-[0.2em] text-zinc-500">
+        <footer className="mt-auto border-t border-white/5 pt-5">
+          <div className="flex flex-col items-center gap-1.5 opacity-50">
+            <p className="font-mono text-[9px] uppercase tracking-[0.18em] text-zinc-500">
               A unit of
             </p>
             <Image
               src="/assets/artix-logo.png"
-              alt="Artix — Branding, Creative, Designs"
-              width={200}
-              height={81}
-              className="h-auto w-[180px] max-w-[70vw] object-contain sm:w-[200px]"
-              priority
+              alt="Artix"
+              width={96}
+              height={39}
+              className="h-auto w-[72px] object-contain opacity-80 sm:w-[80px]"
             />
           </div>
         </footer>
