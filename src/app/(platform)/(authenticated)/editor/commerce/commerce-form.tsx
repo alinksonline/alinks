@@ -83,7 +83,7 @@ export function CommerceForm({
           <Link href="/editor/packages" className="font-semibold text-brand-purple underline">
             Packages
           </Link>
-          . <strong>Billing</strong> is only how they pay (UPI, card, COD) and where orders are saved.
+          . <strong>Payments</strong> is only how they pay (UPI, card, COD) and where orders are saved.
         </div>
       ) : null}
 

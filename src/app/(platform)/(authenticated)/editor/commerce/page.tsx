@@ -28,7 +28,7 @@ export default async function CommerceEditorPage() {
     <>
       <EditorNav active="/editor/commerce" vertical={business.vertical} />
       <PageShell className="py-3 pb-10">
-        <p className="premium-label">Billing</p>
+        <p className="premium-label">Payments</p>
         <h1 className="premium-heading mt-1 text-lg">How customers pay you</h1>
         <p className="premium-subtext mt-1.5 max-w-sm">
           {isSalon

@@ -23,7 +23,7 @@ const MESSAGES: Record<AppLocale, Record<MessageKey, string>> = {
     "dashboard.welcome": "Welcome to ALINKS",
     "nav.home": "Home",
     "nav.website": "Website",
-    "nav.billing": "Plan",
+    "nav.billing": "Billing",
     "nav.share": "Share",
     "nav.domain": "Domain",
     "nav.settings": "Settings",
