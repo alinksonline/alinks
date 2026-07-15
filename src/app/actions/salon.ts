@@ -10,7 +10,11 @@ import { getSession } from "@/platform/auth/session";
 import { assertBusinessOwnership } from "@/platform/business/require-business";
 import { SALON_PACKAGE_TEMPLATES } from "@/tenant/salon/package-templates";
 import { completeBookingPayment } from "@/platform/payments/complete-payment";
-import { createDevOrderId, createRazorpayOrder, isRazorpayConfigured } from "@/platform/payments/razorpay";
+import { createRazorpayOrder } from "@/platform/payments/razorpay";
+import {
+  businessHasOnlinePay,
+  getTenantRazorpayCredentials,
+} from "@/platform/payments/tenant-gateway";
 import { writeToTenantStorage } from "@/tenant/storage/write-service";
 
 export async function seedSalonPackagesAction(businessId: string) {
@@ -107,7 +111,15 @@ export async function createBookingAction(input: {
       return { success: true as const, bookingId, paymentStatus: "pending" as const };
     }
 
-    const amountPaise = pkg.price * 100;
+    const amountPaise = Math.round(pkg.price * 100);
+    const tenantCreds = await getTenantRazorpayCredentials(row.business.id);
+    if (!businessHasOnlinePay(row.business) || !tenantCreds) {
+      return {
+        success: false as const,
+        error: "This salon has not connected Razorpay yet. Pay online is unavailable.",
+      };
+    }
+
     const [session] = await db
       .insert(checkoutSessions)
       .values({
@@ -118,23 +130,24 @@ export async function createBookingAction(input: {
       })
       .returning();
 
-    const razorpayOrder = await createRazorpayOrder(amountPaise, session.id);
-    const razorpayConfigured = isRazorpayConfigured();
-    const razorpayOrderId = razorpayOrder.ok ? razorpayOrder.orderId : createDevOrderId();
-
-    if (razorpayConfigured && !razorpayOrder.ok) {
+    const razorpayOrder = await createRazorpayOrder(amountPaise, session.id, "INR", tenantCreds);
+    if (!razorpayOrder.ok) {
       return { success: false as const, error: razorpayOrder.error };
     }
 
-    await db.update(checkoutSessions).set({ razorpayOrderId }).where(eq(checkoutSessions.id, session.id));
+    await db
+      .update(checkoutSessions)
+      .set({ razorpayOrderId: razorpayOrder.orderId })
+      .where(eq(checkoutSessions.id, session.id));
 
     return {
       success: true as const,
       bookingId,
       sessionId: session.id,
-      razorpayOrderId,
+      razorpayOrderId: razorpayOrder.orderId,
+      razorpayKeyId: tenantCreds.keyId,
       amountPaise,
-      devMode: !razorpayConfigured,
+      devMode: false,
       businessName: row.business.name,
       pendingBooking: {
         businessId: row.business.id,

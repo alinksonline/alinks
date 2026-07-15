@@ -9,7 +9,6 @@ import type { CartItem } from "@/core/types/commerce";
 import { parseBusinessProfile } from "@/core/types/business-profile";
 import { shouldShowAlinksWatermark } from "@/core/utils/branding";
 import { canUseProCheckout } from "@/core/utils/tier-gates";
-import { isRazorpayConfigured } from "@/platform/payments/razorpay";
 import { getPublicBusinessByHandle } from "@/tenant/site/get-public-business";
 
 export default async function CheckoutPage({
@@ -62,7 +61,7 @@ export default async function CheckoutPage({
             handle={params.handle}
             items={items}
             codEnabled={business.codEnabled ?? true}
-            devMode={!isRazorpayConfigured()}
+            onlinePayEnabled={Boolean(business.onlinePayEnabled)}
           />
         )}
         <div className="mt-5 text-center">

@@ -20,6 +20,11 @@ export const businesses = pgTable("businesses", {
   customDomainVerified: boolean("custom_domain_verified").notNull().default(false),
   domainVerifyToken: varchar("domain_verify_token", { length: 64 }),
   razorpaySubMerchantId: varchar("razorpay_sub_merchant_id", { length: 64 }),
+  /** Tenant's own Razorpay Key ID (public) — BYO gateway, not Artix facilitation */
+  razorpayKeyId: varchar("razorpay_key_id", { length: 64 }),
+  /** AES-GCM encrypted Key Secret — never sent to the browser */
+  razorpayKeySecretEnc: text("razorpay_key_secret_enc"),
+  razorpayConnectedAt: timestamp("razorpay_connected_at", { withTimezone: true }),
   seoMeta: jsonb("seo_meta").notNull().default({}),
   slotCapacity: integer("slot_capacity").notNull().default(1),
   adsEnabled: boolean("ads_enabled").notNull().default(false),

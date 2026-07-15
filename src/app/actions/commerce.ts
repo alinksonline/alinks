@@ -2,8 +2,6 @@
 
 import { eq } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
-import { headers } from "next/headers";
-import { LEGAL_DOC_TYPES } from "@/core/constants/legal";
 import type { CartItem } from "@/core/types/commerce";
 import type { SubscriptionTier } from "@/core/config/tiers";
 import { canUseProCheckout } from "@/core/utils/tier-gates";
@@ -11,9 +9,13 @@ import { getSession } from "@/platform/auth/session";
 import { assertBusinessOwnership } from "@/platform/business/require-business";
 import { getPlatformDb } from "@/platform/db/client";
 import { businesses, checkoutSessions, tenants } from "@/platform/db/schema";
-import { recordLegalAcceptance } from "@/platform/legal/acceptances";
 import { completeStorePayment } from "@/platform/payments/complete-payment";
-import { createDevOrderId, createRazorpayOrder, isRazorpayConfigured } from "@/platform/payments/razorpay";
+import { createRazorpayOrder, validateRazorpayCredentials } from "@/platform/payments/razorpay";
+import { encryptSecret } from "@/platform/payments/secret-box";
+import {
+  businessHasOnlinePay,
+  getTenantRazorpayCredentials,
+} from "@/platform/payments/tenant-gateway";
 import { writeToTenantStorage } from "@/tenant/storage/write-service";
 import crypto from "crypto";
 
@@ -23,20 +25,87 @@ async function requireSession() {
   return session;
 }
 
-async function requestMeta() {
-  const h = headers();
-  return {
-    ipAddress: h.get("x-forwarded-for")?.split(",")[0]?.trim(),
-    userAgent: h.get("user-agent") ?? undefined,
-  };
-}
-
-export async function enableProCheckoutAction(businessId: string, acceptPaymentAddendum: boolean) {
+/** Connect tenant's own Razorpay — sales settle to their account, not Artix. */
+export async function connectTenantRazorpayAction(
+  businessId: string,
+  keyId: string,
+  keySecret: string,
+) {
   try {
     const session = await requireSession();
-    const business = await assertBusinessOwnership(businessId, session.userId);
-    if (!acceptPaymentAddendum) {
-      return { success: false as const, error: "Payment addendum acceptance required" };
+    await assertBusinessOwnership(businessId, session.userId);
+    const db = getPlatformDb();
+    if (!db) return { success: false as const, error: "Database not connected" };
+
+    const tenant = (await db.select().from(tenants).where(eq(tenants.id, session.userId)).limit(1))[0];
+    if (!tenant || (tenant.tier !== "pro" && tenant.tier !== "enterprise")) {
+      return { success: false as const, error: "Pro plan required — change plan under Billing" };
+    }
+
+    const id = keyId.trim();
+    const secret = keySecret.trim();
+    if (!id.startsWith("rzp_")) {
+      return { success: false as const, error: "Key ID should start with rzp_ (from Razorpay Dashboard → API Keys)" };
+    }
+    if (secret.length < 20) {
+      return { success: false as const, error: "Key Secret looks too short" };
+    }
+
+    const valid = await validateRazorpayCredentials({ keyId: id, keySecret: secret });
+    if (!valid.ok) return { success: false as const, error: valid.error };
+
+    await db
+      .update(businesses)
+      .set({
+        razorpayKeyId: id,
+        razorpayKeySecretEnc: encryptSecret(secret),
+        razorpayConnectedAt: new Date(),
+        checkoutMode: "pro",
+        updatedAt: new Date(),
+      })
+      .where(eq(businesses.id, businessId));
+
+    revalidatePath("/editor/commerce");
+    return { success: true as const };
+  } catch (e) {
+    return { success: false as const, error: e instanceof Error ? e.message : "Connect failed" };
+  }
+}
+
+export async function disconnectTenantRazorpayAction(businessId: string) {
+  try {
+    const session = await requireSession();
+    await assertBusinessOwnership(businessId, session.userId);
+    const db = getPlatformDb();
+    if (!db) return { success: false as const, error: "Database not connected" };
+
+    await db
+      .update(businesses)
+      .set({
+        razorpayKeyId: null,
+        razorpayKeySecretEnc: null,
+        razorpayConnectedAt: null,
+        updatedAt: new Date(),
+      })
+      .where(eq(businesses.id, businessId));
+
+    revalidatePath("/editor/commerce");
+    return { success: true as const };
+  } catch (e) {
+    return { success: false as const, error: e instanceof Error ? e.message : "Disconnect failed" };
+  }
+}
+
+/** Enable on-site checkout mode (COD and/or online). Online needs connected Razorpay. */
+export async function enableProCheckoutAction(businessId: string, acknowledgeOwnGateway: boolean) {
+  try {
+    const session = await requireSession();
+    await assertBusinessOwnership(businessId, session.userId);
+    if (!acknowledgeOwnGateway) {
+      return {
+        success: false as const,
+        error: "Confirm that online payments use your own Razorpay account",
+      };
     }
 
     const db = getPlatformDb();
@@ -44,11 +113,8 @@ export async function enableProCheckoutAction(businessId: string, acceptPaymentA
 
     const tenant = (await db.select().from(tenants).where(eq(tenants.id, session.userId)).limit(1))[0];
     if (!tenant || !canUseProCheckout(tenant.tier as SubscriptionTier, "pro")) {
-      return { success: false as const, error: "Pro plan required for on-site checkout" };
+      return { success: false as const, error: "Pro plan required — open Billing" };
     }
-
-    const meta = await requestMeta();
-    await recordLegalAcceptance({ tenantId: session.userId, docType: LEGAL_DOC_TYPES.PAYMENT_ADDENDUM, ...meta });
 
     await db
       .update(businesses)
@@ -114,7 +180,9 @@ export async function createCheckoutSessionAction(input: {
     if (total <= 0) return { success: false as const, error: "Cart is empty" };
 
     const orderId = crypto.randomUUID();
-    const amountPaise = total * 100;
+    const amountPaise = Math.round(total * 100);
+    const tenantCreds = await getTenantRazorpayCredentials(row.business.id);
+    const hasOnline = businessHasOnlinePay(row.business) && Boolean(tenantCreds);
 
     if (input.paymentMethod === "cod") {
       await writeToTenantStorage(row.business.id, "Orders", {
@@ -129,7 +197,14 @@ export async function createCheckoutSessionAction(input: {
         createdAt: new Date().toISOString(),
       });
 
-      return { success: true as const, orderId, paymentMethod: "cod" as const, devMode: !isRazorpayConfigured() };
+      return { success: true as const, orderId, paymentMethod: "cod" as const, devMode: false };
+    }
+
+    if (!hasOnline || !tenantCreds) {
+      return {
+        success: false as const,
+        error: "This shop has not connected their Razorpay account yet",
+      };
     }
 
     const [session] = await db
@@ -142,27 +217,25 @@ export async function createCheckoutSessionAction(input: {
       })
       .returning();
 
-    const razorpayOrder = await createRazorpayOrder(amountPaise, session.id);
-    const razorpayConfigured = isRazorpayConfigured();
-    const razorpayOrderId = razorpayOrder.ok ? razorpayOrder.orderId : createDevOrderId();
-
-    if (razorpayConfigured && !razorpayOrder.ok) {
+    const razorpayOrder = await createRazorpayOrder(amountPaise, session.id, "INR", tenantCreds);
+    if (!razorpayOrder.ok) {
       return { success: false as const, error: razorpayOrder.error };
     }
 
     await db
       .update(checkoutSessions)
-      .set({ razorpayOrderId })
+      .set({ razorpayOrderId: razorpayOrder.orderId })
       .where(eq(checkoutSessions.id, session.id));
 
     return {
       success: true as const,
       sessionId: session.id,
       orderId,
-      razorpayOrderId,
+      razorpayOrderId: razorpayOrder.orderId,
+      razorpayKeyId: tenantCreds.keyId,
       amountPaise,
       paymentMethod: input.paymentMethod,
-      devMode: !razorpayConfigured,
+      devMode: false,
       businessName: row.business.name,
       pendingOrder: {
         businessId: row.business.id,

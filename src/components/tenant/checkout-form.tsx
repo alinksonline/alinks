@@ -3,28 +3,29 @@
 import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import type { CartItem } from "@/core/types/commerce";
-import { completeDevPaymentAction, createCheckoutSessionAction } from "@/app/actions/commerce";
+import { createCheckoutSessionAction } from "@/app/actions/commerce";
 import { openRazorpayCheckout, verifyPaymentViaApi } from "@/lib/razorpay-checkout";
-
-const RAZORPAY_KEY_ID = process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID ?? "";
 
 export function CheckoutForm({
   handle,
   items,
   codEnabled,
-  devMode,
+  onlinePayEnabled = true,
 }: {
   handle: string;
   items: CartItem[];
   codEnabled: boolean;
-  devMode: boolean;
+  /** Shop has connected their own Razorpay */
+  onlinePayEnabled?: boolean;
 }) {
   const router = useRouter();
   const [isPending, startTransition] = useTransition();
   const [name, setName] = useState("");
   const [phone, setPhone] = useState("");
   const [address, setAddress] = useState("");
-  const [method, setMethod] = useState<"upi" | "card" | "cod">("upi");
+  const [method, setMethod] = useState<"upi" | "card" | "cod">(
+    onlinePayEnabled ? "upi" : codEnabled ? "cod" : "upi",
+  );
   const [acceptTerms, setAcceptTerms] = useState(false);
   const [message, setMessage] = useState("");
   const [messageTone, setMessageTone] = useState<"error" | "success" | "info">("info");
@@ -63,34 +64,14 @@ export function CheckoutForm({
             return;
           }
 
-          if (result.devMode && result.pendingOrder && result.sessionId) {
-            const paid = await completeDevPaymentAction({
-              sessionId: result.sessionId,
-              pendingOrder: result.pendingOrder,
-              paymentMethod: method === "card" ? "card" : "upi",
-            });
-            if (paid.success) {
-              setStatus(`Payment successful! Order ${paid.orderId} saved to your sheet.`, "success");
-              router.push(`/${handle}/store`);
-            } else {
-              setStatus(paid.error, "error");
-            }
-            return;
-          }
-
-          if (!RAZORPAY_KEY_ID) {
-            setStatus("Payment gateway is not configured on the client.", "error");
-            return;
-          }
-
-          if (!result.razorpayOrderId || !result.sessionId || !result.pendingOrder) {
-            setStatus("Could not start payment. Try again.", "error");
+          if (!result.razorpayOrderId || !result.sessionId || !result.pendingOrder || !result.razorpayKeyId) {
+            setStatus("Could not start payment. The shop may not have connected Razorpay.", "error");
             return;
           }
 
           try {
             await openRazorpayCheckout({
-              keyId: RAZORPAY_KEY_ID,
+              keyId: result.razorpayKeyId,
               orderId: result.razorpayOrderId,
               amountPaise: result.amountPaise,
               name: result.businessName ?? "ALINKS Store",
@@ -186,14 +167,18 @@ export function CheckoutForm({
         <div className="mt-2 space-y-2">
           {(
             [
-              {
-                id: "upi" as const,
-                label: "UPI / GPay / PhonePe",
-                hint: devMode ? "Simulated in demo" : "Instant",
-              },
-              { id: "card" as const, label: "Card", hint: "Debit / credit" },
+              ...(onlinePayEnabled
+                ? ([
+                    {
+                      id: "upi" as const,
+                      label: "UPI / GPay / PhonePe",
+                      hint: "Via shop's Razorpay",
+                    },
+                    { id: "card" as const, label: "Card", hint: "Debit / credit" },
+                  ] as const)
+                : []),
               ...(codEnabled
-                ? [{ id: "cod" as const, label: "Cash on delivery", hint: "Pay when you receive" }]
+                ? ([{ id: "cod" as const, label: "Cash on delivery", hint: "Pay when you receive" }] as const)
                 : []),
             ] as const
           ).map((opt) => (

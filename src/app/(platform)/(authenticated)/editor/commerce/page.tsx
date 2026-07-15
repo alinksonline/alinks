@@ -6,11 +6,11 @@ import { requireAuth } from "@/platform/auth/session";
 import { requireBusiness } from "@/platform/business/require-business";
 import { getPlatformDb } from "@/platform/db/client";
 import { tenants } from "@/platform/db/schema";
+import { getTenantGatewayStatus } from "@/platform/payments/tenant-gateway";
 
 /**
- * TENANT Checkout — how customers pay the shop.
- * Orders Google Sheet → Settings.
- * ALINKS subscription → Billing.
+ * Tenant Checkout — connect YOUR Razorpay + COD.
+ * ALINKS does not facilitate/settle shop sales.
  */
 export default async function CommerceEditorPage() {
   const session = await requireAuth();
@@ -19,6 +19,7 @@ export default async function CommerceEditorPage() {
   const tenant = db
     ? (await db.select().from(tenants).where(eq(tenants.id, session.userId)).limit(1))[0]
     : null;
+  const gateway = await getTenantGatewayStatus(business.id);
   const isSalon = business.vertical === "salon" || business.vertical === "beauty";
 
   return (
@@ -29,8 +30,8 @@ export default async function CommerceEditorPage() {
         <h1 className="premium-heading mt-1 text-lg">Checkout</h1>
         <p className="premium-subtext mt-1.5 max-w-sm">
           {isSalon
-            ? "How shoppers pay for packages (UPI, card, COD)."
-            : "How shoppers pay on your mini-site (UPI, card, COD)."}
+            ? "Connect your Razorpay and COD. Sales money goes to you — not ALINKS."
+            : "Connect your Razorpay and COD. Customer payments settle to your gateway."}
         </p>
         <div className="mt-5">
           <CommerceForm
@@ -40,6 +41,8 @@ export default async function CommerceEditorPage() {
             codEnabled={business.codEnabled}
             tier={tenant?.tier ?? "basic"}
             vertical={business.vertical}
+            razorpayConnected={gateway.connected}
+            razorpayKeyId={gateway.keyId}
           />
         </div>
       </PageShell>

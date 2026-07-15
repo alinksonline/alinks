@@ -2,10 +2,8 @@
 
 import { useMemo, useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
-import { completeDevBookingPaymentAction, createBookingAction } from "@/app/actions/salon";
+import { createBookingAction } from "@/app/actions/salon";
 import { openRazorpayCheckout, verifyPaymentViaApi } from "@/lib/razorpay-checkout";
-
-const RAZORPAY_KEY_ID = process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID ?? "";
 
 const TIME_SLOTS = [
   "09:00",
@@ -48,11 +46,12 @@ type PackageOption = {
 export function BookingForm({
   handle,
   packages,
-  devMode,
+  onlinePayEnabled = true,
 }: {
   handle: string;
   packages: PackageOption[];
-  devMode: boolean;
+  /** Shop has connected their own Razorpay */
+  onlinePayEnabled?: boolean;
 }) {
   const router = useRouter();
   const [isPending, startTransition] = useTransition();
@@ -61,7 +60,7 @@ export function BookingForm({
   const [slotTime, setSlotTime] = useState("10:00");
   const [name, setName] = useState("");
   const [phone, setPhone] = useState("");
-  const [payNow, setPayNow] = useState(true);
+  const [payNow, setPayNow] = useState(onlinePayEnabled);
   const [message, setMessage] = useState("");
   const [messageTone, setMessageTone] = useState<"error" | "success" | "info">("info");
 
@@ -102,33 +101,14 @@ export function BookingForm({
             return;
           }
 
-          if (result.devMode && result.pendingBooking && result.sessionId) {
-            const paid = await completeDevBookingPaymentAction({
-              sessionId: result.sessionId,
-              pendingBooking: result.pendingBooking,
-            });
-            if (paid.success) {
-              setStatus(`Paid & booked! ID: ${paid.bookingId}`, "success");
-              router.push(`/${handle}`);
-            } else {
-              setStatus(paid.error, "error");
-            }
-            return;
-          }
-
-          if (!RAZORPAY_KEY_ID) {
-            setStatus("Payment gateway is not configured on the client.", "error");
-            return;
-          }
-
-          if (!result.razorpayOrderId || !result.sessionId || !result.pendingBooking) {
-            setStatus("Could not start payment. Try again.", "error");
+          if (!result.razorpayOrderId || !result.sessionId || !result.pendingBooking || !result.razorpayKeyId) {
+            setStatus("Could not start payment. Salon may not have connected Razorpay.", "error");
             return;
           }
 
           try {
             await openRazorpayCheckout({
-              keyId: RAZORPAY_KEY_ID,
+              keyId: result.razorpayKeyId,
               orderId: result.razorpayOrderId,
               amountPaise: result.amountPaise,
               name: result.businessName ?? "ALINKS Salon",
@@ -268,7 +248,8 @@ export function BookingForm({
         </div>
       </section>
 
-      {/* Pay toggle */}
+      {/* Pay toggle — only when shop has Razorpay */}
+      {onlinePayEnabled ? (
       <button
         type="button"
         onClick={() => setPayNow((v) => !v)}
@@ -280,9 +261,7 @@ export function BookingForm({
           <div>
             <p className="text-sm font-bold">Pay now before confirming</p>
             <p className="t-muted mt-0.5 text-xs leading-relaxed">
-              {devMode
-                ? "Demo mode — payment is simulated (no real charge)."
-                : "Secure UPI / card checkout, then your slot is locked."}
+              Paid via the salon&apos;s Razorpay — then your slot is locked.
             </p>
           </div>
           <span
@@ -299,6 +278,11 @@ export function BookingForm({
           </span>
         </div>
       </button>
+      ) : (
+        <p className="t-muted text-[12px] leading-relaxed">
+          Online pay is not set up for this salon — you can still hold a free booking slot.
+        </p>
+      )}
 
       {/* Summary + CTA */}
       <div className="t-card space-y-3 p-4">

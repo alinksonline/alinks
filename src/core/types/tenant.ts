@@ -37,6 +37,8 @@ export interface Business {
   isPublished: boolean;
   checkoutMode?: "lite" | "pro";
   codEnabled?: boolean;
+  /** Tenant connected their own Razorpay (public flag only — never secrets) */
+  onlinePayEnabled?: boolean;
   googleSpreadsheetId?: string | null;
   customDomain?: string | null;
   customDomainVerified?: boolean;

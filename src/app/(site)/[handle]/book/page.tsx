@@ -7,7 +7,6 @@ import { TenantThemedLayout } from "@/components/tenant/tenant-themed-layout";
 import { PublicSiteNav } from "@/components/tenant/public-site-nav";
 import { shouldShowAlinksWatermark } from "@/core/utils/branding";
 import { parseBusinessProfile } from "@/core/types/business-profile";
-import { isRazorpayConfigured } from "@/platform/payments/razorpay";
 import { getSalonPackagesForHandle } from "@/app/actions/salon";
 import { getPublicBusinessByHandle } from "@/tenant/site/get-public-business";
 
@@ -46,7 +45,11 @@ export default async function BookPage({ params }: { params: { handle: string } 
       </section>
 
       <main className="mx-auto w-full max-w-app px-3.5 py-5 pb-4">
-        <BookingForm handle={params.handle} packages={packages} devMode={!isRazorpayConfigured()} />
+        <BookingForm
+          handle={params.handle}
+          packages={packages}
+          onlinePayEnabled={Boolean(business.onlinePayEnabled)}
+        />
 
         <div className="mt-6 flex flex-wrap items-center justify-center gap-3 text-xs">
           <Link href={`/${params.handle}/store`} className="t-link font-semibold no-underline">

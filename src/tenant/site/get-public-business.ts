@@ -15,6 +15,7 @@ function toBusiness(row: typeof businesses.$inferSelect, tier: SubscriptionTier)
     isPublished: row.isPublished,
     checkoutMode: row.checkoutMode as "lite" | "pro",
     codEnabled: row.codEnabled,
+    onlinePayEnabled: Boolean(row.razorpayKeyId && row.razorpayKeySecretEnc),
     googleSpreadsheetId: row.googleSpreadsheetId,
     customDomain: row.customDomain,
     customDomainVerified: row.customDomainVerified,

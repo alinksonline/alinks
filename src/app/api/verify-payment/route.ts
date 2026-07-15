@@ -2,7 +2,8 @@ import { NextResponse } from "next/server";
 import { z } from "zod";
 import type { CartItem } from "@/core/types/commerce";
 import { completeBookingPayment, completeStorePayment } from "@/platform/payments/complete-payment";
-import { isRazorpayConfigured, verifyRazorpaySignature } from "@/platform/payments/razorpay";
+import { verifyRazorpaySignature } from "@/platform/payments/razorpay";
+import { getTenantRazorpayCredentials } from "@/platform/payments/tenant-gateway";
 
 const bodySchema = z.object({
   razorpay_order_id: z.string().min(1),
@@ -44,10 +45,6 @@ const bodySchema = z.object({
 });
 
 export async function POST(req: Request) {
-  if (!isRazorpayConfigured()) {
-    return NextResponse.json({ error: "Razorpay is not configured" }, { status: 500 });
-  }
-
   let body: z.infer<typeof bodySchema>;
   try {
     body = bodySchema.parse(await req.json());
@@ -55,10 +52,21 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: "Missing or invalid payment fields" }, { status: 400 });
   }
 
+  const businessId = body.pendingOrder?.businessId ?? body.pendingBooking?.businessId;
+  if (!businessId) {
+    return NextResponse.json({ error: "Missing business context" }, { status: 400 });
+  }
+
+  const creds = await getTenantRazorpayCredentials(businessId);
+  if (!creds) {
+    return NextResponse.json({ error: "Shop payment gateway is not connected" }, { status: 400 });
+  }
+
   const valid = verifyRazorpaySignature(
     body.razorpay_order_id,
     body.razorpay_payment_id,
     body.razorpay_signature,
+    creds.keySecret,
   );
 
   if (!valid) {
