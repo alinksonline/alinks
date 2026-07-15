@@ -1,43 +1,45 @@
-import Link from "next/link";
 import { SettingsSection } from "@/components/platform/settings-section";
 
+const SUPABASE_AFFILIATE_URL =
+  process.env.NEXT_PUBLIC_SUPABASE_AFFILIATE_URL?.trim() || "https://supabase.com/dashboard/sign-up";
+
 /**
- * ALINKS-managed Supabase: Artix pays Supabase, bills tenant cost + margin.
- * Pricing TBD from real overheads — UI states the model clearly.
+ * ALINKS does NOT host or manage tenant customer databases.
+ * Tenants use Google Sheets or their own Supabase (affiliate signup).
  */
 export function ManagedStorageCard() {
   return (
     <SettingsSection
-      step="C · With ALINKS"
-      title="Managed database (Supabase)"
-      description="We provision and operate a Supabase project for your business. You pay ALINKS a monthly storage add-on (our Supabase cost + a small margin). You still own the data policy for your customers."
+      step="C · Our stance"
+      title="We don’t host your customer database"
+      description="Orders and bookings always live in storage you control. That keeps ALINKS simple and keeps your client data under your account — not ours."
     >
       <ul className="space-y-1.5 text-[12px] leading-relaxed text-brand-muted">
         <li>
-          · <strong className="text-brand-ink">You don&apos;t</strong> manage keys or dashboards if you
-          don&apos;t want to
+          · <strong className="text-brand-ink">Google Sheets</strong> — default, free, easy
         </li>
         <li>
-          · <strong className="text-brand-ink">We</strong> pay Supabase;{" "}
-          <strong className="text-brand-ink">you</strong> pay ALINKS the add-on
+          · <strong className="text-brand-ink">Your own Supabase</strong> — you sign up, you pay
+          Supabase, you connect the project above
         </li>
         <li>
-          · Price = Supabase overheads for your tier + margin (published under Billing when live)
+          · <strong className="text-brand-ink">No “ALINKS-managed DB”</strong> — we won’t run or
+          support a database of your customers on our side
         </li>
-        <li>· Not the same as ALINKS plan — this is only customer-order storage</li>
       </ul>
 
-      <div className="rounded-xl border border-brand-ink/10 bg-brand-mist/50 px-3 py-3 text-[12px] text-brand-ink">
-        <p className="font-bold">Coming soon</p>
-        <p className="mt-1 text-brand-muted">
-          Provisioning and add-on billing are not open yet. Use Google Sheets (free) or BYO Supabase
-          today. When managed storage launches, you&apos;ll enable it here and see the fee on{" "}
-          <Link href="/billing" className="font-semibold text-brand-purple underline">
-            Billing
-          </Link>
-          .
-        </p>
-      </div>
+      <a
+        href={SUPABASE_AFFILIATE_URL}
+        target="_blank"
+        rel="noopener noreferrer"
+        className="inline-flex w-full items-center justify-center rounded-full border border-brand-ink/15 bg-brand-mist/60 px-4 py-2.5 text-sm font-semibold text-brand-ink transition hover:bg-brand-mist"
+      >
+        Create a free Supabase account →
+      </a>
+      <p className="text-[10px] leading-relaxed text-brand-muted">
+        Opens Supabase in a new tab. After your project exists, paste the URL and key under “Your own
+        Supabase” above.
+      </p>
     </SettingsSection>
   );
 }

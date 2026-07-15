@@ -13,10 +13,10 @@ import { ManagedStorageCard } from "./managed-storage-card";
 /**
  * TENANT data plane (not platform Billing, not Checkout).
  *
- * Options:
- * 1. Google Sheets — default, free for tenant
- * 2. BYO Supabase — tenant's project, tenant pays Supabase
- * 3. ALINKS managed Supabase — Artix provisions, tenant pays ALINKS (cost + margin)
+ * ALINKS does NOT manage/host customer databases (support + liability).
+ * Options only:
+ * 1. Google Sheets — default
+ * 2. BYO Supabase — tenant account (affiliate signup), they pay Supabase
  */
 export default async function DataPage() {
   const session = await requireAuth();
@@ -64,9 +64,9 @@ export default async function DataPage() {
         />
 
         <SettingsSection
-          step="B · BYO database"
+          step="B · Your own database"
           title="Your own Supabase"
-          description="You create and pay for a Supabase project. ALINKS only connects to it — your data, your bill from Supabase."
+          description="Optional. You open a Supabase account (we may earn affiliate credit), you pay them, you own the project. ALINKS only connects — we never host your customer DB."
         >
           <DataSupabaseByoForm
             businessId={business.id}
