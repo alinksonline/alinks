@@ -2,23 +2,21 @@
 
 import { useState, useTransition } from "react";
 import Link from "next/link";
-import {
-  connectGoogleSheetAction,
-  provisionGoogleSheetAction,
-} from "@/app/actions/business";
 import { enableProCheckoutAction, updateCodSettingAction } from "@/app/actions/commerce";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/core/utils/cn";
 
+/**
+ * TENANT Checkout only — how customers pay the shop.
+ * Orders Google Sheet lives under Settings (data storage), not here.
+ * Platform subscription lives under Billing.
+ */
 export function CommerceForm({
   businessId,
   spreadsheetId,
   checkoutMode,
   codEnabled,
   tier,
-  storageKind,
-  googleConfigured,
-  serviceAccountEmail,
   vertical = "general",
 }: {
   businessId: string;
@@ -26,22 +24,12 @@ export function CommerceForm({
   checkoutMode: string;
   codEnabled: boolean;
   tier: string;
-  storageKind: string;
-  googleConfigured: boolean;
-  serviceAccountEmail: string | null;
   vertical?: string;
 }) {
-  const [sheetId, setSheetId] = useState(spreadsheetId === "dev-sheet-demo" ? "" : spreadsheetId);
   const [cod, setCod] = useState(codEnabled);
   const [acceptPayment, setAcceptPayment] = useState(false);
-  const [acceptData, setAcceptData] = useState(false);
   const [message, setMessage] = useState("");
   const [messageOk, setMessageOk] = useState(false);
-  const [sheetUrl, setSheetUrl] = useState(
-    spreadsheetId && !spreadsheetId.startsWith("dev-")
-      ? `https://docs.google.com/spreadsheets/d/${spreadsheetId}`
-      : "",
-  );
   const [isPending, startTransition] = useTransition();
 
   const isPro = tier === "pro" || tier === "enterprise";
@@ -56,7 +44,6 @@ export function CommerceForm({
 
   return (
     <div className="space-y-4 pb-8">
-      {/* Tenant-only status — never show ALINKS subscription “Plan” here */}
       <div className="premium-card grid grid-cols-2 gap-2 p-3">
         <StatusPill
           label="Checkout"
@@ -71,135 +58,36 @@ export function CommerceForm({
       </div>
 
       {isSalon ? (
-        <div className="rounded-xl border border-brand-purple/20 bg-brand-purple/10 px-3 py-2.5 text-[12px] leading-snug text-brand-ink">
-          <span className="font-semibold">Salon tip: </span>
-          What customers buy lives under{" "}
+        <p className="text-[12px] leading-snug text-brand-muted">
+          What customers buy is under{" "}
           <Link href="/editor/packages" className="font-semibold text-brand-purple underline">
             Packages
           </Link>
-          . This page is only how shoppers pay you (UPI, card, COD) and where orders are saved.
+          . This page is only how they pay.
+        </p>
+      ) : null}
+
+      {!liveSheet ? (
+        <div className="rounded-xl border border-amber-500/25 bg-amber-500/10 px-3 py-2.5 text-[12px] text-amber-950 dark:text-amber-100">
+          <p className="font-semibold">Orders sheet not connected</p>
+          <p className="mt-0.5 opacity-90">
+            Connect your Google Sheet under Settings so orders land in your workbook.
+          </p>
+          <Link
+            href="/dashboard/settings"
+            className="mt-2 inline-block font-bold text-brand-purple underline"
+          >
+            Open Settings →
+          </Link>
         </div>
       ) : null}
 
-      {/* 1. Orders sheet */}
-      <section className="premium-card space-y-3 p-4">
-        <div className="flex items-start justify-between gap-2">
-          <div>
-            <h2 className="text-sm font-bold text-brand-ink">1. Orders sheet</h2>
-            <p className="mt-0.5 text-[11px] leading-snug text-brand-muted">
-              Orders & bookings go to <strong>your</strong> Google Sheet — not ALINKS DB.
-            </p>
-          </div>
-          <span
-            className={cn(
-              "shrink-0 rounded-full px-2 py-0.5 text-[10px] font-bold uppercase",
-              liveSheet
-                ? "bg-emerald-500/15 text-emerald-700 dark:text-emerald-300"
-                : "bg-amber-500/15 text-amber-800 dark:text-amber-200",
-            )}
-          >
-            {liveSheet ? "Connected" : "Needed"}
-          </span>
-        </div>
-
-        {!googleConfigured ? (
-          <div className="rounded-lg border border-amber-500/25 bg-amber-500/10 px-3 py-2 text-[11px] text-amber-900 dark:text-amber-100">
-            Google Sheets is not ready on this environment yet. You can still save a sheet ID; live write
-            needs server Google setup.
-          </div>
-        ) : serviceAccountEmail ? (
-          <p className="text-[10px] leading-snug text-brand-muted">
-            Share your sheet as <strong>Editor</strong> with:{" "}
-            <code className="break-all text-[10px]">{serviceAccountEmail}</code>
-          </p>
-        ) : null}
-
-        <label className="flex items-start gap-2 text-[12px] text-brand-ink">
-          <input
-            type="checkbox"
-            checked={acceptData}
-            onChange={(e) => setAcceptData(e.target.checked)}
-            className="mt-0.5"
-          />
-          <span>I own this customer data — it is stored in my sheet, not Artix.</span>
-        </label>
-
-        <Button
-          type="button"
-          variant="bronze"
-          disabled={isPending || !acceptData || !googleConfigured}
-          onClick={() =>
-            startTransition(async () => {
-              const result = await provisionGoogleSheetAction(businessId, acceptData);
-              if (!result.success) {
-                flash(result.error ?? "Provision failed");
-                return;
-              }
-              setSheetId(result.spreadsheetId);
-              setSheetUrl(result.spreadsheetUrl);
-              flash("New Google Sheet created and connected.", true);
-            })
-          }
-        >
-          {isPending ? "Working…" : "Create Google Sheet"}
-        </Button>
-
-        <form
-          className="space-y-2 border-t border-brand-ink/8 pt-3"
-          onSubmit={(e) => {
-            e.preventDefault();
-            startTransition(async () => {
-              if (!acceptData) {
-                flash("Confirm the data ownership checkbox first");
-                return;
-              }
-              const result = await connectGoogleSheetAction(businessId, sheetId);
-              if (!result.success) {
-                flash(result.error ?? "Connect failed");
-                return;
-              }
-              setSheetId(result.spreadsheetId);
-              setSheetUrl(result.spreadsheetUrl);
-              flash(
-                googleConfigured
-                  ? "Sheet connected. Orders will append here."
-                  : "Sheet ID saved (server still in dev file mode).",
-                true,
-              );
-            });
-          }}
-        >
-          <p className="text-[11px] font-semibold text-brand-ink">Or paste existing sheet</p>
-          <input
-            className="premium-input font-mono text-xs"
-            placeholder="Spreadsheet ID or full Google Sheets URL"
-            value={sheetId}
-            onChange={(e) => setSheetId(e.target.value)}
-          />
-          <Button type="submit" variant="secondary" disabled={isPending || !acceptData}>
-            Save connection
-          </Button>
-        </form>
-
-        {sheetUrl ? (
-          <a
-            href={sheetUrl}
-            target="_blank"
-            rel="noreferrer"
-            className="inline-block text-[12px] font-semibold text-brand-purple underline"
-          >
-            Open my orders sheet →
-          </a>
-        ) : null}
-      </section>
-
-      {/* 2. On-site checkout */}
+      {/* On-site checkout */}
       <section className="premium-card space-y-3 p-4">
         <div>
-          <h2 className="text-sm font-bold text-brand-ink">2. On-site checkout</h2>
+          <h2 className="text-sm font-bold text-brand-ink">On-site payments</h2>
           <p className="mt-0.5 text-[11px] leading-snug text-brand-muted">
-            UPI & cards via ALINKS payment facilitation (Artix partner). You are seller of record — no
-            pasting API keys.
+            UPI & cards via ALINKS (partner). You are the seller — no API keys to paste.
           </p>
         </div>
 
@@ -207,19 +95,21 @@ export function CommerceForm({
           <div className="rounded-lg border border-brand-ink/10 bg-brand-mist/60 px-3 py-3 text-[12px] text-brand-ink">
             <p className="font-semibold">On-site UPI / card needs Pro</p>
             <p className="mt-1 text-brand-muted">
-              Change your ALINKS subscription in <strong>Billing</strong> (bottom tab). Plan upgrades are not
-              managed on this Checkout page.
+              Change your ALINKS subscription in <strong>Billing</strong> (bottom tab).
             </p>
-            <Link href="/billing" className="mt-2 inline-block text-[12px] font-bold text-brand-purple underline">
+            <Link
+              href="/billing"
+              className="mt-2 inline-block text-[12px] font-bold text-brand-purple underline"
+            >
               Open Billing →
             </Link>
           </div>
         ) : proCheckoutOn ? (
           <div className="rounded-lg border border-emerald-500/25 bg-emerald-500/10 px-3 py-2.5 text-[12px] text-emerald-900 dark:text-emerald-100">
-            <p className="font-bold">Pro checkout is on</p>
+            <p className="font-bold">On-site checkout is on</p>
             <p className="mt-0.5 opacity-90">
-              Customers can pay online on your site. Bank KYC / sub-merchant activation is handled through
-              ALINKS (partner stack) — not a separate key paste.
+              Shoppers can pay online on your mini-site. Bank verification runs through ALINKS when
+              partner KYC is available.
             </p>
           </div>
         ) : (
@@ -232,8 +122,8 @@ export function CommerceForm({
                 className="mt-0.5"
               />
               <span>
-                I accept the <strong>Payment Facilitation Addendum</strong> — Artix routes pay; I sell the
-                goods/services.
+                I accept the <strong>Payment Facilitation Addendum</strong> — Artix routes pay; I sell
+                the goods/services.
               </span>
             </label>
             <Button
@@ -243,7 +133,10 @@ export function CommerceForm({
               onClick={() =>
                 startTransition(async () => {
                   const result = await enableProCheckoutAction(businessId, acceptPayment);
-                  flash(result.success ? "Pro checkout enabled." : result.error ?? "Failed", result.success);
+                  flash(
+                    result.success ? "On-site checkout enabled." : result.error ?? "Failed",
+                    result.success,
+                  );
                 })
               }
             >
@@ -253,20 +146,18 @@ export function CommerceForm({
         )}
       </section>
 
-      {/* 3. COD */}
+      {/* COD */}
       <section className="premium-card space-y-3 p-4">
-        <div className="flex items-start justify-between gap-2">
-          <div>
-            <h2 className="text-sm font-bold text-brand-ink">3. Cash on delivery</h2>
-            <p className="mt-0.5 text-[11px] leading-snug text-brand-muted">
-              Default ON for Indian shops (Q020). Risk is yours — fake orders, no-shows, cash handling.
-            </p>
-          </div>
+        <div>
+          <h2 className="text-sm font-bold text-brand-ink">Cash on delivery</h2>
+          <p className="mt-0.5 text-[11px] leading-snug text-brand-muted">
+            Default on for Indian shops. Cash risk is yours (fake orders, no-shows).
+          </p>
         </div>
 
         {!isPro || !proCheckoutOn ? (
           <p className="text-[11px] text-brand-muted">
-            Turn on Pro checkout first to show COD as a payment method on your site.
+            Enable on-site checkout first to offer COD as a pay method.
           </p>
         ) : (
           <button
@@ -290,7 +181,7 @@ export function CommerceForm({
             <div>
               <p className="text-sm font-bold text-brand-ink">Accept cash on delivery</p>
               <p className="mt-0.5 text-[11px] text-brand-muted">
-                {cod ? "Shown at checkout · no payment gateway" : "Hidden from checkout"}
+                {cod ? "Shown at checkout" : "Hidden from checkout"}
               </p>
             </div>
             <span
@@ -332,15 +223,13 @@ function StatusPill({
   label,
   value,
   tone,
-  className,
 }: {
   label: string;
   value: string;
   tone: "ok" | "warn" | "muted";
-  className?: string;
 }) {
   return (
-    <div className={cn("rounded-lg border border-brand-ink/8 bg-brand-mist/50 px-2.5 py-2", className)}>
+    <div className="rounded-lg border border-brand-ink/8 bg-brand-mist/50 px-2.5 py-2">
       <p className="font-mono text-[9px] uppercase tracking-wider text-brand-muted">{label}</p>
       <p
         className={cn(

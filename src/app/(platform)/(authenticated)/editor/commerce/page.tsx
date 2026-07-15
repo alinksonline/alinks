@@ -6,13 +6,11 @@ import { requireAuth } from "@/platform/auth/session";
 import { requireBusiness } from "@/platform/business/require-business";
 import { getPlatformDb } from "@/platform/db/client";
 import { tenants } from "@/platform/db/schema";
-import { getServiceAccountEmail, isGoogleSheetsConfigured } from "@/tenant/storage/google-auth";
-import { resolveStorageBackend } from "@/tenant/storage/get-adapter";
 
 /**
- * TENANT checkout setup (customers → shop).
- * Platform subscription lives at /billing — never mix the two.
- * Salon sellables = /editor/packages; product catalog = future Shop.
+ * TENANT Checkout — how customers pay the shop.
+ * Orders Google Sheet → Settings.
+ * ALINKS subscription → Billing.
  */
 export default async function CommerceEditorPage() {
   const session = await requireAuth();
@@ -21,7 +19,6 @@ export default async function CommerceEditorPage() {
   const tenant = db
     ? (await db.select().from(tenants).where(eq(tenants.id, session.userId)).limit(1))[0]
     : null;
-  const storage = await resolveStorageBackend(business.id);
   const isSalon = business.vertical === "salon" || business.vertical === "beauty";
 
   return (
@@ -32,8 +29,8 @@ export default async function CommerceEditorPage() {
         <h1 className="premium-heading mt-1 text-lg">Checkout</h1>
         <p className="premium-subtext mt-1.5 max-w-sm">
           {isSalon
-            ? "How shoppers pay for packages (UPI, card, COD) and where orders are saved."
-            : "How shoppers pay on your mini-site (UPI, card, COD) and your orders sheet."}
+            ? "How shoppers pay for packages (UPI, card, COD)."
+            : "How shoppers pay on your mini-site (UPI, card, COD)."}
         </p>
         <div className="mt-5">
           <CommerceForm
@@ -42,9 +39,6 @@ export default async function CommerceEditorPage() {
             checkoutMode={business.checkoutMode}
             codEnabled={business.codEnabled}
             tier={tenant?.tier ?? "basic"}
-            storageKind={storage.kind}
-            googleConfigured={isGoogleSheetsConfigured()}
-            serviceAccountEmail={getServiceAccountEmail()}
             vertical={business.vertical}
           />
         </div>
