@@ -5,12 +5,12 @@ import {
   connectGoogleSheetAction,
   provisionGoogleSheetAction,
 } from "@/app/actions/business";
+import { SettingsSection } from "@/components/platform/settings-section";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/core/utils/cn";
 
 /**
- * Tenant data storage — Google Sheet for orders/bookings.
- * Lives under Settings, not Checkout (checkout is how customers pay).
+ * Tenant data storage — Settings only (not Checkout).
  */
 export function OrdersSheetForm({
   businessId,
@@ -42,18 +42,16 @@ export function OrdersSheetForm({
   }
 
   return (
-    <section className="space-y-3 border-t border-brand-ink/10 pt-6">
-      <div className="flex items-start justify-between gap-2">
-        <div>
-          <h2 className="font-semibold text-brand-ink">Orders & bookings sheet</h2>
-          <p className="mt-1 text-sm text-brand-muted">
-            Customer orders stay in <strong>your</strong> Google Sheet. ALINKS does not keep that data
-            in the platform database.
-          </p>
-        </div>
+    <SettingsSection
+      step="01 · Data"
+      title="Orders & bookings sheet"
+      description="Customer orders and bookings are written to your Google Sheet — not the ALINKS platform database."
+    >
+      <div className="flex items-center justify-between gap-2">
+        <span className="text-[12px] text-brand-muted">Status</span>
         <span
           className={cn(
-            "shrink-0 rounded-full px-2 py-0.5 text-[10px] font-bold uppercase",
+            "rounded-full px-2 py-0.5 text-[10px] font-bold uppercase",
             liveSheet
               ? "bg-emerald-500/15 text-emerald-700 dark:text-emerald-300"
               : "bg-amber-500/15 text-amber-800 dark:text-amber-200",
@@ -98,7 +96,7 @@ export function OrdersSheetForm({
         className="text-xs font-semibold text-brand-purple underline"
         onClick={() => setShowAdvanced((v) => !v)}
       >
-        {showAdvanced ? "Hide" : "Use my own spreadsheet instead"}
+        {showAdvanced ? "Hide advanced" : "Use my own spreadsheet"}
       </button>
 
       {showAdvanced ? (
@@ -124,9 +122,7 @@ export function OrdersSheetForm({
         >
           {serviceAccountEmail ? (
             <p className="text-[11px] leading-relaxed text-brand-muted">
-              Share that spreadsheet as <strong>Editor</strong> with this address, then paste the link
-              below:
-              <br />
+              Share that spreadsheet as <strong>Editor</strong> with:
               <code className="mt-1 block break-all text-[10px] text-brand-ink">{serviceAccountEmail}</code>
             </p>
           ) : null}
@@ -165,6 +161,6 @@ export function OrdersSheetForm({
           {message}
         </p>
       ) : null}
-    </section>
+    </SettingsSection>
   );
 }
