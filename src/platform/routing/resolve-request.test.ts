@@ -34,9 +34,9 @@ describe("resolveRequest", () => {
     expect(r.surface).toBe("marketing");
   });
 
-  it("excludes docs from tenant path handles", () => {
-    const r = resolveRequest("localhost:3000", "/docs/supabase");
-    expect(r.surface).toBe("marketing");
+  it("excludes docs and unlisted doc prefix from tenant handles", () => {
+    expect(resolveRequest("localhost:3000", "/docs/supabase").surface).toBe("marketing");
+    expect(resolveRequest("localhost:3000", "/32/doc/supabase").surface).toBe("marketing");
   });
 
   it("resolves pro subdomain", () => {

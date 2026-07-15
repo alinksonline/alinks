@@ -9,6 +9,8 @@ export const COMING_SOON_PATH = "/coming-soon";
 /** Paths always reachable while the gate is on (no IP check). */
 const EXEMPT_PREFIXES = [
   COMING_SOON_PATH,
+  /** Unlisted partner/tech docs — not advertised on marketing */
+  "/32",
   "/docs",
   "/api/health",
   "/favicon.ico",

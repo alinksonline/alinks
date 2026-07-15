@@ -11,6 +11,8 @@ const MARKETING_PATHS = new Set([
   "grievance",
   "docs",
   "coming-soon",
+  /** Unlisted docs prefix — reserved, not a tenant handle */
+  "32",
 ]);
 
 function stripPort(host: string): string {
