@@ -1,22 +1,19 @@
 import { eq } from "drizzle-orm";
 import { OrdersSheetForm } from "@/components/platform/orders-sheet-form";
-import { SettingsSection } from "@/components/platform/settings-section";
+import { OwnGoogleSheetForm } from "@/components/platform/own-google-sheet-form";
 import { PageShell } from "@/components/shared/page-shell";
 import { requireAuth } from "@/platform/auth/session";
 import { requireBusiness } from "@/platform/business/require-business";
 import { getPlatformDb } from "@/platform/db/client";
 import { supabaseConnectors } from "@/platform/db/schema";
 import { getServiceAccountEmail, isGoogleSheetsConfigured } from "@/tenant/storage/google-auth";
-import { DataSupabaseByoForm } from "./data-supabase-byo-form";
-import { ManagedStorageCard } from "./managed-storage-card";
+import { SupabaseDataSection } from "./supabase-data-section";
 
 /**
- * TENANT data plane (not platform Billing, not Checkout).
- *
- * ALINKS does NOT manage/host customer databases (support + liability).
- * Options only:
- * 1. Google Sheets — default
- * 2. BYO Supabase — tenant account (affiliate signup), they pay Supabase
+ * TENANT data plane.
+ * A · Google Sheets (create for me)
+ * B · Your own Google Cloud / sheet
+ * C · Your own Supabase + we never host customer DB
  */
 export default async function DataPage() {
   const session = await requireAuth();
@@ -33,21 +30,22 @@ export default async function DataPage() {
     : null;
 
   const backend = business.storageBackend ?? "google_sheets";
+  const saEmail = getServiceAccountEmail();
 
   return (
     <PageShell maxWidth="md" className="py-6 pb-12">
       <p className="premium-label">Your business · data</p>
       <h1 className="premium-heading mt-1 text-xl">Data</h1>
       <p className="premium-subtext mt-1.5 max-w-sm">
-        Where <strong>customer</strong> orders and bookings are stored. ALINKS platform DB only keeps your
-        site config — never your clients&apos; PII.
+        Where <strong>customer</strong> orders and bookings are stored. You choose the storage. We never
+        keep client PII in the ALINKS platform database.
       </p>
 
       <div className="mt-2 rounded-xl border border-brand-ink/10 bg-brand-mist/40 px-3 py-2 text-[12px] text-brand-muted">
         Active backend:{" "}
         <strong className="text-brand-ink">
           {backend === "supabase"
-            ? "Supabase"
+            ? "Supabase (yours)"
             : backend === "dev_files"
               ? "Dev files"
               : "Google Sheets"}
@@ -59,24 +57,20 @@ export default async function DataPage() {
           businessId={business.id}
           spreadsheetId={business.googleSpreadsheetId ?? ""}
           googleConfigured={isGoogleSheetsConfigured()}
-          serviceAccountEmail={getServiceAccountEmail()}
-          stepLabel="A · Google Sheets"
         />
 
-        <SettingsSection
-          step="B · Your own database"
-          title="Your own Supabase"
-          description="Optional. You open a Supabase account (we may earn affiliate credit), you pay them, you own the project. ALINKS only connects — we never host your customer DB."
-        >
-          <DataSupabaseByoForm
-            businessId={business.id}
-            projectUrl={connector?.projectUrl ?? ""}
-            connected={Boolean(connector?.isActive && backend === "supabase")}
-            storageBackend={backend}
-          />
-        </SettingsSection>
+        <OwnGoogleSheetForm
+          businessId={business.id}
+          spreadsheetId={business.googleSpreadsheetId ?? ""}
+          serviceAccountEmail={saEmail}
+        />
 
-        <ManagedStorageCard />
+        <SupabaseDataSection
+          businessId={business.id}
+          projectUrl={connector?.projectUrl ?? ""}
+          connected={Boolean(connector?.isActive && backend === "supabase")}
+          storageBackend={backend}
+        />
       </div>
     </PageShell>
   );
