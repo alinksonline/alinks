@@ -557,6 +557,11 @@ body {
     text-underline-offset: 2px;
   }
 
+  /* Any brand-colored text utility used across pages */
+  .tenant-theme .t-primary-text {
+    color: var(--t-primary-text, var(--t-primary));
+  }
+
   .tenant-theme .t-muted {
     color: var(--t-muted);
   }

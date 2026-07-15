@@ -38,7 +38,10 @@ export default async function StorePage({ params }: { params: { handle: string }
       <SiteHeader business={business} profile={profile} />
 
       <section className="t-page-hero">
-        <p className="text-[10px] font-bold uppercase tracking-[0.18em]" style={{ color: "var(--t-primary)" }}>
+        <p
+          className="text-[10px] font-bold uppercase tracking-[0.18em]"
+          style={{ color: "var(--t-primary-text, var(--t-primary))" }}
+        >
           Catalog
         </p>
         <h1 className="t-ink mt-1.5 text-2xl font-bold tracking-tight">Shop</h1>

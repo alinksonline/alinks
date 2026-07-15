@@ -53,9 +53,10 @@ function resolveToken(
 ): string {
   switch (mode) {
     case "primary":
-      return primary;
+      // Text/icons must use readable primary (lightened on dark sites), not fill brand hex.
+      return role === "text" ? "var(--t-primary-text, var(--t-primary))" : primary;
     case "accent":
-      return accent;
+      return role === "text" ? "var(--t-primary-text, var(--t-accent))" : accent;
     case "custom":
       return custom || (role === "text" ? "var(--t-ink, #0f172a)" : "var(--t-surface, #fff)");
     case "surface":

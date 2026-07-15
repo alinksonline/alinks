@@ -183,7 +183,7 @@ export function BookingForm({
                     ) : null}
                   </div>
                   <div className="shrink-0 text-right">
-                    <p className="text-sm font-bold" style={{ color: "var(--t-primary)" }}>
+                    <p className="text-sm font-bold" style={{ color: "var(--t-primary-text, var(--t-primary))" }}>
                       ₹{p.price}
                     </p>
                     <p className="t-muted text-[10px] font-medium">{p.durationMinutes} min</p>
@@ -314,7 +314,7 @@ export function BookingForm({
         </div>
         <div className="flex items-center justify-between gap-3 border-t border-[var(--t-border)] pt-3 text-sm">
           <span className="t-muted">Total</span>
-          <span className="text-lg font-bold" style={{ color: "var(--t-primary)" }}>
+          <span className="text-lg font-bold" style={{ color: "var(--t-primary-text, var(--t-primary))" }}>
             ₹{selected?.price ?? 0}
           </span>
         </div>

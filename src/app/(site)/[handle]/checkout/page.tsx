@@ -37,7 +37,10 @@ export default async function CheckoutPage({
       <SiteHeader business={business} profile={profile} />
 
       <section className="t-page-hero">
-        <p className="text-[10px] font-bold uppercase tracking-[0.18em]" style={{ color: "var(--t-primary)" }}>
+        <p
+          className="text-[10px] font-bold uppercase tracking-[0.18em]"
+          style={{ color: "var(--t-primary-text, var(--t-primary))" }}
+        >
           Checkout
         </p>
         <h1 className="t-ink mt-1.5 text-2xl font-bold tracking-tight">Complete your order</h1>

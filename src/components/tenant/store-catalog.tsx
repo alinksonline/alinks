@@ -71,7 +71,7 @@ export function StoreCatalog({
                 className="flex h-16 w-16 shrink-0 items-center justify-center rounded-xl text-lg font-bold"
                 style={{
                   backgroundColor: "var(--t-primary-soft)",
-                  color: "var(--t-primary)",
+                  color: "var(--t-primary-text, var(--t-primary))",
                 }}
                 aria-hidden
               >
@@ -87,7 +87,10 @@ export function StoreCatalog({
                       </p>
                     ) : null}
                   </div>
-                  <p className="shrink-0 text-sm font-bold" style={{ color: "var(--t-primary)" }}>
+                  <p
+                    className="shrink-0 text-sm font-bold"
+                    style={{ color: "var(--t-primary-text, var(--t-primary))" }}
+                  >
                     ₹{p.price}
                   </p>
                 </div>
@@ -100,7 +103,7 @@ export function StoreCatalog({
                           type="button"
                           onClick={() => removeFromCart(p.id)}
                           className="flex h-8 w-8 items-center justify-center rounded-full text-sm font-bold"
-                          style={{ color: "var(--t-primary)" }}
+                          style={{ color: "var(--t-primary-text, var(--t-primary))" }}
                           aria-label={`Remove one ${p.name}`}
                         >
                           −
@@ -110,7 +113,7 @@ export function StoreCatalog({
                           type="button"
                           onClick={() => addToCart(p.id)}
                           className="flex h-8 w-8 items-center justify-center rounded-full text-sm font-bold"
-                          style={{ color: "var(--t-primary)" }}
+                          style={{ color: "var(--t-primary-text, var(--t-primary))" }}
                           aria-label={`Add one ${p.name}`}
                         >
                           +
@@ -151,7 +154,7 @@ export function StoreCatalog({
                 {itemCount} item{itemCount === 1 ? "" : "s"}
               </p>
             </div>
-            <p className="text-lg font-bold" style={{ color: "var(--t-primary)" }}>
+            <p className="text-lg font-bold" style={{ color: "var(--t-primary-text, var(--t-primary))" }}>
               ₹{total}
             </p>
           </div>

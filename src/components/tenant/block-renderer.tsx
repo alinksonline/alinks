@@ -158,7 +158,10 @@ export function BlockRenderer({
                   ) : null}
                 </div>
                 {item.price ? (
-                  <span className="shrink-0 text-xs font-bold" style={{ color: primary }}>
+                  <span
+                    className="shrink-0 text-xs font-bold"
+                    style={{ color: "var(--t-primary-text, var(--t-primary))" }}
+                  >
                     {item.price}
                   </span>
                 ) : null}
@@ -197,13 +200,17 @@ export function BlockRenderer({
               <a
                 href={`tel:${data.phone.replace(/\D/g, "")}`}
                 className="block font-medium underline"
-                style={{ color: primary }}
+                style={{ color: "var(--t-primary-text, var(--t-primary))" }}
               >
                 {data.phone}
               </a>
             ) : null}
             {data.email ? (
-              <a href={`mailto:${data.email}`} className="block underline" style={{ color: primary }}>
+              <a
+                href={`mailto:${data.email}`}
+                className="block underline"
+                style={{ color: "var(--t-primary-text, var(--t-primary))" }}
+              >
                 {data.email}
               </a>
             ) : null}

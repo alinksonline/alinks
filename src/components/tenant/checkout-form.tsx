@@ -135,7 +135,7 @@ export function CheckoutForm({
         ))}
         <div className="flex justify-between border-t border-[var(--t-border)] pt-2 text-sm font-bold">
           <span className="t-ink">Total</span>
-          <span style={{ color: "var(--t-primary)" }}>₹{total}</span>
+          <span style={{ color: "var(--t-primary-text, var(--t-primary))" }}>₹{total}</span>
         </div>
       </div>
 
