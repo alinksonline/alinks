@@ -56,13 +56,8 @@ export function CommerceForm({
 
   return (
     <div className="space-y-4 pb-8">
-      {/* Status strip */}
-      <div className="premium-card grid grid-cols-2 gap-2 p-3 sm:grid-cols-3">
-        <StatusPill
-          label="Plan"
-          value={isPro ? tier : "basic"}
-          tone={isPro ? "ok" : "warn"}
-        />
+      {/* Tenant-only status — never show ALINKS subscription “Plan” here */}
+      <div className="premium-card grid grid-cols-2 gap-2 p-3">
         <StatusPill
           label="Checkout"
           value={proCheckoutOn ? "On-site pay" : "WhatsApp only"}
@@ -72,18 +67,17 @@ export function CommerceForm({
           label="COD"
           value={!proCheckoutOn ? "—" : cod ? "On" : "Off"}
           tone={!proCheckoutOn ? "muted" : cod ? "ok" : "muted"}
-          className="col-span-2 sm:col-span-1"
         />
       </div>
 
       {isSalon ? (
         <div className="rounded-xl border border-brand-purple/20 bg-brand-purple/10 px-3 py-2.5 text-[12px] leading-snug text-brand-ink">
           <span className="font-semibold">Salon tip: </span>
-          What customers book lives under{" "}
+          What customers buy lives under{" "}
           <Link href="/editor/packages" className="font-semibold text-brand-purple underline">
             Packages
           </Link>
-          . <strong>Checkout</strong> is only how shoppers pay you (UPI, card, COD) — not your ALINKS plan.
+          . This page is only how shoppers pay you (UPI, card, COD) and where orders are saved.
         </div>
       ) : null}
 
@@ -108,16 +102,16 @@ export function CommerceForm({
           </span>
         </div>
 
-        <p className="font-mono text-[10px] text-brand-muted">
-          backend={storageKind}
-          {serviceAccountEmail ? ` · sa=${serviceAccountEmail}` : ""}
-        </p>
-
         {!googleConfigured ? (
           <div className="rounded-lg border border-amber-500/25 bg-amber-500/10 px-3 py-2 text-[11px] text-amber-900 dark:text-amber-100">
-            Dev/file mode (no Google SA on server). Data may land under <code>.data/tenant-sheets/</code> until
-            production Google is configured.
+            Google Sheets is not ready on this environment yet. You can still save a sheet ID; live write
+            needs server Google setup.
           </div>
+        ) : serviceAccountEmail ? (
+          <p className="text-[10px] leading-snug text-brand-muted">
+            Share your sheet as <strong>Editor</strong> with:{" "}
+            <code className="break-all text-[10px]">{serviceAccountEmail}</code>
+          </p>
         ) : null}
 
         <label className="flex items-start gap-2 text-[12px] text-brand-ink">
@@ -211,12 +205,13 @@ export function CommerceForm({
 
         {!isPro ? (
           <div className="rounded-lg border border-brand-ink/10 bg-brand-mist/60 px-3 py-3 text-[12px] text-brand-ink">
-            <p className="font-semibold">Pro required</p>
+            <p className="font-semibold">On-site UPI / card needs Pro</p>
             <p className="mt-1 text-brand-muted">
-              Basic stays on WhatsApp ordering. Upgrade to Pro to take UPI / card on your mini-site.
+              Change your ALINKS subscription in <strong>Billing</strong> (bottom tab). Plan upgrades are not
+              managed on this Checkout page.
             </p>
             <Link href="/billing" className="mt-2 inline-block text-[12px] font-bold text-brand-purple underline">
-              View plans →
+              Open Billing →
             </Link>
           </div>
         ) : proCheckoutOn ? (

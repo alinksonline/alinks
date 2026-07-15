@@ -23,10 +23,10 @@ export default async function BillingPage() {
   return (
     <PageShell maxWidth="lg" className="py-10">
       <p className="premium-label">Platform · ALINKS</p>
-      <h1 className="mt-1 text-2xl font-bold text-brand-ink">Your ALINKS plan</h1>
+      <h1 className="mt-1 text-2xl font-bold text-brand-ink">Billing</h1>
       <p className="mt-2 text-sm text-brand-muted">
-        This is what <strong>you</strong> pay Artix for the software — not how your customers pay you.
-        Customer UPI/COD lives under Website → <strong>Checkout</strong>.
+        What <strong>you</strong> pay Artix for ALINKS (plan, trial, upgrade). Not how customers pay your
+        shop — that is Website → <strong>Checkout</strong>.
       </p>
       <p className="mt-2 text-sm text-brand-muted">
         Status: <strong className="text-brand-ink">{tenant?.status ?? "unknown"}</strong>

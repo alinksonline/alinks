@@ -11,7 +11,7 @@ const quickLinks = [
   { href: "/editor/commerce", label: "Checkout", desc: "Customers pay you · UPI, COD, sheet" },
   { href: "/dashboard/domain", label: "Custom domain", desc: "Connect your URL" },
   { href: "/dashboard/ai", label: "ALINKS AI", desc: "SEO & captions" },
-  { href: "/billing", label: "Your plan", desc: "You pay ALINKS · trial, upgrade" },
+  { href: "/billing", label: "Billing", desc: "You pay ALINKS · plan, trial, upgrade" },
   { href: "/dashboard/settings", label: "Settings", desc: "Locale & integrations" },
 ];
 

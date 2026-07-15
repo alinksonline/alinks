@@ -32,8 +32,8 @@ export default async function CommerceEditorPage() {
         <h1 className="premium-heading mt-1 text-lg">Checkout</h1>
         <p className="premium-subtext mt-1.5 max-w-sm">
           {isSalon
-            ? "How shoppers pay for packages (UPI, card, COD) and where orders are saved. Not your ALINKS subscription."
-            : "How shoppers pay on your mini-site (UPI, card, COD) and your orders sheet. Not your ALINKS plan."}
+            ? "How shoppers pay for packages (UPI, card, COD) and where orders are saved."
+            : "How shoppers pay on your mini-site (UPI, card, COD) and your orders sheet."}
         </p>
         <div className="mt-5">
           <CommerceForm
