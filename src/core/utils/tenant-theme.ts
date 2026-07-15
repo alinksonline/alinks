@@ -56,6 +56,42 @@ export function contrastOn(hex: string): "#ffffff" | "#0f172a" {
   return luminance(hex) > 0.45 ? "#0f172a" : "#ffffff";
 }
 
+function rgbToHex(r: number, g: number, b: number): string {
+  const c = (n: number) => Math.max(0, Math.min(255, Math.round(n))).toString(16).padStart(2, "0");
+  return `#${c(r)}${c(g)}${c(b)}`;
+}
+
+/** Mix hex toward another color (t = 0 keeps a, t = 1 becomes b). */
+export function mixHex(a: string, b: string, t: number): string {
+  const A = hexToRgb(a);
+  const B = hexToRgb(b);
+  if (!A || !B) return a;
+  const k = Math.max(0, Math.min(1, t));
+  return rgbToHex(A.r + (B.r - A.r) * k, A.g + (B.g - A.g) * k, A.b + (B.b - A.b) * k);
+}
+
+/**
+ * Primary as text/icon on a light or dark page surface.
+ * Dark brand purples on dark UI become unreadable — lighten them for links/active labels.
+ */
+export function primaryTextOnSurface(primary: string, surface: "light" | "dark"): string {
+  const L = luminance(primary);
+  if (surface === "dark") {
+    if (L < 0.5) return mixHex(primary, "#ffffff", 0.42 + (0.5 - L) * 0.55);
+    return primary;
+  }
+  if (L > 0.62) return mixHex(primary, "#0f172a", 0.4);
+  return primary;
+}
+
+/** Soft fill that stays visible on dark surfaces (hex8 alpha is unreliable in older WebViews). */
+function primarySoftToken(primary: string, surface: "light" | "dark"): string {
+  const rgb = hexToRgb(primary);
+  if (!rgb) return surface === "dark" ? "rgba(167,139,250,0.22)" : "rgba(91,33,182,0.12)";
+  const a = surface === "dark" ? 0.28 : 0.12;
+  return `rgba(${rgb.r},${rgb.g},${rgb.b},${a})`;
+}
+
 export type ResolvedTenantTheme = {
   theme: ThemeConfig;
   /** Inline style for the themed shell root */
@@ -68,7 +104,7 @@ export type ResolvedTenantTheme = {
 
 /**
  * Full theme token set as CSS custom properties for `.tenant-theme`.
- * Light/dark surfaces flip with data-mode; primary/accent stay brand colors.
+ * Light/dark surfaces flip with data-mode; primary fill stays brand, text tokens stay readable.
  */
 export function resolveTenantTheme(raw: unknown, fallbackPrimary?: string): ResolvedTenantTheme {
   const theme = parseThemeConfig(raw, fallbackPrimary);
@@ -78,33 +114,45 @@ export function resolveTenantTheme(raw: unknown, fallbackPrimary?: string): Reso
   const radius = theme.borderRadius || "12px";
   const font = FONT_STACKS[theme.fontFamily] ?? FONT_STACKS.Inter;
 
-  // Surface palettes
+  // Surface palettes — dark muted bumped for secondary copy/footer contrast
   const light = {
     bg: "#f7f6f9",
     surface: "#ffffff",
     ink: "#0f172a",
-    muted: "#64748b",
-    border: "rgba(15, 23, 42, 0.1)",
-    soft: "rgba(15, 23, 42, 0.04)",
+    muted: "#57534e",
+    border: "rgba(15, 23, 42, 0.12)",
+    soft: "rgba(15, 23, 42, 0.05)",
   };
   const dark = {
     bg: "#0c0a12",
     surface: "#1a1628",
     ink: "#f4f2fa",
-    muted: "#a8a2be",
-    border: "rgba(244, 242, 250, 0.12)",
-    soft: "rgba(244, 242, 250, 0.06)",
+    muted: "#c4bfd6",
+    border: "rgba(244, 242, 250, 0.16)",
+    soft: "rgba(244, 242, 250, 0.1)",
   };
+
+  const primaryTextLight = primaryTextOnSurface(primary, "light");
+  const primaryTextDark = primaryTextOnSurface(primary, "dark");
+  const softLight = primarySoftToken(primary, "light");
+  const softDark = primarySoftToken(primary, "dark");
 
   // Default (SSR) follows explicit mode; system falls back to light + CSS media for dark
   const base = theme.mode === "dark" ? dark : light;
+  const primaryText = theme.mode === "dark" ? primaryTextDark : primaryTextLight;
+  const primarySoft = theme.mode === "dark" ? softDark : softLight;
 
   const style = {
     ["--t-primary" as string]: primary,
     ["--t-accent" as string]: accent,
     ["--t-on-primary" as string]: onPrimary,
-    ["--t-primary-soft" as string]: `${primary}22`,
-    ["--t-accent-soft" as string]: `${accent}22`,
+    ["--t-primary-text" as string]: primaryText,
+    ["--t-primary-text-light" as string]: primaryTextLight,
+    ["--t-primary-text-dark" as string]: primaryTextDark,
+    ["--t-primary-soft" as string]: primarySoft,
+    ["--t-primary-soft-light" as string]: softLight,
+    ["--t-primary-soft-dark" as string]: softDark,
+    ["--t-accent-soft" as string]: primarySoftToken(accent, theme.mode === "dark" ? "dark" : "light"),
     ["--t-bg" as string]: base.bg,
     ["--t-surface" as string]: base.surface,
     ["--t-ink" as string]: base.ink,

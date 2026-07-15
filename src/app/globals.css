@@ -463,6 +463,8 @@ body {
       --t-muted: var(--t-dark-muted);
       --t-border: var(--t-dark-border);
       --t-soft: var(--t-dark-soft);
+      --t-primary-text: var(--t-primary-text-dark);
+      --t-primary-soft: var(--t-primary-soft-dark);
     }
   }
 
@@ -474,6 +476,8 @@ body {
       --t-muted: var(--t-light-muted);
       --t-border: var(--t-light-border);
       --t-soft: var(--t-light-soft);
+      --t-primary-text: var(--t-primary-text-light);
+      --t-primary-soft: var(--t-primary-soft-light);
     }
   }
 
@@ -531,21 +535,26 @@ body {
 
   .tenant-theme .t-chip {
     border-radius: 9999px;
-    background-color: var(--t-soft);
-    color: var(--t-muted);
+    border: 1px solid var(--t-border);
+    background-color: var(--t-surface);
+    color: var(--t-ink);
     font-size: 0.6875rem;
-    padding: 0.35rem 0.75rem;
+    font-weight: 600;
+    padding: 0.4rem 0.8rem;
   }
 
+  /* Filled primary + on-primary — always readable even when brand purple is dark */
   .tenant-theme .t-chip-active {
-    background-color: var(--t-primary-soft);
-    color: var(--t-primary);
-    font-weight: 600;
+    border-color: transparent;
+    background-color: var(--t-primary);
+    color: var(--t-on-primary);
+    font-weight: 700;
   }
 
   .tenant-theme .t-link {
-    color: var(--t-primary);
+    color: var(--t-primary-text, var(--t-primary));
     text-decoration: underline;
+    text-underline-offset: 2px;
   }
 
   .tenant-theme .t-muted {
@@ -712,9 +721,10 @@ body {
     transition: background-color 0.12s ease, color 0.12s ease;
   }
 
+  /* Solid active tab: brand fill + contrasting label (fixes dark-on-dark About) */
   .tenant-theme .t-bottom-nav a[data-active="true"] {
-    background-color: var(--t-primary-soft);
-    color: var(--t-primary);
+    background-color: var(--t-primary);
+    color: var(--t-on-primary);
   }
 
   .tenant-theme .t-page-hero {

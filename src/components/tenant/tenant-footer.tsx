@@ -70,7 +70,10 @@ export function TenantFooter({
           Operated independently by <strong className="t-ink">{name}</strong>. Artix provides software only.
         </p>
         <p className="flex flex-wrap items-center justify-center gap-2">
-          <Link href={`/${business.handle}/legal`} className="t-link text-[11px] font-semibold no-underline">
+          <Link
+            href={`/${business.handle}/legal`}
+            className="t-link text-[12px] font-bold no-underline"
+          >
             Terms & Privacy
           </Link>
           {showAlinksBranding ? (
