@@ -1,10 +1,49 @@
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 import { resolveRequest } from "@/platform/routing/resolve-request";
+import {
+  COMING_SOON_COOKIE,
+  COMING_SOON_PATH,
+  getClientIp,
+  isComingSoonApexHost,
+  isComingSoonEnabled,
+  isComingSoonPathExempt,
+  isIpWhitelisted,
+  parseWhitelist,
+  previewCookieMatches,
+  previewQueryMatches,
+} from "@/platform/coming-soon/gate";
 
 export const config = {
   matcher: ["/((?!_next/static|_next/image|favicon.ico|assets|uploads).*)"],
 };
+
+function marketingHostsFromEnv(): { marketing: string; root: string } {
+  const root =
+    process.env.NEXT_PUBLIC_ROOT_DOMAIN?.trim() ||
+    process.env.VERCEL_URL?.trim() ||
+    "localhost:3000";
+  const marketing = process.env.NEXT_PUBLIC_MARKETING_HOST?.trim() || root;
+  return { marketing, root };
+}
+
+function isAllowedThroughGate(req: NextRequest): boolean {
+  const whitelist = parseWhitelist(process.env.COMING_SOON_WHITELIST_IPS);
+  const secret = process.env.COMING_SOON_BYPASS_SECRET;
+  const ip = getClientIp(req.headers);
+
+  if (isIpWhitelisted(ip, whitelist)) return true;
+  if (previewCookieMatches(req.cookies.get(COMING_SOON_COOKIE)?.value, secret)) return true;
+  if (previewQueryMatches(req.nextUrl.searchParams, secret)) return true;
+
+  // Local dev never hard-locks the machine (use env to test the page).
+  if (process.env.NODE_ENV === "development") {
+    const h = (req.headers.get("host") ?? "").replace(/:\d+$/, "");
+    if (h === "localhost" || h === "127.0.0.1") return true;
+  }
+
+  return false;
+}
 
 export function middleware(req: NextRequest) {
   const host = req.headers.get("host") ?? "";
@@ -22,6 +61,39 @@ export function middleware(req: NextRequest) {
 
   const hostname = host.replace(/:\d+$/, "");
   const isDev = process.env.NODE_ENV === "development";
+  const { marketing, root } = marketingHostsFromEnv();
+
+  // —— Coming soon gate (marketing apex only) ——
+  if (
+    isComingSoonEnabled(process.env.COMING_SOON_ENABLED) &&
+    isComingSoonApexHost(hostname, marketing, root)
+  ) {
+    const secret = process.env.COMING_SOON_BYPASS_SECRET?.trim();
+    const wantsPreview = previewQueryMatches(req.nextUrl.searchParams, secret);
+
+    if (wantsPreview && secret) {
+      const clean = req.nextUrl.clone();
+      clean.searchParams.delete("preview");
+      clean.searchParams.delete("access");
+      const res = NextResponse.redirect(clean);
+      res.cookies.set(COMING_SOON_COOKIE, secret, {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === "production",
+        sameSite: "lax",
+        path: "/",
+        maxAge: 60 * 60 * 24 * 30, // 30 days
+      });
+      return res;
+    }
+
+    const allowed = isAllowedThroughGate(req);
+    if (!allowed && !isComingSoonPathExempt(pathname)) {
+      const url = req.nextUrl.clone();
+      url.pathname = COMING_SOON_PATH;
+      url.search = "";
+      return NextResponse.rewrite(url, { request: { headers: requestHeaders } });
+    }
+  }
 
   if (isDev && hostname === "localhost") {
     if (pathname.startsWith("/app")) {
