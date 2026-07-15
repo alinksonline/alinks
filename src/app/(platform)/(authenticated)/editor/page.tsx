@@ -15,7 +15,7 @@ export default async function EditorHomePage() {
 
   return (
     <>
-      <EditorNav active="/editor" />
+      <EditorNav active="/editor" vertical={business.vertical} />
       <PageShell className="py-3">
         <h1 className="text-base font-bold tracking-tight text-brand-ink">Website builder</h1>
         <p className="mt-0.5 text-[11px] leading-snug text-brand-muted">

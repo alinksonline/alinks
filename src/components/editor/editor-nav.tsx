@@ -3,22 +3,86 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { cn } from "@/core/utils/cn";
+import type { BusinessVertical } from "@/core/types/tenant";
 
-const links = [
-  { href: "/editor/business", label: "Business", match: (p: string) => p.startsWith("/editor/business") },
-  { href: "/editor", label: "Pages", match: (p: string) => p === "/editor" || p.startsWith("/editor/pages") },
-  { href: "/editor/theme", label: "Theme", match: (p: string) => p.startsWith("/editor/theme") },
-  { href: "/editor/branding", label: "Logo", match: (p: string) => p.startsWith("/editor/branding") },
-  { href: "/editor/commerce", label: "Store", match: (p: string) => p.startsWith("/editor/commerce") },
-  { href: "/editor/packages", label: "Pkgs", match: (p: string) => p.startsWith("/editor/packages") },
-  { href: "/editor/staff", label: "Staff", match: (p: string) => p.startsWith("/editor/staff") },
-  { href: "/editor/clinic", label: "Clinic", match: (p: string) => p.startsWith("/editor/clinic") },
-  { href: "/editor/publish", label: "Go live", match: (p: string) => p.startsWith("/editor/publish") },
+type NavLink = {
+  href: string;
+  label: string;
+  match: (p: string) => boolean;
+  /** If set, tab only shows for these verticals. Omit = all verticals. */
+  verticals?: readonly BusinessVertical[];
+};
+
+const ALL_LINKS: NavLink[] = [
+  {
+    href: "/editor/business",
+    label: "Business",
+    match: (p) => p.startsWith("/editor/business"),
+  },
+  {
+    href: "/editor",
+    label: "Pages",
+    match: (p) => p === "/editor" || p.startsWith("/editor/pages"),
+  },
+  {
+    href: "/editor/theme",
+    label: "Theme",
+    match: (p) => p.startsWith("/editor/theme"),
+  },
+  {
+    href: "/editor/branding",
+    label: "Logo",
+    match: (p) => p.startsWith("/editor/branding"),
+  },
+  {
+    href: "/editor/commerce",
+    label: "Store",
+    match: (p) => p.startsWith("/editor/commerce"),
+    // Shop / catalog — not clinic-only medical
+    verticals: ["salon", "beauty", "kirana", "grocery", "ecommerce", "restaurant", "pharmacy", "general"],
+  },
+  {
+    href: "/editor/packages",
+    label: "Pkgs",
+    match: (p) => p.startsWith("/editor/packages"),
+    verticals: ["salon", "beauty"],
+  },
+  {
+    href: "/editor/staff",
+    label: "Staff",
+    match: (p) => p.startsWith("/editor/staff"),
+    verticals: ["salon", "beauty", "clinic"],
+  },
+  {
+    href: "/editor/clinic",
+    label: "Clinic",
+    match: (p) => p.startsWith("/editor/clinic"),
+    /** NMC / medical license — clinics only, never salons */
+    verticals: ["clinic"],
+  },
+  {
+    href: "/editor/publish",
+    label: "Go live",
+    match: (p) => p.startsWith("/editor/publish"),
+  },
 ];
 
-/** Horizontal chip nav — phone-width, sticky, scroll-snap for thumb use. */
-export function EditorNav({ active }: { active?: string }) {
+export function editorLinksForVertical(vertical: string): NavLink[] {
+  const v = vertical as BusinessVertical;
+  return ALL_LINKS.filter((l) => !l.verticals || l.verticals.includes(v));
+}
+
+/** Horizontal chip nav — phone-width, sticky; tabs depend on business vertical. */
+export function EditorNav({
+  active,
+  vertical = "general",
+}: {
+  active?: string;
+  /** Current business vertical — hides Clinic for salons, etc. */
+  vertical?: string;
+}) {
   const pathname = usePathname();
+  const links = editorLinksForVertical(vertical);
 
   return (
     <nav

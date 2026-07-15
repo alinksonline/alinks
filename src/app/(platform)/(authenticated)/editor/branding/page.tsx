@@ -17,7 +17,7 @@ export default async function BrandingEditorPage() {
 
   return (
     <>
-      <EditorNav active="/editor/branding" />
+      <EditorNav active="/editor/branding" vertical={business.vertical} />
       <PageShell className="py-4">
         <h1 className="text-lg font-bold tracking-tight text-brand-ink">Branding</h1>
         <div className="mt-6">
