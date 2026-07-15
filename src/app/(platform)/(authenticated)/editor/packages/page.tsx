@@ -29,8 +29,8 @@ export default async function PackagesEditorPage() {
         <p className="premium-label">Your shop</p>
         <h1 className="premium-heading mt-1 text-lg">Packages</h1>
         <p className="premium-subtext mt-1.5 max-w-sm">
-          This is what customers buy on your salon site (pay-then-book). Payment methods (UPI, card, COD)
-          are under <strong>Payments</strong> — not here.
+          This is what customers buy (pay-then-book). How they pay is under{" "}
+          <strong>Checkout</strong>. Your ALINKS subscription is under bottom-nav <strong>Plan</strong>.
         </p>
         <PackagesPanel businessId={business.id} packages={packages} />
       </PageShell>

@@ -22,19 +22,24 @@ export default async function BillingPage() {
 
   return (
     <PageShell maxWidth="lg" className="py-10">
-      <h1 className="text-2xl font-bold">Billing</h1>
-      <p className="mt-2 text-sm text-slate-600">
-        Status: <strong>{tenant?.status ?? "unknown"}</strong>
+      <p className="premium-label">Platform · ALINKS</p>
+      <h1 className="mt-1 text-2xl font-bold text-brand-ink">Your ALINKS plan</h1>
+      <p className="mt-2 text-sm text-brand-muted">
+        This is what <strong>you</strong> pay Artix for the software — not how your customers pay you.
+        Customer UPI/COD lives under Website → <strong>Checkout</strong>.
+      </p>
+      <p className="mt-2 text-sm text-brand-muted">
+        Status: <strong className="text-brand-ink">{tenant?.status ?? "unknown"}</strong>
         {tenant?.trialEndsAt && <> · Trial ends {tenant.trialEndsAt.toLocaleDateString()}</>}
       </p>
 
       <Card className="mt-6">
         <CardHeader>
-          <h2 className="font-semibold">Subscription for {business.name}</h2>
+          <h2 className="font-semibold">Subscription · {business.name}</h2>
         </CardHeader>
-        <CardContent className="text-sm text-slate-600">
-          Choose monthly (full list price) or yearly (lower per-month rate, billed upfront). Public publish
-          requires a paid plan after trial — day 15 unpaid unpublishes your site.
+        <CardContent className="text-sm text-brand-muted">
+          Choose monthly (list price) or yearly (lower per-month, billed upfront). After trial, unpaid
+          accounts unpublish on day 15.
         </CardContent>
       </Card>
 

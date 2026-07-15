@@ -10,9 +10,9 @@ import { getServiceAccountEmail, isGoogleSheetsConfigured } from "@/tenant/stora
 import { resolveStorageBackend } from "@/tenant/storage/get-adapter";
 
 /**
- * Payments & checkout setup — not product catalog.
- * Salon catalog of services = /editor/packages.
- * Kirana product catalog = future Shop tab.
+ * TENANT checkout setup (customers → shop).
+ * Platform subscription lives at /billing — never mix the two.
+ * Salon sellables = /editor/packages; product catalog = future Shop.
  */
 export default async function CommerceEditorPage() {
   const session = await requireAuth();
@@ -28,12 +28,12 @@ export default async function CommerceEditorPage() {
     <>
       <EditorNav active="/editor/commerce" vertical={business.vertical} />
       <PageShell className="py-3 pb-10">
-        <p className="premium-label">Payments</p>
-        <h1 className="premium-heading mt-1 text-lg">How customers pay you</h1>
+        <p className="premium-label">Your site · customers</p>
+        <h1 className="premium-heading mt-1 text-lg">Checkout</h1>
         <p className="premium-subtext mt-1.5 max-w-sm">
           {isSalon
-            ? "Checkout, COD, and your orders sheet. What you sell lives under Packages — not here."
-            : "Checkout, COD, and your orders sheet. Enable UPI / card when you’re on Pro."}
+            ? "How shoppers pay for packages (UPI, card, COD) and where orders are saved. Not your ALINKS subscription."
+            : "How shoppers pay on your mini-site (UPI, card, COD) and your orders sheet. Not your ALINKS plan."}
         </p>
         <div className="mt-5">
           <CommerceForm

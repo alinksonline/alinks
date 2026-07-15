@@ -36,9 +36,12 @@ const ALL_LINKS: NavLink[] = [
   },
   {
     href: "/editor/commerce",
-    label: "Payments",
+    label: "Checkout",
     match: (p) => p.startsWith("/editor/commerce"),
-    /** Customer pay setup: checkout, COD, orders sheet — not product catalog */
+    /**
+     * TENANT surface: how *end-customers* pay the shop (UPI/COD/sheet).
+     * NOT platform subscription — that is /billing (“Plan”).
+     */
     verticals: ["salon", "beauty", "kirana", "grocery", "ecommerce", "restaurant", "pharmacy", "general"],
   },
   {
