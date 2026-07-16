@@ -7,6 +7,7 @@ describe("sheet tabs", () => {
     expect(STANDARD_SHEET_TABS).toContain("Appointments");
     expect(STANDARD_SHEET_TABS).toContain("Customers");
     expect(STANDARD_SHEET_TABS).toContain("Patients");
+    expect(STANDARD_SHEET_TABS).toContain("Leads");
     expect(STANDARD_SHEET_TABS).toContain("Activity Log");
   });
 

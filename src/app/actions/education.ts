@@ -212,14 +212,16 @@ export async function submitCourseEnquiryAction(input: {
       return { success: false as const, error: "Name and 10-digit phone required" };
     }
 
-    await writeToTenantStorage(biz.id, "Customers", {
+    await writeToTenantStorage(biz.id, "Leads", {
+      leadId: crypto.randomUUID(),
       leadType: "education_enquiry",
-      courseId: input.courseId ?? "",
-      courseTitle: input.courseTitle ?? "",
-      customerName: name,
-      customerPhone: phone,
+      source: "web",
+      refId: input.courseId ?? "",
+      refTitle: input.courseTitle ?? "",
+      name,
+      phone,
       message: input.message?.trim() ?? "",
-      channel: "web",
+      status: "new",
       createdAt: new Date().toISOString(),
     });
 

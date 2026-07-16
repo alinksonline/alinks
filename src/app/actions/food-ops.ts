@@ -352,6 +352,8 @@ export async function placeFoodOrderAction(input: {
       customerPhone: (input.customerPhone ?? "").replace(/\D/g, ""),
       customerAddress: input.customerAddress?.trim() ?? "",
       notes: input.notes?.trim() ?? "",
+      paymentMethod: "offline",
+      paymentStatus: "pending",
       createdAt: new Date().toISOString(),
     });
 

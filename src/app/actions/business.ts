@@ -899,6 +899,8 @@ export async function provisionGoogleSheetAction(businessId: string, acceptDataA
       businessName: business.name,
       handle: business.handle,
       shareWithEmail: tenant?.email && !tenant.email.endsWith("@alinks.local") ? tenant.email : undefined,
+      industryGroup: business.industryGroup || business.vertical,
+      industryType: business.industryType,
     });
 
     await db

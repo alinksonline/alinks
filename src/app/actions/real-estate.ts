@@ -174,14 +174,16 @@ export async function submitPropertyLeadAction(input: {
       return { success: false as const, error: "Name and 10-digit phone required" };
     }
 
-    await writeToTenantStorage(biz.id, "Customers", {
+    await writeToTenantStorage(biz.id, "Leads", {
+      leadId: crypto.randomUUID(),
       leadType: "property",
-      listingId: input.listingId ?? "",
-      listingTitle: input.listingTitle ?? "",
-      customerName: name,
-      customerPhone: phone,
+      source: "web",
+      refId: input.listingId ?? "",
+      refTitle: input.listingTitle ?? "",
+      name,
+      phone,
       message: input.message?.trim() ?? "",
-      channel: "web",
+      status: "new",
       createdAt: new Date().toISOString(),
     });
 

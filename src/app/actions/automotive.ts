@@ -176,15 +176,16 @@ export async function submitVehicleLeadAction(input: {
       return { success: false as const, error: "Name and 10-digit phone required" };
     }
 
-    await writeToTenantStorage(biz.id, "Customers", {
+    await writeToTenantStorage(biz.id, "Leads", {
+      leadId: crypto.randomUUID(),
       leadType: "automotive",
-      intent: input.intent ?? "buy",
-      vehicleId: input.vehicleId ?? "",
-      vehicleTitle: input.vehicleTitle ?? "",
-      customerName: name,
-      customerPhone: phone,
+      source: input.intent ?? "buy",
+      refId: input.vehicleId ?? "",
+      refTitle: input.vehicleTitle ?? "",
+      name,
+      phone,
       message: input.message?.trim() ?? "",
-      channel: "web",
+      status: "new",
       createdAt: new Date().toISOString(),
     });
 
