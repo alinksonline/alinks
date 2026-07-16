@@ -1,0 +1,16 @@
+================================================================================
+12 — “INVENTORY” FOR SALON: PACKAGES + STAFF (NOT FASHION SKUs)
+================================================================================
+
+  Primary inventory = Packages (services) + Staff (resources)
+  Categories: Hair | Skin | Nails | Makeup | Spa | Beard | Combo
+  Variations: duration tiers, add-ons (keratin boost), gender style tags
+  Optional product inventory: retail lite (doc 11)
+
+  Sheet tabs: Appointments, Customers (not Patients)
+
+================================================================================
+CHANGE LOG
+================================================================================
+2026-07-16  Salon inventory model.
+================================================================================

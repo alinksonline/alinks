@@ -52,15 +52,30 @@ export async function createAdditionalBusinessAction(input: { name: string; hand
   const taken = (await db.select().from(businesses).where(eq(businesses.handle, handle)).limit(1))[0];
   if (taken) return { success: false as const, error: "Handle taken" };
 
+  const {
+    defaultIndustryType,
+    industryToLegacyVertical,
+    resolveIndustryGroup,
+  } = await import("@/core/config/industries");
+  const industryGroup = resolveIndustryGroup(input.vertical);
+  const industryType = defaultIndustryType(input.vertical);
+  const vertical = industryToLegacyVertical(industryGroup, industryType);
+
   const [biz] = await db
     .insert(businesses)
     .values({
       tenantId: session.userId,
       handle,
       name: input.name.trim(),
-      vertical: input.vertical,
+      vertical,
+      industryGroup,
+      industryType,
+      templateId: industryGroup === "presence" ? "presence" : "general",
     })
     .returning();
+
+  const { grantDefaultModules } = await import("@/platform/billing/entitlements");
+  await grantDefaultModules(biz.id, industryGroup, "onboarding");
 
   await db.update(tenants).set({ activeBusinessId: biz.id, updatedAt: new Date() }).where(eq(tenants.id, session.userId));
   revalidatePath("/dashboard");

@@ -18,6 +18,11 @@ export const WIDGET_CATALOG: WidgetDef[] = [
   { type: "hours", label: "Opening hours", hint: "Mon–Sun schedule" },
   { type: "contact", label: "Contact", hint: "Phone, address, email" },
   { type: "gallery", label: "Photo gallery", hint: "Up to 6 image URLs" },
+  {
+    type: "youtube",
+    label: "YouTube video",
+    hint: "YouTube link only — no Vimeo or uploads",
+  },
   { type: "legal", label: "Legal text", hint: "Terms or privacy copy" },
 ];
 
@@ -108,6 +113,15 @@ export function createBlock(type: BlockType): PageBlock {
               caption: "",
             },
           ],
+        },
+      };
+    case "youtube":
+      return {
+        ...base,
+        title: "Watch on YouTube",
+        body: "Intro video (YouTube only)",
+        data: {
+          youtubeUrl: "https://www.youtube.com/watch?v=jNQXAC9IVRw",
         },
       };
     case "legal":

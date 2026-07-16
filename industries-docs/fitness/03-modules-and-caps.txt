@@ -1,0 +1,16 @@
+================================================================================
+03 — FITNESS MODULES & CAPS
+================================================================================
+
+  fit.memberships, fit.classes, fit.pt_packages, fit.trainers,
+  fit.trial_booking, fit.fees_pay, fit.multilocation, fit.retail
+
+  CAPS
+    Membership plans: 10 / 30 / 100
+    Class types: 15 / 50 / 150
+    Trainers: 3 / 15 / 40
+    PT packages: 15 / 50 / 150
+
+  Yearly charm …99; website plan first.
+
+================================================================================

@@ -1,0 +1,16 @@
+================================================================================
+06 — AUTOMOTIVE INTEGRATION / SUPERADMIN
+================================================================================
+
+  vehicle_listings + leads (RE-like, no sale pay)
+  service_* (salon-like book flow)
+  parts_* (retail-like)
+  multilocation YES (showroom + workshop)
+
+  Superadmin IndustryGroup: automotive
+  google.calendar FREE
+  No platform vehicle GMV
+
+  Out of scope v1: RTO filing, loan marketplace, multi-dealer stock exchange
+
+================================================================================

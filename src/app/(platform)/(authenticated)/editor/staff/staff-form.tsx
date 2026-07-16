@@ -7,12 +7,14 @@ import { Button } from "@/components/ui/button";
 export function StaffForm({
   businessId,
   staff,
+  variant = "default",
 }: {
   businessId: string;
   staff: { id: string; name: string; role: string; slotCapacity: number }[];
+  variant?: "default" | "fitness";
 }) {
   const [name, setName] = useState("");
-  const [role, setRole] = useState("stylist");
+  const [role, setRole] = useState(variant === "fitness" ? "trainer" : "stylist");
   const [slotCapacity, setSlotCapacity] = useState(1);
   const [message, setMessage] = useState("");
   const [isPending, startTransition] = useTransition();
@@ -27,7 +29,7 @@ export function StaffForm({
             const r = await addStaffMemberAction(businessId, name, role, slotCapacity);
             if (r.success) {
               setName("");
-              setMessage("Staff member added");
+              setMessage(variant === "fitness" ? "Trainer added" : "Staff member added");
             } else {
               setMessage(r.error ?? "");
             }
@@ -41,9 +43,20 @@ export function StaffForm({
           onChange={(e) => setName(e.target.value)}
         />
         <select className="w-full rounded-lg border px-3 py-2 text-sm" value={role} onChange={(e) => setRole(e.target.value)}>
-          <option value="stylist">Stylist</option>
-          <option value="therapist">Therapist</option>
-          <option value="reception">Reception</option>
+          {variant === "fitness" ? (
+            <>
+              <option value="trainer">Trainer</option>
+              <option value="yoga_instructor">Yoga instructor</option>
+              <option value="pt">Personal trainer</option>
+              <option value="reception">Reception</option>
+            </>
+          ) : (
+            <>
+              <option value="stylist">Stylist</option>
+              <option value="therapist">Therapist</option>
+              <option value="reception">Reception</option>
+            </>
+          )}
         </select>
         <input
           className="w-full rounded-lg border px-3 py-2 text-sm"

@@ -100,6 +100,12 @@ HOW TO ADD VIA CLI
   Redeploy: git push or vercel --prod
 
 --------------------------------------------------------------------------------
+PRODUCT BILLING NOTE (not an env var)
+--------------------------------------------------------------------------------
+  Modules across industries are À LA CARTE — each module has its own price.
+  See industries-docs/00-MODULE-ALACARTE-PRICING.txt
+
+--------------------------------------------------------------------------------
 SECURITY RULES
 --------------------------------------------------------------------------------
   - Never commit .env to GitHub

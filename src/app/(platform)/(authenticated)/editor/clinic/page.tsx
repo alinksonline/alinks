@@ -10,13 +10,20 @@ export default async function ClinicEditorPage() {
   const session = await requireAuth();
   const business = await requireBusiness(session);
 
-  if (business.vertical !== "clinic") {
+  const { canShowClinicEditor } = await import("@/core/utils/industry-gates");
+  if (
+    !canShowClinicEditor({
+      vertical: business.vertical,
+      industryGroup: business.industryGroup,
+      industryType: business.industryType,
+    })
+  ) {
     redirect("/editor");
   }
 
   return (
     <>
-      <EditorNav active="/editor/clinic" vertical={business.vertical} />
+      <EditorNav active="/editor/clinic" vertical={business.vertical} industryGroup={business.industryGroup} />
       <PageShell className="py-4">
         <h1 className="text-lg font-bold tracking-tight text-brand-ink">Clinic license</h1>
         <p className="mt-2 text-sm text-brand-ink/55">

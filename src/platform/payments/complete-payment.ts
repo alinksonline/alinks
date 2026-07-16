@@ -60,6 +60,8 @@ export async function completeBookingPayment(input: {
     slotTime: string;
     customerName: string;
     customerPhone: string;
+    durationMinutes?: number;
+    staffId?: string | null;
   };
 }): Promise<{ ok: true; bookingId: string } | { ok: false; error: string }> {
   const db = getPlatformDb();
@@ -86,9 +88,35 @@ export async function completeBookingPayment(input: {
     slotTime: input.pendingBooking.slotTime,
     customerName: input.pendingBooking.customerName,
     customerPhone: input.pendingBooking.customerPhone,
+    paymentMode: "pay_then_book",
     paymentStatus: "paid",
+    status: "confirmed",
     createdAt: new Date().toISOString(),
   });
+
+  // Confirm soft hold + Google Calendar push (platform index, no PII)
+  try {
+    const { confirmPaidAppointmentHold } = await import("@/tenant/appointments/service");
+    await confirmPaidAppointmentHold({
+      businessId: input.pendingBooking.businessId,
+      bookingId: input.pendingBooking.bookingId,
+      packageId: input.pendingBooking.packageId,
+      packageName: input.pendingBooking.packageName,
+      price: input.pendingBooking.price,
+      slotDate: input.pendingBooking.slotDate,
+      slotTime: input.pendingBooking.slotTime,
+      durationMinutes:
+        "durationMinutes" in input.pendingBooking && typeof input.pendingBooking.durationMinutes === "number"
+          ? input.pendingBooking.durationMinutes
+          : 60,
+      staffId:
+        "staffId" in input.pendingBooking
+          ? (input.pendingBooking.staffId as string | null | undefined) ?? null
+          : null,
+    });
+  } catch {
+    // Non-fatal: sheet row already written
+  }
 
   return { ok: true, bookingId: input.pendingBooking.bookingId };
 }

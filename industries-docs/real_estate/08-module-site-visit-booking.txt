@@ -1,0 +1,33 @@
+================================================================================
+08 — MODULE: SITE VISIT BOOKING (re.site_visit)
+================================================================================
+SKU: re.site_visit
+May reuse bookings_industry engine (book.core patterns) without medical/legal packs.
+
+================================================================================
+1. DEFINITION
+================================================================================
+
+  Visitor schedules a site / project / land visit. Free for visitors by default
+  (no charge). Salesperson or agent hosts.
+
+================================================================================
+2. LIFECYCLE
+================================================================================
+
+  Configure visit types & slots → public “Schedule visit” → create lead+visit
+  → Google Calendar FREE sync → remind → complete/no-show
+
+================================================================================
+3. HARD RULES
+================================================================================
+
+  • Not property purchase payment
+  • Optional refundable token later offline only — not platform commerce v1
+  • Multi-company agents: visit linked to project+company+agent
+
+================================================================================
+CHANGE LOG
+================================================================================
+2026-07-16  Site visit as optional booking-style module.
+================================================================================

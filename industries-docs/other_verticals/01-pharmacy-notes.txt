@@ -1,0 +1,18 @@
+================================================================================
+01 — PHARMACY (THIN PACK / PHASE 2 NOTES)
+================================================================================
+
+  Code vertical: pharmacy
+  Skill note: OTC only; no prescription upload or online consult in MVP era.
+
+  Likely reuse:
+    retail/ for OTC product catalogue + caps
+    bookings/ NOT for online doctor Rx
+    Strong AUP + legal disclaimers
+
+  When building full pack: create industries-docs/pharmacy/ like retail with
+  compliance module pharmacy.otc_only gate.
+
+  Status: NOT a full industry folder yet — intentional.
+
+================================================================================

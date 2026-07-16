@@ -1,0 +1,81 @@
+================================================================================
+05 — MODULE: CLINIC / HEALTHCARE (book.clinic)
+================================================================================
+SKU: book.clinic
+Requires: book.core (soft or hard dep). License gate before live public booking.
+
+================================================================================
+1. DEFINITION
+================================================================================
+
+  Healthcare clinic profile on the appointments engine: doctor roster, slots,
+  patient contact, optional visit reason, license display. No diagnosis storage,
+  no Rx marketplace, no tele-prescription MVP.
+
+================================================================================
+2. WHO CAN BUY
+================================================================================
+
+  Base type clinic_healthcare (primary).
+  Not default for lawyers/venues.
+
+================================================================================
+3. ENABLES
+================================================================================
+
+  PUBLIC
+    • Doctor select → slot → patient details
+    • Show verified license badge when approved
+  ADMIN
+    • Doctors as resources + qualifications metadata
+    • License upload + Superadmin approval workflow
+    • Patient list tab (tenant storage)
+  COMPLIANCE
+    • Booking live only if license gate passes (regulated)
+    • Disclaimer: not emergency care; not a substitute for in-person judgment
+
+================================================================================
+4. LIFECYCLE (100%)
+================================================================================
+
+  1. Discover     “Clinic appointment booking”
+  2. Purchase     book.clinic (+ book.core)
+  3. Configure    Doctors, services, licenses submitted
+  4. Compliance   Superadmin review → approved | rejected
+  5. Operate      Live booking when approved
+  6. Integrate    core slots, payments deposits, reminders, multi-clinic
+  7. Suspend      If license revoked/expired → block public booking
+  8. Disable      Module off → public falls back to WA/enquiry
+
+================================================================================
+5. INVENTORY / CATALOGUE
+================================================================================
+
+  Services: Consultation, Follow-up, Procedure consult (names only)
+  Categories: e.g. General Medicine, Dental, Dermatology (clinic-defined)
+  “Variations”: duration tiers (15/30/45 min) as service variants — not fashion
+  Patients: tenant sheet tab Patients (not platform DB PII warehouse)
+
+================================================================================
+6. INTEGRATION
+================================================================================
+
+  + book.core       slots engine
+  + book.payments   consultation fee / token advance
+  + book.reminders  appointment reminders
+  + book.multilocation  multi-clinic branches
+  + food/catering   N/A (hospital canteen is separate product)
+
+================================================================================
+7. HARD RULES
+================================================================================
+
+  • No diagnosis, lab results, or Rx files as product features in MVP
+  • Visit reason free text optional; do not structure clinical coding v1
+  • Patient rows → tenant storage only
+
+================================================================================
+CHANGE LOG
+================================================================================
+2026-07-16  Clinic module lifecycle + compliance.
+================================================================================

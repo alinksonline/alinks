@@ -1,0 +1,125 @@
+================================================================================
+24 — FOOD INDUSTRY PRODUCT & MODULES (OPS / INTEGRATION POINTER)
+================================================================================
+Purpose: Bridge between product specs and engineering/setup.
+Authority: Product rules live in industries-docs/food_industry/ (source of truth).
+This file: how food modules touch Billing, Sheets, env, Superadmin, deploy.
+
+================================================================================
+1. READ PRODUCT DOCS FIRST
+================================================================================
+
+  industries-docs/food_industry/00-README-INDEX.txt
+  industries-docs/food_industry/01-food-industry-anchor.txt
+  Per-module: 04–08, inventory 09, subtypes 10, integration 11, billing 12
+
+  Hard rules (do not violate in code or setup):
+    • Cloud kitchen never gets Dine-in / table QR
+    • Cloud kitchen may purchase Catering module
+    • Kitchen Management is cross-module tickets only
+    • Platform Billing ≠ tenant food Checkout
+
+================================================================================
+2. BILLING / RAZORPAY (ARTIX — MODULE SKUs)
+================================================================================
+
+  See also: 08-razorpay-billing.txt (platform subscriptions)
+
+  Food module SKUs (conceptual — implement when Billing supports add-ons):
+    food.delivery
+    food.pickup
+    food.dine_in
+    food.catering
+    food.kitchen
+    food.bundle.* 
+
+  Yearly: monthly×12 − 5–10% → charm price ending in 99
+  (industries-docs/food_industry/12-billing-skus-pricing-charm.txt)
+
+  Tenant entitlements must be readable by app (DB flags or JSON on business/
+  subscription) so middleware/UI can gate Tables, Kitchen board, etc.
+
+  Website plans remain the main marketing site offer (menu + WhatsApp).
+
+================================================================================
+3. TENANT CHECKOUT (CUSTOMER FOOD PAYMENT)
+================================================================================
+
+  See: editor Checkout (tenant Razorpay BYO), not Artix settlement.
+  Food order payment methods are independent of module subscription fees.
+
+================================================================================
+4. DATA / SHEETS / SUPABASE
+================================================================================
+
+  Platform Postgres: menu config, tables, packages, entitlements, order headers
+  as allowed by platform-db skill (no long-term customer PII dumps).
+
+  Tenant Sheets / BYO Supabase: customer-facing order rows, phones, addresses
+  per legal data ownership.
+
+  When implementing food orders, extend sheet tabs carefully (Orders already
+  exist in spirit via commerce). Catering leads may need CateringLeads tab.
+  See: 07-google-oauth-sheets.txt, 11-supabase-tenant-byo.txt
+
+================================================================================
+5. SUPERADMIN
+================================================================================
+
+  Future Superadmin → Industries → Food catalog (types, subtypes, module prices)
+  Doc: industries-docs/food_industry/13-superadmin-industry-catalog.txt
+
+  Until built: use BUSINESS_VERTICALS + docs for behavior; do not invent cloud
+  dine-in in code.
+
+================================================================================
+6. PUBLIC URLS (CONCEPTUAL)
+================================================================================
+
+  /{handle}              marketing mini-site + menu
+  /{handle}/order        online order (delivery/pickup) when modules allow
+  /{handle}/order?table= table QR dine-in when food.dine_in
+  /{handle}/catering     catering when food.catering
+  Kitchen board          authenticated staff route (not public)
+
+================================================================================
+7. MEDIA
+================================================================================
+
+  Menu images: existing WebP + cloud media pipeline (BLOB_READ_WRITE_TOKEN).
+  See env docs: 05-vercel-environment-variables.txt
+
+================================================================================
+8. IMPLEMENTATION CHECKLIST (WHEN BUILDING)
+================================================================================
+
+  [ ] Entitlement flags for each food.* SKU
+  [ ] Gate dine_in on restaurant family only
+  [ ] Shared menu inventory + channel flags
+  [ ] Catering packages separate inventory
+  [ ] Kitchen tickets fan-in from enabled channels
+  [ ] Marketing site still sells website plans simply
+  [ ] Yearly charm helper for module prices
+  [ ] Update this file when env vars or sheet columns are added
+  [ ] Multi-branch seats + 5–10% extra-branch discount (doc 15)
+  [ ] Platform coupon engine + seasonal codes (doc 16)
+  [ ] Delivery riders (PT/FT, vehicle) + third-party partner fields (doc 04)
+
+================================================================================
+9. DELIVERY FULFILMENT / BRANCHES / COUPONS (POINTERS)
+================================================================================
+
+  Riders & third-party delivery:
+    industries-docs/food_industry/04-module-delivery.txt
+  Multi-branch billing:
+    industries-docs/food_industry/15-multi-branch-pricing.txt
+  Coupon codes & holiday discounts:
+    industries-docs/food_industry/16-coupon-codes-seasonal-discounts.txt
+
+================================================================================
+CHANGE LOG
+================================================================================
+2026-07-16  Initial integration pointer to industries-docs/food_industry.
+2026-07-16  Pointers for riders, multi-branch %, seasonal coupons.
+================================================================================
+

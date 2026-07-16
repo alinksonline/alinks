@@ -1,0 +1,94 @@
+================================================================================
+ALINKS — MODULE PRICING: À LA CARTE (PLATFORM-WIDE)
+================================================================================
+Status: LOCKED
+Date:   2026-07-16
+Applies to: ALL industries (food, bookings, RE, retail, salon, education,
+            fitness, automotive, presence upgrades, etc.)
+
+================================================================================
+0. LANGUAGE (INTERNAL vs FRONTEND) — LOCKED
+================================================================================
+
+  Internal / docs / engineering may say “à la carte” = each module priced
+  separately.
+
+  FRONTEND / marketing / invoices MUST NOT say “à la carte”.
+  Use professional copy:
+    • “Select modules”
+    • “Modules”
+    • “Add modules”
+    • Presence creators: “Creator pricing” / “Influencer plan”
+
+================================================================================
+1. UNDERSTANDING (YES — THIS IS THE MODEL)
+================================================================================
+
+  Modules are priced separately (internal: à la carte).
+  Each module is priced SEPARATELY.
+  Tenant picks only what they need and pays for those SKUs.
+
+  Examples:
+    • Restaurant: website plan + food.dine_in only (not forced kitchen)
+    • Salon: website + packages/calendar; pay_then_book only if they want
+    • Retail: inventory + storefront; wholesale as separate module
+    • Education: courses + slots; fees_pay separate
+    • Presence: website only; if they later want bookings, add that module/industry path
+
+  Bundles may still exist as OPTIONAL discounts (combo / all) for convenience —
+  never the only way to buy. À la carte always available.
+
+================================================================================
+2. WHAT IS NOT À LA CARTE
+================================================================================
+
+  • Free platform capabilities (not sold as modules), e.g.:
+      google.calendar (FREE where applicable)
+      YouTube embeds on education sites (FREE, YouTube only)
+      Open category naming on retail
+  • Base website plan (Layer 1) — separate product; modules stack on top
+  • Presence path: no sales modules attached by default
+
+================================================================================
+3. PRICING SHAPE
+================================================================================
+
+  For each paid module SKU:
+    monthly_price (list)
+    yearly_price = charm99( monthly × 12 × (1 − yearly_discount) )
+                   yearly_discount typically 5–10%
+
+  Invoice example (à la carte):
+    Website Pro                    ₹X
+    + food.delivery                ₹A
+    + food.kitchen                 ₹B
+    + book.reminders               ₹C
+    = sum of selected lines only
+
+  Optional bundle line (if they choose combo):
+    food.bundle.restaurant_floor   ₹Z   (instead of summing included modules)
+
+================================================================================
+4. SUPERADMIN / BILLING
+================================================================================
+
+  Every module has its own price fields (monthly + yearly charm).
+  Entitlements: has(sku) per module.
+  Disable one module without cancelling others.
+  Industry only controls which modules are ALLOWED to appear — not forced packs
+  (except compliance gates e.g. clinic license for clinic features).
+
+================================================================================
+5. CROSS-INDUSTRY NON-CHAOS
+================================================================================
+
+  Same rule everywhere → no “mystery pack only” pricing.
+  Caps (products, packages, staff) stay on plans or per-module limits.
+  Seasonal coupons can discount selected module SKUs à la carte or whole cart.
+
+================================================================================
+CHANGE LOG
+================================================================================
+2026-07-16  Locked: all paid modules à la carte, each priced separately;
+            bundles optional only.
+================================================================================

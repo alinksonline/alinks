@@ -1,0 +1,16 @@
+================================================================================
+03 — AUTOMOTIVE MODULES & CAPS
+================================================================================
+
+  auto.vehicle_listings, auto.leads, auto.service_packages, auto.service_booking,
+  auto.parts_retail, auto.wholesale_parts, auto.delivery, auto.multilocation
+
+  CAPS
+    Vehicle listings: 25 / 100 / 500
+    Service packages: 15 / 50 / 150
+    Parts products:   25 / 200 / 2000 (retail caps)
+    Workshops/showrooms: multi-location seats
+
+  Yearly charm …99; website first.
+
+================================================================================

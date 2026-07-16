@@ -1,0 +1,261 @@
+================================================================================
+ALINKS PRODUCT + CODE AUDIT
+================================================================================
+Date:     2026-07-16
+Auditor:  Agent (alinks-audit-review + project orientation)
+Scope:    Full repo health vs baseline, industries plan, architecture, DPDP,
+          security guardrails, industries Sprint A+ wave code (local tree)
+Sources:  ALINKS_BASELINE.txt, src/ARCHITECTURE.txt, industries-docs/,
+          legal/21-DPDP-ALINKS-STATUS-AUDIT.txt, live src/ + drizzle/
+Disclaimer: Engineering audit — NOT legal advice. Lawyer review still required
+            for public DPDP / ToS claims.
+
+================================================================================
+0. EXECUTIVE VERDICT
+================================================================================
+
+  OVERALL:  STRONG FOUNDATION + ACTIVE INDUSTRIES BUILD  (dev / pre-launch)
+
+  Automated:
+    guardrails:scan  → PASS (0 critical / high / warn)
+    vitest           → PASS 97/97
+    tsc --noEmit     → PASS
+    next lint        → PASS (1 hooks warning)
+    next build       → PASS (routes include industries surfaces)
+
+  Product state:
+    Platform scaffold + site builder + branding + billing shell + many
+    industry features exist in the WORKING TREE (often uncommitted).
+    Public go-live still blocked by external legal/payment readiness and
+    incomplete integrations (Google Calendar live OAuth, Razorpay partner, etc.).
+
+  Data model (architecture):
+    Largely respected: client name/phone on bookings → tenant Sheets;
+    platform holds catalog/config + appointment holds without customer PII
+    (by design). Watch notes fields and any future PII creep.
+
+  Industries plan:
+    F0 + Wave 1–2 substantial CODE present (registry, entitlements, presence,
+    salon appointments, food menu, retail products, RE listings, superadmin
+    industries). Not all docs features are full production depth.
+    Large uncommitted set — production may lag local main.
+
+  Scorecard (engineering readiness, not marketing “live”):
+    Architecture / layering     ████████░░  8/10
+    Automated quality           █████████░  9/10
+    Industry packs vs plan      ██████░░░░  6/10  (MVP slices; waves partial)
+    Data boundary               ████████░░  8/10
+    Security guardrails         █████████░  9/10
+    DPDP product rights         ███████░░░  7/10  (routes exist; officer/legal ext.)
+    Integrations production     ████░░░░░░  4/10  (Calendar stub; payments partial)
+    Docs vs code sync           █████░░░░░  5/10  (huge local-only docs + migrations)
+    Deploy / git hygiene        ███░░░░░░░  3/10  (many uncommitted files)
+
+================================================================================
+1. WHAT IS IMPLEMENTED (EVIDENCE IN src/)
+================================================================================
+
+  PLATFORM
+    [x] Next.js 14 App Router, middleware surface routing
+    [x] Drizzle platform Postgres (DATABASE_URL)
+    [x] Auth sessions / signup / login / superadmin
+    [x] Dashboard + editor (pages, branding, theme, publish)
+    [x] Industry registry F0.1 (src/core/config/industries.ts)
+    [x] Module catalog F0.2 (src/core/config/modules.ts)
+    [x] Entitlements (src/platform/billing/entitlements.ts + schema)
+    [x] Industry gates (src/core/utils/industry-gates.ts)
+    [x] Superadmin industries UI
+    [x] Migrations 0007–0012 industries / appointments / food / retail / RE
+    [x] Grievance, delete account, export data (guardrails OK)
+    [x] Publish gates (clinic / pharmacy flags)
+    [x] Tap/share hub, public site by handle
+
+  PRESENCE / CREATOR
+    [x] Industry group + types (influencer Creator Partner eligible)
+    [x] Creator Partner fields on businesses + onboarding accept UI
+    [x] Commerce block helpers + create-order checks when identity passed
+    [~] Full media kit / analytics lite / partner promo compliance ops
+
+  SALON / APPOINTMENTS
+    [x] Packages, staff, free book path, appointment holds (no client PII in hold)
+    [x] Customer name/phone → Sheets Appointments tab
+    [~] Google Calendar = stub Connect + hook (live OAuth next)
+    [~] Pay-then-book holds schema present; full PG depth varies
+
+  FOOD
+    [x] Menu items platform catalog + /menu public + editor
+    [~] Delivery/pickup/kitchen modules = later per plan
+
+  RETAIL
+    [x] store_products catalog + storefront path
+    [~] Wholesale / multi-brand advanced = later
+    [x] Explicit no multi-outlet POS in docs/schema comments
+
+  REAL ESTATE
+    [x] Property listings (config) + public listings
+    [x] No title checkout in schema comments
+    [~] Full agent desk / company separation depth
+
+  BOOKINGS INDUSTRY
+    [~] Shared engine + tests; clinic gate in canExposeBooking
+    [ ] Full lawyer/venue packs as product depth
+
+  EDUCATION / FITNESS / AUTOMOTIVE
+    [~] Registry entries; full packs largely later
+
+  BILLING
+    [x] Module prices + charm helpers in catalog
+    [x] Creator discount % fields on business
+    [~] Full Select modules checkout UX / Razorpay subscription live
+    [x] Tenant BYO Razorpay keys on business (encrypted secret field)
+
+================================================================================
+2. FINDINGS (SEVERITY ORDERED)
+================================================================================
+
+--------------------------------------------------------------------------------
+HIGH
+--------------------------------------------------------------------------------
+
+  H1. create-order industry gate is optional by identity
+      File: src/app/api/create-order/route.ts
+      Gate runs only if body.handle OR body.businessId is provided.
+      If client omits both, order can be created without industry check.
+      Fix: require handle or businessId when commerce is tenant-scoped;
+           or reject when neither is present for public checkout flows.
+      Verify all createOrderViaApi call sites pass identity.
+
+  H2. Large uncommitted industries surface vs origin/main
+      Working tree has migrations 0007–0012, industries-docs, many routes
+      not necessarily on production. Risk: “code works locally, prod is old”
+      or “prod has code without migrations applied.”
+      Fix: commit in logical PRs; run db:migrate on each env; redeploy.
+
+  H3. Google Calendar not production OAuth
+      Stub connect records connection without real Calendar API when no
+      refresh token (src/platform/integrations/google-calendar.ts).
+      Fine for dev; do not market “Google Calendar sync live” yet.
+
+--------------------------------------------------------------------------------
+MEDIUM
+--------------------------------------------------------------------------------
+
+  M1. appointment_holds.notes can become soft PII
+      Schema allows free-text notes on platform. If UI ever puts customer
+      phone/name in notes, data-boundary drifts.
+      Fix: never write customer identity into notes; keep Sheets-only.
+
+  M2. DPDP status doc outdated (legal/21-*.txt dated 2026-07-08)
+      Claims rights tooling missing; guardrails now report grievance/delete/
+      export present. Refresh DPDP audit after lawyer pass.
+
+  M3. Module catalog SKUs vs industries-docs full matrix
+      modules.ts lists core Presence + book + food.menu + retail.storefront.
+      Docs describe many more paid modules (kitchen, wholesale, etc.) as later.
+      Align Superadmin “stub | later” labels with reality (partially done).
+
+  M4. Finance called-off OK in registry; pharmacy selectable?
+      pharmacy in INDUSTRY_GROUPS as parked — ensure onboarding cannot fully
+      open unapproved pharmacy commerce without gates.
+
+  M5. Lint warning
+      linktree-stack-editor.tsx react-hooks/exhaustive-deps (low risk).
+
+  M6. Superadmin copy mentions “à la carte” in explaining never to use it
+      src/app/(admin)/superadmin/industries/page.tsx — prefer “Select modules”
+      only even in admin help text for consistency.
+
+--------------------------------------------------------------------------------
+LOW / RESIDUAL
+--------------------------------------------------------------------------------
+
+  L1. legal/ drafts still lawyer-review before public claims of compliance.
+  L2. External: Artix Pvt Ltd, GST, Razorpay/PhonePe partner, DPDP officer.
+  L3. Redis / R2 deferred historically — confirm media uses Blob/R2 as designed.
+  L4. industries-docs + partner email drafts untracked — commit docs intentionally.
+  L5. Phase 0 audit file (2026-07-06) is historical; this file supersedes for 07-16.
+
+================================================================================
+3. DATA BOUNDARY AUDIT
+================================================================================
+
+  RULE: Artix Postgres = tenant/config; client PII = Sheets or tenant Supabase.
+
+  PASS examples:
+    appointmentHolds — bookingId, slot, package; customer name/phone in Sheets
+    menu_items, store_products, property_listings — catalog/config (tenant’s
+      business content, not end-customer PII)
+    tenants.phone — business owner account (Artix fiduciary OK)
+
+  WATCH:
+    notes on holds; any future “customers” table on platform; logging of
+    checkout payloads; encrypted secrets (razorpayKeySecretEnc) — ensure
+    never sent to browser (comment claims OK; keep review on API responses)
+
+  Supabase partner narrative matches code direction:
+    BYO tenant project + connector; platform shared for config only.
+
+================================================================================
+4. INDUSTRIES PLAN vs CODE
+================================================================================
+
+  Plan ref: industries-docs/00-IMPLEMENTATION-PLAN.txt
+
+  F0 foundation           → largely CODE present
+  W1.A Presence MVP       → largely present (gates, modules, Creator Partner)
+  W1.B Salon + appts      → present (core + Sheets)
+  W1.C Food Layer 1       → present (menu)
+  W1.D Retail storefront  → present (products)
+  W2 Bookings/RE/Edu/Fit  → RE listings + bookings tests; edu/fit thinner
+  W3 Auto + food ops      → later
+
+  Frontend language: no “à la carte” as product feature name in UI copy
+  (only engineer/admin notes). Good.
+
+================================================================================
+5. SECURITY / COMPLIANCE AUTOMATED
+================================================================================
+
+  guardrails:scan:
+    [x] No obvious secrets in tracked source
+    [x] .env gitignored
+    [x] Security headers in next.config
+    [x] DATABASE_URL set (local env)
+    [x] No obvious PII console.log
+    [x] No obvious customer PII tables
+    [x] /grievance, delete account, export data present
+
+  Residual: secrets must never be committed; rotate if any .env leaked
+  historically outside git.
+
+================================================================================
+6. RECOMMENDED NEXT ACTIONS (PRIORITY)
+================================================================================
+
+  P0  Fix create-order gate to require tenant identity (H1)
+  P0  Commit + migrate + deploy industries work in ordered PRs (H2)
+  P1  Ship real Google Calendar OAuth (tenant Connect) — drop stub marketing
+  P1  E2E manual: Presence cannot open store/checkout; cloud food no dine-in
+  P1  Refresh legal/21 DPDP status against current code
+  P2  Select modules billing UX end-to-end for website plan + SKUs
+  P2  Creator Partner promo compliance checklist (dashboard)
+  P2  Expand module catalog only as waves ship (don’t pretend full kitchen)
+  P3  Education / fitness / automotive packs per plan
+  EXT Lawyer, grievance officer, payment partners, incorporation/GST
+
+================================================================================
+7. VERIFICATION COMMANDS (RE-RUN ANYTIME)
+================================================================================
+
+  npm run guardrails:scan
+  npm run typecheck
+  npm run lint
+  npm test
+  npm run build
+  npm run db:migrate   # each environment after pulling migrations
+
+================================================================================
+CHANGE LOG
+================================================================================
+2026-07-16  Full ALINKS audit (post industries wave local build + partner wait).
+================================================================================

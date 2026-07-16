@@ -1,0 +1,42 @@
+================================================================================
+06 — MODULE: WHOLESALE / B2B (rt.wholesale)
+================================================================================
+SKU: rt.wholesale
+
+================================================================================
+1. DEFINITION
+================================================================================
+
+  Turns catalogue into wholesale market mode:
+    MOQ, tier prices, firm name / GSTIN on order or enquiry,
+    optional “Wholesale” tab or subdomain path /{handle}/wholesale
+
+================================================================================
+2. LIFECYCLE
+================================================================================
+
+  Purchase → set default MOQs → mark products wholesale/both →
+  public wholesale path → bulk enquiry or bulk cart → tenant fulfils offline/online
+
+================================================================================
+3. INTEGRATION
+================================================================================
+
+  + inventory dual prices
+  + multi_brand filters for distributors
+  + checkout optional (many wholesalers prefer enquiry + bank transfer offline)
+  + free_booking N/A; optional book.core if they offer demos only
+
+================================================================================
+4. DIVERSIFICATION OUTCOME
+================================================================================
+
+  Without this module: retail shop only
+  With this module: wholesale market capability
+  With hybrid profile: both storefront + wholesale paths
+
+================================================================================
+CHANGE LOG
+================================================================================
+2026-07-16  Wholesale B2B module.
+================================================================================

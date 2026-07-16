@@ -1,0 +1,54 @@
+================================================================================
+03 — EDUCATION MODULES & CAPS
+================================================================================
+
+================================================================================
+1. MODULE LIST
+================================================================================
+
+  ID                      Label                    Notes
+  ----------------------  -----------------------  ---------------------------
+  edu.courses             Courses & programs       Any subject/skill catalogue
+  edu.batches_lite        Batches schedule         Display + enquiry; seats lite
+  edu.faculty             Faculty / teachers       Institute staff resources
+  edu.enquiry             Enquiries & admissions   CRM-lite leads
+  edu.demo_booking        Demo / trial slots       book.core profile
+  edu.live_tuition_slots  Live / 1:1 tuition       Recurring capable later
+  edu.fees_pay            Fees & deposits          Tenant PG optional
+  edu.media_youtube       YouTube on site ONLY     FREE include w/ website*
+  edu.results_showcase    Results & testimonials   Social proof blocks
+  edu.multilocation       Multi-center             5–10% off extra centers YES
+
+  * YouTube embeds only (no Vimeo/other). FREE with website plan (not upsell wall).
+    Module id may exist for feature flags only, price = 0.
+
+  google.calendar         FREE                     Teacher calendars
+
+================================================================================
+2. CAPS (ANTI-LOSS — SUPERADMIN TUNABLE)
+================================================================================
+
+  Entity              Starter    Growth     Pro
+  ------------------  ---------  ---------  ---------
+  Courses/programs    10         40         150
+  Faculty/teachers    3          15         50
+  Active batches      10         40         150
+  Demo/tuition slots  soft       soft       soft
+  Video embeds/links  10         50         200
+  Centers             1          +paid      +paid
+
+  Independent teacher plan: lower caps OK (e.g. 15 courses, 1 faculty = self).
+
+================================================================================
+3. BUNDLES
+================================================================================
+
+  Teacher Starter     website + courses + slots + YouTube free + free booking
+  Institute Pro       + faculty + batches + enquiry CRM + multi-center
+  Fees add-on         edu.fees_pay when they want online collection
+
+================================================================================
+CHANGE LOG
+================================================================================
+2026-07-16  Expanded modules; YouTube free; live tuition; caps.
+================================================================================

@@ -1,0 +1,114 @@
+================================================================================
+10 — FOOD SUBTYPE DISTINCTIONS (BAR, BISTRO, CLOUD, …)
+================================================================================
+Folder: industries-docs/food_industry/
+Purpose: Self-aware defaults under Food industry — not separate billing products
+         unless Superadmin promotes them to base types.
+
+================================================================================
+1. HIERARCHY
+================================================================================
+
+  Industry group: FOOD
+    Base type: cloud_kitchen | restaurant | catering_only | …
+      Subtype (profile polish): bar_restaurant | bistro | fine_dining |
+                                qsr | cafe | cloud_pure | bakery_cafe | …
+
+  Subtype changes:
+    • Seeded categories & modifier presets
+    • Legal/disclaimer microcopy (alcohol, FSSAI hints)
+    • Default modules suggestions
+    • Nav labels (“Menu” vs “Bar menu” vs “Order online”)
+
+  Subtype does NOT by itself sell Dine-in to cloud.
+
+================================================================================
+2. SUBTYPE CARDS
+================================================================================
+
+2.1 CLOUD KITCHEN (pure)
+  Base: cloud_kitchen
+  Modules: delivery, pickup, catering?, kitchen?
+  Dine-in: NEVER
+  Inventory: high-throughput menu, combos, strong delivery flags
+  Presets: Starters, Mains, Combos, Beverages; spice + size modifiers
+
+2.2 RESTAURANT (general)
+  Base: restaurant
+  Modules: dine_in?, delivery?, pickup, catering?, kitchen?
+  Inventory: full menu sections; veg flags; optional stock off
+  Presets: classic Indian/casual dining sections
+
+2.3 BAR & RESTAURANT
+  Base: restaurant
+  Subtype: bar_restaurant
+  Modules: dine_in highly recommended; delivery optional (food only);
+           kitchen recommended
+  Inventory distinctions:
+    • Separate Bar / Spirits / Cocktails categories
+    • Alcohol age disclaimer on public menu
+    • Modifiers: single/double/pitcher; ice; mixer
+    • Food + drinks on same dine-in QR order
+  Dine-in: allowed (restaurant family)
+  Cloud: if someone registers as cloud, no bar floor QR — only packaged
+         “bar snacks delivery” if they insist (still no table QR)
+
+2.4 BISTRO / CAFÉ
+  Base: restaurant (or cafe slug under restaurant family)
+  Modules: dine_in?, pickup strong, delivery optional, kitchen?
+  Inventory: Coffee/Tea/Bakery/Breakfast; sugar/milk modifiers
+  Faster ticket times; combo breakfast presets
+
+2.5 FINE DINING
+  Base: restaurant
+  Modules: dine_in core; delivery usually OFF by default; catering high-value
+  Inventory: tasting menus, wine list categories; fewer 86 events
+  QR may be “view menu” + call captain later — product can soft-start dine-in
+  orders with confirmation
+
+2.6 QSR / QUICK SERVICE
+  Base: restaurant or cloud_kitchen (franchise cloud)
+  Modules: pickup + delivery; dine_in if seating; kitchen high value
+  Inventory: combos, meal deals, size modifiers; stock more relevant
+
+2.7 CATERING SPECIALIST
+  Base: catering_only
+  Modules: catering + kitchen; no dine_in
+  Inventory: packages-first UI; menu items optional library for package build
+
+2.8 CLOUD + CATERING
+  Base: cloud_catering
+  Modules: delivery, pickup, catering, kitchen — NO dine_in
+  Inventory: daily menu + catering packages side by side in admin
+
+2.9 BAKERY / SWEETS (optional subtype)
+  Base: restaurant or cloud_kitchen
+  Pickup-heavy; preorder modifiers; less spice, more “eggless” flags
+
+================================================================================
+3. SELF-AWARE BEHAVIOR MATRIX (EXAMPLES)
+================================================================================
+
+  Subtype            Default seed categories     Suggest modules
+  -----------------  --------------------------  ---------------------
+  cloud_pure         Combos, Mains, …            delivery, pickup, kitchen
+  bar_restaurant     Food + Bar + Cocktails      dine_in, kitchen
+  bistro             Coffee, Bakery, All-day     pickup, dine_in?
+  fine_dining        Courses, Wine               dine_in, catering
+  qsr                Combos, Burgers, Drinks     delivery, pickup, kitchen
+  catering_only      Wedding, Corporate, …       catering, kitchen
+
+================================================================================
+4. SUPERADMIN
+================================================================================
+
+  Store subtypes under Food industry group with:
+    parent_base_type, seed_profile_id, allowed_modules[], disclaimers[]
+
+  Tenant picks base type first, optional subtype second (or combined picker).
+
+================================================================================
+CHANGE LOG
+================================================================================
+2026-07-16  Bar, bistro, fine dining, QSR, cloud, catering distinctions.
+================================================================================

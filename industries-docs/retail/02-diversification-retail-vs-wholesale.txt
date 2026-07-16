@@ -1,0 +1,91 @@
+================================================================================
+02 — DIVERSIFYING RETAIL VS WHOLESALE (AND HYBRID)
+================================================================================
+
+================================================================================
+1. THE SPLIT BUYERS CARE ABOUT
+================================================================================
+
+  RETAIL (B2C)
+    Buyer: household / end user
+    Price: MRP-ish or single unit price
+    Qty: 1–few
+    UX: browse → cart or WhatsApp “I want this”
+    Trust: photos, size guide, COD
+
+  WHOLESALE (B2B)
+    Buyer: shopkeeper, reseller, canteen, salon stocking product
+    Price: slab / tier (per 10, 50, 100)
+    Qty: MOQ (minimum order quantity)
+    UX: catalogue → bulk enquiry OR bulk cart with GSTIN / firm name
+    Trust: rate list, pack size, delivery timeline note
+
+  HYBRID (very common in India)
+    Same shop: front retail counter + back wholesale to smaller shops
+    Same SKU: retail_price + wholesale_tiers[]
+    Public site: toggle “Shop retail” / “Wholesale rates” (or separate paths)
+
+================================================================================
+2. HOW ALINKS ENCODES DIVERSIFICATION
+================================================================================
+
+  A) Tenant trade_profile (onboarding) — FROZEN LABELS
+     UI: “Retail only” | “Wholesale only” | “Retail + Wholesale”
+     Values: retail_only | wholesale_only | hybrid
+
+  B) Per-product trade_mode
+     retail | wholesale | both
+
+  C) Pricing block
+     retail_price
+     mrp?
+     wholesale: { moq, tiers: [{ min_qty, price }] }
+
+  D) Checkout / order path
+     retail_cart | wholesale_cart | wholesale_enquiry | whatsapp
+
+  E) UI seeds by subtype
+     Fashion multi-brand → strong variations (size/color)
+     Kirana → units kg/pack, less color matrix
+     Wholesale market → MOQ + tier tables first
+
+================================================================================
+3. WHOLESALE MARKET VS RETAIL SHOP (POSITIONING)
+================================================================================
+
+  Wholesale market tenant
+    Feels like “market desk”: rate cards, bulk, maybe many brands, B2B form
+    Optional login-free enquiry; optional buyer “trade account” later
+
+  Retail shop tenant
+    Feels like boutique / general store: pretty grid, COD, single prices
+
+  Multi-brand store
+    Brand filter + brand story pages; still retail and/or wholesale modes
+
+================================================================================
+4. SMART DEFAULTS BY TYPE
+================================================================================
+
+  Type                    Default trade_profile   Emphasize
+  ----------------------  ----------------------  -------------------------
+  retail_shop             retail                  simple cart/WA
+  multi_brand_store       retail                  brands + variations
+  wholesale_market        wholesale               MOQ + tiers + enquiry
+  brand_dtc               retail                  single brand story
+  hybrid_retail_wholesale hybrid                  dual price book
+
+================================================================================
+5. WHAT NOT TO CONFUSE
+================================================================================
+
+  Wholesale ≠ marketplace of many independent sellers on one Artix checkout
+  (that is multi-vendor marketplace — out of scope v1; see doc 13)
+
+  Wholesale = ONE tenant selling bulk to many buyers
+
+================================================================================
+CHANGE LOG
+================================================================================
+2026-07-16  Retail vs wholesale vs hybrid diversification model.
+================================================================================

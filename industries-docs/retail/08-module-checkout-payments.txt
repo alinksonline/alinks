@@ -1,0 +1,36 @@
+================================================================================
+08 — MODULE: CHECKOUT (rt.checkout) — TENANT PG
+================================================================================
+SKU: may map to existing editor Checkout / commerce (Razorpay BYO + COD)
+
+================================================================================
+1. DEFINITION
+================================================================================
+
+  Cart + online pay + COD for product orders.
+  Tenant connects own Razorpay (or WA-only without this).
+  Artix does not settle shop GMV.
+
+================================================================================
+2. FREE / PAID PATHS
+================================================================================
+
+  Without checkout: WhatsApp / call order (website plan)
+  With checkout: full cart (retail and/or wholesale cart rules)
+
+  Wholesale often starts as enquiry-only even if checkout exists.
+
+================================================================================
+3. INTEGRATION
+================================================================================
+
+  + storefront, wholesale, inventory stock decrement
+  + Sheets/Supabase order rows (tenant data)
+  ≠ Real estate property payment
+  ≠ Food kitchen board unless also food tenant
+
+================================================================================
+CHANGE LOG
+================================================================================
+2026-07-16  Retail checkout via tenant PG.
+================================================================================

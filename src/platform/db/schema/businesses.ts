@@ -9,6 +9,29 @@ export const businesses = pgTable("businesses", {
   handle: varchar("handle", { length: 30 }).notNull().unique(),
   name: varchar("name", { length: 120 }).notNull(),
   vertical: varchar("vertical", { length: 40 }).notNull().default("general"),
+  /**
+   * Industry group (presence, salon_beauty, food, …).
+   * vertical remains for legacy nav/templates; both stay in sync on write.
+   */
+  industryGroup: varchar("industry_group", { length: 40 }).notNull().default("general"),
+  /** Industry subtype e.g. influencer_creator, salon, cloud_kitchen. */
+  industryType: varchar("industry_type", { length: 40 }).notNull().default("general"),
+  /**
+   * Retail trade mode (frozen labels): retail | wholesale | both.
+   * MVP uses retail only on storefront.
+   */
+  tradeMode: varchar("trade_mode", { length: 20 }).notNull().default("retail"),
+  /** Food ops channels (W3.B). Dine-in only meaningful for restaurant types. */
+  foodPickupEnabled: boolean("food_pickup_enabled").notNull().default(false),
+  foodDeliveryEnabled: boolean("food_delivery_enabled").notNull().default(false),
+  foodDineInEnabled: boolean("food_dine_in_enabled").notNull().default(false),
+  foodPickupInstructions: text("food_pickup_instructions"),
+  foodDeliveryInstructions: text("food_delivery_instructions"),
+  /** Creator Partner tier A|B|C|D when deep discount accepted. */
+  creatorPartnerTier: varchar("creator_partner_tier", { length: 10 }),
+  creatorPartnerAcceptedAt: timestamp("creator_partner_accepted_at", { withTimezone: true }),
+  creatorDiscountPctMonthly: integer("creator_discount_pct_monthly"),
+  creatorDiscountPctYearly: integer("creator_discount_pct_yearly"),
   isPublished: boolean("is_published").notNull().default(false),
   customDomain: varchar("custom_domain", { length: 255 }),
   googleSpreadsheetId: text("google_spreadsheet_id"),

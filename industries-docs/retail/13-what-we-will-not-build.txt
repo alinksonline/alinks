@@ -1,0 +1,21 @@
+================================================================================
+13 — OUT OF SCOPE (RETAIL V1)
+================================================================================
+
+  • Multi-vendor marketplace with split settlement to many sellers
+  • Artix holding customer funds for shops
+  • Full ERP (purchase orders, accounting, multi-warehouse)
+  • In-store POS / multi-till billing / per-shop counter software
+  • Paid “multi-outlet” seats for retail (copied from food kitchens by mistake)
+  • Amazon-scale recommendation ML
+  • Restaurant kitchen / table QR (food_industry)
+  • Real-estate plot checkout
+
+  Smart retail = multi-brand catalogue + retail/wholesale modes + simple
+  checkout/WA under ONE online shop tenant (even if they have many offline shops).
+
+================================================================================
+CHANGE LOG
+================================================================================
+2026-07-16  Retail non-goals.
+================================================================================

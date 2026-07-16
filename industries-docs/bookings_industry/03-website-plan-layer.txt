@@ -1,0 +1,38 @@
+================================================================================
+03 — LAYER 1: WEBSITE PLAN (PRESENCE + BOOK CTA)
+================================================================================
+
+================================================================================
+1. WHAT MAIN SITE SELLS FIRST
+================================================================================
+
+  Website plan includes:
+    • Mini-site, branding, theme
+    • Services / offerings list (display)
+    • Book CTA → WhatsApp or simple enquiry form
+    • Type-aware labels (Clinic / Advocate / Hall)
+  Does NOT include full calendar engine until book.core (or bundled).
+
+  Pitch:
+    “Your professional website. Clients discover you and book via WhatsApp
+     or online appointments when you upgrade.”
+
+================================================================================
+2. WHY IT WORKS
+================================================================================
+
+  Same as food: low commitment, India-native WA habits, clear upsell to
+  real scheduling modules.
+
+================================================================================
+3. UPGRADE PATH
+================================================================================
+
+  Website only → book.core (live slots) → industry pack (clinic/legal/venue)
+  → payments deposits → reminders → multi-location.
+
+================================================================================
+CHANGE LOG
+================================================================================
+2026-07-16  Website-first for bookings family.
+================================================================================

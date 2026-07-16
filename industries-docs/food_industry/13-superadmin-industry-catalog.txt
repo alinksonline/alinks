@@ -1,0 +1,70 @@
+================================================================================
+13 — SUPERADMIN: FOOD INDUSTRY CATALOG
+================================================================================
+Folder: industries-docs/food_industry/
+
+================================================================================
+1. PURPOSE
+================================================================================
+
+  Artix Superadmin defines industries/types under category Food so ALINKS is
+  self-aware: Store/Menu IA, allowed modules, seeds, disclaimers — without
+  hard-coding every new bistro variant only in app code forever.
+
+================================================================================
+2. ENTITIES
+================================================================================
+
+  IndustryGroup { id: "food", name: "Food & Beverage" }
+
+  IndustryType {
+    slug, name, parent_group: food,
+    base_family: cloud | restaurant | catering,
+    allows_dine_in: boolean,
+    allowed_module_skus: string[],
+    default_module_skus: string[],
+    seed_profile_id,
+    active
+  }
+
+  SubtypeProfile {
+    id, industry_type_slug,
+    seed_categories[], seed_modifier_sets[],
+    disclaimers[], nav_overrides{},
+    inventory_mode: "menu" | "packages_first" | "menu_plus_packages"
+  }
+
+  ModuleProduct {
+    sku, name, monthly_price, yearly_price, active,
+    compatibility_rules[]
+  }
+
+================================================================================
+3. SUPERADMIN UI (TARGET)
+================================================================================
+
+  Superadmin → Industries → Food
+    • List types (Cloud kitchen, Restaurant, …)
+    • Edit allowed modules, allows_dine_in
+    • Subtypes: Bar & restaurant, Bistro, …
+    • Module prices + charm yearly preview
+    • Seed templates for categories/modifiers
+
+  Superadmin → Tenants / Businesses
+    • See type + entitlements (modules ON)
+
+================================================================================
+4. ALIGNMENT WITH CODE
+================================================================================
+
+  Today code may use BUSINESS_VERTICALS (salon, ecommerce, restaurant, …).
+  Migration path:
+    Map restaurant → food restaurant family
+    Keep vertical slug for routing until industryId is first-class on businesses
+  Docs (this folder) remain authoritative for food rules during transition.
+
+================================================================================
+CHANGE LOG
+================================================================================
+2026-07-16  Superadmin catalog shape for food self-awareness.
+================================================================================

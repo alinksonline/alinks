@@ -3,14 +3,25 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { cn } from "@/core/utils/cn";
-import type { BusinessVertical } from "@/core/types/tenant";
+import {
+  canShowClinicEditor,
+  canShowCommerceEditor,
+  canShowFoodMenu,
+  canShowPackagesEditor,
+  canShowEducationCourses,
+  canShowPropertyBank,
+  canShowRetailStore,
+  canShowStaffEditor,
+  canShowVehicleListings,
+  type IndustryGateInput,
+} from "@/core/utils/industry-gates";
 
 type NavLink = {
   href: string;
   label: string;
   match: (p: string) => boolean;
-  /** If set, tab only shows for these verticals. Omit = all verticals. */
-  verticals?: readonly BusinessVertical[];
+  /** When set, tab only shows if predicate passes. */
+  show?: (gate: IndustryGateInput) => boolean;
 };
 
 const ALL_LINKS: NavLink[] = [
@@ -35,34 +46,69 @@ const ALL_LINKS: NavLink[] = [
     match: (p) => p.startsWith("/editor/branding"),
   },
   {
+    href: "/editor/menu",
+    label: "Menu",
+    match: (p) => p.startsWith("/editor/menu"),
+    /** Food Layer 1 digital menu */
+    show: (g) => canShowFoodMenu(g),
+  },
+  {
+    href: "/editor/products",
+    label: "Products",
+    match: (p) => p.startsWith("/editor/products"),
+    /** Retail storefront catalog */
+    show: (g) => canShowRetailStore(g),
+  },
+  {
+    href: "/editor/listings",
+    label: "Listings",
+    match: (p) => p.startsWith("/editor/listings"),
+    /** RE Property-Bank */
+    show: (g) => canShowPropertyBank(g),
+  },
+  {
+    href: "/editor/courses",
+    label: "Courses",
+    match: (p) => p.startsWith("/editor/courses"),
+    /** Education catalogue */
+    show: (g) => canShowEducationCourses(g),
+  },
+  {
+    href: "/editor/vehicles",
+    label: "Vehicles",
+    match: (p) => p.startsWith("/editor/vehicles"),
+    /** Automotive inventory */
+    show: (g) => canShowVehicleListings(g),
+  },
+  {
     href: "/editor/commerce",
     label: "Checkout",
     match: (p) => p.startsWith("/editor/commerce"),
     /**
      * TENANT surface: how *end-customers* pay the shop (UPI/COD/sheet).
      * NOT platform subscription — that is /billing (“Plan”).
+     * Hidden for Presence (no sales). Food Layer 1 is WhatsApp-first.
      */
-    verticals: ["salon", "beauty", "kirana", "grocery", "ecommerce", "restaurant", "pharmacy", "general"],
+    show: (g) => canShowCommerceEditor(g) && !canShowFoodMenu(g),
   },
   {
     href: "/editor/packages",
     label: "Packages",
     match: (p) => p.startsWith("/editor/packages"),
-    /** Salon sellable catalog (pay-then-book) — this is the salon “shop” */
-    verticals: ["salon", "beauty"],
+    /** Salon sellable catalog (pay-then-book) — never Presence */
+    show: (g) => canShowPackagesEditor(g),
   },
   {
     href: "/editor/staff",
     label: "Staff",
     match: (p) => p.startsWith("/editor/staff"),
-    verticals: ["salon", "beauty", "clinic"],
+    show: (g) => canShowStaffEditor(g),
   },
   {
     href: "/editor/clinic",
     label: "Clinic",
     match: (p) => p.startsWith("/editor/clinic"),
-    /** NMC / medical license — clinics only, never salons */
-    verticals: ["clinic"],
+    show: (g) => canShowClinicEditor(g),
   },
   {
     href: "/editor/publish",
@@ -71,22 +117,27 @@ const ALL_LINKS: NavLink[] = [
   },
 ];
 
-export function editorLinksForVertical(vertical: string): NavLink[] {
-  const v = vertical as BusinessVertical;
-  return ALL_LINKS.filter((l) => !l.verticals || l.verticals.includes(v));
+export function editorLinksForVertical(
+  vertical: string,
+  industryGroup?: string | null,
+): NavLink[] {
+  const gate: IndustryGateInput = { vertical, industryGroup };
+  return ALL_LINKS.filter((l) => !l.show || l.show(gate));
 }
 
-/** Horizontal chip nav — phone-width, sticky; tabs depend on business vertical. */
+/** Horizontal chip nav — phone-width, sticky; tabs depend on industry. */
 export function EditorNav({
   active,
   vertical = "general",
+  industryGroup,
 }: {
   active?: string;
-  /** Current business vertical — hides Clinic for salons, etc. */
+  /** Current business vertical — hides Clinic for salons, commerce for Presence, etc. */
   vertical?: string;
+  industryGroup?: string | null;
 }) {
   const pathname = usePathname();
-  const links = editorLinksForVertical(vertical);
+  const links = editorLinksForVertical(vertical, industryGroup);
 
   return (
     <nav

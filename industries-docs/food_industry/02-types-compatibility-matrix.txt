@@ -1,0 +1,72 @@
+================================================================================
+02 — FOOD BASE TYPES & COMPATIBILITY MATRIX
+================================================================================
+Folder: industries-docs/food_industry/
+See also: 01-food-industry-anchor.txt, 10-subtype-distinctions.txt
+
+================================================================================
+1. BASE TYPES (identity at onboarding / Superadmin)
+================================================================================
+
+  SLUG                 LABEL                 Dine-in allowed?
+  -------------------  --------------------  ----------------
+  cloud_kitchen        Cloud kitchen         NO
+  restaurant           Restaurant            YES (via module)
+  catering_only        Catering only         NO
+  cloud_catering       Cloud + Catering      NO (combo identity)
+  restaurant_hybrid    Restaurant hybrid     YES (bundle marketing)
+
+Base type sets:
+  • Allowed modules
+  • Default public nav labels
+  • Default menu/inventory profile (see 09, 10)
+
+================================================================================
+2. MODULE ALLOW MATRIX
+================================================================================
+
+                    food.    food.   food.     food.     food.
+                    delivery pickup  dine_in   catering  kitchen
+  cloud_kitchen     YES      YES     NO        YES       YES
+  restaurant        YES      YES     YES       YES       YES
+  catering_only     rare     NO      NO        YES*      YES
+  cloud_catering    YES      YES     NO        YES*      YES
+
+  * catering_only / cloud_catering: Catering is core to identity; still tracked
+    as module entitlement for Billing clarity.
+
+HARD RULES
+  • Cloud* never sells or enables food.dine_in.
+  • Cloud kitchen CAN buy food.catering.
+  • Kitchen never invents a channel; only consumes enabled channels.
+
+================================================================================
+3. “ALL MODULES” PER TYPE
+================================================================================
+
+  Restaurant all =
+    delivery + pickup + dine_in + catering + kitchen
+
+  Cloud kitchen all =
+    delivery + pickup + catering + kitchen
+    (dine_in excluded)
+
+  Catering only all =
+    catering + kitchen
+    (optional rare delivery for bulk drop-off — product decision later)
+
+================================================================================
+4. BUNDLE SUGGESTIONS (MARKETING / BILLING)
+================================================================================
+
+  Cloud Starter       cloud_kitchen + delivery + pickup
+  Cloud + Catering    cloud_kitchen + catering (+ delivery/pickup)
+  Restaurant Floor    restaurant + dine_in + pickup
+  Restaurant Complete restaurant + all allowed modules
+  Catering Pro        catering_only + kitchen
+
+================================================================================
+CHANGE LOG
+================================================================================
+2026-07-16  Initial matrix from product discussion.
+================================================================================

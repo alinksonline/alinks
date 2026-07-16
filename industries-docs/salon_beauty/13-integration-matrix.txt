@@ -1,0 +1,33 @@
+================================================================================
+13 — SALON MODULE INTEGRATION MATRIX
+================================================================================
+
+  sb.packages
+       +
+  sb.staff ──► sb.calendar (slots)
+       │
+       ├── free_booking ─────────────────────► confirm slot
+       ├── pay_then_book + checkout_connect ─► pay ─► confirm slot
+       ├── reminders
+       ├── google.calendar FREE
+       └── multilocation (branch calendars)
+
+  Optional: sb.retail_products → retail cart/WA (parallel, not blocking book)
+
+  Instant rules
+    Package duration change → future slots use new duration
+    Staff deactivate → no new assignment; reassign tools later
+    Pay fail → no confirmed booking
+    Free package → no PG required
+    GCal connect → confirmed appointments sync
+
+  Cross-industry
+    ≠ clinic license
+    ≠ food kitchen
+    ≠ RE Property-Bank
+
+================================================================================
+CHANGE LOG
+================================================================================
+2026-07-16  Salon integration spine.
+================================================================================

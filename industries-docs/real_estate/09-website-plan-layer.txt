@@ -1,0 +1,19 @@
+================================================================================
+09 — LAYER 1: WEBSITE PLAN (RE)
+================================================================================
+
+  Marketing site sells:
+    • Mini-site for builder / agent / construction brand
+    • Listings & project display
+    • WhatsApp / call / enquiry CTAs
+  Does not sell “online plot checkout”.
+
+  Upsell modules: agent desk depth, higher listing limits, site visit, CRM.
+
+  Same philosophy as food/bookings website-first layer.
+
+================================================================================
+CHANGE LOG
+================================================================================
+2026-07-16  Website-first RE.
+================================================================================

@@ -1,0 +1,50 @@
+================================================================================
+02 — BOOKINGS BASE TYPES & MODULE COMPATIBILITY
+================================================================================
+
+================================================================================
+1. BASE TYPES
+================================================================================
+
+  SLUG                  Dine-in/food?  License gate?  Primary book unit
+  --------------------  -------------  -------------  -----------------
+  clinic_healthcare     no             YES (doctor)   doctor + slot
+  professional_consult  no             no (honor)     person + slot
+  legal_lawyers         no             optional bar   advocate + slot
+  venue_banquet         no             no             hall + date/package
+  salon_beauty*         no             honor ToS      staff + package/slot
+
+  * Salon may be documented under salon pack later; uses same book.core.
+
+================================================================================
+2. MODULE ALLOW MATRIX
+================================================================================
+
+                    core  clinic  prof  legal  venue  payments  reminders  multi  gcal
+  clinic_healthcare YES   YES     —     —      —      YES       YES        YES    YES
+  professional_     YES   —       YES   —      —      YES       YES        YES    YES
+    consult
+  legal_lawyers     YES   —       —     YES    —      YES       YES        YES    YES
+  venue_banquet     YES   —       —     —      YES    YES       YES        YES    YES
+
+  gcal = google.calendar FREE capability (tenant Gmail → Google Calendar)
+         also available to food catering — not a paid SKU
+
+
+  “—” = not default; Superadmin may still allow rare cross-sell carefully
+  (e.g. clinic also books a seminar hall → venue module add-on).
+
+================================================================================
+3. “ALL MODULES” PER TYPE (TYPE-AWARE)
+================================================================================
+
+  Clinic all     = core + clinic + payments + reminders (+ multi)
+  Professional   = core + professional + payments + reminders (+ multi)
+  Lawyer all     = core + legal + payments + reminders (+ multi)
+  Venue all      = core + venue + payments + reminders (+ multi)
+
+================================================================================
+CHANGE LOG
+================================================================================
+2026-07-16  Initial matrix.
+================================================================================

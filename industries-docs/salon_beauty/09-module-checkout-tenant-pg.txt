@@ -1,0 +1,15 @@
+================================================================================
+09 — TENANT CHECKOUT CONNECT (sb.checkout_connect)
+================================================================================
+
+  Maps to existing editor Checkout: tenant Razorpay BYO + COD flags.
+  Used when any package uses pay_then_book or deposit.
+  Artix ≠ merchant of record for service payments.
+
+  Without connect: free + pay_at_salon + WhatsApp only.
+
+================================================================================
+CHANGE LOG
+================================================================================
+2026-07-16  Tenant PG for salon pay-then-book.
+================================================================================

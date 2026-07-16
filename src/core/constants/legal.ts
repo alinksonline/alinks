@@ -14,6 +14,8 @@ export const LEGAL_DOC_TYPES = {
   CUSTOMER_CLINIC_BOOKING: "CUSTOMER_CLINIC_BOOKING",
   PHARMACY_OTC_ACK: "PHARMACY_OTC_ACK",
   AI_CONTENT_REVIEW: "AI_CONTENT_REVIEW",
+  /** Creator Partner terms (discount ↔ promote ALINKS) — Presence influencers */
+  CREATOR_PARTNER: "CREATOR_PARTNER",
 } as const;
 
 export type LegalDocType = (typeof LEGAL_DOC_TYPES)[keyof typeof LEGAL_DOC_TYPES];

@@ -1,0 +1,58 @@
+================================================================================
+01 — FITNESS INDUSTRY ANCHOR
+================================================================================
+
+================================================================================
+1. WHAT IT IS
+================================================================================
+
+  Fitness businesses sell: memberships, personal training, trial classes,
+  workshop events — via mini-site + enquiry/book/pay optional.
+
+  Journey examples:
+    Trial class → slot → show up
+    PT package → pay optional → book sessions with trainer
+    Membership interest → WhatsApp / form (full access control later)
+
+================================================================================
+2. TYPES
+================================================================================
+
+  gym, fitness_studio, yoga_studio, dance_fitness, personal_trainer,
+  martial_arts, sports_coaching, hybrid_gym_spa (beauty add-on separate)
+
+================================================================================
+3. MODULES
+================================================================================
+
+  fit.memberships      Membership plans display + enquiry/pay interest
+  fit.classes          Class schedule (group) lite
+  fit.pt_packages      Personal training packages
+  fit.trainers         Trainer roster (staff pattern)
+  fit.trial_booking    Trial / PT slot (book.core profile)
+  fit.fees_pay         Optional online fee (tenant PG)
+  fit.multilocation    Multi-gym branches (5–10% off extra) YES
+  fit.retail           Supplements/merch lite (retail pattern)
+
+  google.calendar FREE for trainers
+
+================================================================================
+4. VS SALON / CLINIC
+================================================================================
+
+  Salon: beauty packages + stylist
+  Fitness: memberships + trainers + classes
+  Clinic: medical license — fitness must not claim clinical treatment
+
+================================================================================
+5. NOT IN V1
+================================================================================
+
+  Full access-control turnstiles, biometric attendance ERP, diet prescription
+  medical, live streamed class platform.
+
+================================================================================
+CHANGE LOG
+================================================================================
+2026-07-16  Fitness industry pack.
+================================================================================

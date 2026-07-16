@@ -1,0 +1,38 @@
+================================================================================
+03 — PRESENCE MODULES & PAGES
+================================================================================
+Authority detail (influencer pack + discounts):
+  07-influencer-features-and-discounts.txt
+
+  INCLUDED WITH WEBSITE PLAN (Presence core)
+    pr.presence_core   Profile, about, theme, branding, mobile card layout
+    pr.link_stack      Link hub: pin/highlight, reorder, social strip
+    pr.gallery         Photos (caps by plan)
+    pr.contact         Form + WA/call; collab fields for creators
+    pr.share_kit       QR, OG/share card, short URL
+
+  CREATOR-STRONG (Influencer type / Creator plan — still no sales)
+    pr.media_kit       Media kit + rate card DISPLAY only
+    pr.social_proof    Testimonials, brand logos, reach chips (self-entered)
+    pr.highlights      Story-style highlight tiles
+    pr.analytics_lite  Views + link clicks
+
+  PRO ADD-ONS (Presence, not commerce)
+    Custom domain, remove watermark, higher caps, branded share cards
+
+  HIDDEN BY DEFAULT (industry flag sales_enabled = false)
+    Store, Checkout, Packages, Food order, RE listings sell flows,
+    Wholesale, Delivery modules
+
+  OPTIONAL
+    Contact / collab form → Google Sheet (tenant Google Connect)
+    Coming soon page = platform-level
+
+  PAGE SET (influencer default)
+    Home | Links | Media (kit) | Gallery | Contact
+    Or 1-page card mode for professional_card / quick start
+
+  Frontend language: “Modules” / “Select modules” when they leave Presence —
+  never “à la carte” on UI.
+
+================================================================================

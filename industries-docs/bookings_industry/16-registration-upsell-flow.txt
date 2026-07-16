@@ -1,0 +1,19 @@
+================================================================================
+16 — REGISTRATION & UPSELL (BOOKINGS)
+================================================================================
+
+  1. Website plan (monthly/yearly)
+  2. “What do you book?” → Clinic | Consultations | Lawyers | Banquet/Function hall
+  3. Optional subtype
+  4. Live site: services display + WA book
+  5. Upsell: book.core → industry pack → reminders → multi-location
+             → payments only if they want to charge clients (optional)
+  6. Single | Combo | All (type-aware)
+  7. Dashboard Integrations: “Connect Google Calendar” — FREE for all tenants
+     with bookings/catering/events (not an upsell SKU)
+
+================================================================================
+CHANGE LOG
+================================================================================
+2026-07-16  Registration path for bookings family.
+================================================================================

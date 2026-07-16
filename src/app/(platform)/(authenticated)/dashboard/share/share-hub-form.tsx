@@ -8,17 +8,24 @@ export function ShareHubForm({
   businessId,
   storeUrl,
   handle,
+  presence = false,
 }: {
   businessId: string;
   storeUrl: string;
   handle: string;
+  /** Presence share kit — profile URL, not shop. */
+  presence?: boolean;
 }) {
-  const [label, setLabel] = useState("Store catalog");
+  const [label, setLabel] = useState(presence ? "My profile" : "Store catalog");
   const [targetUrl, setTargetUrl] = useState(storeUrl);
   const [shortUrl, setShortUrl] = useState("");
   const [isPending, startTransition] = useTransition();
 
-  const whatsappText = encodeURIComponent(`Check out our store: ${shortUrl || storeUrl}`);
+  const whatsappText = encodeURIComponent(
+    presence
+      ? `Check out my profile: ${shortUrl || storeUrl}`
+      : `Check out our store: ${shortUrl || storeUrl}`,
+  );
   const waLink = `https://wa.me/?text=${whatsappText}`;
 
   return (
@@ -44,7 +51,12 @@ export function ShareHubForm({
             Share on WhatsApp
           </a>
           <p className="mt-2 text-slate-600">
-            OG preview: <code>/{handle}/store</code> includes store title for social cards.
+            OG preview:{" "}
+            <code>
+              /{handle}
+              {presence ? "" : "/store"}
+            </code>{" "}
+            for social cards.
           </p>
         </div>
       )}

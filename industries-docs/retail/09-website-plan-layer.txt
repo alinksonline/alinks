@@ -1,0 +1,15 @@
+================================================================================
+09 — LAYER 1: WEBSITE PLAN (RETAIL)
+================================================================================
+
+  Main marketing site sells:
+    Mini-site + limited product catalogue display + WhatsApp order
+  Upsell: full inventory caps, wholesale, multi-brand, cart checkout
+
+  Same website-first philosophy as food/bookings/RE.
+
+================================================================================
+CHANGE LOG
+================================================================================
+2026-07-16  Website-first retail.
+================================================================================

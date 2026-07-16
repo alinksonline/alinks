@@ -1,0 +1,23 @@
+================================================================================
+12 — SUPERADMIN: RETAIL CATALOG
+================================================================================
+
+  IndustryGroup: retail
+
+  Types:
+    retail_shop, multi_brand_store, wholesale_market, brand_dtc,
+    hybrid_retail_wholesale, kirana, grocery_mart, fashion_store, general_mart
+
+  Flags:
+    default_trade_profile: retail_only | wholesale_only | hybrid
+    allow_wholesale_module, allow_delivery_module, allow_multi_brand
+    product_limit_tier: 25 | 200 | 2000 | custom
+    seed_category_pack: fashion | kirana | kitchen | electronics | general | null
+    seed_variation_pack: apparel | pack_size | electronics | null
+    Note: seeds optional; tenants can always add ANY custom category name
+
+================================================================================
+CHANGE LOG
+================================================================================
+2026-07-16  Superadmin retail types.
+================================================================================

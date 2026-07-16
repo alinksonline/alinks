@@ -1,0 +1,163 @@
+================================================================================
+15 — MULTI-BRANCH (OUTLETS) & BRANCH PRICING
+================================================================================
+Folder: industries-docs/food_industry/
+Applies to: food industry (and pattern may later generalize)
+Related: 04-module-delivery.txt, 12-billing-skus-pricing-charm.txt, 16-coupons
+
+================================================================================
+1. DEFINITION
+================================================================================
+
+  A BRANCH is a physical (or dark-kitchen) outlet under one ALINKS business /
+  tenant brand: own address, hours, menu availability overrides, delivery
+  riders, tables (if Dine-in), and optionally own phone.
+
+  Food businesses often run 2+ branches. ALINKS charges for capability per
+  branch, but NOT always full list price on every extra branch.
+
+================================================================================
+2. HARD PRODUCT RULES
+================================================================================
+
+  • Primary branch (first / HQ): pays full module + plan rates.
+  • Additional branches: 5% to 10% OFF the module (or branch seat) fee for
+    that branch — “multi-location loyalty” discount (configurable in Superadmin).
+  • Cloud kitchen multi-outlet (multiple dark kitchens) = same branch model.
+  • Dine-in tables and QR are per branch (branch floor plan).
+  • Delivery riders can be scoped to one or many branch_ids.
+  • Kitchen board filters by branch when multi-branch ON.
+  • Customer order always stores branch_id (which kitchen prepares / which
+    door for pickup / which floor for dine-in).
+
+================================================================================
+3. WHAT IS BILLED PER BRANCH
+================================================================================
+
+  Billable “branch seats” or per-branch module lines (implementation choice):
+
+    plan.website          — often 1 brand site; multi-location pages later
+    food.delivery         — per branch that enables delivery
+    food.pickup           — per branch (or free)
+    food.dine_in          — per branch with tables
+    food.catering         — often brand-level OR per branch (default brand-level)
+    food.kitchen          — per branch kitchen board seat OR shared with filter
+
+  RECOMMENDED DEFAULT
+    Delivery / Pickup / Dine-in / Kitchen → per branch that uses them
+    Catering packages → brand-level (one catalog), fulfilment branch optional
+
+================================================================================
+4. PRICING FUNCTION (DETAILED)
+================================================================================
+
+  Let list_monthly(module) = Superadmin list price for SKU.
+  Let branch_index = 0 for primary, 1 for second, 2 for third, …
+
+  multi_branch_discount_rate:
+    Superadmin setting default between 0.05 and 0.10 (5–10%).
+    May be fixed 10% for all extra branches, or tiered later.
+
+  For each module M enabled on branch B:
+
+    if B is primary:
+      fee = list_monthly(M)
+    else:
+      fee = list_monthly(M) × (1 − multi_branch_discount_rate)
+
+    Apply yearly charm on totals (doc 12):
+      yearly = charm99( fee × 12 × (1 − yearly_discount) )
+
+  EXAMPLE
+    Delivery list = ₹349/mo
+    multi_branch_discount_rate = 0.10
+    Branch 1 (HQ):     ₹349
+    Branch 2:          ₹349 × 0.90 = ₹314.10 → charm display rules as needed
+    Branch 3:          same 10% off list (or progressive later)
+
+  THANKS / LOYALTY STACKING
+    Multi-branch % is structural (always on for extra branches).
+    Seasonal coupons (doc 16) may stack or exclude — Superadmin rule:
+      default: coupon applies AFTER multi-branch discount on invoice subtotal
+      OR coupon replaces multi-branch for that period (document on coupon).
+
+================================================================================
+5. BRANCH LIFECYCLE (100%)
+================================================================================
+
+  1. Discover     “Add another kitchen / outlet”
+  2. Create       name, address, geo/notes, phone, timezone
+  3. Entitle      Select modules for this branch (subset of business purchases
+                  or purchase branch seat)
+  4. Configure    hours, menu overrides, riders, tables, delivery fee
+  5. Operate      Orders routed to branch_id
+  6. Bill         Line items: branch name + modules; extra-branch % off
+  7. Suspend      Branch inactive: public “closed”; no new orders
+  8. Delete       Soft-delete; retain orders history
+
+================================================================================
+6. MENU / INVENTORY PER BRANCH
+================================================================================
+
+  Default: brand menu shared.
+  Overrides:
+    • item available_at_branch[branch_id] = true/false
+    • price override per branch (optional later)
+    • stock per branch if tracking physical stock
+
+  Instant: 86 at one branch does not 86 all branches unless “global 86”.
+
+================================================================================
+7. RIDERS & BRANCHES (DELIVERY)
+================================================================================
+
+  Rider.branch_ids[] = outlets they may deliver for.
+  Assign only if order.branch_id ∈ rider.branch_ids.
+  Company vehicles can be tagged branch_id of home outlet.
+
+================================================================================
+8. DINE-IN & BRANCHES
+================================================================================
+
+  Tables and QR tokens are per branch.
+  QR encodes business + branch + table.
+  Cloud types still cannot enable Dine-in on any branch.
+
+================================================================================
+9. KITCHEN & BRANCHES
+================================================================================
+
+  Kitchen board default filter = staff’s branch.
+  Superadmin/manager can see all branches if permitted.
+
+================================================================================
+10. DATA (CONCEPTUAL)
+================================================================================
+
+  Branch {
+    id, business_id, name, address, phone,
+    is_primary, active,
+    modules_enabled: string[],
+    delivery_settings?,
+  }
+
+  InvoiceLine {
+    sku, branch_id?, label,
+    list_amount, discount_multi_branch_pct?, discount_coupon?,
+    final_amount
+  }
+
+================================================================================
+11. SUPERADMIN CONTROLS
+================================================================================
+
+  • multi_branch_discount_rate_min/max (5–10%)
+  • default_rate (e.g. 10%)
+  • max_branches per plan tier (optional)
+  • which SKUs are per-branch vs brand-level
+
+================================================================================
+CHANGE LOG
+================================================================================
+2026-07-16  Multi-branch model; 5–10% off extra branches; lifecycles.
+================================================================================

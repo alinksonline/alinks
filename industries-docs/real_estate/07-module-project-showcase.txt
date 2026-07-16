@@ -1,0 +1,35 @@
+================================================================================
+07 — MODULE: PROJECT SHOWCASE (re.project_showcase)
+================================================================================
+SKU: re.project_showcase (or part of website RE template)
+
+================================================================================
+1. DEFINITION
+================================================================================
+
+  Rich storytelling for builders, gated communities, villa projects, ventures:
+  hero media, amenity grids, phase timeline, gallery, location map, brochure
+  link, RERA display field, partner logos.
+
+  Complements listings inventory — presentation layer for “smart” mini-sites.
+
+================================================================================
+2. LIFECYCLE
+================================================================================
+
+  Enable → pick project → fill showcase blocks → publish → enquire CTAs
+  Same no-checkout rule on all CTAs.
+
+================================================================================
+3. INTEGRATION
+================================================================================
+
+  + listings items (units/plots) embedded under project
+  + leads from showcase CTAs
+  + agent can reuse company showcase read-only when authorized
+
+================================================================================
+CHANGE LOG
+================================================================================
+2026-07-16  Showcase for builders/gated/villas/ventures.
+================================================================================

@@ -107,18 +107,38 @@ export async function openRazorpayCheckout(options: {
   rzp.open();
 }
 
-export async function createOrderViaApi(amountPaise: number, receipt: string): Promise<{
+export async function createOrderViaApi(
+  amountPaise: number,
+  receipt: string,
+  opts: { handle?: string; businessId?: string },
+): Promise<{
   order_id: string;
   amount: number;
   currency: string;
 }> {
+  if (!opts?.handle?.trim() && !opts?.businessId?.trim()) {
+    throw new Error("Business identity required (handle or businessId)");
+  }
+
   const res = await fetch("/api/create-order", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ amount: amountPaise, currency: "INR", receipt }),
+    body: JSON.stringify({
+      amount: amountPaise,
+      currency: "INR",
+      receipt,
+      handle: opts.handle,
+      businessId: opts.businessId,
+    }),
   });
 
-  const data = (await res.json()) as { order_id?: string; amount?: number; currency?: string; error?: string };
+  const data = (await res.json()) as {
+    order_id?: string;
+    amount?: number;
+    currency?: string;
+    error?: string;
+    code?: string;
+  };
   if (!res.ok) throw new Error(data.error ?? "Could not create order");
   if (!data.order_id) throw new Error("Invalid order response");
 

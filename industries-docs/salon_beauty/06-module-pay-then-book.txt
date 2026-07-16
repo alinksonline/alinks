@@ -1,0 +1,99 @@
+================================================================================
+06 — MODULE: PAY-THEN-BOOK (sb.pay_then_book) — DEEP DIVE
+================================================================================
+SKU: sb.pay_then_book (or flag under packages + checkout connect)
+Baseline: alinks-appointments — salon supports payment then slot booking.
+
+================================================================================
+1. DEFINITION
+================================================================================
+
+  Client pays for the package (full or deposit) BEFORE the slot is confirmed.
+  Reduces no-shows; money settles to TENANT Razorpay (BYO), not Artix.
+
+  This is OPTIONAL. Tenant may run 100% free booking (doc 07).
+
+================================================================================
+2. HAPPY PATH (DETAILED)
+================================================================================
+
+  1. Client opens /{handle}/book (or package CTA)
+  2. Selects package (duration + price shown)
+  3. If package.charge_mode = pay_then_book:
+       a. Optional: pick staff (or later)
+       b. Create pending booking hold OR hold payment intent first
+       c. Tenant Razorpay Checkout / payment link
+       d. On payment success webhook:
+            - booking status → confirmed
+            - slot reserved for staff
+            - Google Calendar event if connected (FREE)
+            - reminder jobs scheduled
+       e. On payment fail/cancel:
+            - no slot confirmed (release hold)
+  4. Confirmation page + WhatsApp optional message
+  5. Visit → staff marks complete / no_show
+
+  Recommended hold policy:
+    Soft hold slot 10–15 min during payment; expire if unpaid.
+
+================================================================================
+3. DEPOSIT VARIANT
+================================================================================
+
+  charge_mode = deposit:
+    Pay deposit_amount online → confirm slot
+    Balance at salon (offline) — note on booking only
+  Full pay: charge full package price
+
+================================================================================
+4. FAILURE & EDGE CASES
+================================================================================
+
+  • Double-book race: lock slot server-side before capture
+  • Webhook delay: polling status page “confirming payment…”
+  • Refund: tenant handles in Razorpay; ALINKS marks booking cancelled
+  • Partial packages / tips: out of scope v1
+
+================================================================================
+5. LIFECYCLE (MODULE)
+================================================================================
+
+  1. Tenant connects Razorpay (Checkout settings)
+  2. Enables pay_then_book on packages (per package toggle)
+  3. Operates; reports paid bookings
+  4. Can turn off → packages revert to free or pay_at_salon
+
+================================================================================
+6. WHAT ARTIX NEVER DOES
+================================================================================
+
+  • Hold client money as marketplace
+  • Auto-split to staff salaries
+  • Guarantee refunds
+
+================================================================================
+7. INTEGRATION
+================================================================================
+
+  + sb.packages (price, charge_mode)
+  + sb.staff + sb.calendar (slot after pay)
+  + sb.checkout_connect (keys)
+  + sb.reminders after confirm
+  + google.calendar FREE after confirm only (not while pending pay)
+
+================================================================================
+8. DATA
+================================================================================
+
+  Booking {
+    package_id, staff_id, start_at, end_at,
+    payment_status: none|pending|paid|failed|refunded,
+    payment_mode: free|pay_then_book|deposit|pay_at_salon,
+    razorpay_order_id?, amount_paid_paise?
+  }
+
+================================================================================
+CHANGE LOG
+================================================================================
+2026-07-16  Pay-then-book deep-dive for salon/beauty.
+================================================================================

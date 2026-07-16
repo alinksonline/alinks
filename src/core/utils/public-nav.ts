@@ -1,3 +1,4 @@
+import { isPresenceIndustry, resolveIndustryGroup } from "@/core/config/industries";
 import type { BusinessVertical } from "@/core/types/tenant";
 
 export type PublicNavItem = {
@@ -10,13 +11,104 @@ export type PublicNavItem = {
 
 /**
  * Single clear public navigation — never both "Services" and "Shop".
- * Salon/beauty also get a primary Book tab.
- * Legal lives in the footer only (keeps the tab bar to ≤5 items).
  */
-export function buildPublicNav(handle: string, vertical: string): PublicNavItem[] {
+export function buildPublicNav(
+  handle: string,
+  vertical: string,
+  industryGroup?: string | null,
+  industryType?: string | null,
+): PublicNavItem[] {
   const v = vertical as BusinessVertical | string;
-  const shopVerticals = new Set(["ecommerce", "kirana", "grocery", "restaurant"]);
-  const serviceVerticals = new Set(["salon", "beauty", "clinic", "pharmacy"]);
+  const group = resolveIndustryGroup(industryGroup || v);
+
+  if (isPresenceIndustry(v) || group === "presence") {
+    return [
+      { key: "home", label: "Home", href: `/${handle}`, icon: "home" },
+      { key: "services", label: "Links", href: `/${handle}/services`, icon: "services" },
+      { key: "about", label: "About", href: `/${handle}/about`, icon: "about" },
+      { key: "contact", label: "Contact", href: `/${handle}/contact`, icon: "contact" },
+    ];
+  }
+
+  if (group === "food" || v === "restaurant") {
+    return [
+      { key: "home", label: "Home", href: `/${handle}`, icon: "home" },
+      { key: "shop", label: "Menu", href: `/${handle}/menu`, icon: "shop" },
+      { key: "about", label: "About", href: `/${handle}/about`, icon: "about" },
+      { key: "contact", label: "Contact", href: `/${handle}/contact`, icon: "contact" },
+    ];
+  }
+
+  // Bookings industry + salon: Book tab
+  if (group === "bookings" || group === "salon_beauty" || v === "clinic") {
+    return [
+      { key: "home", label: "Home", href: `/${handle}`, icon: "home" },
+      { key: "services", label: "Services", href: `/${handle}/services`, icon: "services" },
+      { key: "book", label: "Book", href: `/${handle}/book`, icon: "book" },
+      { key: "contact", label: "Contact", href: `/${handle}/contact`, icon: "contact" },
+    ];
+  }
+
+  // Real estate Property-Bank
+  if (group === "real_estate") {
+    return [
+      { key: "home", label: "Home", href: `/${handle}`, icon: "home" },
+      { key: "shop", label: "Listings", href: `/${handle}/listings`, icon: "shop" },
+      { key: "about", label: "About", href: `/${handle}/about`, icon: "about" },
+      { key: "contact", label: "Contact", href: `/${handle}/contact`, icon: "contact" },
+    ];
+  }
+
+  // Education — courses catalogue + YouTube
+  if (group === "education") {
+    return [
+      { key: "home", label: "Home", href: `/${handle}`, icon: "home" },
+      { key: "services", label: "Courses", href: `/${handle}/courses`, icon: "services" },
+      { key: "about", label: "About", href: `/${handle}/about`, icon: "about" },
+      { key: "contact", label: "Contact", href: `/${handle}/contact`, icon: "contact" },
+    ];
+  }
+
+  // Fitness — packages + free trial book
+  if (group === "fitness") {
+    return [
+      { key: "home", label: "Home", href: `/${handle}`, icon: "home" },
+      { key: "services", label: "Classes", href: `/${handle}/services`, icon: "services" },
+      { key: "book", label: "Book", href: `/${handle}/book`, icon: "book" },
+      { key: "contact", label: "Contact", href: `/${handle}/contact`, icon: "contact" },
+    ];
+  }
+
+  // Automotive — type-aware nav
+  if (group === "automotive") {
+    const t = industryType ?? "";
+    if (t === "spare_parts_shop") {
+      return [
+        { key: "home", label: "Home", href: `/${handle}`, icon: "home" },
+        { key: "shop", label: "Parts", href: `/${handle}/store`, icon: "shop" },
+        { key: "about", label: "About", href: `/${handle}/about`, icon: "about" },
+        { key: "contact", label: "Contact", href: `/${handle}/contact`, icon: "contact" },
+      ];
+    }
+    if (t === "service_workshop" || t === "car_detailing") {
+      return [
+        { key: "home", label: "Home", href: `/${handle}`, icon: "home" },
+        { key: "services", label: "Services", href: `/${handle}/services`, icon: "services" },
+        { key: "book", label: "Book", href: `/${handle}/book`, icon: "book" },
+        { key: "contact", label: "Contact", href: `/${handle}/contact`, icon: "contact" },
+      ];
+    }
+    // Dealers
+    return [
+      { key: "home", label: "Home", href: `/${handle}`, icon: "home" },
+      { key: "shop", label: "Vehicles", href: `/${handle}/vehicles`, icon: "shop" },
+      { key: "about", label: "About", href: `/${handle}/about`, icon: "about" },
+      { key: "contact", label: "Contact", href: `/${handle}/contact`, icon: "contact" },
+    ];
+  }
+
+  const shopVerticals = new Set(["ecommerce", "kirana", "grocery"]);
+  const serviceVerticals = new Set(["salon", "beauty", "pharmacy"]);
   const bookVerticals = new Set(["salon", "beauty"]);
 
   const items: PublicNavItem[] = [
@@ -29,10 +121,12 @@ export function buildPublicNav(handle: string, vertical: string): PublicNavItem[
     if (bookVerticals.has(v)) {
       items.push({ key: "book", label: "Book", href: `/${handle}/book`, icon: "book" });
     }
-  } else if (shopVerticals.has(v)) {
+  } else if (shopVerticals.has(v) || group === "retail") {
+    items.push({ key: "shop", label: "Shop", href: `/${handle}/store`, icon: "shop" });
+  } else if (group === "general") {
     items.push({ key: "shop", label: "Shop", href: `/${handle}/store`, icon: "shop" });
   } else {
-    items.push({ key: "shop", label: "Shop", href: `/${handle}/store`, icon: "shop" });
+    items.push({ key: "services", label: "Services", href: `/${handle}/services`, icon: "services" });
   }
 
   items.push({ key: "contact", label: "Contact", href: `/${handle}/contact`, icon: "contact" });
@@ -42,7 +136,21 @@ export function buildPublicNav(handle: string, vertical: string): PublicNavItem[
 
 export function isPublicNavActive(item: PublicNavItem, slug: string, path?: string): boolean {
   if (item.key === "home") return slug === "home" && !path;
-  if (item.key === "shop") return path === "store" || slug === "store";
+  if (item.key === "shop") {
+    return (
+      path === "store" ||
+      path === "menu" ||
+      path === "listings" ||
+      path === "vehicles" ||
+      slug === "store" ||
+      slug === "menu" ||
+      slug === "listings" ||
+      slug === "vehicles"
+    );
+  }
+  if (item.key === "services" && (path === "courses" || slug === "courses")) {
+    return true;
+  }
   if (item.key === "book") return path === "book" || slug === "book";
   if (item.key === "contact") return slug === "contact" || path === "checkout";
   return slug === item.key;

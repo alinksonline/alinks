@@ -1,0 +1,67 @@
+================================================================================
+08 — YOUTUBE ON THE SITE ONLY (FREE)
+================================================================================
+
+================================================================================
+1. UNDERSTANDING (LOCKED)
+================================================================================
+
+  Video on site = YouTube ONLY.
+  No Vimeo, no self-hosted upload, no arbitrary video file hosting, no other
+  embed providers in product scope.
+
+  Teachers/institutes paste a YouTube URL → ALINKS embeds it.
+  FREE with website plan (not a paid module wall).
+
+================================================================================
+2. WHERE YOUTUBE APPEARS
+================================================================================
+
+  • Home / About page blocks (YouTube embed block)
+  • Course / class detail page intro video
+  • Teacher/faculty profile (channel link + featured YouTube video)
+  • Tutorial / “Free lessons” page listing YouTube URLs only
+  • Optional: YouTube Live URL on a scheduled online class slot
+    (join link after confirm — may be YouTube Live or separate Meet; see 09)
+
+================================================================================
+3. FIELDS
+================================================================================
+
+  youtube_url (required format: youtube.com / youtu.be)
+  youtube_video_id (parsed server-side; reject non-YouTube)
+  title?, placement: home|course|faculty|tutorials_page
+
+  REJECT: vimeo.com, *.mp4 uploads, drive video links, random iframes.
+
+================================================================================
+4. BEHAVIOUR
+================================================================================
+
+  Embed official YouTube embed only (youtube-nocookie.com optional)
+  Invalid URL → clear error: “Paste a YouTube link only”
+  If embed blocked: “Watch on YouTube” outbound button
+  Cap count of YouTube embeds by plan (doc 03) — not a feature paywall
+
+================================================================================
+5. LEGAL / AUP
+================================================================================
+
+  Tenant warrants rights to the YouTube content they embed.
+  No illegal/harmful content (AUP).
+  ALINKS does not host video files — YouTube only (cost + simplicity).
+
+================================================================================
+6. FUNNEL
+================================================================================
+
+  Watch YouTube on site → CTA “Book free demo” / WhatsApp
+  Live slot join link: separate field (Meet/Zoom/YouTube Live) — doc 09;
+  site *marketing* video blocks remain YouTube-only.
+
+================================================================================
+CHANGE LOG
+================================================================================
+2026-07-16  YouTube/media on education sites — free capability.
+2026-07-16  LOCKED: video on site = YouTube only (no Vimeo/other hosts).
+================================================================================

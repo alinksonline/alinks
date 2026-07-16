@@ -1,0 +1,80 @@
+================================================================================
+05 — MODULE: PICKUP (food.pickup)
+================================================================================
+Folder: industries-docs/food_industry/
+SKU: food.pickup
+Integrates with: delivery, kitchen, menu inventory
+
+================================================================================
+1. DEFINITION
+================================================================================
+
+  Channel for online orders collected by the customer at the venue/counter.
+  No delivery address. Often FREE with Cloud or when Delivery is owned.
+
+================================================================================
+2. WHO CAN BUY
+================================================================================
+
+  YES: cloud_kitchen, restaurant, cloud_catering
+  Prefer: auto-included (₹0) with cloud base or delivery purchase
+  NO: not required for catering_only (use catering pickup of bulk as catering flow)
+
+================================================================================
+3. ENABLES
+================================================================================
+
+  PUBLIC
+    • “I’ll pick up” path on order flow
+    • Pickup time slot or ASAP note (v1 simple)
+    • Channel tag: pickup
+
+  ADMIN
+    • Pickup hours / instructions
+    • Orders filter: Pickup
+
+  KITCHEN
+    • Ticket source=pickup
+
+================================================================================
+4. LIFECYCLE (100%)
+================================================================================
+
+  1. Discover     “Let customers order online and collect”
+  2. Purchase     SKU food.pickup OR free entitlement with base/delivery
+  3. Configure    Instructions, hours, prep time note
+  4. Operate      Pickup orders in list
+  5. Integrate    Shares menu inventory; pairs with delivery as channel choice
+  6. Bill/Renew   ₹0 or small add-on
+  7. Disable      Hide pickup option
+
+================================================================================
+5. INVENTORY / MENU IMPACT
+================================================================================
+
+  • Same menu as delivery/dine-in.
+  • Optional per-item: available_for_pickup (default true).
+  • Stock shared with delivery if tracked.
+
+================================================================================
+6. SEAMLESS INTEGRATION
+================================================================================
+
+  + Delivery   Single order UI: channel = delivery | pickup
+  + Dine-in    Different: dine-in is table-bound, not counter pickup
+  + Kitchen    source=pickup on tickets
+  + Catering   Large catering “collect from kitchen” can be catering module field,
+               not this daily pickup channel
+
+================================================================================
+7. DATA (CONCEPTUAL)
+================================================================================
+
+  Order { channel: "pickup", pickup_at?, items[], customer_* }
+  Settings { pickup_enabled, instructions, hours }
+
+================================================================================
+CHANGE LOG
+================================================================================
+2026-07-16  Initial; prefer free with cloud/delivery.
+================================================================================

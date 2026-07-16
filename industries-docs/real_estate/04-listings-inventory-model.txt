@@ -1,0 +1,97 @@
+================================================================================
+04 — LISTINGS INVENTORY (NOT ECOMMERCE CART)
+================================================================================
+
+================================================================================
+1. PRINCIPLE
+================================================================================
+
+  Property-Bank = catalogue of real-estate offerings (company OR agent tenant).
+  No cart, no COD, no Razorpay for property asset price.
+  Status drives availability messaging only.
+  deal_type: sell | resale | rent | lease (doc 16).
+  visibility: open | teaser | private (doc 14).
+  price_display: listing owner’s wish (company or agent).
+  Plan caps: e.g. 10 / 50 / 200 (doc 11).
+
+================================================================================
+2. HIERARCHY
+================================================================================
+
+  Company Property-Bank (company site only)
+    └── Project (optional) / standalone listings
+          └── Phase (optional)
+                └── Unit / Plot / Villa / Land items
+
+  Agent Property-Bank (agent site only — separate tenant)
+    └── Flat list of listings (may reference builder/project as text)
+    └── Same real-world project may exist on many agent banks (separate rows)
+
+  Never one shared Property-Bank across company + agent (doc 15).
+
+================================================================================
+3. CORE FIELDS (FLEX BY SUBTYPE)
+================================================================================
+
+  Common
+    title, slug, description, media[] (WebP cloud), city, location_text,
+    geo_lat/lng optional, status: draft|live|sold_out|coming_soon,
+    deal_type: sell|resale|rent|lease,
+    cta_overrides (wa/call)
+
+  Project extras
+    developer_name, rera_display?, possession_text, amenities[]
+
+  Unit / villa
+    bhk, carpet_area, builtup, floor, facing, facing_road
+
+  Plot / land
+    area_value, area_unit (sqyd|sqft|acre|cent), survey_ref display,
+    plot_number
+
+  Price
+    price_display_mode: hidden | on_request | indicative_amount | price_band
+    indicative_amount never triggers checkout
+
+  Visibility (Property-Bank privacy — doc 14)
+    visibility_mode: open | teaser | private
+    teaser hides exact address, survey, owner contact, full gallery by default
+    private = not on public mini-site
+
+
+================================================================================
+4. CATEGORIES & “VARIATIONS”
+================================================================================
+
+  Categories: City, Budget band (label only), Property type, Status, Deal type
+  Variations ≠ fashion size/color
+    Unit type variants (Type A/B floor plans) as related listings or options
+    Facing / plot size bands as filters
+
+================================================================================
+5. AVAILABILITY
+================================================================================
+
+  sold_out / hold flags — informational for sales team + public “Sold”
+  No payment hold on platform; “hold” is CRM status on lead/unit
+
+================================================================================
+6. SHEETS / TENANT DATA
+================================================================================
+
+  Suggested tabs: Projects, Listings, Leads, SiteVisits, Agents (if company)
+  PII of enquirers → tenant storage only
+
+================================================================================
+CHANGE LOG
+================================================================================
+2026-07-16  Listings model; explicitly no cart/checkout.
+================================================================================
+
+================================================================================
+CHANGE LOG
+================================================================================
+2026-07-16  Listings model; no cart.
+2026-07-16  Property-Bank; deal types; separate company/agent; plan limits; price wish.
+================================================================================
+

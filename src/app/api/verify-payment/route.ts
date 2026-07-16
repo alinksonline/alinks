@@ -40,6 +40,8 @@ const bodySchema = z.object({
       slotTime: z.string(),
       customerName: z.string(),
       customerPhone: z.string(),
+      durationMinutes: z.number().optional(),
+      staffId: z.string().uuid().nullable().optional(),
     })
     .optional(),
 });

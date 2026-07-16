@@ -1,0 +1,86 @@
+================================================================================
+01 — SALON & BEAUTY INDUSTRY ANCHOR
+================================================================================
+Location: industries-docs/salon_beauty/01-salon-beauty-anchor.txt
+Created:  2026-07-16
+
+================================================================================
+1. WHAT THIS INDUSTRY IS
+================================================================================
+
+  Service businesses: hair salons, unisex salons, beauty parlours, nail studios,
+  makeup artists (studio), spas / wellness beauty (non-medical).
+
+  Core customer journey:
+    Browse packages → pick service → (pay optional) → pick staff → pick slot
+    → confirmation → reminder → visit → complete / no-show
+
+  ALINKS already has editor surfaces for Packages + Staff; this pack is the
+  full product source of truth so salon is not “half under bookings only”.
+
+================================================================================
+2. RELATION TO BOOKINGS ENGINE
+================================================================================
+
+  USE shared book.core concepts (slots, resources, blackouts, statuses).
+  Salon PROFILE on that engine:
+    resource = staff member (stylist, beautician)
+    service  = package (duration + price)
+    flow     = package-first (not doctor-first like clinic)
+
+  Do NOT use book.clinic license gate.
+  Do NOT use book.legal disclaimers pack.
+  Do NOT use food dine-in / kitchen.
+
+  Google Calendar: FREE tenant Gmail sync (bookings doc 19).
+
+================================================================================
+3. MODULES (SALON-SPECIFIC MENU)
+================================================================================
+
+  sb.packages          Service packages catalogue (core)
+  sb.staff             Staff roster + skills + hours
+  sb.calendar          Appointments calendar (salon profile of book.core)
+  sb.pay_then_book     Pay → then unlock slot (tenant PG)
+  sb.free_booking      Explicit free path (default-friendly)
+  sb.checkout_connect  Tenant Razorpay/COD connect (align editor Checkout)
+  sb.reminders         Reminders / no-show tools
+  sb.retail_products   Optional product catalogue (retail lite)
+  sb.multilocation     Multi-branch salon (real calendars per branch) YES here
+                       (unlike retail web-only — physical chairs matter)
+
+  Website plan: mini-site + package display + Book/WA CTA
+
+================================================================================
+4. COMPLIANCE
+================================================================================
+
+  Honor system + platform ToS / AUP.
+  No NMC/medical license gate (that is clinic).
+  Spa “wellness” must not claim medical treatment/cure claims (AUP/legal copy).
+
+================================================================================
+5. DATA BOUNDARY
+================================================================================
+
+  Platform DB: packages config, staff config, booking config, business settings.
+  Tenant storage: Appointments + Customers (+ optional product orders if retail).
+  No long-term client PII warehouse on Artix Postgres.
+
+================================================================================
+6. IMPLEMENTATION ORDER
+================================================================================
+
+  1. Packages + Staff (exist in editor — harden)
+  2. Public book flow package → staff → slot
+  3. Free booking default + pay-then-book optional
+  4. Tenant PG connect
+  5. Reminders + Google Calendar free
+  6. Multi-location
+  7. Optional retail add-on products
+
+================================================================================
+CHANGE LOG
+================================================================================
+2026-07-16  Full salon/beauty dedicated industry pack.
+================================================================================

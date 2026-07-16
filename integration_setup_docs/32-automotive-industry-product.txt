@@ -1,0 +1,8 @@
+================================================================================
+32 — AUTOMOTIVE INDUSTRY (OPS POINTER)
+================================================================================
+Authority: industries-docs/automotive/
+Vehicle listings enquiry-only (no car checkout). Service booking + parts retail.
+Multi-location YES. Google Calendar FREE for service/test drive.
+Read: industries-docs/automotive/00-README-INDEX.txt
+================================================================================

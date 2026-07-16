@@ -1,0 +1,61 @@
+================================================================================
+06 — MODULE: AGENT DESK (re.agent_desk)
+================================================================================
+SKU: re.agent_desk
+Agent website is SEPARATE from company websites (doc 15).
+
+================================================================================
+1. DEFINITION
+================================================================================
+
+  Workspace + mini-site for agents/agencies. They maintain a Property-Bank of
+  sell / resale / rent / lease opportunities (doc 16), with privacy modes
+  (doc 14). They do not sit inside a builder’s ALINKS account.
+
+================================================================================
+2. LIFECYCLE
+================================================================================
+
+  1. Agent signs up as RE agent / agency (own tenant)
+  2. Builds Property-Bank (add listings; set deal_type + visibility)
+  3. Publishes agent brand mini-site
+  4. Leads land only on agent
+  5. Plan limits enforce max listings (doc 11)
+  6. Optional site visits + Google Calendar free
+
+================================================================================
+3. WHAT AGENT SEES
+================================================================================
+
+  • Property-Bank (own)
+  • Filters: deal type, city, kind, visibility
+  • Lead inbox (theirs only)
+  • Privacy defaults: Teaser recommended
+
+================================================================================
+4. WHAT AGENT DOES NOT GET
+================================================================================
+
+  • Access to company dashboards
+  • Platform property checkout
+  • Other agents’ Property-Banks
+  • Company approval workflow (not required — sites stay separate)
+
+================================================================================
+5. SAME PROJECT, MANY AGENTS
+================================================================================
+
+  Allowed. Each agent markets independently; no exclusivity engine in v1.
+
+================================================================================
+6. BILLING
+================================================================================
+
+  Website plan + re.agent_desk; listing caps by plan (e.g. 10 / 50 / 200).
+
+================================================================================
+CHANGE LOG
+================================================================================
+2026-07-16  Multi-company agent desk (early).
+2026-07-16  Separated from company; Property-Bank; no approval mix.
+================================================================================

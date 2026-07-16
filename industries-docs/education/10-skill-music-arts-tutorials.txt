@@ -1,0 +1,42 @@
+================================================================================
+10 — MUSIC, ARTS, SKILLS, TUTORIALS (NOT MUSIC-ONLY)
+================================================================================
+
+================================================================================
+1. UNDERSTANDING
+================================================================================
+
+  Music classes are ONE popular path — same product serves:
+    Music (vocal, guitar, piano, drums, classical, …)
+    Dance, painting, craft
+    Academic tuition (all subjects)
+    Competitive exam coaching
+    IT / coding / design / digital marketing
+    Languages
+    Soft skills, public speaking
+    Vocational / skill development
+    Free tutorial funnels via YouTube then paid 1:1 or batch
+
+  Implementation = open categories + seeds, not separate apps per skill.
+
+================================================================================
+2. SEED PACKS (OPTIONAL SUPERADMIN)
+================================================================================
+
+  music_arts, academics_tuition, competitive_coaching, it_skills,
+  languages, vocational — each preloads categories + sample courses.
+  Tenant can rename/delete and add anything else.
+
+================================================================================
+3. TUTORIALS PAGE
+================================================================================
+
+  Page type or block: list of free tutorial links (YouTube)
+  CTA on each: Book class / Enquire
+  Supports creator-teachers building audience → paid slots
+
+================================================================================
+CHANGE LOG
+================================================================================
+2026-07-16  Skill breadth beyond music; tutorial funnel.
+================================================================================

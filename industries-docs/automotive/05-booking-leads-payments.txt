@@ -1,0 +1,11 @@
+================================================================================
+05 — LEADS, SERVICE BOOKING, PAYMENTS
+================================================================================
+
+  Vehicle: enquire / test drive (free slot) — no car checkout on platform
+  Service: free book or pay_then_book optional (tenant PG)
+  Parts: WA or cart checkout (tenant PG) like retail
+
+  Google Calendar FREE for service + test drive appointments
+
+================================================================================

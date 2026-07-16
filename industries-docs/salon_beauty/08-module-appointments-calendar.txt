@@ -1,0 +1,40 @@
+================================================================================
+08 — APPOINTMENTS CALENDAR (SALON PROFILE OF book.core)
+================================================================================
+SKU: sb.calendar (or book.core entitled for salon vertical)
+
+================================================================================
+1. DEFINITION
+================================================================================
+
+  Slot engine: availability by staff hours − existing bookings − buffers.
+  MVP: 1:1 appointments (group classes Phase 2 — appointments skill).
+
+================================================================================
+2. STATUSES
+================================================================================
+
+  pending_payment → confirmed → completed | cancelled | no_show
+  (pending_payment only if pay_then_book)
+
+================================================================================
+3. LIFECYCLE
+================================================================================
+
+  Configure hours → publish book page → accept bookings → manage day view →
+  integrate pay/reminders/gcal → disable reverts to WA CTA
+
+================================================================================
+4. INTEGRATION
+================================================================================
+
+  packages duration → slot length
+  staff hours → free windows
+  multilocation → calendar per branch
+  Google Calendar FREE push/pull busy
+
+================================================================================
+CHANGE LOG
+================================================================================
+2026-07-16  Salon calendar profile.
+================================================================================

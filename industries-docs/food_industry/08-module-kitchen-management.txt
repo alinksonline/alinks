@@ -1,0 +1,107 @@
+================================================================================
+08 — MODULE: KITCHEN MANAGEMENT (food.kitchen)
+================================================================================
+Folder: industries-docs/food_industry/
+SKU: food.kitchen
+Extra package across food types. Integrates with ALL order-producing modules.
+
+================================================================================
+1. DEFINITION
+================================================================================
+
+  Operational kitchen board: live tickets from enabled channels, status pipeline,
+  simple staff view. Does NOT create Dine-in for cloud. Does NOT replace menu
+  inventory — it consumes orders.
+
+================================================================================
+2. WHO CAN BUY
+================================================================================
+
+  YES: any food base that can produce tickets
+       cloud_kitchen, restaurant, catering_only, cloud_catering
+  Requires: at least one order source usefully ON (delivery, pickup, dine_in,
+            or catering confirmations) — else empty-state education.
+
+================================================================================
+3. ENABLES
+================================================================================
+
+  ADMIN / STAFF
+    • Kitchen board UI (mobile-friendly)
+    • Statuses: new → cooking → ready → done (labels tunable later)
+    • Filter by source: delivery | pickup | dine_in | catering
+    • Ticket detail: items, modifiers, notes, table OR address OR event
+
+  PUBLIC
+    • None (staff-only surface) unless later “order ready” SMS
+
+================================================================================
+4. LIFECYCLE (100%)
+================================================================================
+
+  1. Discover     “One board for every order source”
+  2. Purchase     SKU food.kitchen
+  3. Configure    Status labels, sound on/off, default filters
+  4. Operate      Tickets appear instantly when orders confirm from other modules
+  5. Integrate    SEE §6 — zero manual re-entry
+  6. Bill/Renew   Artix module fee
+  7. Disable      Board hidden; orders still in Orders list
+
+================================================================================
+5. INVENTORY IMPACT
+================================================================================
+
+  • Read-only toward menu inventory (names, modifiers as ordered).
+  • Optional later: mark item 86 (sold out) from kitchen → flips menu availability
+    flag (future; note as extension).
+
+================================================================================
+6. SEAMLESS INTEGRATION (INSTANT)
+================================================================================
+
+  When food.kitchen is ON, any NEW confirmed order from an enabled module
+  creates/updates a KitchenTicket automatically:
+
+  Source module     Ticket shows
+  ----------------  --------------------------------------------
+  food.delivery     source=delivery, address blurb, items
+  food.pickup       source=pickup, customer name/phone, items
+  food.dine_in      source=dine_in, table_label, items
+  food.catering     source=catering, event_date, pax, package name
+                    (only when lead status = confirmed / produce)
+
+  If a source module is OFF or disabled:
+    • No new tickets from that source
+    • Board filters hide empty sources
+
+  Enabling Kitchen does NOT enable Delivery or Dine-in by itself.
+  Disabling Delivery stops new delivery tickets; existing tickets remain.
+
+  Cross-module instant rules:
+    1. Order confirmed → ticket created (idempotent by order_id)
+    2. Item 86 (future) → menu.available=false for all channels
+    3. Same status model for all sources (unified ops training)
+
+================================================================================
+7. DATA (CONCEPTUAL)
+================================================================================
+
+  KitchenTicket {
+    id, order_id, source, status,
+    table_label?, address_summary?, event_meta?,
+    lines: [{ name, qty, modifiers, notes }],
+    created_at, updated_at
+  }
+
+================================================================================
+8. OUT OF SCOPE V1
+================================================================================
+
+  Multi-station routing, printer hard-deps, recipe costing, inventory of raw
+  ingredients, expo screens.
+
+================================================================================
+CHANGE LOG
+================================================================================
+2026-07-16  Cross-module ticket integration rules written.
+================================================================================

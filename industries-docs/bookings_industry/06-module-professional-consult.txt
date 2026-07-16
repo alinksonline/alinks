@@ -1,0 +1,56 @@
+================================================================================
+06 — MODULE: PROFESSIONAL CONSULTATION (book.professional)
+================================================================================
+SKU: book.professional
+For: coaches, advisors, accountants (non-legal), tutors, therapists (non-clinic
+regulated path), general consultants.
+
+================================================================================
+1. DEFINITION
+================================================================================
+
+  Lightweight professional booking: service types, durations, optional fees,
+  calendar. Honor-system compliance (ToS) unless subtype is regulated.
+
+================================================================================
+2. WHO CAN BUY
+================================================================================
+
+  professional_consult base type.
+  Can also attach to general vertical as add-on later.
+
+================================================================================
+3. ENABLES
+================================================================================
+
+  PUBLIC: service → slot → client details
+  ADMIN: consultants as resources, service packages, buffer times
+  No medical license gate by default
+
+================================================================================
+4. LIFECYCLE (100%)
+================================================================================
+
+  Discover → Purchase → Configure services/resources → Operate →
+  Integrate payments/reminders → Bill → Disable
+
+================================================================================
+5. INVENTORY
+================================================================================
+
+  Services: Intro call, Strategy session, Monthly retainers (as packages)
+  Categories: by practice area (tenant-defined)
+  Variations: Online vs In-person (location modifier), duration
+
+================================================================================
+6. INTEGRATION
+================================================================================
+
+  + book.core, payments, reminders, multilocation
+  + Distinct from book.legal (no legal disclaimers pack) and book.clinic
+
+================================================================================
+CHANGE LOG
+================================================================================
+2026-07-16  Professional consult module.
+================================================================================

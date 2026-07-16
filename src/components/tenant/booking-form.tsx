@@ -1,31 +1,14 @@
 "use client";
 
-import { useMemo, useState, useTransition } from "react";
+import { useEffect, useMemo, useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
-import { createBookingAction } from "@/app/actions/salon";
+import {
+  createBookingAction,
+  getAvailableSlotsAction,
+  releaseBookingHoldAction,
+} from "@/app/actions/salon";
 import { openRazorpayCheckout, verifyPaymentViaApi } from "@/lib/razorpay-checkout";
-
-const TIME_SLOTS = [
-  "09:00",
-  "10:00",
-  "11:00",
-  "12:00",
-  "13:00",
-  "14:00",
-  "15:00",
-  "16:00",
-  "17:00",
-  "18:00",
-  "19:00",
-];
-
-function formatSlotLabel(hhmm: string) {
-  const [hStr, m] = hhmm.split(":");
-  const h = Number(hStr);
-  const ampm = h >= 12 ? "PM" : "AM";
-  const hour12 = h % 12 === 0 ? 12 : h % 12;
-  return `${hour12}:${m} ${ampm}`;
-}
+import { formatSlotLabel } from "@/core/utils/appointment-slots";
 
 function todayIsoDate() {
   const d = new Date();
@@ -41,26 +24,39 @@ type PackageOption = {
   price: number;
   durationMinutes: number;
   description: string | null;
+  paymentMode?: string | null;
 };
+
+type StaffOption = {
+  id: string;
+  name: string;
+  role: string;
+};
+
+type SlotChip = { time: string; label: string; available: boolean };
 
 export function BookingForm({
   handle,
   packages,
-  onlinePayEnabled = true,
+  staff = [],
+  onlinePayEnabled = false,
 }: {
   handle: string;
   packages: PackageOption[];
+  staff?: StaffOption[];
   /** Shop has connected their own Razorpay */
   onlinePayEnabled?: boolean;
 }) {
   const router = useRouter();
   const [isPending, startTransition] = useTransition();
   const [packageId, setPackageId] = useState(packages[0]?.id ?? "");
+  const [staffId, setStaffId] = useState<string>("");
   const [slotDate, setSlotDate] = useState(todayIsoDate());
-  const [slotTime, setSlotTime] = useState("10:00");
+  const [slotTime, setSlotTime] = useState("");
+  const [slots, setSlots] = useState<SlotChip[]>([]);
+  const [slotsLoading, setSlotsLoading] = useState(false);
   const [name, setName] = useState("");
   const [phone, setPhone] = useState("");
-  const [payNow, setPayNow] = useState(onlinePayEnabled);
   const [message, setMessage] = useState("");
   const [messageTone, setMessageTone] = useState<"error" | "success" | "info">("info");
 
@@ -69,16 +65,70 @@ export function BookingForm({
     [packageId, packages],
   );
 
+  const paymentMode = selected?.paymentMode || "free";
+  const requiresPayThenBook = paymentMode === "pay_then_book";
+  const canPayOnline = onlinePayEnabled && requiresPayThenBook && (selected?.price ?? 0) > 0;
+  /** Pay-then-book packages always charge online when gateway is ready. */
+  const payNow = canPayOnline;
+
+  useEffect(() => {
+    if (!packageId || !slotDate) return;
+    let cancelled = false;
+    setSlotsLoading(true);
+    void getAvailableSlotsAction({
+      handle,
+      packageId,
+      slotDate,
+      staffId: staffId || null,
+    }).then((res) => {
+      if (cancelled) return;
+      setSlotsLoading(false);
+      if (res.success) {
+        setSlots(res.slots);
+        const firstOpen = res.slots.find((s) => s.available);
+        setSlotTime((prev) => {
+          if (prev && res.slots.some((s) => s.time === prev && s.available)) return prev;
+          return firstOpen?.time ?? "";
+        });
+      } else {
+        setSlots([]);
+        setSlotTime("");
+      }
+    });
+    return () => {
+      cancelled = true;
+    };
+  }, [handle, packageId, slotDate, staffId]);
+
   function setStatus(text: string, tone: "error" | "success" | "info" = "info") {
     setMessage(text);
     setMessageTone(tone);
   }
+
+  const ctaLabel = (() => {
+    if (isPending) return "Booking…";
+    if (requiresPayThenBook && !onlinePayEnabled) return "Online pay unavailable";
+    if (payNow && canPayOnline) return `Pay ₹${selected?.price ?? 0} & lock slot`;
+    if (paymentMode === "pay_at_salon") return "Confirm — pay at salon";
+    return "Confirm free booking";
+  })();
 
   return (
     <form
       className="space-y-6"
       onSubmit={(e) => {
         e.preventDefault();
+        if (!slotTime) {
+          setStatus("Pick an available time slot.", "error");
+          return;
+        }
+        if (requiresPayThenBook && !canPayOnline) {
+          setStatus(
+            "This package requires online payment. The salon has not connected Razorpay yet.",
+            "error",
+          );
+          return;
+        }
         startTransition(async () => {
           const result = await createBookingAction({
             handle,
@@ -87,7 +137,8 @@ export function BookingForm({
             slotTime,
             customerName: name,
             customerPhone: phone,
-            payNow,
+            staffId: staffId || null,
+            payNow: payNow && canPayOnline,
           });
 
           if (!result.success) {
@@ -95,16 +146,26 @@ export function BookingForm({
             return;
           }
 
-          if (!payNow) {
-            setStatus(`Booking confirmed! ID: ${result.bookingId}`, "success");
-            router.push(`/${handle}`);
+          if (!payNow || !canPayOnline || !("razorpayOrderId" in result) || !result.razorpayOrderId) {
+            const mode = "paymentMode" in result ? result.paymentMode : "free";
+            const q = new URLSearchParams({
+              booked: result.bookingId,
+              mode: String(mode ?? "free"),
+            });
+            router.push(`/${handle}/book?${q.toString()}`);
             return;
           }
 
-          if (!result.razorpayOrderId || !result.sessionId || !result.pendingBooking || !result.razorpayKeyId) {
+          if (!result.sessionId || !result.pendingBooking || !result.razorpayKeyId) {
             setStatus("Could not start payment. Salon may not have connected Razorpay.", "error");
             return;
           }
+
+          const holdNote =
+            "holdMinutes" in result && result.holdMinutes
+              ? ` Slot held for ${result.holdMinutes} minutes while you pay.`
+              : "";
+          setStatus(`Opening payment…${holdNote}`, "info");
 
           try {
             await openRazorpayCheckout({
@@ -114,8 +175,14 @@ export function BookingForm({
               name: result.businessName ?? "ALINKS Salon",
               description: selected?.name ?? "Salon booking",
               prefill: { name, contact: phone },
-              onDismiss: () => setStatus("Payment cancelled.", "info"),
-              onFailure: (err) => setStatus(err, "error"),
+              onDismiss: () => {
+                void releaseBookingHoldAction({ handle, bookingId: result.bookingId });
+                setStatus("Payment cancelled — slot released. You can pick another time.", "info");
+              },
+              onFailure: (err) => {
+                void releaseBookingHoldAction({ handle, bookingId: result.bookingId });
+                setStatus(err, "error");
+              },
               onSuccess: async (payment) => {
                 const verified = await verifyPaymentViaApi({
                   razorpay_order_id: payment.razorpay_order_id,
@@ -130,11 +197,16 @@ export function BookingForm({
                   return;
                 }
 
-                setStatus(`Paid & booked! ID: ${verified.bookingId ?? result.bookingId}`, "success");
-                router.push(`/${handle}`);
+                const q = new URLSearchParams({
+                  booked: verified.bookingId ?? result.bookingId,
+                  mode: "pay_then_book",
+                  paid: "1",
+                });
+                router.push(`/${handle}/book?${q.toString()}`);
               },
             });
           } catch (err) {
+            void releaseBookingHoldAction({ handle, bookingId: result.bookingId });
             setStatus(err instanceof Error ? err.message : "Could not open payment", "error");
           }
         });
@@ -146,6 +218,7 @@ export function BookingForm({
         <div className="mt-2 space-y-2.5">
           {packages.map((p) => {
             const selectedPkg = p.id === packageId;
+            const mode = p.paymentMode || "free";
             return (
               <button
                 key={p.id}
@@ -161,10 +234,17 @@ export function BookingForm({
                     {p.description ? (
                       <p className="t-muted mt-0.5 text-xs leading-relaxed">{p.description}</p>
                     ) : null}
+                    <p className="t-muted mt-1 text-[10px] font-semibold uppercase tracking-wide">
+                      {mode === "free"
+                        ? "Free booking"
+                        : mode === "pay_at_salon"
+                          ? "Pay at salon"
+                          : "Pay then book"}
+                    </p>
                   </div>
                   <div className="shrink-0 text-right">
                     <p className="text-sm font-bold" style={{ color: "var(--t-primary-text, var(--t-primary))" }}>
-                      ₹{p.price}
+                      {mode === "free" && p.price === 0 ? "Free" : `₹${p.price}`}
                     </p>
                     <p className="t-muted text-[10px] font-medium">{p.durationMinutes} min</p>
                   </div>
@@ -174,6 +254,34 @@ export function BookingForm({
           })}
         </div>
       </section>
+
+      {/* Staff (optional) */}
+      {staff.length > 0 ? (
+        <section>
+          <p className="t-label">Stylist (optional)</p>
+          <div className="mt-2 flex flex-wrap gap-2">
+            <button
+              type="button"
+              className="t-slot-chip"
+              data-selected={!staffId ? "true" : "false"}
+              onClick={() => setStaffId("")}
+            >
+              Anyone
+            </button>
+            {staff.map((s) => (
+              <button
+                key={s.id}
+                type="button"
+                className="t-slot-chip"
+                data-selected={staffId === s.id ? "true" : "false"}
+                onClick={() => setStaffId(s.id)}
+              >
+                {s.name}
+              </button>
+            ))}
+          </div>
+        </section>
+      ) : null}
 
       {/* Date + time */}
       <section className="space-y-4">
@@ -194,22 +302,27 @@ export function BookingForm({
 
         <div>
           <p className="t-label">Time slot</p>
-          <div className="mt-2 flex flex-wrap gap-2">
-            {TIME_SLOTS.map((t) => (
-              <button
-                key={t}
-                type="button"
-                className="t-slot-chip"
-                data-selected={slotTime === t ? "true" : "false"}
-                onClick={() => setSlotTime(t)}
-                aria-pressed={slotTime === t}
-              >
-                {formatSlotLabel(t)}
-              </button>
-            ))}
-          </div>
-          {/* Keep a real time input for accessibility / custom times */}
-          <input type="hidden" name="slotTime" value={slotTime} />
+          {slotsLoading ? (
+            <p className="t-muted mt-2 text-xs">Loading available times…</p>
+          ) : slots.length === 0 ? (
+            <p className="t-muted mt-2 text-xs">No slots this day — try another date.</p>
+          ) : (
+            <div className="mt-2 flex flex-wrap gap-2">
+              {slots.map((t) => (
+                <button
+                  key={t.time}
+                  type="button"
+                  className="t-slot-chip"
+                  data-selected={slotTime === t.time ? "true" : "false"}
+                  disabled={!t.available}
+                  onClick={() => t.available && setSlotTime(t.time)}
+                  aria-pressed={slotTime === t.time}
+                >
+                  {t.label}
+                </button>
+              ))}
+            </div>
+          )}
         </div>
       </section>
 
@@ -248,39 +361,21 @@ export function BookingForm({
         </div>
       </section>
 
-      {/* Pay toggle — only when shop has Razorpay */}
-      {onlinePayEnabled ? (
-      <button
-        type="button"
-        onClick={() => setPayNow((v) => !v)}
-        className="t-package-card"
-        data-selected={payNow ? "true" : "false"}
-        aria-pressed={payNow}
-      >
-        <div className="flex items-center justify-between gap-3">
-          <div>
-            <p className="text-sm font-bold">Pay now before confirming</p>
-            <p className="t-muted mt-0.5 text-xs leading-relaxed">
-              Paid via the salon&apos;s Razorpay — then your slot is locked.
-            </p>
-          </div>
-          <span
-            className="flex h-6 w-11 shrink-0 items-center rounded-full p-0.5 transition-colors"
-            style={{
-              backgroundColor: payNow ? "var(--t-primary)" : "var(--t-border)",
-            }}
-            aria-hidden
-          >
-            <span
-              className="h-5 w-5 rounded-full bg-white shadow transition-transform"
-              style={{ transform: payNow ? "translateX(1.25rem)" : "translateX(0)" }}
-            />
-          </span>
+      {/* Payment mode copy */}
+      {requiresPayThenBook ? (
+        <div className="t-card p-3 text-xs leading-relaxed">
+          <p className="font-bold text-[var(--t-ink,#0f172a)]">Pay then book</p>
+          <p className="t-muted mt-1">
+            {canPayOnline
+              ? "You pay online first (salon’s Razorpay). We hold the slot for 15 minutes while you complete payment. Money goes to the salon — not ALINKS."
+              : "This package requires online payment, but the salon has not connected Razorpay yet. Choose another package or contact the salon."}
+          </p>
         </div>
-      </button>
       ) : (
         <p className="t-muted text-[12px] leading-relaxed">
-          Online pay is not set up for this salon — you can still hold a free booking slot.
+          {paymentMode === "pay_at_salon"
+            ? "Pay at the salon when you arrive — no online payment required."
+            : "This booking is free to confirm online."}
         </p>
       )}
 
@@ -293,26 +388,22 @@ export function BookingForm({
         <div className="flex items-center justify-between gap-3 text-sm">
           <span className="t-muted">When</span>
           <span className="font-semibold">
-            {slotDate || "—"} · {formatSlotLabel(slotTime)}
+            {slotDate || "—"} · {slotTime ? formatSlotLabel(slotTime) : "—"}
           </span>
         </div>
         <div className="flex items-center justify-between gap-3 border-t border-[var(--t-border)] pt-3 text-sm">
           <span className="t-muted">Total</span>
           <span className="text-lg font-bold" style={{ color: "var(--t-primary-text, var(--t-primary))" }}>
-            ₹{selected?.price ?? 0}
+            {paymentMode === "free" && (selected?.price ?? 0) === 0 ? "Free" : `₹${selected?.price ?? 0}`}
           </span>
         </div>
 
         <button
           type="submit"
-          disabled={isPending || !packageId}
+          disabled={isPending || !packageId || !slotTime || (requiresPayThenBook && !canPayOnline)}
           className="t-btn-primary"
         >
-          {isPending
-            ? "Booking…"
-            : payNow
-              ? `Pay ₹${selected?.price ?? 0} & book`
-              : "Confirm free hold"}
+          {ctaLabel}
         </button>
       </div>
 

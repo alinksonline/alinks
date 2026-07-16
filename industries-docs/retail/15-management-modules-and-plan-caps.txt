@@ -1,0 +1,223 @@
+================================================================================
+15 — RETAIL MANAGEMENT MODULES + SMART PLAN CAPS (ANTI-CHAOS / ANTI-LOSS)
+================================================================================
+Folder: industries-docs/retail/
+Goal: Streamline modules and caps so ALINKS does not go chaotic across
+      industries and does not give away unlimited cost (storage, support, PG
+      support load) for free.
+
+Cross-industry consistency:
+  Same pattern as food / bookings / RE:
+    Layer 1 Website plan + Layer 2 paid ops modules + FREE Google where applicable
+    Yearly = ×12 − 5–10% → charm …99
+    Multi-outlet 5–10% off extra branches
+    Seasonal coupons on SOFTWARE fees only (not a free-for-all forever)
+
+================================================================================
+1. MANAGEMENT MODULE LIST (RETAIL)
+================================================================================
+
+  Keep the list SHORT and name-stable. Price/upscale against this menu only.
+
+  --- CORE CATALOGUE (always related to “store”) ---
+  ID                    Label (UI)              What it does
+  --------------------  ----------------------  --------------------------------
+  rt.inventory          Inventory               Products, SKUs, stock, media
+  rt.categories         Categories              Open category tree + filters
+  rt.variations         Variations              Size/color/pack/unit option sets
+  rt.multi_brand        Multi-brand             Brands, logos, brand filters
+  rt.storefront         Storefront              Public B2C shop grid/PDP
+
+  --- TRADE MODE ---
+  rt.wholesale          Wholesale               MOQ, tier prices, B2B path/enquiry
+
+  --- ORDERS & MONEY (tenant PG — Artix does not take GMV) ---
+  rt.checkout           Checkout                Cart + Razorpay BYO + COD
+  rt.orders             Orders desk             Order list, status, export
+                                                (may ship inside checkout/pro)
+
+  --- FULFILMENT ---
+  rt.delivery           Delivery                Address orders, fee, optional
+                                                riders/third-party (pattern
+                                                from food delivery — simplified)
+  rt.pickup             Store pickup            Collect at shop/stall
+
+  --- GROWTH / OPS ---
+  rt.staff              Staff (dashboard)       Extra logins for catalogue/orders
+                                                online — NOT in-store POS cashiers
+  rt.reports            Reports (lite)          Sales summary (later; paid)
+
+  --- NOT A MODULE (and usually NOT NEEDED) ---
+  rt.multilocation / multi-outlet
+    REMOVED from retail core module list (LOCKED product decision).
+    Why: ALINKS is NOT in-store billing / multi-till POS software.
+    One online shop + one catalogue serves the brand. Physical shops do not
+    each need a separate “outlet seat” for website commerce.
+    Optional later (only if demanded): simple list of “pickup addresses”
+    as plain data fields — NOT per-shop inventory, NOT 5–10% multi-store SKU.
+    Food multi-branch / bookings multi-clinic stay in THOSE industries
+    (kitchens, clinics have real per-location ops). Do not copy that tax
+    into retail by default.
+
+  --- NOT SEPARATE PAID MODULES (included / platform) ---
+  google.calendar       FREE if they book demos/visits
+  WhatsApp CTA          Included in website plan
+  Open category naming  Included with inventory
+
+  AVOID MODULE EXPLOSION
+    Do NOT create paid SKUs per category (no “Electronics module”,
+    “Ayurveda module”). Category = data. Module = capability.
+    Do NOT invent multi-store POS modules we are not building.
+
+================================================================================
+2. WHAT “DELIVERY” + “INVENTORY” MEAN HERE
+================================================================================
+
+  Inventory (rt.inventory)
+    Heart of retail: product CRUD, stock, live/hide, media WebP.
+    Caps on product COUNT are the main cost-control lever.
+
+  Delivery (rt.delivery)
+    Shop sends products to customer address (not restaurant kitchen board).
+    Optional: own rider list lite OR third-party note (same spirit as food 04,
+    lighter v1).
+    Pickup is separate small module or free with delivery.
+
+================================================================================
+3. BUNDLE SUGGESTIONS (UPSELL PATH — NOT CHAOS)
+================================================================================
+
+  Starter (Website)
+    Catalogue display + WA + low product cap
+    trade mode chosen at onboarding (retail / wholesale / both) but
+    wholesale PATH may be teaser until rt.wholesale purchased
+
+  Shop Pro
+    Inventory full + storefront + categories + variations + checkout
+    Cap mid (e.g. 200 products)
+
+  Wholesale Pro
+    Inventory + wholesale + bulk enquiry/cart + higher cap
+
+  Market Complete
+    Shop Pro + wholesale + multi_brand + delivery
+
+  À LA CARTE: every module has its own price; tenant picks any subset.
+  Bundles are optional shortcuts only (see 00-MODULE-ALACARTE-PRICING.txt).
+
+
+================================================================================
+4. PRODUCT CAPS — SMART STREAMLINE (LOCKED DIRECTION)
+================================================================================
+
+  WHY CAPS
+    Each product = media storage, support surface, search, Sheet rows.
+    Unlimited free SKUs = loss + chaos.
+
+  TIER TABLE (default numbers — Superadmin can tune; do not invent 50 tiers)
+
+    Plan / bundle           Max products    Notes
+    ----------------------  --------------  --------------------------------
+    Website / Starter       25              Align Basic commerce skill
+    Growth / Shop           200             Align Pro commerce skill
+    Business / Market       2,000           Align Enterprise-style
+    Custom                  negotiated      Only high-touch
+
+  Cap counts ALL products (draft+live) or live-only — implement LIVE+draft
+  with soft warn; hard block on create when over.
+
+  Brands / categories
+    Soft limits: e.g. 50 brands, 100 categories on Starter; raise with plan
+    Do not sell “unlimited categories” as a separate SKU.
+
+  Variations
+    Soft limit option sets (e.g. 20 sets Starter / 100 Pro)
+    Variant SKUs count toward product cap OR separate variant cap —
+    RECOMMEND: each sellable variant SKU counts as 1 toward product cap
+    (prevents 1 product × 500 variants abuse)
+
+  Orders
+    No hard cap v1; rate-limit abuse; storage on tenant Sheets/Blob
+
+================================================================================
+5. PRICING CONTROL (ANTI-LOSS)
+================================================================================
+
+  Revenue levers (use these, not infinite free features):
+    1. Website plan tier (primary)
+    2. Product cap tier (primary)
+    3. Wholesale module
+    4. Multi-brand module
+    5. Delivery module
+    6. Checkout included in Pro OR small add-on
+    7. Seasonal coupons on SOFTWARE only (40–50% campaigns, time-boxed)
+    (No multi-outlet seat tax for retail — we are not POS.)
+
+  Do NOT:
+    • Give Enterprise caps on Starter “for growth”
+    • Create 30 micro-modules per product type
+    • Include unlimited image storage without Blob cost plan
+    • Mix Artix SaaS fee with shop GMV commission (unless future explicit product)
+
+  Support cost
+    Higher caps → higher plan only
+    Wholesale + delivery → clearer paid modules (ops support)
+
+================================================================================
+6. CROSS-INDUSTRY NON-CHAOS RULES
+================================================================================
+
+  Shared patterns across Food / Bookings / RE / Retail:
+    ✓ Website plan first
+    ✓ Short module menu per industry
+    ✓ Caps by plan
+    ✓ Yearly charm …99
+    ✓ Multi-location 5–10% off
+    ✓ Free Google Calendar where events apply
+    ✓ Tenant owns customer money rails
+    ✓ Superadmin industry catalog
+
+  Different only where business differs:
+    Food = channels (dine-in/delivery/kitchen)
+    Bookings = slots + compliance
+    RE = no checkout + Property-Bank privacy
+    Retail = products + retail/wholesale + multi-brand
+
+  Superadmin is source of truth for which modules each industry type may buy
+  — prevents random module assignment chaos.
+
+================================================================================
+7. ONBOARDING → MODULE ENTITLEMENT FLOW
+================================================================================
+
+  1. Pick website plan (sets product cap)
+  2. Pick trade mode: Retail only | Wholesale only | Retail + Wholesale
+  3. Create shop → add products (any categories)
+  4. Upsell prompts when:
+       - Hit 80% of product cap → upgrade plan
+       - Adds MOQ → suggest rt.wholesale
+       - Adds 2nd brand → suggest rt.multi_brand
+       - Wants address delivery → rt.delivery
+       - Wants cart pay → rt.checkout / Pro
+
+================================================================================
+8. IMPLEMENTATION CHECKLIST
+================================================================================
+
+  [ ] Freeze onboarding 3 trade labels
+  [ ] Open category CRUD (no fixed category enum of “allowed goods”)
+  [ ] AUP prohibited list only
+  [ ] Module flags: inventory, wholesale, multi_brand, delivery, checkout, …
+  [ ] Product cap enforcement by plan
+  [ ] Variant counting rule documented in code comments
+  [ ] Superadmin editable caps + module prices
+  [ ] No per-vertical SKU explosion
+  [ ] Do NOT build retail multi-outlet POS seats by default
+
+================================================================================
+CHANGE LOG
+================================================================================
+2026-07-16  Module menu + smart caps + anti-chaos pricing for retail.
+2026-07-16  Drop multi-outlet as retail module — not in-store POS; one web shop.
+================================================================================
+

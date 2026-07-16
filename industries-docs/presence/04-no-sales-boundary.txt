@@ -1,0 +1,24 @@
+================================================================================
+04 — NO SALES BOUNDARY (LOCKED)
+================================================================================
+
+  Presence industry = zero commerce on ALINKS.
+
+  ALLOWED CTAs
+    tel:, mailto:, wa.me, external https links, maps
+
+  NOT ALLOWED ON PRESENCE PATH
+    Add to cart, COD, Razorpay for goods/services, package pay-then-book,
+    food checkout, property token pay, wholesale MOQ cart
+
+  Enforcement
+    Superadmin industry flag: commerce_modules_allowed = false
+    Editor nav filters out sales modules
+    Public routes for /store checkout not mounted for this industry
+    API create-order returns blocked for presence tenants
+
+  Exit path
+    Settings → “Enable selling / booking” → choose target industry + confirm
+    Then commerce modules become available per that pack’s rules
+
+================================================================================

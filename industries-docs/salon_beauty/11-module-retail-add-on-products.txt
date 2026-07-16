@@ -1,0 +1,17 @@
+================================================================================
+11 — OPTIONAL RETAIL PRODUCTS (sb.retail_products)
+================================================================================
+
+  Some salons sell shampoo, kits, accessories.
+  Reuse retail/ inventory patterns (lite): few products, WA or cart.
+
+  Separate product CAP from service packages count.
+  Not required for salon core.
+
+  Do not force full wholesale market UI unless they also pick retail industry.
+
+================================================================================
+CHANGE LOG
+================================================================================
+2026-07-16  Optional retail add-on for salons.
+================================================================================

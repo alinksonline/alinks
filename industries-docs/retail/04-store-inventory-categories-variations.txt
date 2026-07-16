@@ -1,0 +1,75 @@
+================================================================================
+04 — STORE INVENTORY, CATEGORIES, VARIATIONS (RETAIL)
+================================================================================
+This is the classic ecommerce “Store” surface (unlike food menu or RE Property-Bank).
+
+================================================================================
+1. INVENTORY (PRODUCTS)
+================================================================================
+
+  Product {
+    name, description, media[] (WebP),
+    brand_id?,
+    category_id(s),
+    sku?, barcode?,
+    trade_mode: retail | wholesale | both,
+    retail_price, mrp?,
+    wholesale: { moq, tiers[] }?,
+    stock?, track_stock: boolean,
+    status: draft|live|out_of_stock|archived,
+    unit?: piece|kg|g|L|ml|dozen|pack,  // kirana/grocery
+    gst_slab? // later
+  }
+
+  Plan limits: e.g. Basic 25 / Pro 200 / Enterprise 2000 products
+  (align alinks-commerce skill)
+
+================================================================================
+2. CATEGORIES (OPEN TAXONOMY)
+================================================================================
+
+  Tenant builds tree: Kitchen → Cookware → Pans
+                      Fashion → Women → Kurtis
+                      Electronics → Mobile accessories
+  Superadmin can seed templates by subtype (fashion, kirana, general mart)
+  Not limited to one vertical’s fixed list — “anything they want”
+
+================================================================================
+3. VARIATIONS (REUSABLE LIBRARY)
+================================================================================
+
+  Same idea as food modifiers / RE options — retail-shaped presets:
+
+    Size        XS–XXL, UK sizes, kids
+    Color       swatches / names
+    Pack        1 | 6 | 12
+    Material    cotton | steel | …
+    Storage     64GB | 128GB
+    Unit pack   500g | 1kg
+
+  Attach sets to products → generate variant SKUs or simple option pickers.
+  Wholesale: tier price often on base SKU; pack variation can change MOQ.
+
+================================================================================
+4. RETAIL VS WHOLESALE ON SAME PRODUCT
+================================================================================
+
+  trade_mode = both:
+    Public retail path sees retail_price + size/color
+    Wholesale path sees MOQ + tier table (maybe login/trade flag later)
+  Stock shared unless future warehouse split
+
+================================================================================
+5. ADMIN IA (TABS — RECALL EARLIER STORE DISCUSSION)
+================================================================================
+
+  Inventory | Categories | Variations | Brands (if multi-brand)
+  + Wholesale settings (if wholesale/hybrid)
+  + Orders (when checkout)
+  Checkout connection stays under existing Checkout / Commerce (tenant PG)
+
+================================================================================
+CHANGE LOG
+================================================================================
+2026-07-16  Retail inventory + open categories + variations; dual trade mode.
+================================================================================

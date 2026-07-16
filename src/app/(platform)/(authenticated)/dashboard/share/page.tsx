@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { getEnv } from "@/core/config/env";
 import { PageShell } from "@/components/shared/page-shell";
 import { requireAuth } from "@/platform/auth/session";
@@ -10,13 +11,34 @@ export default async function ShareHubPage() {
   const business = await requireBusiness(session);
   const links = await getShareLinksForBusiness(business.id);
   const env = getEnv();
-  const storeUrl = `${env.NEXT_PUBLIC_APP_URL}/${business.handle}/store`;
+  const { isPresenceIndustry } = await import("@/core/config/industries");
+  const presence = isPresenceIndustry(business.industryGroup || business.vertical);
+  // Presence share kit targets profile home — never /store
+  const shareUrl = presence
+    ? `${env.NEXT_PUBLIC_APP_URL}/${business.handle}`
+    : `${env.NEXT_PUBLIC_APP_URL}/${business.handle}/store`;
 
   return (
     <PageShell maxWidth="md" className="py-10">
-      <h1 className="text-2xl font-bold">Tap & Blast</h1>
-      <p className="mt-2 text-sm text-slate-600">Short links, WhatsApp share targets, and click analytics.</p>
-      <ShareHubForm businessId={business.id} storeUrl={storeUrl} handle={business.handle} />
+      <h1 className="text-2xl font-bold">{presence ? "Share kit" : "Tap & Blast"}</h1>
+      <p className="mt-2 text-sm text-slate-600">
+        {presence
+          ? "QR, short links, and WhatsApp share for your profile (no shop)."
+          : "Short links, WhatsApp share targets, and click analytics."}
+      </p>
+      <ShareHubForm
+        businessId={business.id}
+        storeUrl={shareUrl}
+        handle={business.handle}
+        presence={presence}
+      />
+      <p className="mt-4 text-sm">
+        <Link href="/dashboard/analytics" className="font-semibold text-slate-900 underline">
+          Analytics lite
+        </Link>
+        <span className="text-slate-500"> — page views & outbound taps (Select modules)</span>
+      </p>
+
       <div className="mt-8">
         <h2 className="font-semibold">Your short links</h2>
         {links.length === 0 ? (

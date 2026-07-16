@@ -1,0 +1,42 @@
+================================================================================
+03 — FINANCE / INSURANCE / LOANS / MULTI-BRAND FREELANCE SALES
+================================================================================
+Status: CALLED OFF COMPLETELY
+Date:   2026-07-16
+
+================================================================================
+1. DECISION (LOCKED)
+================================================================================
+
+  Do NOT build, market, or Superadmin-enable a product line for:
+    • Multi-brand insurance sales teams / freelancers
+    • Multi-brand loan / NBFC / credit card DSA-style selling
+    • Financial product “marketplace” or compare-and-sell on ALINKS
+    • Platform commission on policies/loans
+
+  Reason: high regulatory risk (IRDAI / lending channel rules), mis-selling
+  liability, licensing, KYC sensitivity, partner/bank scrutiny.
+
+================================================================================
+2. NOT EVEN A FUTURE MODULE BY DEFAULT
+================================================================================
+
+  Do not leave half-open “coming soon insurance” in onboarding.
+  Revisit only with dedicated legal opinion + separate compliance product —
+  not as a casual industry folder next to Retail/Education.
+
+================================================================================
+3. STILL ALLOWED (UNRELATED)
+================================================================================
+
+  • Normal website for a bank/NBFC/insurer as a COMPANY brand site
+    (presence only — see presence_industry) with Contact Us — not multi-agent
+    product distribution tools.
+  • Professional consultation booking for CA/advisor (bookings) — time, not
+    multi-brand financial product sales catalogue.
+
+================================================================================
+CHANGE LOG
+================================================================================
+2026-07-16  Called off completely by product decision.
+================================================================================

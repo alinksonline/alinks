@@ -1,0 +1,121 @@
+================================================================================
+07 — MODULE: CATERING (food.catering)
+================================================================================
+Folder: industries-docs/food_industry/
+SKU: food.catering
+Integrates with: kitchen (optional), catering inventory, website lead forms
+NOTE: Cloud kitchen CAN buy this module. Does NOT unlock Dine-in.
+
+================================================================================
+1. DEFINITION
+================================================================================
+
+  Event / bulk / package catering — date, headcount (pax), venue, packages.
+  Distinct journey from daily menu cart (delivery/pickup/dine-in).
+  Can stand alone (catering_only) or add-on to Cloud / Restaurant.
+
+================================================================================
+2. WHO CAN BUY
+================================================================================
+
+  YES: cloud_kitchen, restaurant, catering_only, cloud_catering
+  Cloud + Catering combo: Catering is expected ON; still a SKU for Billing.
+  Never implies tables or table QR.
+
+================================================================================
+3. ENABLES
+================================================================================
+
+  PUBLIC
+    • Catering page / packages list
+    • Enquiry form and/or deposit checkout (tenant PG when checkout enabled)
+    • Fields: event date, pax, venue, package, notes, contact
+
+  ADMIN
+    • Catering packages (name, price, serves_pax, description, images)
+    • Catering inventory (09): packages + optional item bundles
+    • Leads / bookings list (status: new → quoted → confirmed → done)
+
+  KITCHEN (if food.kitchen ON)
+    • Optional ticket when event is “confirmed” / production day
+    • source=catering, show event date + pax
+
+  GOOGLE CALENDAR (FREE — all industries)
+    • Tenant connects own Gmail/Workspace (no extra fee)
+    • Confirmed catering event / production day → Calendar event
+    • See bookings_industry/19-module-google-calendar-gmail.txt
+    • Same free capability as clinics/lawyers/venues — not a paid add-on
+
+================================================================================
+4. LIFECYCLE (100%)
+================================================================================
+
+  1. Discover     “Win bulk & event orders online”
+  2. Purchase     SKU food.catering
+  3. Configure    Packages, min pax, lead form fields, deposit rules
+  4. Operate      Leads in; confirm events; optional kitchen production tickets
+  5. Integrate    Does not mix into daily delivery cart; shares media/WebP pipeline;
+                  kitchen sees catering jobs when linked
+  6. Bill/Renew   Artix module fee
+  7. Disable      Hide catering public page; retain leads history
+
+================================================================================
+5. CATERING INVENTORY (DISTINCT BUT RELATED)
+================================================================================
+
+  Catering inventory ≠ daily menu row-for-row (can link).
+
+  CATERING PACKAGE
+    name, description, images, base_price, serves_pax, min_pax,
+    category (wedding, corporate, tiffin bulk, …),
+    active, optional linked_menu_item_ids[]
+
+  CATERING CATEGORIES
+    Group packages (Wedding, Corporate, Festival) — separate from daily
+    menu sections OR mirrored labels by subtype.
+
+  VARIATIONS / OPTIONS (catering)
+    Add-ons: live counter, staff, décor package, veg/non-veg thali size.
+    Reusable option sets (similar spirit to ecommerce variations library)
+    but food/event oriented presets (see 09).
+
+  Daily menu inventory remains for Delivery/Pickup/Dine-in.
+  Tenant may “include menu items in package” by reference — seamless, not
+  duplicate data entry forced.
+
+================================================================================
+6. SEAMLESS INTEGRATION
+================================================================================
+
+  + Cloud kitchen     Allowed; no Dine-in side effect.
+  + Restaurant        Allowed as extra revenue stream.
+  + Delivery          Not the same as “deliver tonight’s thali”; catering has
+                      event logistics fields.
+  + Kitchen           Confirmed events can create production tickets.
+  + Website plan      Can show catering CTA only when module ON.
+  + Google Calendar   FREE sync of confirmed events to tenant Gmail calendar
+
+================================================================================
+7. DATA (CONCEPTUAL)
+================================================================================
+
+  CateringPackage { … }
+  CateringLead {
+    package_id?, event_date, pax, venue, status,
+    customer_*, notes, deposit_status?
+  }
+  KitchenTicket? { source: "catering", lead_id, run_at }
+
+================================================================================
+8. OUT OF SCOPE V1
+================================================================================
+
+  Full event CRM, multi-day production planning, staff roster for events.
+
+================================================================================
+CHANGE LOG
+================================================================================
+2026-07-16  Cloud can buy catering; separate inventory model documented.
+2026-07-16  Google Calendar free for catering events (shared platform capability).
+================================================================================
+

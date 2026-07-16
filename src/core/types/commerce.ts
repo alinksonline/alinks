@@ -5,6 +5,9 @@ export interface CatalogProduct {
   mrp?: number;
   imageUrl?: string;
   category?: string;
+  /** Optional multi-brand tag */
+  brand?: string;
+  description?: string;
   stock?: number;
   sku?: string;
 }

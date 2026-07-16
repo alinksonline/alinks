@@ -1,7 +1,9 @@
 import { eq } from "drizzle-orm";
+import { redirect } from "next/navigation";
 import { EditorNav } from "@/components/editor/editor-nav";
 import { CommerceForm } from "./commerce-form";
 import { PageShell } from "@/components/shared/page-shell";
+import { canShowCommerceEditor } from "@/core/utils/industry-gates";
 import { requireAuth } from "@/platform/auth/session";
 import { requireBusiness } from "@/platform/business/require-business";
 import { getPlatformDb } from "@/platform/db/client";
@@ -11,10 +13,19 @@ import { getTenantGatewayStatus } from "@/platform/payments/tenant-gateway";
 /**
  * Tenant Checkout — connect YOUR Razorpay + COD.
  * ALINKS does not facilitate/settle shop sales.
+ * Presence industry: no sales — redirect away.
  */
 export default async function CommerceEditorPage() {
   const session = await requireAuth();
   const business = await requireBusiness(session);
+  if (
+    !canShowCommerceEditor({
+      vertical: business.vertical,
+      industryGroup: business.industryGroup,
+    })
+  ) {
+    redirect("/editor");
+  }
   const db = getPlatformDb();
   const tenant = db
     ? (await db.select().from(tenants).where(eq(tenants.id, session.userId)).limit(1))[0]
@@ -24,7 +35,11 @@ export default async function CommerceEditorPage() {
 
   return (
     <>
-      <EditorNav active="/editor/commerce" vertical={business.vertical} />
+      <EditorNav
+        active="/editor/commerce"
+        vertical={business.vertical}
+        industryGroup={business.industryGroup}
+      />
       <PageShell className="py-3 pb-10">
         <p className="premium-label">Your site · customers</p>
         <h1 className="premium-heading mt-1 text-lg">Checkout</h1>

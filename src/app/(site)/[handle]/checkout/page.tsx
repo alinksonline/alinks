@@ -36,6 +36,16 @@ export default async function CheckoutPage({
   const row = await getPublicBusinessByHandle(params.handle);
   if (!row || !canUseProCheckout(row.tier, row.checkoutMode ?? "lite")) notFound();
 
+  const { canExposeStorefront } = await import("@/core/utils/industry-gates");
+  if (
+    !canExposeStorefront({
+      vertical: row.vertical,
+      industryGroup: row.industryGroup,
+    })
+  ) {
+    notFound();
+  }
+
   let items: CartItem[] = [];
   try {
     if (searchParams.cart) items = JSON.parse(searchParams.cart) as CartItem[];

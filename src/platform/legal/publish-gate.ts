@@ -83,7 +83,11 @@ export async function evaluatePublishGate(
 
   const business = await getBusinessForTenant(tenantId);
   if (business) {
-    if (business.vertical === "clinic" && business.verticalGateStatus !== "approved") {
+    const { isClinicLicenseGated } = await import("@/core/config/industries");
+    if (
+      isClinicLicenseGated(business.industryType, business.vertical) &&
+      business.verticalGateStatus !== "approved"
+    ) {
       blockerKeys.push("CLINIC");
       blockers.push(FRIENDLY.CLINIC);
     }

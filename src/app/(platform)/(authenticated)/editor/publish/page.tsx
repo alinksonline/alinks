@@ -15,7 +15,7 @@ export default async function PublishPage() {
 
   return (
     <>
-      <EditorNav active="/editor/publish" vertical={business.vertical} />
+      <EditorNav active="/editor/publish" vertical={business.vertical} industryGroup={business.industryGroup} />
       <PageShell className="py-3">
         <div className="flex items-start justify-between gap-2">
           <div>

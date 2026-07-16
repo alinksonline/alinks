@@ -1,0 +1,19 @@
+================================================================================
+05 — MODULE: STOREFRONT B2C (rt.storefront)
+================================================================================
+SKU: rt.storefront
+
+  Public product grid, product detail, filters (category, brand, price),
+  WhatsApp order buttons and/or cart entry.
+  Emphasizes retail unit sales.
+
+Lifecycle: enable → publish products → public shop → orders/leads → disable
+
+Integrates: inventory, categories, variations, brands, checkout, wholesale (hide
+wholesale UI on storefront when viewer is B2C path)
+
+================================================================================
+CHANGE LOG
+================================================================================
+2026-07-16  B2C storefront module.
+================================================================================

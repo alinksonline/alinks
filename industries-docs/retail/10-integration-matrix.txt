@@ -1,0 +1,34 @@
+================================================================================
+10 — RETAIL MODULE INTEGRATION
+================================================================================
+
+  rt.inventory (products)
+       ↑
+       ├── rt.categories
+       ├── rt.variations
+       ├── rt.multi_brand
+       ├── rt.storefront (B2C)
+       ├── rt.wholesale (B2B)
+       ├── rt.checkout (tenant PG)
+       ├── rt.delivery
+       └── rt.pickup
+
+  Instant rules
+    Product live + retail mode → storefront
+    Product wholesale/both + wholesale module → wholesale path
+    Brand assigned → brand filter
+    Variation set attached → PDP options
+    Stock 0 + track_stock → out of stock both paths
+    Checkout off → WA CTA only
+    No per-physical-shop inventory split (not POS multi-store)
+
+  Cross-industry
+    Packaged food products → retail OK
+    Restaurant meals → food_industry
+    Google Calendar free if site visits/demos booked
+
+================================================================================
+CHANGE LOG
+================================================================================
+2026-07-16  Retail integration spine.
+================================================================================

@@ -1,0 +1,109 @@
+================================================================================
+01 — PRESENCE / PROFILE INDUSTRY ANCHOR
+================================================================================
+Location: industries-docs/presence/01-presence-anchor.txt
+Created:  2026-07-16
+Status:   LOCKED
+
+================================================================================
+1. UNDERSTANDING
+================================================================================
+
+  Some users do not want to sell anything on ALINKS. They want:
+    • A clean mobile-first web presence
+    • Brand / personal profile
+    • Links, contact, gallery, story
+    • Credibility (“I exist online”)
+
+  Examples:
+    Influencers, freelancers building a card site, small businesses that only
+    take calls offline, consultants who only want a brochure site (no booking
+    yet), community pages, portfolio-only creatives.
+
+  Product name direction:
+    Industry: Presence / Profile
+    Onboarding label: “Online presence only — no selling on ALINKS”
+    Or: “Influencer / Business profile”
+
+================================================================================
+2. NO SALES (LOCKED)
+================================================================================
+
+  This industry path does NOT include:
+    Product inventory, cart, COD, Razorpay checkout for goods
+    Service package paid booking (unless they leave Presence for Salon/Education)
+    Food order channels, RE Property-Bank selling, wholesale
+
+  CTAs allowed (contact, not commerce):
+    Call, WhatsApp, Email, External social links, “Visit us” address
+    Optional: external “Shop on Instagram” link (off-platform — their choice)
+
+  If they later want sales/booking → change industry or enable modules via
+  upgrade flow (doc 06) — not forced into Presence.
+
+================================================================================
+3. WHAT THE SMART SIMPLE APP LOOKS LIKE
+================================================================================
+
+  Influencer-first template (see 07-influencer-features-and-discounts.txt):
+    Home (hero, bio, pinned links, Work with me)
+    Links (full hub)
+    Media (media kit + rate card display — no checkout)
+    Gallery / work
+    Contact (collab form + WA/email)
+
+  YouTube embed OK for trailers; other platforms = outbound links.
+  1-page card mode for professional_card / quick start.
+
+  Editor: Business profile, Branding, Theme, Pages, Link hub, Media kit —
+  NOT Packages/Store/Checkout commerce nav (hidden for this industry).
+
+================================================================================
+4. MODULES (INFLUENCER-STRONG; STILL NO SALES)
+================================================================================
+
+  Core (all Presence):
+    pr.presence_core   Site + profile + branding
+    pr.link_stack      Link hub (pin, reorder, social strip)
+    pr.gallery         Photos
+    pr.contact         Contact + collab form fields
+    pr.share_kit       QR, share/OG card, short URL
+
+  Creator-strong (influencer path / Creator plan):
+    pr.media_kit       Media kit + rate card DISPLAY only
+    pr.social_proof    Testimonials, brand logos, reach chips
+    pr.highlights      Highlight tiles
+    pr.analytics_lite  Views + link clicks
+
+  NO pr.sales, pr.checkout, pr.inventory
+
+  Google: optional Connect for contact/collab Sheet only; Calendar not required
+  Full feature + discount lock: 07-influencer-features-and-discounts.txt
+
+================================================================================
+5. BILLING
+================================================================================
+
+  Website plan (Starter / Pro) + Presence pro add-ons (domain, watermark, caps).
+  Influencers: deep Creator discounts (launch 50–70%, ongoing 30–40% intent) —
+  see 05-billing-and-upsell.txt and 07.
+  Acquisition funnel; yearly charm …99 platform-wide.
+  Frontend: “Creator pricing” / “Influencer plan” — never “à la carte”.
+
+================================================================================
+6. VS OTHER INDUSTRIES
+================================================================================
+
+  Presence     → no sales
+  Retail       → product sales
+  Salon/Edu    → service booking
+  Food         → menu / order channels
+  RE           → listings + leads (still no property checkout)
+  Finance multi-brand freelancers → CALLED OFF completely
+
+================================================================================
+CHANGE LOG
+================================================================================
+2026-07-16  Presence/profile industry; no sales; influencers + business profile.
+2026-07-16  Upgraded influencer pack (media kit, share kit, collab) + creator discounts.
+================================================================================

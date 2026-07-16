@@ -1,0 +1,34 @@
+================================================================================
+06 — SUPERADMIN & MIGRATION
+================================================================================
+
+  IndustryGroup: presence
+  Types: influencer_creator, personal_brand, business_profile_only,
+         community_presence, professional_card
+
+  Flags:
+    commerce_modules_allowed: false
+    booking_modules_allowed: false
+    sales_enabled: false
+    allow_industry_upgrade: true
+
+  Creator pricing (type influencer_creator and/or coupon):
+    creator_discount_pct_monthly
+    creator_discount_pct_yearly
+    creator_launch_coupon (code, %, free_months, expiry)
+    creator_discount_applies_to: website_plan + presence pro add-ons
+    max_stack_discount_cap (anti-margin-kill)
+    one discount identity per tenant
+
+  Code vertical map: general → often lands here; or explicit presence type
+
+  Migration when upgrading industry:
+    Keep site, theme, branding, pages, media kit content as About/pages
+    Unlock relevant editor nav for new industry
+    Drop creator website discount if they leave Presence? Policy:
+      keep until term ends, then list price for new industry modules
+    Do not auto-create fake products
+
+  See: 07-influencer-features-and-discounts.txt
+
+================================================================================

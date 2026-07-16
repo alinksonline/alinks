@@ -1,0 +1,106 @@
+================================================================================
+11 — MODULE INTEGRATION MATRIX (INSTANT + SEAMLESS)
+================================================================================
+Folder: industries-docs/food_industry/
+Goal: Enabling any module instantly works with others already ON — no re-setup
+      of the whole menu; shared inventory; automatic kitchen tickets.
+
+================================================================================
+1. SHARED SPINE
+================================================================================
+
+  MENU INVENTORY (09) ← central catalog
+       ↑
+       ├── food.delivery     sells items (channel flag)
+       ├── food.pickup       sells items (channel flag)
+       ├── food.dine_in      sells items (channel flag) [restaurant only]
+       ├── food.catering     packages (+ optional item links)
+       └── food.kitchen      reads ORDERS only (not editing catalog)
+
+  ORDERS bus (conceptual)
+    Any channel confirm → Order record → if kitchen ON → KitchenTicket
+
+================================================================================
+2. PAIRWISE INTEGRATION
+================================================================================
+
+  Delivery + Pickup
+    Same order UI; channel enum; shared cart rules; shared stock.
+
+  Delivery/Pickup + Dine-in
+    Shared menu; separate sessions (table vs address); kitchen distinguishes source.
+
+  Delivery/Pickup/Dine-in + Kitchen
+    Auto tickets; status pipeline unified.
+
+  Catering + Kitchen
+    On confirm/produce date → ticket; does not spam kitchen with raw leads.
+
+  Catering + Google Calendar (FREE)
+    Confirmed event/production day → tenant Gmail Calendar (no extra SKU).
+    Same free capability as bookings industry.
+
+  Catering + Delivery
+    Not auto-merged; catering has event logistics; optional “deliver event” note
+    field on catering lead (not daily delivery module cart).
+
+  Catering + Cloud
+    Allowed; still no Dine-in.
+
+  Dine-in + Cloud
+    IMPOSSIBLE / blocked at entitlement layer.
+
+  Website plan + any module
+    Menu display always; modules unlock operational channels & boards.
+
+================================================================================
+3. ENABLE ORDER (RECOMMENDED DEPENDENCIES)
+================================================================================
+
+  Soft deps (UX, not hard fail):
+    Kitchen → show “Connect Delivery or Dine-in or Catering for tickets”
+    Dine-in → need ≥1 table + ≥1 menu item
+    Delivery → need fee/hours config empty-state
+
+  Hard deps:
+    food.dine_in requires base type restaurant*
+    food.dine_in forbidden if cloud*
+
+================================================================================
+4. DISABLE IMPACT
+================================================================================
+
+  Disable Delivery → public channel off; open delivery orders complete normally;
+                     kitchen filter hides new delivery.
+  Disable Dine-in → QR shows unavailable; open table orders finishable.
+  Disable Kitchen → board gone; orders remain in Orders admin.
+  Disable Catering → packages hidden; leads list read-only.
+
+================================================================================
+5. REAL-TIME / “INSTANT” EXPECTATION
+================================================================================
+
+  v1 acceptable:
+    • Order create → ticket visible after submit (same request or short poll)
+  Later:
+    • Realtime websocket / Supabase realtime for kitchen board
+
+  “Seamless” means zero double entry of items/prices across modules.
+
+================================================================================
+6. INVENTORY EVENTS THAT FAN OUT
+================================================================================
+
+  Event                         Fans out to
+  ---------------------------   ----------------------------------
+  Item sold_out=true            All channels hide/mark item
+  Item price change             All new orders use new price
+  Modifier set edit             All items using set get new options
+  Package deactivate            Catering public list only
+  Table deactivate              QR for that table only
+
+================================================================================
+CHANGE LOG
+================================================================================
+2026-07-16  Integration spine + pairwise + disable rules.
+================================================================================

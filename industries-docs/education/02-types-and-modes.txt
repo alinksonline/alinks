@@ -1,0 +1,61 @@
+================================================================================
+02 — EDUCATION TYPES & MODES (EXPANDED)
+================================================================================
+
+================================================================================
+1. TENANT TYPES (SUPERADMIN / ONBOARDING)
+================================================================================
+
+  SLUG                    Label                         Typical user
+  ----------------------  ----------------------------  ----------------------
+  school                  School                        School marketing site
+  college                 College / university brand    Admissions marketing
+  coaching_institute      Coaching institute            JEE/NEET/competitive
+  tuition_center          Tuition classes               Subject tuitions batch
+  music_arts_school       Music / arts school           Music, dance, art (seed)
+  skill_academy           Skill development             Vocational / pro skills
+  independent_teacher     Independent teacher/tutor     Side income / solo brand
+  online_tutor_creator    Online tutor / creator        YouTube + courses + slots
+  hybrid_institute        Institute + online            Offline center + live
+
+  Music is a TYPE/seed, not the only skill vertical — skill_academy and
+  independent_teacher can teach ANY subject (coding, guitar, maths, painting…).
+
+================================================================================
+2. DELIVERY MODES (PER COURSE / SLOT)
+================================================================================
+
+  offline     At center / home tuition address
+  online      Live slot with Meet/Zoom/YouTube Live / custom link
+  hybrid      Student chooses or course offers both
+  async_link  Recorded tutorial — YouTube video/playlist only (no live slot)
+
+================================================================================
+3. COMMERCIAL MODES (STUDENT-FACING)
+================================================================================
+
+  free_enquiry       Form / WA only
+  free_demo_slot     Book demo without pay
+  free_tuition_slot  Ongoing free slots (rare; allowed)
+  pay_deposit        Token then confirm (tenant PG)
+  pay_full           Full fee online (tenant PG)
+  pay_at_center      Book free; pay offline
+
+  Default: free enquiry + free demo available without Razorpay.
+
+================================================================================
+4. ONBOARDING QUESTION EXAMPLES
+================================================================================
+
+  “What best describes you?”
+    School | College | Coaching / tuition center | Music or arts school |
+    Skill academy | I am an independent teacher | Online creator/tutor
+
+  “How do you teach?”
+    Offline | Online | Both
+
+================================================================================
+CHANGE LOG
+================================================================================
+2026-07-16  Expanded types: school, college, independent teacher, creators.
+================================================================================

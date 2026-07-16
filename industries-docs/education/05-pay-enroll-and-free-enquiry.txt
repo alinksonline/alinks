@@ -1,0 +1,40 @@
+================================================================================
+05 — FREE ENQUIRY / DEMO VS PAID ENROLL
+================================================================================
+
+================================================================================
+1. FREE ALWAYS ALLOWED
+================================================================================
+
+  • Course enquiry form / WhatsApp
+  • Free demo slot (online or offline)
+  • Free tuition slots if teacher chooses
+  No Razorpay required to operate education site + calendar.
+
+================================================================================
+2. PAID OPTIONAL (TENANT PG)
+================================================================================
+
+  • Course seat deposit / full fee
+  • Paid demo token
+  • Paid 1:1 session (pay_then_book like salon)
+  Money → teacher/institute Razorpay — not Artix settlement
+
+================================================================================
+3. SCHOOLS & COLLEGES
+================================================================================
+
+  Usually free admissions enquiry + optional campus visit slot.
+  Fee collection online is optional module; many stay enquiry-only.
+
+================================================================================
+4. INDEPENDENT TEACHERS
+================================================================================
+
+  Side income: start free demos + YouTube → charge later for slots.
+
+================================================================================
+CHANGE LOG
+================================================================================
+2026-07-16  Free vs paid; teachers and institutes.
+================================================================================

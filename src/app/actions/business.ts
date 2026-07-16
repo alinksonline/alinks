@@ -41,12 +41,20 @@ async function requestMeta() {
 export type OnboardingInput = {
   businessName: string;
   handle: string;
+  /** Legacy vertical or derived from industry. */
   vertical: string;
+  /** Industry group e.g. presence, salon_beauty. */
+  industryGroup?: string;
+  /** Industry type e.g. influencer_creator. */
+  industryType?: string;
   templateId: SiteTemplateId;
   businessPurpose?: string;
   acceptTos: boolean;
   acceptPrivacy: boolean;
   acceptAup: boolean;
+  /** Creator Partner terms (Presence influencer deep discount). */
+  acceptCreatorPartner?: boolean;
+  creatorPartnerTier?: "A" | "B" | "C" | "D";
 };
 
 /**
@@ -85,7 +93,43 @@ export async function completeOnboardingForTenant(tenantId: string, input: Onboa
   const handleTaken = await db.select().from(businesses).where(eq(businesses.handle, handle)).limit(1);
   if (handleTaken[0]) return { success: false as const, error: "Handle already taken" };
 
-  const template = SITE_TEMPLATES[input.templateId] ?? SITE_TEMPLATES.general;
+  const {
+    defaultIndustryType,
+    industryToLegacyVertical,
+    isCreatorPartnerEligible,
+    resolveIndustryGroup,
+    CREATOR_PARTNER_TIERS,
+  } = await import("@/core/config/industries");
+
+  const industryGroup = resolveIndustryGroup(input.industryGroup || input.vertical);
+  const industryType = input.industryType || defaultIndustryType(input.vertical);
+  const vertical = industryToLegacyVertical(industryGroup, industryType);
+
+  const creatorEligible = isCreatorPartnerEligible(industryGroup, industryType);
+  if (creatorEligible && input.acceptCreatorPartner && !input.creatorPartnerTier) {
+    return { success: false as const, error: "Choose a Creator Partner tier" };
+  }
+  if (input.acceptCreatorPartner && !creatorEligible) {
+    return { success: false as const, error: "Creator Partner is only for the influencer path" };
+  }
+
+  const resolvedTemplateId =
+    industryGroup === "presence"
+      ? ("presence" as SiteTemplateId)
+      : industryGroup === "food"
+        ? ("food" as SiteTemplateId)
+        : industryGroup === "bookings"
+          ? ("bookings" as SiteTemplateId)
+          : industryGroup === "real_estate"
+            ? ("real_estate" as SiteTemplateId)
+            : industryGroup === "education"
+              ? ("education" as SiteTemplateId)
+              : industryGroup === "fitness"
+                ? ("fitness" as SiteTemplateId)
+                : industryGroup === "automotive"
+                  ? ("automotive" as SiteTemplateId)
+                  : input.templateId;
+  const template = SITE_TEMPLATES[resolvedTemplateId] ?? SITE_TEMPLATES.general;
   const trialEndsAt = new Date(Date.now() + 14 * 24 * 60 * 60 * 1000);
 
   await db
@@ -98,8 +142,29 @@ export async function completeOnboardingForTenant(tenantId: string, input: Onboa
   await recordLegalAcceptance({ tenantId, docType: LEGAL_DOC_TYPES.PLATFORM_PRIVACY, ...meta });
   await recordLegalAcceptance({ tenantId, docType: LEGAL_DOC_TYPES.PLATFORM_AUP, ...meta });
 
+  const { isClinicLicenseGated } = await import("@/core/config/industries");
   const regulatedVerticals = new Set(["clinic", "pharmacy"]);
-  const gateStatus = regulatedVerticals.has(input.vertical) ? "pending_review" : "approved";
+  const clinicGated = isClinicLicenseGated(industryType, vertical);
+  const gateStatus =
+    clinicGated || regulatedVerticals.has(vertical) ? "pending_review" : "approved";
+
+  const partnerTier = input.acceptCreatorPartner && input.creatorPartnerTier
+    ? CREATOR_PARTNER_TIERS[input.creatorPartnerTier]
+    : null;
+
+  if (partnerTier) {
+    await recordLegalAcceptance({
+      tenantId,
+      docType: LEGAL_DOC_TYPES.CREATOR_PARTNER,
+      metadata: {
+        tier: partnerTier.code,
+        industryType,
+        discountPctMonthly: partnerTier.discountPctMonthly,
+        discountPctYearly: partnerTier.discountPctYearly,
+      },
+      ...meta,
+    });
+  }
 
   const [business] = await db
     .insert(businesses)
@@ -107,10 +172,16 @@ export async function completeOnboardingForTenant(tenantId: string, input: Onboa
       tenantId,
       handle,
       name: input.businessName.trim(),
-      vertical: input.vertical,
-      templateId: input.templateId,
+      vertical,
+      industryGroup,
+      industryType,
+      templateId: resolvedTemplateId,
       verticalGateStatus: gateStatus,
       theme: template.theme,
+      creatorPartnerTier: partnerTier?.code ?? null,
+      creatorPartnerAcceptedAt: partnerTier ? new Date() : null,
+      creatorDiscountPctMonthly: partnerTier?.discountPctMonthly ?? null,
+      creatorDiscountPctYearly: partnerTier?.discountPctYearly ?? null,
       seoMeta: input.businessPurpose
         ? { signupPurpose: input.businessPurpose.trim(), signupAt: new Date().toISOString() }
         : {},
@@ -118,10 +189,19 @@ export async function completeOnboardingForTenant(tenantId: string, input: Onboa
     })
     .returning();
 
+  const presenceTitles: Record<string, string> = {
+    home: "Home",
+    about: "About",
+    services: "Links",
+    contact: "Contact",
+    legal: "Terms & Privacy",
+  };
+  const titles = industryGroup === "presence" ? presenceTitles : PAGE_TITLES;
+
   const pageRows = STANDARD_PAGE_SLUGS.map((slug) => ({
     businessId: business.id,
     slug,
-    title: PAGE_TITLES[slug],
+    title: titles[slug] ?? PAGE_TITLES[slug],
     content: template.pages[slug] ?? { blocks: [] },
     isPublished: slug === "home",
   }));
@@ -131,6 +211,289 @@ export async function completeOnboardingForTenant(tenantId: string, input: Onboa
   }
 
   await db.insert(pages).values(pageRows);
+
+  // Grant default industry modules (Presence core free modules, etc.)
+  const { grantDefaultModules } = await import("@/platform/billing/entitlements");
+  await grantDefaultModules(business.id, industryGroup, "onboarding");
+
+  // Salon: seed package templates so public /book works immediately after publish
+  if (industryGroup === "salon_beauty") {
+    try {
+      const { SALON_PACKAGE_TEMPLATES } = await import("@/tenant/salon/package-templates");
+      const { salonPackages } = await import("@/platform/db/schema");
+      await db.insert(salonPackages).values(
+        SALON_PACKAGE_TEMPLATES.map((t) => ({
+          businessId: business.id,
+          name: t.name,
+          description: t.description,
+          price: t.price,
+          durationMinutes: t.durationMinutes,
+          category: t.category,
+          isActive: t.isActive,
+          paymentMode: "pay_at_salon" as const,
+        })),
+      );
+    } catch {
+      // Non-fatal — tenant can seed from editor
+    }
+  }
+
+  // Food Layer 1: seed digital menu for WhatsApp ordering
+  if (industryGroup === "food") {
+    try {
+      const { resolveFoodType } = await import("@/core/config/food-compat");
+      const { FOOD_MENU_TEMPLATES, CATERING_MENU_TEMPLATES } = await import(
+        "@/tenant/food/menu-templates"
+      );
+      const { menuItems } = await import("@/platform/db/schema");
+      const foodType = resolveFoodType(industryType, vertical);
+      const templates =
+        foodType === "catering_only" ? CATERING_MENU_TEMPLATES : FOOD_MENU_TEMPLATES;
+      await db.insert(menuItems).values(
+        templates.map((t) => ({
+          businessId: business.id,
+          name: t.name,
+          description: t.description,
+          section: t.section,
+          price: t.price,
+          isVeg: t.isVeg,
+          sortOrder: t.sortOrder,
+          isAvailable: true,
+        })),
+      );
+    } catch {
+      // Non-fatal
+    }
+  }
+
+  // Automotive: vehicles (dealers) / services (workshop) / parts (retail)
+  if (industryGroup === "automotive") {
+    try {
+      const { automotiveSeedProfile } = await import("@/core/config/automotive");
+      const profile = automotiveSeedProfile(industryType);
+      if (profile.vehicles) {
+        const { vehicleTemplatesForType } = await import("@/tenant/automotive/vehicle-templates");
+        const { vehicleListings } = await import("@/platform/db/schema");
+        const templates = vehicleTemplatesForType(industryType);
+        await db.insert(vehicleListings).values(
+          templates.map((t) => ({
+            businessId: business.id,
+            title: t.title,
+            description: t.description,
+            condition: t.condition,
+            visibility: t.visibility,
+            make: t.make,
+            model: t.model,
+            year: t.year,
+            fuel: t.fuel,
+            kmDriven: t.kmDriven,
+            priceLabel: t.priceLabel,
+            priceAmount: t.priceAmount,
+            city: t.city,
+            sortOrder: t.sortOrder,
+            isActive: true,
+          })),
+        );
+      }
+      if (profile.services) {
+        const { serviceTemplatesForAutoType } = await import(
+          "@/tenant/automotive/service-templates"
+        );
+        const { salonPackages } = await import("@/platform/db/schema");
+        const templates = serviceTemplatesForAutoType(industryType);
+        await db.insert(salonPackages).values(
+          templates.map((t) => ({
+            businessId: business.id,
+            name: t.name,
+            description: t.description,
+            price: t.price,
+            durationMinutes: t.durationMinutes,
+            category: t.category,
+            isActive: true,
+            paymentMode: t.paymentMode,
+            capacity: t.capacity,
+          })),
+        );
+      }
+      if (profile.parts) {
+        const { RETAIL_PRODUCT_TEMPLATES } = await import("@/tenant/retail/product-templates");
+        const { storeProducts } = await import("@/platform/db/schema");
+        // Seed a few accessory-like products for parts shops
+        const parts = RETAIL_PRODUCT_TEMPLATES.filter((t) =>
+          ["Electronics", "Home"].includes(t.category),
+        ).slice(0, 4);
+        const fallback = RETAIL_PRODUCT_TEMPLATES.slice(0, 4);
+        await db.insert(storeProducts).values(
+          (parts.length ? parts : fallback).map((t) => ({
+            businessId: business.id,
+            name: t.name,
+            description: t.description,
+            price: t.price,
+            mrp: t.mrp ?? null,
+            category: "Parts",
+            brand: t.brand ?? null,
+            sku: t.sku,
+            stock: t.stock,
+            sortOrder: t.sortOrder,
+            isActive: true,
+          })),
+        );
+      }
+    } catch {
+      // Non-fatal
+    }
+  }
+
+  // Fitness: memberships / classes / PT + free trial book
+  if (industryGroup === "fitness") {
+    try {
+      const { templatesForFitnessType } = await import("@/tenant/fitness/package-templates");
+      const { salonPackages } = await import("@/platform/db/schema");
+      const templates = templatesForFitnessType(industryType);
+      await db.insert(salonPackages).values(
+        templates.map((t) => ({
+          businessId: business.id,
+          name: t.name,
+          description: t.description,
+          price: t.price,
+          durationMinutes: t.durationMinutes,
+          category: t.category,
+          isActive: true,
+          paymentMode: t.paymentMode,
+          capacity: t.capacity,
+        })),
+      );
+    } catch {
+      // Non-fatal
+    }
+  }
+
+  // Bookings industry: seed services (clinic / consult / legal / venue)
+  if (industryGroup === "bookings") {
+    try {
+      const { templatesForBookingType } = await import("@/tenant/bookings/service-templates");
+      const { salonPackages } = await import("@/platform/db/schema");
+      const templates = templatesForBookingType(industryType);
+      await db.insert(salonPackages).values(
+        templates.map((t) => ({
+          businessId: business.id,
+          name: t.name,
+          description: t.description,
+          price: t.price,
+          durationMinutes: t.durationMinutes,
+          category: t.category,
+          isActive: true,
+          paymentMode: t.paymentMode,
+          capacity: t.capacity,
+        })),
+      );
+    } catch {
+      // Non-fatal
+    }
+  }
+
+  // Education: seed courses with YouTube sample embeds
+  if (industryGroup === "education") {
+    try {
+      const { templatesForEducationType } = await import("@/tenant/education/course-templates");
+      const { parseYoutubeUrl } = await import("@/core/utils/youtube");
+      const { courses } = await import("@/platform/db/schema");
+      const templates = templatesForEducationType(industryType);
+      for (const t of templates) {
+        const yt = parseYoutubeUrl(t.youtubeUrl);
+        await db.insert(courses).values({
+          businessId: business.id,
+          title: t.title,
+          description: t.description,
+          subject: t.subject,
+          mode: t.mode,
+          feeLabel: t.feeLabel,
+          feeAmount: t.feeAmount,
+          youtubeUrl: yt.ok ? yt.watchUrl : null,
+          youtubeVideoId: yt.ok ? yt.videoId : null,
+          sortOrder: t.sortOrder,
+          isActive: true,
+        });
+      }
+    } catch {
+      // Non-fatal
+    }
+  }
+
+  // Real estate: seed sample listings
+  if (industryGroup === "real_estate") {
+    try {
+      const { propertyListings } = await import("@/platform/db/schema");
+      await db.insert(propertyListings).values([
+        {
+          businessId: business.id,
+          title: "2 BHK sample listing",
+          description: "Replace with your Property-Bank listing. Visibility: open.",
+          listingType: "rent",
+          visibility: "open",
+          city: "Bengaluru",
+          locality: "Sample area",
+          priceLabel: "₹35,000 / mo",
+          priceAmount: 35000,
+          bedrooms: 2,
+          areaSqft: 1100,
+          isActive: true,
+          sortOrder: 1,
+        },
+        {
+          businessId: business.id,
+          title: "Plot teaser (contact for price)",
+          description: "Teaser listing — limited public detail.",
+          listingType: "sell",
+          visibility: "teaser",
+          city: "Pune",
+          locality: "Outer ring",
+          priceLabel: "On request",
+          bedrooms: null,
+          areaSqft: 2400,
+          isActive: true,
+          sortOrder: 2,
+        },
+      ]);
+    } catch {
+      // Non-fatal
+    }
+  }
+
+  // Retail storefront: seed products + trade mode retail
+  if (industryGroup === "retail") {
+    try {
+      const { RETAIL_PRODUCT_TEMPLATES, KIRANA_PRODUCT_TEMPLATES } = await import(
+        "@/tenant/retail/product-templates"
+      );
+      const { storeProducts } = await import("@/platform/db/schema");
+      const templates =
+        industryType === "kirana" || vertical === "kirana" || vertical === "grocery"
+          ? KIRANA_PRODUCT_TEMPLATES
+          : RETAIL_PRODUCT_TEMPLATES;
+      await db
+        .update(businesses)
+        .set({ tradeMode: "retail", updatedAt: new Date() })
+        .where(eq(businesses.id, business.id));
+      await db.insert(storeProducts).values(
+        templates.map((t) => ({
+          businessId: business.id,
+          name: t.name,
+          description: t.description,
+          price: t.price,
+          mrp: t.mrp ?? null,
+          category: t.category,
+          brand: t.brand ?? null,
+          sku: t.sku,
+          stock: t.stock,
+          sortOrder: t.sortOrder,
+          isActive: true,
+        })),
+      );
+    } catch {
+      // Non-fatal
+    }
+  }
 
   revalidatePath("/dashboard");
   revalidatePath("/editor");

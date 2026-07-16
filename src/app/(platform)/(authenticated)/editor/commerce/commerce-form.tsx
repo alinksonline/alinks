@@ -82,7 +82,8 @@ export function CommerceForm({
 
       {isSalon ? (
         <p className="text-[12px] leading-snug text-brand-muted">
-          Packages you sell are under{" "}
+          Connect Razorpay here to enable <strong>pay-then-book</strong> on individual packages (15-minute soft
+          hold). Free and pay-at-salon packages work without a gateway. Manage modes under{" "}
           <Link href="/editor/packages" className="font-semibold text-brand-purple underline">
             Packages
           </Link>

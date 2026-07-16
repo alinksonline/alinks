@@ -1,0 +1,14 @@
+================================================================================
+02 — FITNESS TYPES
+================================================================================
+
+  gym                Full gym brand; memberships primary
+  fitness_studio     Smaller studio; classes primary
+  yoga_studio        Yoga/meditation; soft wellness copy
+  personal_trainer   Solo PT; 1:1 slots heavy
+  martial_arts       Belt programs + batch schedule
+  sports_coaching    Sport-specific coaching
+
+  Modes: free_trial | paid_trial | membership_enquiry | pt_pay_then_book
+
+================================================================================

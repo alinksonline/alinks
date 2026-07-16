@@ -1,0 +1,29 @@
+================================================================================
+33 — PRESENCE / PROFILE INDUSTRY (OPS POINTER)
+================================================================================
+Authority: industries-docs/presence/
+
+LOCKED
+  Influencers + business profile seekers + “presence only”.
+  NO sales / cart / booking commerce on this path.
+  Influencer-strong features: link hub, media kit, rate card DISPLAY,
+  collab form, social proof, share/QR, analytics lite.
+  Creator discounts: launch 50–70% intent, ongoing 30–40% on website plan
+  = **Creator Partner trade** (promote ALINKS) — presence/08-*.txt
+  (Superadmin-configurable). Frontend: “Creator Partner” — never “à la carte”.
+  Finance multi-brand freelance = called off (other_verticals/03).
+
+Read:
+  industries-docs/presence/00-README-INDEX.txt
+  01-presence-anchor.txt
+  04-no-sales-boundary.txt
+  07-influencer-features-and-discounts.txt
+
+Editor: hide Store, Checkout, Packages commerce nav for presence tenants.
+
+================================================================================
+CHANGE LOG
+================================================================================
+2026-07-16  Presence industry; no sales.
+2026-07-16  Influencer pack + creator discounts (doc 07).
+================================================================================

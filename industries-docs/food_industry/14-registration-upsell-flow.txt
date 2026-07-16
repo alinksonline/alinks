@@ -1,0 +1,63 @@
+================================================================================
+14 — REGISTRATION & MODULE UPSELL FLOW
+================================================================================
+Folder: industries-docs/food_industry/
+
+================================================================================
+1. LAUNCH PATH (RECOMMENDED)
+================================================================================
+
+  Marketing site
+    → Choose Website plan (monthly/yearly charm)
+    → Sign up
+    → Select business type / food subtype (self-aware)
+    → Onboarding: basic profile + first menu items
+    → Live: menu display + WhatsApp
+
+  Inside app (Dashboard / Store)
+    → “Food modules”
+        ○ Single module
+        ○ Combo packages
+        ○ All modules (type-aware; cloud excludes Dine-in)
+    → Purchase → entitlement ON → configure → operate
+
+================================================================================
+2. WHAT REGISTRATION ASKS (“WHAT DO YOU WANT?”)
+================================================================================
+
+  Keep short:
+    1. Website plan
+    2. “What kind of food business?” (Cloud / Restaurant / Catering / …)
+    3. Optional subtype (Bar, Bistro, …)
+  Do NOT force full module matrix on first screen for launch.
+
+  Later power path: “Add modules now” multi-select with live price
+  (monthly/yearly charm).
+
+================================================================================
+3. UPSELL TRIGGERS (PRODUCT COPY HOOKS)
+================================================================================
+
+  Empty delivery → suggest food.delivery
+  Restaurant without tables → suggest food.dine_in
+  Many WA forwards → suggest Kitchen
+  “Events” keyword in onboarding → suggest Catering
+
+================================================================================
+4. ENTITLEMENT CHECK PSEUDO
+================================================================================
+
+  canEnable(dine_in) =
+    type.allows_dine_in && hasPurchased(food.dine_in)
+
+  canEnable(catering) =
+    hasPurchased(food.catering) || type includes catering core
+
+  showKitchenBoard =
+    hasPurchased(food.kitchen)
+
+================================================================================
+CHANGE LOG
+================================================================================
+2026-07-16  Website-first registration; module upsell shapes.
+================================================================================

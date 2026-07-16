@@ -1,0 +1,29 @@
+================================================================================
+30 — EDUCATION INDUSTRY (OPS POINTER)
+================================================================================
+Authority: industries-docs/education/
+
+UNDERSTANDING
+  Schools, colleges, tuition, music & ALL skills, independent teachers
+  (side income), YouTube ONLY on site (free — no other video hosts),
+  live online tuition slots, free enquiry/demo; optional fees via tenant PG.
+
+NOT full LMS / not Artix fee marketplace.
+
+Read:
+  industries-docs/education/00-README-INDEX.txt
+  01-education-anchor.txt
+  07-independent-teachers-side-income.txt
+  08-youtube-and-media-on-site.txt
+  09-live-online-tuition-slots.txt
+  10-skill-music-arts-tutorials.txt
+
+Google Connect: 26-google-tenant-integrations-guide.txt
+Calendar: FREE for teachers
+
+================================================================================
+CHANGE LOG
+================================================================================
+2026-07-16  Initial education pointer.
+2026-07-16  Expanded schools/teachers/YouTube/live slots.
+================================================================================

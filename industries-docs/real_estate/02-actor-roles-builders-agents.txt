@@ -1,0 +1,59 @@
+================================================================================
+02 — ACTORS & ROLES: COMPANIES VS AGENTS (SEPARATE SITES)
+================================================================================
+See also: 15-company-vs-agent-separation.txt (LOCKED separation rules)
+
+================================================================================
+1. ACTORS
+================================================================================
+
+  Company tenant
+    Builder, construction firm, land seller, venture, gated brand, villa project.
+    Own Property-Bank. Own website. Own leads.
+
+  Agent tenant
+    Individual broker / agency.
+    Own Property-Bank (sell/resale/rent/lease across any projects they market).
+    Own website — SEPARATE from any company site.
+    May list the same real-world project that other agents also list.
+
+  End visitor
+    Browses company site OR agent site → enquire / WA / visit.
+    No property purchase payment on ALINKS.
+
+================================================================================
+2. SEPARATION (LOCKED)
+================================================================================
+
+  • No shared login between company and agent.
+  • No “company must approve agent link” in v1.
+  • No automatic inventory sync company ↔ agent.
+  • Leads never auto-route agent → company in v1.
+
+================================================================================
+3. COMPANY ROLES
+================================================================================
+
+  owner/admin, sales_executive, marketing?, viewer
+  Inventory = company Property-Bank only.
+
+================================================================================
+4. AGENT ROLES
+================================================================================
+
+  owner/admin, agency_staff (view own vs team Property-Bank by permission)
+  Inventory = agent Property-Bank only (including multi-builder marketing cards).
+
+================================================================================
+5. SAME PROJECT ON MANY AGENT SITES
+================================================================================
+
+  YES. Each agent has their own listing row + their own leads.
+  Company may independently list the official project on company site.
+
+================================================================================
+CHANGE LOG
+================================================================================
+2026-07-16  Dual path introduced.
+2026-07-16  Strict separation; no company approval of agents; multi-agent same project.
+================================================================================

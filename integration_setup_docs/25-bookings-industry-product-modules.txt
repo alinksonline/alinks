@@ -1,0 +1,84 @@
+================================================================================
+25 — BOOKINGS INDUSTRY PRODUCT & MODULES (OPS POINTER)
+================================================================================
+Authority: industries-docs/bookings_industry/ (source of truth)
+This file: engineering/setup bridge for appointments family.
+
+================================================================================
+1. READ FIRST
+================================================================================
+
+  industries-docs/bookings_industry/00-README-INDEX.txt
+  01-bookings-industry-anchor.txt through 18-*.txt
+
+  Spectrum: Clinics → Consultations → Lawyers → Function/Banquet halls
+  Shared engine: book.core (+ industry packs)
+
+================================================================================
+2. ALIGN WITH EXISTING SKILLS / CODE
+================================================================================
+
+  .agents/skills/alinks-appointments/SKILL.md
+  Sheet tabs: Appointments, Patients (clinic), Customers (others)
+  Platform DB: config only — no long-term patient PII
+
+================================================================================
+3. BILLING SKUs (ARTIX)
+================================================================================
+
+  book.core, book.clinic, book.professional, book.legal, book.venue,
+  book.payments, book.reminders, book.multilocation, bundles
+  Yearly charm: industries-docs/bookings_industry/14-billing-skus-pricing-charm.txt
+  Also: 08-razorpay-billing.txt for platform money movement
+
+================================================================================
+4. TENANT CLIENT PAYMENTS (OPTIONAL)
+================================================================================
+
+  Tenants MAY use bookings without charging clients (free_booking default).
+  Deposits / consult fees only if they opt in — via tenant Razorpay BYO
+  (book.payments). Not Artix facilitation of professional fees.
+  Do not require payment gateway setup to enable calendar booking.
+
+================================================================================
+5. COMPLIANCE HOOKS
+================================================================================
+
+  Clinic license review — Superadmin (existing direction)
+  Legal disclaimer microcopy — legal/ docs review before public text freeze
+
+================================================================================
+6. CHECKLIST WHEN BUILDING
+================================================================================
+
+  [ ] One slots engine, profile packs per type
+  [ ] License gate for clinic public booking
+  [ ] Venue date/package capacity model
+  [ ] Lawyer consult-only scope (no case CMS v1)
+  [ ] PII to tenant storage
+  [ ] Multi-location 5–10% off extra
+  [ ] Platform vs tenant coupons
+  [ ] Google Calendar API + OAuth (tenant Gmail) — FREE, all industries — doc 19
+  [ ] Encrypt calendar refresh tokens; reauth UX
+  [ ] Push events on confirm; free/busy pull into slots
+  [ ] Catering confirmed events also sync (food industry)
+
+================================================================================
+7. GOOGLE CALENDAR / GMAIL (TENANT) — FREE
+================================================================================
+
+  Product: industries-docs/bookings_industry/19-module-google-calendar-gmail.txt
+  Pricing: FREE for all applicable industries (bookings, catering, etc.)
+           Do not bill as book.google_calendar SKU.
+  Easy setup (Artix + tenant UX): 26-google-tenant-integrations-guide.txt
+  Setup base: 07-google-oauth-sheets.txt — enable Calendar API + scopes/callback.
+  Tenant connects OWN Gmail or Google Workspace via Connect button —
+  no tenant-created API keys or GCP project.
+
+================================================================================
+CHANGE LOG
+================================================================================
+2026-07-16  Initial bookings industry ops pointer.
+2026-07-16  Google Calendar / tenant Gmail integration.
+================================================================================
+

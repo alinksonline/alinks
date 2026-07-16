@@ -11,8 +11,10 @@ export default async function OnboardingPage() {
   return (
     <main className="app-container py-10 pb-tab-safe">
       <p className="premium-label">Onboarding</p>
-      <h1 className="premium-heading mt-2">Set up your business</h1>
-      <p className="premium-subtext mt-2">14-day Pro trial · 5-page mini-site</p>
+      <h1 className="premium-heading mt-2">Set up your site</h1>
+      <p className="premium-subtext mt-2">
+        14-day Pro trial · industry + type · website first · Select modules later
+      </p>
       <div className="premium-card mt-8 shadow-soft">
         <div className="px-5 py-6">
           <OnboardingForm />

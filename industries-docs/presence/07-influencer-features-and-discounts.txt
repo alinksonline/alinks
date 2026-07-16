@@ -1,0 +1,222 @@
+================================================================================
+07 — INFLUENCER-FIRST PRESENCE: FEATURES + DISCOUNTS
+================================================================================
+Location: industries-docs/presence/07-influencer-features-and-discounts.txt
+Created:  2026-07-16
+Status:   LOCKED (product design)
+Audience: Influencers / creators first; business profile still supported
+Frontend pricing language: never “à la carte” — use “Select modules” / “Modules”
+
+================================================================================
+0. STATUS vs PREVIOUS NOTES
+================================================================================
+
+  Previous Presence design = minimal (site + links + gallery + contact).
+  THIS DOC upgrades Presence so it attracts creators — still NO sales on ALINKS.
+
+  Implementation of code is separate; this is the product lock for what we build.
+
+================================================================================
+1. WHY INFLUENCERS CHOOSE ALINKS PRESENCE
+================================================================================
+
+  One mobile-first link they put in Instagram / YouTube / bio:
+    • Looks premium (branding, theme, OG share cards)
+    • All links + collab path in one place
+    • Media kit / rate card without building a full agency site
+    • Cheap enough that student / mid-tier creators actually start
+
+  We win on: beauty + simplicity + price for creators + easy upgrade later
+  if they open a shop / bookings (other industries).
+
+================================================================================
+2. FEATURE PACK — WHAT PRESENCE GIVES (BETTER SET)
+================================================================================
+
+  A) ALWAYS ON (Presence core — every Presence tenant)
+  ----------------------------------------------------
+  pr.presence_core
+    • Mini-site, 5-page rule, publish control
+    • Branding: logo, colors, fonts, corners, favicon, cover, OG image
+    • Profile: photo, display name, tagline, short bio
+    • Mobile-first “card” layout (hero → bio → primary CTA → links)
+
+  pr.link_stack   (Link hub — creator core)
+    • Unlimited soft-capped link buttons (icons + title + URL)
+    • Pin / highlight 1–3 links (e.g. “Latest reel”, “Collab”)
+    • Reorder drag-and-drop
+    • Social strip: IG, YT, X, LinkedIn, WhatsApp, Maps, custom
+    • Optional “opens in new tab” + UTM helper (simple)
+
+  pr.gallery
+    • Photo grid (work, events, BTS)
+    • Soft caps by plan (higher on Creator Pro)
+
+  pr.contact
+    • Call / WhatsApp / Email CTAs
+    • Contact form → tenant Google Sheet (optional Connect)
+    • Brand collab form fields (brand name, budget range, brief) — still
+      only a lead form, NOT paid booking or checkout
+
+  pr.share_kit
+    • QR code for the site
+    • Share image / OG card (Tap & Blast–style light)
+    • Short public URL (handle / custom path)
+
+  YouTube
+    • Embed trailers / featured video (YouTube only) OR outbound link
+    • Outbound for other platforms (IG, etc.)
+
+  B) CREATOR-STRONG (included on Influencer path / Creator plan)
+  -------------------------------------------------------------
+  pr.media_kit
+    • On-page Media Kit section (not a PDF upload required)
+    • Self-reported: niches, platforms, approx reach, past brands
+    • Rate card DISPLAY only (packages as text/prices shown — no cart)
+    • “Work with me” primary CTA → collab form or WA
+
+  pr.social_proof
+    • Testimonials / quotes block
+    • “As seen on” / brand logos strip (images + links)
+    • Optional follower/count chips (self-entered — not scraped)
+
+  pr.highlights
+    • Story-style highlight tiles (e.g. Travel, Food, Tech) → gallery or link
+
+  pr.analytics_lite
+    • Page views + link click counts (simple dashboard)
+    • Enough to show “my link hub works” — not full marketing suite
+
+  C) PRO / PAID UPGRADES ON PRESENCE (still no sales)
+  ---------------------------------------------------
+  • Custom domain
+  • Remove ALINKS watermark
+  • Higher gallery / link / media-kit image caps
+  • Priority OG / branded share cards
+
+  D) NEVER ON PRESENCE (LOCKED)
+  -----------------------------
+  Cart, checkout, COD, Razorpay for goods/services, pay-then-book packages,
+  food order, inventory, wholesale, RE sell checkout.
+  External “Shop on Instagram” link = OK (off-platform).
+
+================================================================================
+3. PAGE SET (INFLUENCER DEFAULT TEMPLATE)
+================================================================================
+
+  Home     Hero + bio + primary CTA (Work with me / Latest) + pinned links
+  Links    Full link hub (or Home absorbs Links for 1-page creators)
+  Media    Media kit + rate card (display) + past work
+  Gallery  Photos / covers
+  Contact  Collab form + WA / email
+
+  Alternative 1-page mode (professional_card / quick start):
+    Single scroll: bio → links → media kit teaser → contact
+
+================================================================================
+4. ONBOARDING LABELS (FRONTEND)
+================================================================================
+
+  Industry:  Presence
+  Types:     Influencer / creator  |  Personal brand  |  Business profile
+             | Community  |  Digital card
+
+  Influencer entry copy:
+    “Your professional link hub — collabs & media kit, no shop required.”
+
+  Not: “à la carte”, not “sell products”.
+
+================================================================================
+5. DISCOUNTS — INFLUENCERS GET GREAT DEALS (LOCKED INTENT)
+================================================================================
+
+  Goal: flood of creator signups → brand awareness → later upsell industries.
+
+  A) CREATOR PRICE LADDER (website plan for Presence)
+  ---------------------------------------------------
+  List prices = normal Website Starter / Pro (same SKUs as other industries).
+
+  Influencer path applies CREATOR DISCOUNT on the website plan only
+  (type = influencer_creator, or coupon CREATOR / INFLUENCER):
+
+    Tier                         Discount vs list (recommend)
+    ---------------------------  ----------------------------
+    Creator Launch (promo)       50–70% off first 12 months
+                                 OR free Starter 3 months + 50% year 1 Pro
+    Creator ongoing              30–40% off monthly/yearly website plan
+    Creator annual               Extra yearly charm …99 + creator % stacked
+                                 (cap total discount in Superadmin so margin OK)
+    Student / micro-creator      Highest discount or free Starter
+                                 (verify optional later: email / self-declare)
+
+  Superadmin fields:
+    presence.creator_discount_pct_monthly
+    presence.creator_discount_pct_yearly
+    presence.creator_launch_coupon (code, % or free months, expiry)
+    presence.creator_discount_applies_to = website_plan only
+    (modules later if they leave Presence — normal “Select modules” pricing)
+
+  B) WHAT IS FREE / CHEAP FOR CREATORS (product, not only price)
+  -------------------------------------------------------------
+  Included even on discounted Creator Starter:
+    Link hub, profile, contact/collab form, basic gallery, QR, basic share card
+  Discounted Creator Pro:
+    Media kit + rate card display, social proof, analytics lite, higher caps,
+    custom domain at creator price
+
+  C) COUPONS & CAMPAIGNS
+  ----------------------
+  Suggested codes (examples — configure in Superadmin, not hardcode forever):
+    CREATOR50   — 50% off website plan (Presence influencer type)
+    LINKHUB     — launch: first year heavy off
+    CAMPUS      — student micro-creators
+  Seasonal: Diwali / New Year creator flash sales.
+
+  D) REFERRAL (PHASE 2 — design only)
+  -----------------------------------
+  Creator refers creator → both get free months or extra % off.
+  Attracts networks (collab circles).
+
+  E) RULES
+  --------
+  • Creator discounts do NOT unlock commerce. Still Presence = no sales.
+  • Discount is for website plan (and Presence pro add-ons like domain),
+    not for unrelated industry modules until they switch industry.
+  • **Huge discounts are a trade for promoting ALINKS** — see doc 08
+    (Creator Partner tiers, promo duties, fair enforcement).
+  • Abuse: one discount per tenant; Superadmin can revoke coupon misuse.
+  • Business_profile_only / community types: smaller or no creator discount
+    (list price or mild “Presence” promo) — save deep cuts for influencers.
+
+  F) FRONTEND BILLING COPY
+  ------------------------
+  “Creator pricing” / “Influencer plan”
+  “Launch offer — limited time”
+  Invoice: Website plan − Creator discount = net
+  Never show “à la carte” on screen.
+
+================================================================================
+6. SUCCESS METRICS (PRODUCT)
+================================================================================
+
+  • Creator signups / week
+  • % who publish + add ≥3 links
+  • Collab form submits
+  • Upgrade rate to Pro / custom domain
+  • Later: switch to selling industries (optional)
+
+================================================================================
+7. VS MINIMAL PRESENCE (WHAT CHANGED)
+================================================================================
+
+  OLD minimal: core + links + gallery + contact
+  NEW better:  + media kit, rate card display, collab form fields,
+               social proof, highlights, share/QR kit, analytics lite,
+               influencer templates + deep creator discounts
+
+================================================================================
+CHANGE LOG
+================================================================================
+2026-07-16  Influencer-first Presence feature pack + creator discount ladder.
+2026-07-16  Deep discount = promote ALINKS trade → see 08.
+================================================================================

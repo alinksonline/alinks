@@ -1,0 +1,98 @@
+================================================================================
+01 — EDUCATION INDUSTRY ANCHOR (EXPANDED)
+================================================================================
+Location: industries-docs/education/01-education-anchor.txt
+Updated:  2026-07-16
+
+================================================================================
+1. UNDERSTANDING (PRODUCT INTENT)
+================================================================================
+
+  Education on ALINKS is broad — anyone who teaches or runs an institute:
+
+    Schools & colleges     Brand presence, courses offered, admissions enquire,
+                           campus visit booking
+    Tuition classes        Batch timings, subjects, demo class, fees optional
+    Music / arts classes   Instruments, levels, trial slots (same engine as any skill)
+    Skill development      Coding, language, design, vocational, soft skills, …
+    Tutorials / creators   Course list + YouTube embeds + optional paid access link
+    Independent teachers   Side-income tutors with THEIR OWN mini-site and slots
+    Live online tuition    Scheduled 1:1 or small-group online slots + meeting link
+
+  “Not only music” — music is ONE category seed. Taxonomy is OPEN (like retail):
+  any subject or skill they name.
+
+  Smart app = one education engine + type seeds + modules (courses, faculty,
+  slots, media, fees) — not a separate product per subject.
+
+================================================================================
+2. WHAT ALINKS PROVIDES
+================================================================================
+
+  IS
+    • Mini-site + branding for institute OR individual teacher
+    • Course / class / program catalogue
+    • Faculty / teacher profiles
+    • YouTube embeds only on pages & course cards (no other video hosts)
+    • Enquiry / WhatsApp / call CTAs
+    • Demo & tuition SLOTS (online or offline) via bookings engine
+    • Batch schedule display (lite)
+    • Optional student fee / seat deposit (tenant PG)
+    • Google Calendar FREE sync for teachers
+    • Results / testimonials / gallery blocks
+
+  IS NOT (v1)
+    • Full LMS (hosted course video platform, quizzes, certificates engine)
+    • Built-in live classroom WebRTC (use Meet / Zoom / YouTube Live links)
+    • University ERP, attendance, exam seating
+    • UGC degree issuance
+    • Marketplace taking % of all tutor fees as default (tenant keeps PG)
+
+================================================================================
+3. ACTORS
+================================================================================
+
+  Institute tenant     coaching center, music school, skill academy, school brand
+  Independent teacher  one person, own handle, own packages/slots (side income)
+  Faculty under institute  staff resources of an institute tenant
+  Student / parent     end user — enquires or books (free or paid)
+
+================================================================================
+4. CORE JOURNEYS
+================================================================================
+
+  A. Discover → course page → WhatsApp / enquiry form (free)
+  B. Demo class → pick slot → confirm (free or paid token)
+  C. 1:1 online tuition → recurring or single slots + meet link
+  D. Batch interest → “join batch” enquiry or seat deposit
+  E. Watch intro on YouTube embedded on site → convert to book/enquire
+  F. School admissions → form + optional campus visit slot
+
+================================================================================
+5. MODULES (SUMMARY — SEE 03)
+================================================================================
+
+  edu.courses, edu.batches_lite, edu.faculty, edu.enquiry,
+  edu.demo_booking, edu.live_tuition_slots, edu.fees_pay,
+  edu.media_youtube, edu.results_showcase, edu.multilocation
+
+  google.calendar FREE
+  YouTube embeds: free site capability (edu.media_youtube may be “included”
+  not paid — see 08)
+
+================================================================================
+6. COMPLIANCE
+================================================================================
+
+  No “guaranteed rank / guaranteed job” false claims (AUP).
+  Child data: parental consent microcopy; tenant responsible under local law.
+  Independent teachers: still AUP; no illegal content on linked videos.
+  Medical/clinical courses claims → careful; not a hospital product.
+
+================================================================================
+CHANGE LOG
+================================================================================
+2026-07-16  Initial education pack.
+2026-07-16  Expanded: schools/colleges, music+all skills, side-income teachers,
+            YouTube, live online tuition slots.
+================================================================================

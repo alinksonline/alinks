@@ -1,0 +1,57 @@
+================================================================================
+14 — BOOKINGS BILLING SKUs & CHARM YEARLY
+================================================================================
+
+================================================================================
+1. SKUs
+================================================================================
+
+  plan.website.*
+  book.core
+  book.clinic
+  book.professional
+  book.legal
+  book.venue
+  book.payments
+  book.reminders
+  book.multilocation
+  book.bundle.clinic_complete
+  book.bundle.legal_complete
+  book.bundle.venue_complete
+
+  NOT a paid SKU (free capability):
+    google.calendar — tenant Gmail/Calendar sync for all applicable industries
+
+================================================================================
+2. YEARLY
+================================================================================
+
+  Same as food: monthly × 12 → −5–10% → charm …99
+  (99, 999, 1999, 4999, 9999, 19999, …)
+
+================================================================================
+3. DISCUSSION BANDS (₹/MO — TUNE LATER)
+================================================================================
+
+  book.core           299–499
+  book.clinic         399–699  (compliance value)
+  book.professional   299–499
+  book.legal          399–699
+  book.venue          499–799  (high ticket venues)
+  book.payments       199–399
+  book.reminders      149–299
+  google.calendar     FREE (all industries where applicable)
+  Extra location      5–10% off vs primary (doc 17)
+
+================================================================================
+4. TWO PAYMENT WORLDS
+================================================================================
+
+  Platform: tenant pays Artix for modules
+  Tenant PG: client pays clinic/lawyer/hall
+
+================================================================================
+CHANGE LOG
+================================================================================
+2026-07-16  Bookings SKUs + charm + bands.
+================================================================================

@@ -1,0 +1,77 @@
+================================================================================
+07 — MODULE: LAWYERS / LEGAL CONSULT (book.legal)
+================================================================================
+SKU: book.legal
+For: advocates, law firms booking consultations — NOT full case management.
+
+================================================================================
+1. DEFINITION
+================================================================================
+
+  Consultation scheduling for legal professionals: consult types, durations,
+  confidentiality notice, optional fee/deposit. Does not replace practice
+  management (matters, court dates, document vault) in v1.
+
+================================================================================
+2. WHO CAN BUY
+================================================================================
+
+  legal_lawyers base type.
+  Optional bar registration number field (display; verification policy TBD).
+
+================================================================================
+3. ENABLES
+================================================================================
+
+  PUBLIC
+    • Consult type → lawyer (if multi) → slot → client details
+    • Mandatory short disclaimer: “Consultation booking only; not legal advice
+      until engagement; no attorney-client relationship formed by booking alone”
+      (final legal copy via legal docs review)
+  ADMIN
+    • Lawyers as resources
+    • Consult catalogue (civil, criminal intro, family, corporate, …)
+    • Blackout for court days / leave
+
+================================================================================
+4. LIFECYCLE (100%)
+================================================================================
+
+  Discover → Purchase (core + legal) → Configure → Operate →
+  Payments/reminders integrate → Bill → Disable
+
+  Optional later: Superadmin “bar ID verified” badge — not required for MVP.
+
+================================================================================
+5. INVENTORY / CATALOGUE
+================================================================================
+
+  Services = consultation products (not “cases”)
+  Categories = practice areas
+  Variations = Online / Chamber visit; 30/60 min; language preference
+  Client records: tenant storage Customers/Clients tab — no case files on platform
+
+================================================================================
+6. INTEGRATION
+================================================================================
+
+  + book.core slots
+  + book.payments retainership token / consult fee
+  + book.reminders
+  + book.multilocation chambers in multiple cities
+  ≠ book.clinic (no patient/license medical flow)
+  ≠ venue banquet (unless firm books seminar hall via book.venue add-on)
+
+================================================================================
+7. HARD RULES
+================================================================================
+
+  • No document storage of case bundles as core feature v1
+  • No guaranteeing legal outcomes in marketing microcopy
+  • Booking ≠ engagement letter (link to firm’s terms)
+
+================================================================================
+CHANGE LOG
+================================================================================
+2026-07-16  Lawyer consult booking module (not CMS).
+================================================================================
