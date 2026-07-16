@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import Link from "next/link";
 import { CheckoutForm } from "@/components/tenant/checkout-form";
@@ -8,8 +9,22 @@ import { PublicSiteNav } from "@/components/tenant/public-site-nav";
 import type { CartItem } from "@/core/types/commerce";
 import { parseBusinessProfile } from "@/core/types/business-profile";
 import { shouldShowAlinksWatermark } from "@/core/utils/branding";
+import { buildTenantMetadata } from "@/core/utils/tenant-seo";
 import { canUseProCheckout } from "@/core/utils/tier-gates";
 import { getPublicBusinessByHandle } from "@/tenant/site/get-public-business";
+
+export async function generateMetadata({ params }: { params: { handle: string } }): Promise<Metadata> {
+  const business = await getPublicBusinessByHandle(params.handle);
+  if (!business) return { title: "Checkout" };
+  return buildTenantMetadata({
+    handle: params.handle,
+    name: business.name,
+    branding: business.branding,
+    title: `${business.name} — Checkout`,
+    description: `Checkout with ${business.name}`,
+    path: `/${params.handle}/checkout`,
+  });
+}
 
 export default async function CheckoutPage({
   params,

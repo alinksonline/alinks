@@ -97,7 +97,14 @@ export interface BrandingConfig {
   logoUrl: string;
   faviconUrl: string;
   coverUrl: string;
+  /** Dedicated Open Graph / share image */
+  ogImageUrl?: string;
+  /** When OG empty: cover (default) or favicon */
+  ogFallback?: "cover" | "favicon";
   businessName: string;
+  tagline?: string;
+  /** When logo set: also show name + tagline in header (default true) */
+  showTitleWithLogo?: boolean;
   email?: string;
   phone?: string;
   whatsapp?: string;

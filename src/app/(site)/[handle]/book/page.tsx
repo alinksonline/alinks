@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import Link from "next/link";
 import { BookingForm } from "@/components/tenant/booking-form";
@@ -7,8 +8,22 @@ import { TenantThemedLayout } from "@/components/tenant/tenant-themed-layout";
 import { PublicSiteNav } from "@/components/tenant/public-site-nav";
 import { shouldShowAlinksWatermark } from "@/core/utils/branding";
 import { parseBusinessProfile } from "@/core/types/business-profile";
+import { buildTenantMetadata } from "@/core/utils/tenant-seo";
 import { getSalonPackagesForHandle } from "@/app/actions/salon";
 import { getPublicBusinessByHandle } from "@/tenant/site/get-public-business";
+
+export async function generateMetadata({ params }: { params: { handle: string } }): Promise<Metadata> {
+  const business = await getPublicBusinessByHandle(params.handle);
+  if (!business) return { title: "Book" };
+  return buildTenantMetadata({
+    handle: params.handle,
+    name: business.name,
+    branding: business.branding,
+    title: `${business.name} — Book`,
+    description: `Book an appointment with ${business.name}`,
+    path: `/${params.handle}/book`,
+  });
+}
 
 export default async function BookPage({ params }: { params: { handle: string } }) {
   const row = await getPublicBusinessByHandle(params.handle);

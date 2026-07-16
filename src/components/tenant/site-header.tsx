@@ -18,18 +18,23 @@ export function SiteHeader({
 
   const wa = profile.whatsapp || profile.phone;
   const displayName = profile.businessName || business.name;
+  const tagline = profile.tagline?.trim() || "";
   const isSalon = business.vertical === "salon" || business.vertical === "beauty";
+  const hasLogo = Boolean(profile.logoUrl?.trim());
+  /** Logo-only when they turn off title; always show name if no logo. */
+  const showTitle = !hasLogo || profile.showTitleWithLogo !== false;
 
   return (
     <header className="t-header sticky top-0 z-40">
       <div className="mx-auto flex h-14 w-full max-w-app items-center justify-between gap-2 px-3.5">
         <Link href={`/${business.handle}`} className="flex min-w-0 items-center gap-2.5">
-          {profile.logoUrl ? (
+          {hasLogo ? (
             // eslint-disable-next-line @next/next/no-img-element
             <img
               src={profile.logoUrl}
-              alt=""
-              className="h-9 w-9 shrink-0 rounded-2xl object-cover ring-1 ring-[var(--t-border)]"
+              alt={showTitle ? "" : displayName}
+              className="h-9 w-auto max-w-[9.5rem] shrink-0 object-contain"
+              style={{ maxHeight: "2.25rem" }}
             />
           ) : (
             <span
@@ -39,12 +44,14 @@ export function SiteHeader({
               {displayName.slice(0, 1).toUpperCase()}
             </span>
           )}
-          <span className="min-w-0">
-            <span className="t-ink block truncate text-sm font-bold tracking-tight">{displayName}</span>
-            <span className="t-muted block truncate text-[10px] font-medium uppercase tracking-wider">
-              {business.vertical}
+          {showTitle ? (
+            <span className="min-w-0">
+              <span className="t-ink block truncate text-sm font-bold tracking-tight">{displayName}</span>
+              <span className="t-muted block truncate text-[10px] font-medium tracking-wide">
+                {tagline || business.vertical}
+              </span>
             </span>
-          </span>
+          ) : null}
         </Link>
 
         <div className="flex shrink-0 items-center gap-1.5">

@@ -16,11 +16,15 @@ import { getCatalogByHandle } from "@/tenant/storage/catalog";
 export async function generateMetadata({ params }: { params: { handle: string } }): Promise<Metadata> {
   const business = await getPublicBusinessByHandle(params.handle);
   if (!business) return { title: "Shop" };
-  return {
+  const { buildTenantMetadata } = await import("@/core/utils/tenant-seo");
+  return buildTenantMetadata({
+    handle: params.handle,
+    name: business.name,
+    branding: business.branding,
     title: `${business.name} — Shop`,
     description: `Order from ${business.name} on ALINKS`,
-    openGraph: { title: `${business.name} Shop`, type: "website" },
-  };
+    path: `/${params.handle}/store`,
+  });
 }
 
 export default async function StorePage({ params }: { params: { handle: string } }) {

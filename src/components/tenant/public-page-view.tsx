@@ -53,6 +53,18 @@ export function PublicPageView({ data }: { data: PublicPageData }) {
       <JsonLd data={schema} />
       <SiteHeader business={business} profile={profile} />
 
+      {data.slug === "home" && profile.coverUrl?.trim() ? (
+        <div className="mx-auto w-full max-w-app px-3.5 pt-3">
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img
+            src={profile.coverUrl}
+            alt=""
+            className="h-36 w-full object-cover ring-1 ring-[var(--t-border)] sm:h-44"
+            style={{ borderRadius: "var(--t-radius-lg, var(--t-radius, 1rem))" }}
+          />
+        </div>
+      ) : null}
+
       {hero && data.slug === "home" && (() => {
         const hp = resolveHeroPresentation(hero, primary, accent);
         const ctaHref = `/${data.business.handle}${

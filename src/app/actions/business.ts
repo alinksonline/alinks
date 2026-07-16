@@ -239,9 +239,48 @@ export async function updateBrandingAction(businessId: string, branding: Brandin
     const db = getPlatformDb();
     if (!db) return { success: false as const, error: "Database not connected" };
 
-    await db.update(businesses).set({ branding, updatedAt: new Date() }).where(eq(businesses.id, businessId));
+    const { normalizeProfileForSave } = await import("@/core/utils/business-profile");
+    const { parseBusinessProfile } = await import("@/core/types/business-profile");
+
+    const existing = (
+      await db.select().from(businesses).where(eq(businesses.id, businessId)).limit(1)
+    )[0];
+    if (!existing) return { success: false as const, error: "Business not found" };
+
+    const prev = parseBusinessProfile(existing.branding, existing.name);
+    const next = normalizeProfileForSave({
+      ...prev,
+      businessName: branding.businessName?.trim() || prev.businessName,
+      tagline: branding.tagline ?? prev.tagline,
+      logoUrl: branding.logoUrl ?? prev.logoUrl,
+      faviconUrl: branding.faviconUrl ?? prev.faviconUrl,
+      coverUrl: branding.coverUrl ?? prev.coverUrl,
+      ogImageUrl: branding.ogImageUrl ?? prev.ogImageUrl,
+      ogFallback: branding.ogFallback === "favicon" ? "favicon" : branding.ogFallback === "cover" ? "cover" : prev.ogFallback,
+      showTitleWithLogo: branding.showTitleWithLogo ?? prev.showTitleWithLogo,
+      email: branding.email ?? prev.email,
+      phone: branding.phone ?? prev.phone,
+      whatsapp: branding.whatsapp ?? prev.whatsapp,
+      address: branding.address ?? prev.address,
+      socials: {
+        ...prev.socials,
+        ...(branding.socials ?? {}),
+      },
+    });
+
+    await db
+      .update(businesses)
+      .set({
+        name: next.businessName || existing.name,
+        branding: next,
+        updatedAt: new Date(),
+      })
+      .where(eq(businesses.id, businessId));
+
     revalidatePath("/editor/branding");
     revalidatePath("/editor/business");
+    revalidatePath(`/${existing.handle}`);
+    revalidatePath(`/${existing.handle}/store`);
     return { success: true as const };
   } catch (e) {
     return { success: false as const, error: e instanceof Error ? e.message : "Branding update failed" };

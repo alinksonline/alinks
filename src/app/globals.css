@@ -491,8 +491,14 @@ body {
     background-color: var(--t-surface);
     color: var(--t-ink);
     border: 1px solid var(--t-border);
-    border-radius: var(--t-radius);
+    border-radius: var(--t-radius, 12px);
     box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04), 0 6px 16px -10px rgba(0, 0, 0, 0.1);
+  }
+
+  /* Generic stack/section cards inherit Theme → Corners */
+  .tenant-theme .t-section,
+  .tenant-theme section.t-card {
+    border-radius: var(--t-radius, 12px);
   }
 
   .tenant-theme .t-btn-primary {
@@ -501,9 +507,10 @@ body {
     width: 100%;
     align-items: center;
     justify-content: center;
-    border-radius: 9999px;
+    border-radius: var(--t-radius, 9999px);
     background-color: var(--t-primary);
-    color: var(--t-on-primary);
+    /* Always readable on brand fill (white on dark purple, dark on light yellow) */
+    color: var(--t-on-primary, #ffffff);
     font-size: 0.9375rem;
     font-weight: 700;
     letter-spacing: -0.01em;
@@ -525,12 +532,38 @@ body {
     min-height: 2.25rem;
     align-items: center;
     justify-content: center;
-    border-radius: 9999px;
+    border-radius: var(--t-radius, 9999px);
     background-color: var(--t-accent);
-    color: #fff;
+    color: var(--t-on-primary, #ffffff);
     font-size: 0.625rem;
     font-weight: 700;
     padding: 0.35rem 0.65rem;
+  }
+
+  /* Dark surfaces: ink/muted already flip via theme vars — never force dark slate */
+  .tenant-theme[data-mode="dark"] .t-ink,
+  .tenant-theme[data-mode="dark"] .t-card,
+  .tenant-theme[data-mode="dark"] .t-package-card {
+    color: var(--t-ink);
+  }
+
+  .tenant-theme[data-mode="dark"] .t-muted {
+    color: var(--t-muted);
+  }
+
+  /* Outline-style control on dark page surfaces */
+  .tenant-theme .t-btn-outline {
+    display: inline-flex;
+    min-height: 2.5rem;
+    width: 100%;
+    align-items: center;
+    justify-content: center;
+    border-radius: var(--t-radius, 12px);
+    border: 1.5px solid var(--t-border);
+    background: transparent;
+    color: var(--t-ink);
+    font-weight: 700;
+    font-size: 0.8125rem;
   }
 
   .tenant-theme .t-chip {

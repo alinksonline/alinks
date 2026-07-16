@@ -9,24 +9,78 @@ export const DEFAULT_TENANT_THEME: ThemeConfig = {
   borderRadius: "12px",
 };
 
-const FONT_STACKS: Record<string, string> = {
-  Inter: 'var(--font-sans), "Inter", system-ui, sans-serif',
+/** Curated fonts we actually load (Google Fonts) on public mini-sites. */
+export const TENANT_FONT_OPTIONS = [
+  { id: "Inter", label: "Inter", google: "Inter:wght@400;500;600;700" },
+  { id: "Poppins", label: "Poppins", google: "Poppins:wght@400;500;600;700" },
+  { id: "DM Sans", label: "DM Sans", google: "DM+Sans:wght@400;500;600;700" },
+  { id: "Nunito", label: "Nunito", google: "Nunito:wght@400;600;700" },
+  { id: "Playfair", label: "Playfair", google: "Playfair+Display:wght@400;600;700" },
+  { id: "Space Grotesk", label: "Space Grotesk", google: "Space+Grotesk:wght@400;500;600;700" },
+  { id: "system", label: "System", google: null },
+  { id: "Serif", label: "Serif", google: null },
+  { id: "Mono", label: "Mono", google: "JetBrains+Mono:wght@400;500;600" },
+] as const;
+
+export type TenantFontId = (typeof TENANT_FONT_OPTIONS)[number]["id"];
+
+export const FONT_STACKS: Record<string, string> = {
+  Inter: '"Inter", system-ui, sans-serif',
+  Poppins: '"Poppins", system-ui, sans-serif',
+  "DM Sans": '"DM Sans", system-ui, sans-serif',
+  Nunito: '"Nunito", system-ui, sans-serif',
+  Playfair: '"Playfair Display", Georgia, serif',
+  "Space Grotesk": '"Space Grotesk", system-ui, sans-serif',
   system: "system-ui, -apple-system, BlinkMacSystemFont, sans-serif",
   Serif: 'Georgia, "Times New Roman", serif',
-  Mono: 'var(--font-mono), ui-monospace, monospace',
-  Rounded: '"SF Pro Rounded", "Nunito", system-ui, sans-serif',
+  Mono: '"JetBrains Mono", ui-monospace, monospace',
+  // Legacy theme values → nearest stack
+  Rounded: '"Nunito", system-ui, sans-serif',
 };
+
+/** Map legacy font ids from older theme saves. */
+export function normalizeFontId(raw: string): string {
+  if (raw === "Rounded") return "Nunito";
+  if (FONT_STACKS[raw]) return raw;
+  return "Inter";
+}
+
+export function fontStackFor(fontFamily: string): string {
+  const id = normalizeFontId(fontFamily);
+  return FONT_STACKS[id] ?? FONT_STACKS.Inter;
+}
+
+export function googleFontsHref(fontFamily: string): string | null {
+  const id = normalizeFontId(fontFamily);
+  const opt = TENANT_FONT_OPTIONS.find((f) => f.id === id);
+  if (!opt?.google) return null;
+  return `https://fonts.googleapis.com/css2?family=${opt.google}&display=swap`;
+}
+
+/** One stylesheet with every curated Google face (for live theme picker). */
+export function allTenantGoogleFontsHref(): string {
+  const families = TENANT_FONT_OPTIONS.map((f) => f.google).filter(Boolean) as string[];
+  // css2 API: family=Inter:wght@…&family=Poppins:…
+  const q = families.map((f) => `family=${encodeURIComponent(f).replace(/%3A/g, ":").replace(/%40/g, "@")}`).join("&");
+  return `https://fonts.googleapis.com/css2?${q}&display=swap`;
+}
 
 /** Parse stored theme JSON into a complete ThemeConfig. */
 export function parseThemeConfig(raw: unknown, fallbackPrimary?: string): ThemeConfig {
   const o = raw && typeof raw === "object" ? (raw as Record<string, unknown>) : {};
   const mode = o.mode === "dark" || o.mode === "system" || o.mode === "light" ? o.mode : "light";
+  const fontRaw = typeof o.fontFamily === "string" && o.fontFamily ? o.fontFamily : DEFAULT_TENANT_THEME.fontFamily;
   return {
     mode,
-    primaryColor: typeof o.primaryColor === "string" && o.primaryColor ? o.primaryColor : fallbackPrimary || DEFAULT_TENANT_THEME.primaryColor,
-    accentColor: typeof o.accentColor === "string" && o.accentColor ? o.accentColor : DEFAULT_TENANT_THEME.accentColor,
-    fontFamily: typeof o.fontFamily === "string" && o.fontFamily ? o.fontFamily : DEFAULT_TENANT_THEME.fontFamily,
-    borderRadius: typeof o.borderRadius === "string" && o.borderRadius ? o.borderRadius : DEFAULT_TENANT_THEME.borderRadius,
+    primaryColor:
+      typeof o.primaryColor === "string" && o.primaryColor
+        ? o.primaryColor
+        : fallbackPrimary || DEFAULT_TENANT_THEME.primaryColor,
+    accentColor:
+      typeof o.accentColor === "string" && o.accentColor ? o.accentColor : DEFAULT_TENANT_THEME.accentColor,
+    fontFamily: normalizeFontId(fontRaw),
+    borderRadius:
+      typeof o.borderRadius === "string" && o.borderRadius ? o.borderRadius : DEFAULT_TENANT_THEME.borderRadius,
   };
 }
 
@@ -100,6 +154,7 @@ export type ResolvedTenantTheme = {
   accent: string;
   onPrimary: string;
   radius: string;
+  googleFontsHref: string | null;
 };
 
 /**
@@ -112,7 +167,8 @@ export function resolveTenantTheme(raw: unknown, fallbackPrimary?: string): Reso
   const accent = theme.accentColor;
   const onPrimary = contrastOn(primary);
   const radius = theme.borderRadius || "12px";
-  const font = FONT_STACKS[theme.fontFamily] ?? FONT_STACKS.Inter;
+  const fontId = normalizeFontId(theme.fontFamily);
+  const font = FONT_STACKS[fontId] ?? FONT_STACKS.Inter;
 
   // Surface palettes — dark muted bumped for secondary copy/footer contrast
   const light = {
@@ -163,6 +219,8 @@ export function resolveTenantTheme(raw: unknown, fallbackPrimary?: string): Reso
     ["--t-radius-sm" as string]: `max(6px, calc(${radius} * 0.55))`,
     ["--t-radius-lg" as string]: `max(14px, calc(${radius} * 1.25))`,
     ["--t-font" as string]: font,
+    // Override platform shell font so Tailwind font-sans matches tenant pick
+    ["--font-sans" as string]: font,
     // Light tokens (for system mode media query in CSS)
     ["--t-light-bg" as string]: light.bg,
     ["--t-light-surface" as string]: light.surface,
@@ -181,5 +239,13 @@ export function resolveTenantTheme(raw: unknown, fallbackPrimary?: string): Reso
     color: "var(--t-ink)",
   } as CSSProperties;
 
-  return { theme, style, primary, accent, onPrimary, radius };
+  return {
+    theme: { ...theme, fontFamily: fontId },
+    style,
+    primary,
+    accent,
+    onPrimary,
+    radius,
+    googleFontsHref: googleFontsHref(fontId),
+  };
 }

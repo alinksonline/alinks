@@ -139,7 +139,8 @@ export function BusinessProfileForm({
           label="Logo image"
           value={profile.logoUrl}
           onChange={(logoUrl) => set("logoUrl")(logoUrl)}
-          hint="Upload from phone or import URL → WebP in cloud storage."
+          hint="Height ~80–120px; width auto. Full branding (cover, favicon, OG, title toggle) is under Editor → Branding."
+          previewClassName="h-20 w-full object-contain bg-brand-mist/30"
         />
       </section>
 

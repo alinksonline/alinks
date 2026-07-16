@@ -350,8 +350,8 @@ export function LinktreeStackEditor({
             <img
               src={profile.logoUrl}
               alt=""
-              className="h-11 w-11 rounded-full object-cover shadow-sm ring-2"
-              style={{ boxShadow: "0 0 0 2px var(--t-surface)" }}
+              className="h-11 w-auto max-w-[10rem] object-contain shadow-sm"
+              style={{ maxHeight: "2.75rem" }}
             />
           ) : (
             <div
@@ -361,12 +361,21 @@ export function LinktreeStackEditor({
               {(displayName || "A").slice(0, 1).toUpperCase()}
             </div>
           )}
-          <p className="mt-2 text-sm font-semibold" style={{ color: "var(--t-ink)" }}>
-            @{handle}
-          </p>
-          <p className="mt-0.5 text-[11px]" style={{ color: "var(--t-muted)" }}>
-            {displayName}
-          </p>
+          {(!profile?.logoUrl || profile.showTitleWithLogo !== false) && (
+            <>
+              <p className="mt-2 text-sm font-semibold" style={{ color: "var(--t-ink)" }}>
+                @{handle}
+              </p>
+              <p className="mt-0.5 text-[11px]" style={{ color: "var(--t-muted)" }}>
+                {displayName}
+              </p>
+              {profile?.tagline ? (
+                <p className="mt-0.5 max-w-[16rem] text-[10px]" style={{ color: "var(--t-muted)" }}>
+                  {profile.tagline}
+                </p>
+              ) : null}
+            </>
+          )}
           <p
             className="mt-1.5 text-[9px] font-semibold uppercase tracking-[0.14em]"
             style={{ color: "var(--t-muted)" }}

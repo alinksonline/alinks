@@ -90,7 +90,7 @@ export function SectionStylingEditor({
           )}
         </Group>
       )}
-      <Group label="Corners">
+      <Group label="Corners (relative to Theme → Corners)">
         {(["sharp", "soft", "round", "pill"] as const).map((c) => (
           <Chip key={c} active={s.corners === c} onClick={() => set({ corners: c })}>
             {c}

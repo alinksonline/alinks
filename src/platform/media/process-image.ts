@@ -1,7 +1,9 @@
 import sharp from "sharp";
 
 const MAX_EDGE = 4096; // retain full res up to 4k edge; only shrink if larger
-const WEBP_QUALITY = 90; // high quality — max compression without visible loss
+const MAX_OUTPUT_BYTES = 1_800_000; // ~1.8MB WebP cap after quality steps
+const WEBP_QUALITY_START = 88;
+const WEBP_QUALITY_FLOOR = 62;
 
 export type ProcessedImage = {
   buffer: Buffer;
@@ -16,7 +18,7 @@ export type ProcessedImage = {
  * Convert any common image buffer to WebP.
  * - Keeps original dimensions when ≤ MAX_EDGE
  * - Only downscales if wider/taller than MAX_EDGE (preserves aspect ratio)
- * - WebP quality 90 for small files with near-full fidelity
+ * - Steps WebP quality down if output exceeds MAX_OUTPUT_BYTES
  */
 export async function processImageToWebp(input: Buffer): Promise<ProcessedImage> {
   const image = sharp(input, { failOn: "none", animated: false });
@@ -35,13 +37,34 @@ export async function processImageToWebp(input: Buffer): Promise<ProcessedImage>
     });
   }
 
-  const buffer = await pipeline
-    .webp({
-      quality: WEBP_QUALITY,
-      effort: 4,
-      smartSubsample: true,
-    })
+  // Materialize once so quality retries don't re-decode from source
+  const normalized = await pipeline.toBuffer();
+
+  let quality = WEBP_QUALITY_START;
+  let buffer = await sharp(normalized)
+    .webp({ quality, effort: 4, smartSubsample: true })
     .toBuffer();
+
+  while (buffer.byteLength > MAX_OUTPUT_BYTES && quality > WEBP_QUALITY_FLOOR) {
+    quality = Math.max(WEBP_QUALITY_FLOOR, quality - 8);
+    buffer = await sharp(normalized)
+      .webp({ quality, effort: 5, smartSubsample: true })
+      .toBuffer();
+  }
+
+  // Still huge: slight extra downscale while preserving aspect (last resort)
+  if (buffer.byteLength > MAX_OUTPUT_BYTES) {
+    const outMeta = await sharp(buffer).metadata();
+    const ow = outMeta.width ?? w;
+    const oh = outMeta.height ?? h;
+    const scale = Math.sqrt(MAX_OUTPUT_BYTES / buffer.byteLength) * 0.92;
+    const tw = Math.max(1, Math.round(ow * scale));
+    const th = Math.max(1, Math.round(oh * scale));
+    buffer = await sharp(normalized)
+      .resize({ width: tw, height: th, fit: "inside", withoutEnlargement: true })
+      .webp({ quality: WEBP_QUALITY_FLOOR, effort: 5, smartSubsample: true })
+      .toBuffer();
+  }
 
   const outMeta = await sharp(buffer).metadata();
   return {

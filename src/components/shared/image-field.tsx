@@ -24,12 +24,18 @@ export function ImageField({
   onChange,
   className,
   hint,
+  previewClassName,
+  emptyDimensions,
 }: {
   label: string;
   value: string;
   onChange: (url: string) => void;
   className?: string;
   hint?: string;
+  /** Override preview image classes (e.g. object-contain for logos). */
+  previewClassName?: string;
+  /** Shown under “No image yet” in the empty preview (e.g. recommended size). */
+  emptyDimensions?: string;
 }) {
   const inputRef = useRef<HTMLInputElement>(null);
   const [urlDraft, setUrlDraft] = useState("");
@@ -102,11 +108,19 @@ export function ImageField({
         <img
           src={value}
           alt=""
-          className="h-28 w-full rounded-xl object-cover ring-1 ring-brand-ink/10"
+          className={cn(
+            "h-28 w-full rounded-xl object-cover ring-1 ring-brand-ink/10",
+            previewClassName,
+          )}
         />
       ) : (
-        <div className="flex h-28 items-center justify-center rounded-xl border border-dashed border-brand-ink/15 bg-brand-mist/40 text-[11px] text-brand-muted">
-          No image yet
+        <div className="flex h-28 flex-col items-center justify-center gap-1 rounded-xl border border-dashed border-brand-ink/15 bg-brand-mist/40 px-3 text-center">
+          <span className="text-[11px] font-medium text-brand-muted">No image yet</span>
+          {emptyDimensions ? (
+            <span className="text-[10px] font-semibold leading-snug text-brand-ink/70">
+              {emptyDimensions}
+            </span>
+          ) : null}
         </div>
       )}
 
@@ -157,8 +171,8 @@ export function ImageField({
         </p>
       ) : null}
       <p className="text-[9px] leading-snug text-brand-muted">
-        Converted to WebP and stored so the image works on every device. Prefer cloud Blob in
-        production for large files.
+        Converted to WebP (keeps resolution, reduces file size) and saved to your cloud media
+        storage so it works on every device.
       </p>
     </div>
   );

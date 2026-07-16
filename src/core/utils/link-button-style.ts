@@ -7,18 +7,18 @@ export function mergeLinkStyle(raw?: LinkButtonStyle | null): LinkButtonStyle {
   return { ...DEFAULT_LINK_STYLE, ...raw };
 }
 
+/** Link corners scale from Theme → Corners (--t-radius). */
 function radius(corners: LinkCorners | undefined): string {
   switch (corners ?? "round") {
     case "sharp":
-      return "4px";
+      return "max(2px, calc(var(--t-radius, 12px) * 0.28))";
     case "soft":
-      return "10px";
-    case "round":
-      return "14px";
+      return "var(--t-radius-sm, max(6px, calc(var(--t-radius, 12px) * 0.55)))";
     case "pill":
       return "9999px";
+    case "round":
     default:
-      return "14px";
+      return "var(--t-radius, 12px)";
   }
 }
 
@@ -75,6 +75,7 @@ export function resolveLinkButtonCss(
       ? s.gradientTo || (s.colorMode === "accent" ? primaryColor : accentColor)
       : fillA;
 
+  // Always readable label on brand fill (white on dark purple, dark on light)
   const textColor = contrastOn(fillA);
   const borderW = s.borderMode === "none" ? 0 : Math.min(4, Math.max(1, s.borderWidth ?? 1.5));
 
@@ -107,6 +108,7 @@ export function resolveLinkButtonCss(
   } else {
     style.backgroundColor = fillA;
   }
+  style.color = textColor;
 
   if (s.borderMode === "solid") {
     style.borderColor = resolveColor(s.borderColorMode, s.borderCustomColor, primaryColor, accentColor);

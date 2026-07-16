@@ -9,6 +9,7 @@ import {
   type LayoutPresetId,
 } from "@/core/types/layout-preset";
 import { backgroundCss, hexToRgba, overlayCss } from "@/core/utils/media-bg";
+import { contrastOn } from "@/core/utils/tenant-theme";
 
 export function mergeHeroStyle(raw?: HeroStyle | null): HeroStyle {
   return { ...DEFAULT_HERO_STYLE, ...raw };
@@ -53,14 +54,14 @@ function heroPad(p: "compact" | "normal" | "roomy"): string {
 function ctaRadius(c: HeroStyle["ctaCorners"]): string {
   switch (c) {
     case "sharp":
-      return "4px";
+      return "max(2px, calc(var(--t-radius, 12px) * 0.28))";
     case "soft":
-      return "10px";
+      return "var(--t-radius-sm, max(6px, calc(var(--t-radius, 12px) * 0.55)))";
     case "pill":
       return "9999px";
     case "round":
     default:
-      return "12px";
+      return "var(--t-radius, 12px)";
   }
 }
 
@@ -138,33 +139,50 @@ export function resolveHeroPresentation(
     textAlign: dims.align,
   };
 
+  // Hero sits on photo/gradient — always light type for readable contrast
   const title: CSSProperties = {
     fontSize: dims.height === "sm" ? "1.25rem" : dims.height === "lg" ? "1.75rem" : "1.5rem",
     fontWeight: 900,
     letterSpacing: "-0.02em",
     lineHeight: 1.15,
+    color: "#ffffff",
+    textShadow: "0 1px 2px rgba(0,0,0,0.35)",
   };
 
   const tagline: CSSProperties = {
     marginTop: "0.35rem",
     fontSize: "0.875rem",
-    color: "rgba(255,255,255,0.9)",
+    color: "rgba(255,255,255,0.92)",
     lineHeight: 1.4,
+    textShadow: "0 1px 2px rgba(0,0,0,0.3)",
   };
 
+  /**
+   * CTA contrast law (hero is almost always dark media):
+   * solid/gradient → brand fill + contrastOn(fill) label (white on dark purple)
+   * outline/ghost  → light chrome on dark media (never purple-on-purple)
+   */
+  const onPrimary = contrastOn(primaryColor);
+  const ctaStyle = style.ctaStyle ?? "solid";
   let ctaBg: string = primaryColor;
-  let ctaColor = "#fff";
+  let ctaColor: string = onPrimary;
   let ctaBorder = "none";
-  if (style.ctaStyle === "ghost") {
-    ctaBg = "rgba(255,255,255,0.15)";
-  } else if (style.ctaStyle === "outline") {
+
+  if (ctaStyle === "ghost") {
+    ctaBg = "rgba(255,255,255,0.18)";
+    ctaColor = "#ffffff";
+    ctaBorder = "1px solid rgba(255,255,255,0.35)";
+  } else if (ctaStyle === "outline") {
     ctaBg = "transparent";
-    ctaBorder = "1.5px solid rgba(255,255,255,0.85)";
-  } else if (style.ctaStyle === "gradient") {
+    ctaColor = "#ffffff";
+    ctaBorder = "1.5px solid rgba(255,255,255,0.9)";
+  } else if (ctaStyle === "gradient") {
     ctaBg = `linear-gradient(135deg, ${primaryColor}, ${accentColor})`;
+    ctaColor = onPrimary;
   } else {
-    ctaBg = "var(--t-surface, #fff)";
-    ctaColor = primaryColor;
+    // solid — primary fill, readable on-primary text (NOT surface + primary text)
+    ctaBg = primaryColor;
+    ctaColor = onPrimary;
   }
 
   const cta: CSSProperties = {

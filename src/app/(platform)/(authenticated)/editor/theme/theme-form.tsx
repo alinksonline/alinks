@@ -1,12 +1,16 @@
 "use client";
 
-import { useState, useTransition } from "react";
+import { useEffect, useMemo, useState, useTransition } from "react";
 import { updateThemeAction } from "@/app/actions/business";
 import { Button } from "@/components/ui/button";
 import type { ThemeConfig } from "@/core/types/page";
-import { contrastOn } from "@/core/utils/tenant-theme";
+import {
+  allTenantGoogleFontsHref,
+  contrastOn,
+  fontStackFor,
+  TENANT_FONT_OPTIONS,
+} from "@/core/utils/tenant-theme";
 
-const FONTS = ["Inter", "system", "Serif", "Mono", "Rounded"] as const;
 const RADII = [
   { label: "Soft", value: "10px" },
   { label: "Round", value: "14px" },
@@ -15,11 +19,58 @@ const RADII = [
 ] as const;
 const MODES: ThemeConfig["mode"][] = ["light", "dark", "system"];
 
+const PREVIEW_FONT_LINK_ID = "alinks-theme-preview-fonts";
+
 export function ThemeForm({ businessId, initialTheme }: { businessId: string; initialTheme: ThemeConfig }) {
   const [theme, setTheme] = useState<ThemeConfig>(initialTheme);
   const [message, setMessage] = useState("");
+  const [fontsReady, setFontsReady] = useState(false);
   const [isPending, startTransition] = useTransition();
   const onPrimary = contrastOn(theme.primaryColor);
+  const liveFont = useMemo(() => fontStackFor(theme.fontFamily), [theme.fontFamily]);
+
+  // Load all curated Google fonts into <head> so picker + preview update live
+  useEffect(() => {
+    if (typeof document === "undefined") return;
+
+    let link = document.getElementById(PREVIEW_FONT_LINK_ID) as HTMLLinkElement | null;
+    if (!link) {
+      const preconnect1 = document.createElement("link");
+      preconnect1.rel = "preconnect";
+      preconnect1.href = "https://fonts.googleapis.com";
+      preconnect1.dataset.alinksThemeFonts = "1";
+      document.head.appendChild(preconnect1);
+
+      const preconnect2 = document.createElement("link");
+      preconnect2.rel = "preconnect";
+      preconnect2.href = "https://fonts.gstatic.com";
+      preconnect2.crossOrigin = "anonymous";
+      preconnect2.dataset.alinksThemeFonts = "1";
+      document.head.appendChild(preconnect2);
+
+      link = document.createElement("link");
+      link.id = PREVIEW_FONT_LINK_ID;
+      link.rel = "stylesheet";
+      link.href = allTenantGoogleFontsHref();
+      link.onload = () => setFontsReady(true);
+      link.onerror = () => setFontsReady(true);
+      document.head.appendChild(link);
+    } else {
+      setFontsReady(true);
+    }
+
+    // If stylesheet already cached, mark ready
+    if (link.sheet) setFontsReady(true);
+  }, []);
+
+  // After font id changes, ask the browser to use the face if available
+  useEffect(() => {
+    if (typeof document === "undefined" || !fontsReady) return;
+    const family = liveFont.split(",")[0]?.replace(/"/g, "").trim();
+    if (family && document.fonts?.load) {
+      void document.fonts.load(`600 16px "${family}"`).catch(() => undefined);
+    }
+  }, [theme.fontFamily, liveFont, fontsReady]);
 
   return (
     <form
@@ -79,21 +130,31 @@ export function ThemeForm({ businessId, initialTheme }: { businessId: string; in
       <div>
         <p className="mb-1.5 text-[10px] font-bold uppercase tracking-wide text-brand-muted">Font</p>
         <div className="flex flex-wrap gap-1.5">
-          {FONTS.map((f) => (
-            <button
-              key={f}
-              type="button"
-              onClick={() => setTheme({ ...theme, fontFamily: f })}
-              className={`rounded-lg border px-2.5 py-1.5 text-[11px] font-semibold ${
-                theme.fontFamily === f
-                  ? "border-brand-purple/40 bg-brand-purple/10 text-brand-ink"
-                  : "border-brand-ink/10 bg-brand-surface text-brand-muted"
-              }`}
-            >
-              {f}
-            </button>
-          ))}
+          {TENANT_FONT_OPTIONS.map((f) => {
+            const stack = fontStackFor(f.id);
+            const active = theme.fontFamily === f.id;
+            return (
+              <button
+                key={f.id}
+                type="button"
+                onClick={() => setTheme({ ...theme, fontFamily: f.id })}
+                className={`rounded-lg border px-2.5 py-1.5 text-[11px] font-semibold ${
+                  active
+                    ? "border-brand-purple/40 bg-brand-purple/10 text-brand-ink"
+                    : "border-brand-ink/10 bg-brand-surface text-brand-muted"
+                }`}
+                style={{ fontFamily: stack }}
+                title={f.label}
+              >
+                {f.label}
+              </button>
+            );
+          })}
         </div>
+        <p className="mt-1.5 text-[10px] text-brand-muted">
+          Tap a font — the live preview below updates immediately
+          {!fontsReady ? " (loading typefaces…)" : ""}.
+        </p>
       </div>
 
       <div>
@@ -116,53 +177,75 @@ export function ThemeForm({ businessId, initialTheme }: { businessId: string; in
         </div>
       </div>
 
-      {/* Live mini preview using tenant tokens */}
+      {/* Live mini preview — font + theme corners on section/cards */}
       <div
-        className="overflow-hidden rounded-xl border border-brand-ink/10 p-3 shadow-card"
+        key={`preview-${theme.fontFamily}-${theme.borderRadius}`}
+        className="overflow-hidden border border-brand-ink/10 p-3 shadow-card"
         style={{
           background:
             theme.mode === "dark"
               ? "linear-gradient(180deg, #0c0a12, #1a1628)"
               : "linear-gradient(180deg, #f7f6f9, #fff)",
           color: theme.mode === "dark" ? "#f4f2fa" : "#0f172a",
+          fontFamily: liveFont,
+          borderRadius: theme.borderRadius,
+          // so nested cards using CSS vars match Theme → Corners
+          ["--t-radius" as string]: theme.borderRadius,
+          ["--t-radius-sm" as string]: `max(6px, calc(${theme.borderRadius} * 0.55))`,
+          ["--t-radius-lg" as string]: `max(14px, calc(${theme.borderRadius} * 1.25))`,
         }}
       >
-        <p className="text-[10px] font-bold uppercase tracking-wide opacity-60">Live site preview</p>
+        <p className="text-[10px] font-bold uppercase tracking-wide opacity-60" style={{ fontFamily: liveFont }}>
+          Live site preview · {theme.fontFamily} · corners {theme.borderRadius}
+        </p>
+        <p className="mt-2 text-lg font-bold leading-tight tracking-tight" style={{ fontFamily: liveFont }}>
+          Aa Bb Cc — Your business
+        </p>
+        <p className="mt-1 text-[12px] leading-snug opacity-80" style={{ fontFamily: liveFont }}>
+          The quick brown fox jumps over the lazy dog. 0123456789
+        </p>
+
+        {/* Section / stack card (theme radius) */}
         <div
-          className="mt-2 flex items-center justify-between px-2 py-1.5"
+          className="mt-3 px-3 py-2.5"
           style={{
-            borderRadius: theme.borderRadius,
+            borderRadius: "var(--t-radius)",
             background: theme.mode === "dark" ? "#1a1628" : "#fff",
             border: `1px solid ${theme.mode === "dark" ? "rgba(255,255,255,.1)" : "rgba(0,0,0,.08)"}`,
+            fontFamily: liveFont,
+            boxShadow: "0 1px 2px rgba(0,0,0,0.04), 0 6px 16px -10px rgba(0,0,0,0.1)",
           }}
         >
-          <span className="text-xs font-bold">Your business</span>
-          <span
-            className="rounded-full px-2 py-0.5 text-[9px] font-bold text-white"
-            style={{ backgroundColor: theme.accentColor }}
+          <p className="text-[9px] font-bold uppercase tracking-wide opacity-50">Section card</p>
+          <p className="mt-0.5 text-xs font-bold" style={{ fontFamily: liveFont }}>
+            About / Services card
+          </p>
+          <p className="mt-0.5 text-[11px] leading-snug opacity-75" style={{ fontFamily: liveFont }}>
+            Stack section corners follow Theme → Corners.
+          </p>
+          {/* Inner row / item chip uses softer radius */}
+          <div
+            className="mt-2 px-2 py-1.5 text-[10px]"
+            style={{
+              borderRadius: "var(--t-radius-sm)",
+              background: theme.mode === "dark" ? "rgba(255,255,255,.06)" : "rgba(15,23,42,.05)",
+              fontFamily: liveFont,
+            }}
           >
-            CTA
-          </span>
+            Inner list row · soft corners
+          </div>
         </div>
+
         <div
           className="mt-2 px-3 py-2 text-center text-xs font-semibold"
           style={{
-            borderRadius: theme.borderRadius,
+            borderRadius: "var(--t-radius)",
             backgroundColor: theme.primaryColor,
             color: onPrimary,
+            fontFamily: liveFont,
           }}
         >
-          Primary button
-        </div>
-        <div
-          className="mt-2 px-3 py-2 text-[11px]"
-          style={{
-            borderRadius: theme.borderRadius,
-            background: theme.mode === "dark" ? "#1a1628" : "#fff",
-            border: `1px solid ${theme.mode === "dark" ? "rgba(255,255,255,.1)" : "rgba(0,0,0,.08)"}`,
-          }}
-        >
-          Stack card text uses your theme surfaces.
+          Link / primary button
         </div>
       </div>
 

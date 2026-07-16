@@ -17,18 +17,37 @@
 # misc
 .DS_Store
 *.pem
+*.p12
+*.pfx
 rzp-key.csv
 *.key.csv
+*credentials*.json
+*service-account*.json
+google-services.json
 
 # debug
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
 
-# env
+# env / secrets — NEVER commit real keys (Vercel + local only)
 .env
+.env.*
+!.env.example
+.env.local
 .env*.local
+.env.development
+.env.production
+.env.preview
+.env.vercel
+*.env
+!*.env.example
 .secrets/
+.secret/
+secrets/
+**/secrets.local.*
+tmp-*-env*
+/tmp/
 
 # typescript
 *.tsbuildinfo

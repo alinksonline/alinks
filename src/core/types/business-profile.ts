@@ -11,9 +11,14 @@ export type SocialHandles = {
   x: string;
 };
 
+/** When no dedicated OG image: which asset feeds WhatsApp / link previews. Default cover. */
+export type OgFallbackPreference = "cover" | "favicon";
+
 export type BusinessProfile = {
   /** Display name (synced to businesses.name) */
   businessName: string;
+  /** Short line under the name (header / previews) */
+  tagline: string;
   /** Public contact email for this business */
   email: string;
   /** Public phone (display / tel:) */
@@ -25,6 +30,18 @@ export type BusinessProfile = {
   logoUrl: string;
   faviconUrl: string;
   coverUrl: string;
+  /** Dedicated Open Graph / share image (optional) */
+  ogImageUrl: string;
+  /**
+   * When ogImageUrl is empty: use cover (default) or favicon for link previews.
+   * Final chain: ogImageUrl → (cover|favicon by this flag) → the other → platform.
+   */
+  ogFallback: OgFallbackPreference;
+  /**
+   * When a logo is present, also show business name + tagline in the header.
+   * Off = logo-only (logo may already include name/wordmark).
+   */
+  showTitleWithLogo: boolean;
   socials: SocialHandles;
 };
 
@@ -38,6 +55,7 @@ export const EMPTY_SOCIALS: SocialHandles = {
 export function defaultBusinessProfile(partial?: Partial<BusinessProfile> & { businessName?: string }): BusinessProfile {
   return {
     businessName: partial?.businessName ?? "",
+    tagline: partial?.tagline ?? "",
     email: partial?.email ?? "",
     phone: partial?.phone ?? "",
     whatsapp: partial?.whatsapp ?? "",
@@ -45,6 +63,9 @@ export function defaultBusinessProfile(partial?: Partial<BusinessProfile> & { bu
     logoUrl: partial?.logoUrl ?? "",
     faviconUrl: partial?.faviconUrl ?? "",
     coverUrl: partial?.coverUrl ?? "",
+    ogImageUrl: partial?.ogImageUrl ?? "",
+    ogFallback: partial?.ogFallback === "favicon" ? "favicon" : "cover",
+    showTitleWithLogo: partial?.showTitleWithLogo !== false,
     socials: {
       ...EMPTY_SOCIALS,
       ...(partial?.socials ?? {}),
@@ -58,6 +79,7 @@ export function parseBusinessProfile(raw: unknown, fallbackName = ""): BusinessP
   const socialsRaw = (o.socials && typeof o.socials === "object" ? o.socials : {}) as Record<string, unknown>;
   return defaultBusinessProfile({
     businessName: String(o.businessName ?? fallbackName ?? ""),
+    tagline: String(o.tagline ?? ""),
     email: String(o.email ?? ""),
     phone: String(o.phone ?? ""),
     whatsapp: String(o.whatsapp ?? o.phone ?? ""),
@@ -65,6 +87,9 @@ export function parseBusinessProfile(raw: unknown, fallbackName = ""): BusinessP
     logoUrl: String(o.logoUrl ?? ""),
     faviconUrl: String(o.faviconUrl ?? ""),
     coverUrl: String(o.coverUrl ?? ""),
+    ogImageUrl: String(o.ogImageUrl ?? ""),
+    ogFallback: o.ogFallback === "favicon" ? "favicon" : "cover",
+    showTitleWithLogo: o.showTitleWithLogo !== false && o.showTitleWithLogo !== "false",
     socials: {
       instagram: String(socialsRaw.instagram ?? ""),
       facebook: String(socialsRaw.facebook ?? ""),
@@ -72,4 +97,23 @@ export function parseBusinessProfile(raw: unknown, fallbackName = ""): BusinessP
       x: String(socialsRaw.x ?? socialsRaw.twitter ?? ""),
     },
   });
+}
+
+/**
+ * Share-card image for OG/Twitter.
+ * Priority: dedicated OG → preferred fallback (cover default) → other asset → null.
+ */
+export function resolveOgImageUrl(profile: BusinessProfile): string | null {
+  if (profile.ogImageUrl.trim()) return profile.ogImageUrl.trim();
+  const cover = profile.coverUrl.trim();
+  const fav = profile.faviconUrl.trim();
+  if (profile.ogFallback === "favicon") {
+    return fav || cover || null;
+  }
+  return cover || fav || null;
+}
+
+/** Tab / PWA / “app icon” — favicon, else logo. */
+export function resolveAppIconUrl(profile: BusinessProfile): string | null {
+  return profile.faviconUrl.trim() || profile.logoUrl.trim() || null;
 }

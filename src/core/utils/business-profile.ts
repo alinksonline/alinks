@@ -75,6 +75,7 @@ export function listSocialLinks(profile: BusinessProfile): { network: keyof Soci
 export function normalizeProfileForSave(input: BusinessProfile): BusinessProfile {
   return {
     businessName: input.businessName.trim(),
+    tagline: input.tagline.trim(),
     email: input.email.trim().toLowerCase(),
     phone: input.phone.trim(),
     whatsapp: input.whatsapp.trim() || input.phone.trim(),
@@ -82,6 +83,9 @@ export function normalizeProfileForSave(input: BusinessProfile): BusinessProfile
     logoUrl: input.logoUrl.trim(),
     faviconUrl: input.faviconUrl.trim(),
     coverUrl: input.coverUrl.trim(),
+    ogImageUrl: input.ogImageUrl.trim(),
+    ogFallback: input.ogFallback === "favicon" ? "favicon" : "cover",
+    showTitleWithLogo: input.showTitleWithLogo !== false,
     socials: {
       instagram: normalizeSocialHandle(input.socials.instagram),
       facebook: normalizeSocialHandle(input.socials.facebook),
