@@ -60,6 +60,12 @@ export async function getGoogleCalendarStatusAction(businessId: string) {
 
 export async function connectGoogleCalendarStubAction(businessId: string, email?: string) {
   try {
+    if (process.env.NODE_ENV === "production") {
+      return {
+        success: false as const,
+        error: "Stub calendar connect is disabled in production. Use Connect with Google.",
+      };
+    }
     const session = await getSession();
     if (!session) return { success: false as const, error: "Unauthorized" };
     await assertBusinessOwnership(businessId, session.userId);

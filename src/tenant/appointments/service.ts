@@ -125,7 +125,18 @@ export async function getSlotsForBooking(input: {
   const staff = input.staffId ? staffList.find((s) => s.id === input.staffId) : null;
   const weeklyHours = (staff?.weeklyHours as WeeklyHours | null) ?? DEFAULT_SALON_HOURS;
   const capacity = staff?.slotCapacity ?? 1;
-  const occupied = await listActiveHoldsForDate(input.businessId, input.isoDate, input.staffId);
+  const holds = await listActiveHoldsForDate(input.businessId, input.isoDate, input.staffId);
+
+  // C6: merge Google FreeBusy (live OAuth only) so personal calendar busy blocks bookable slots
+  let gcalBusy: OccupiedSlot[] = [];
+  try {
+    const { listGoogleBusyOccupiedSlots } = await import("@/platform/integrations/google-calendar");
+    gcalBusy = await listGoogleBusyOccupiedSlots(input.businessId, input.isoDate);
+  } catch {
+    gcalBusy = [];
+  }
+
+  const occupied: OccupiedSlot[] = [...holds, ...gcalBusy];
 
   return buildAvailableSlots({
     isoDate: input.isoDate,
@@ -560,7 +571,7 @@ export async function confirmPaidAppointmentHold(input: {
     });
   }
 
-  await tryPushBookingToGoogleCalendar({
+  const gcal = await tryPushBookingToGoogleCalendar({
     businessId: input.businessId,
     bookingId: input.bookingId,
     packageName: input.packageName,
@@ -569,6 +580,12 @@ export async function confirmPaidAppointmentHold(input: {
     durationMinutes: input.durationMinutes,
     staffName: input.staffName ?? null,
   });
+  if (gcal.eventId) {
+    await db
+      .update(appointmentHolds)
+      .set({ googleEventId: gcal.eventId, updatedAt: new Date() })
+      .where(eq(appointmentHolds.bookingId, input.bookingId));
+  }
 }
 
 /** @deprecated use confirmPaidAppointmentHold */
