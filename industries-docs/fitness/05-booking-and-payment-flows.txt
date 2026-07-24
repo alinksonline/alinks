@@ -1,0 +1,12 @@
+================================================================================
+05 — BOOKING & PAYMENT FLOWS
+================================================================================
+
+  FREE trial/class booking (default OK without PG)
+  PT: free or pay_then_book (tenant PG) like salon
+  Membership: usually enquiry or pay online then “activate offline”
+  Artix never runs gym as marketplace payout split
+
+  Google Calendar: confirmed PT/trial → trainer calendar FREE
+
+================================================================================

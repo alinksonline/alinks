@@ -1,0 +1,61 @@
+================================================================================
+01 — AUTOMOTIVE INDUSTRY ANCHOR
+================================================================================
+
+================================================================================
+1. WHAT IT IS
+================================================================================
+
+  Automotive tenants run mini-sites for:
+    • New/used vehicle listings (enquiry, not platform title sale)
+    • Workshop service booking (wash, service, detailing packages)
+    • Spare parts / accessories shop (retail)
+    • Driving school demos (slots)
+
+  Diversification by TYPE + which modules they enable — one industry pack.
+
+================================================================================
+2. TYPES
+================================================================================
+
+  car_dealer_new, used_car_dealer, two_wheeler_dealer,
+  multi_brand_auto_dealer, service_workshop, car_detailing,
+  spare_parts_shop, driving_school, fleet_b2b
+
+================================================================================
+3. MODULES
+================================================================================
+
+  auto.vehicle_listings   Inventory of vehicles (sell interest / display)
+  auto.leads              Test drive / buy enquiry CRM-lite
+  auto.service_packages   Service & detailing packages
+  auto.service_booking    Slot booking for workshop
+  auto.parts_retail       Parts catalogue (retail engine)
+  auto.wholesale_parts    Optional B2B parts (retail wholesale pattern)
+  auto.delivery           Parts delivery (retail delivery pattern)
+  auto.multilocation      Multi showroom/workshop (5–10% off extra) YES
+
+  google.calendar FREE for service appointments
+
+================================================================================
+4. NO PLATFORM VEHICLE SALES
+================================================================================
+
+  Like real estate: high-ticket vehicle purchase is offline (loan, RC, insurance).
+  ALINKS: photos, specs, “Price on request” / indicative, WhatsApp dealer.
+  Optional: “Book test drive” slot free.
+
+================================================================================
+5. VS OTHER PACKS
+================================================================================
+
+  Vehicle listing privacy: optional teaser mode if used-car brokers fear
+  poaching (reuse RE Property-Bank open/teaser/private idea lightly).
+  Service booking ≈ salon packages + staff (mechanics).
+  Parts ≈ retail multi-brand.
+
+================================================================================
+CHANGE LOG
+================================================================================
+2026-07-16  Automotive industry pack.
+================================================================================

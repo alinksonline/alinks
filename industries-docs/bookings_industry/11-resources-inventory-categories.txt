@@ -1,0 +1,62 @@
+================================================================================
+11 — RESOURCES, “INVENTORY”, CATEGORIES & VARIATIONS (BOOKINGS)
+================================================================================
+
+================================================================================
+1. MENTAL MODEL
+================================================================================
+
+  Bookings inventory is TIME + RESOURCE, not fashion SKU stock.
+
+  Resource inventory     doctors, lawyers, consultants, halls, rooms
+  Service inventory      consult types, procedures (name only), hall packages
+  Categories             practice areas / service groups / hall types
+  Variations             duration, online/offline, half-day/full-day, language
+
+================================================================================
+2. BY TYPE
+================================================================================
+
+  CLINIC
+    Resources: doctors, rooms
+    Services: consult types
+    Categories: specialties
+    Variations: 15/30/45 min; new vs follow-up
+    Sheet tabs: Appointments, Patients
+
+  PROFESSIONAL
+    Resources: consultants
+    Services: session types
+    Categories: offerings
+    Variations: online/in-person; duration
+    Sheet: Appointments, Customers
+
+  LAWYER
+    Resources: advocates
+    Services: consult products
+    Categories: practice areas
+    Variations: chamber/online; duration
+    Sheet: Appointments, Clients
+    No case file inventory on platform
+
+  VENUE / BANQUET
+    Resources: halls, lawns
+    Services: packages (date occupancy)
+    Categories: indoor/outdoor/conference
+    Variations: half/full day; guest slab pricing later
+    “Stock” = calendar occupancy
+    Sheet: Bookings/Events, Customers
+
+================================================================================
+3. REUSABLE VARIATION LIBRARY (PRESETS)
+================================================================================
+
+  Duration sets, location mode (online/offline), language,
+  Venue: slot-of-day, guest count bands
+  Editable by tenant; Superadmin seeds by subtype
+
+================================================================================
+CHANGE LOG
+================================================================================
+2026-07-16  Bookings inventory model by type.
+================================================================================

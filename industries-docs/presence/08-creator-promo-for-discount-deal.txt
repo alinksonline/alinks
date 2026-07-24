@@ -1,0 +1,239 @@
+================================================================================
+08 — CREATOR DEAL: DEEP DISCOUNT ↔ PROMOTE ALINKS
+================================================================================
+Location: industries-docs/presence/08-creator-promo-for-discount-deal.txt
+Created:  2026-07-16
+Status:   LOCKED (product / growth notes only)
+Related:  07-influencer-features-and-discounts.txt
+          05-billing-and-upsell.txt
+
+WHY
+  Huge creator discounts are not free gifts — they are a **trade**:
+  ALINKS gives price → creator gives **distribution** (promote ALINKS on their
+  channels). Best deals feel fair, simple, and easy to complete — not a
+  heavy agency contract.
+
+================================================================================
+1. BEST MODEL: “CREATOR PARTNER” (RECOMMENDED)
+================================================================================
+
+  Name (frontend):  **Creator Partner**  or  **Creator Promo Plan**
+  Not: barter, freebie, influencer marketing (too corporate for micros)
+
+  Structure:  TIERED TRADE  (discount level ↔ promo duty)
+
+  RULE OF THUMB
+    Deeper discount  →  clearer, still-light promo obligation
+    Mild discount    →  optional soft ask only (share if you love it)
+
+  NEVER make promo so heavy that micro-creators bounce:
+    Bad:  “3 Reels/month + Stories every week + 10 tags forever”
+    Good: “1 clear shout-out per billing period + ALINKS link in bio/link hub”
+
+================================================================================
+2. HOW TO STRIKE THE DEAL (FLOW)
+================================================================================
+
+  STEP 1 — Choose Creator path at signup
+    Type: influencer_creator
+    Screen: “Get Creator pricing — promote ALINKS, keep a pro link hub”
+
+  STEP 2 — Pick discount tier (see §3)
+    Show side-by-side: what they pay vs list, what they must post
+
+  STEP 3 — Accept Partner terms (checkbox + timestamp)
+    Short, plain language (not 20-page legal first).
+    Store acceptance on tenant (DPDP/audit: who agreed when).
+
+  STEP 4 — Activate discount immediately
+    Do NOT wait for first post to start the site (friction kills signup).
+    Grace window: first promo due within 14–30 days of publish or first
+    paid period (Superadmin setting).
+
+  STEP 5 — Easy fulfill
+    In dashboard: “Your partner post” checklist + copy kit
+    • Suggested caption (EN + optional local)
+    • ALINKS referral / handle link
+    • 1 image / story frame asset
+    • “Mark as posted” + optional URL / screenshot upload
+
+  STEP 6 — Soft compliance
+    Reminder at day 10 / day 25 if not marked
+    If never fulfilled: warn → next cycle discount reduces or pauses
+    Do NOT instantly ban on day 1 — creators need trust
+
+  STEP 7 — Renew each period
+    Monthly: 1 light touch OR Story pack
+    Yearly:  e.g. 1 Reel/video + 2 Stories + permanent bio link (see tiers)
+
+================================================================================
+3. TIER LADDER (BEST BALANCE)
+================================================================================
+
+  Tier A — Creator (standard ongoing)     ~30–40% off website plan
+  ------------------------------------------------------------
+  Obligation (light):
+    • Keep ALINKS referral or “Built with ALINKS” / partner link on their
+      Presence link hub OR Instagram bio (one place is enough)
+    • 1 Story OR 1 feed mention per month (or per quarter if micro)
+  Soft: optional story template once
+
+  Tier B — Creator Launch (huge)          ~50–70% off first 12 months
+  ------------------------------------------------------------
+  Obligation (clear trade for the deal):
+    • Permanent: ALINKS link on Presence link hub (pinned or footer “Made
+      with ALINKS — get yours”) for the discounted term
+    • Within 30 days of going live: 1 Story + 1 feed post OR 1 short Reel/
+      YouTube community post naming ALINKS + their site link
+    • Every 90 days: 1 reminder Story (or 1 feed) while discount active
+  This is the **main “huge discount” strike deal**.
+
+  Tier C — Creator Pro Partner (deep + Pro features)
+  ------------------------------------------------------------
+  Same as B, plus:
+    • Pin “Get your free/cheap site on ALINKS” style link (copy provided)
+    • Tag / mention @alinks (or official handle) when platform allows
+    • Optional: 1 collab-style Reel quarterly if reach is mid/high
+
+  Tier D — Free / near-free Starter (student / micro launch only)
+  ------------------------------------------------------------
+  Highest obligation relative to price:
+    • Bio or link-hub ALINKS link required while free
+    • 1 public post in first 14 days
+    • Free ends or converts to Tier A if promo never done (after warnings)
+  Cap duration (e.g. 3 months free) so it stays acquisition, not freeload.
+
+  Tier E — Mild promo optional            list price or 10–15% off
+  ------------------------------------------------------------
+  No hard duty. In-app: “Share ALINKS, unlock a thank-you coupon” (opt-in).
+
+  Deep discounts ONLY on influencer_creator + accepted Partner terms.
+  business_profile_only does not get Partner deep cuts by default.
+
+================================================================================
+4. WHAT “PROMOTE ALINKS” MUST INCLUDE (MINIMUM BRIEF)
+================================================================================
+
+  Every required post should carry at least:
+    1. Their ALINKS site URL (proof they use the product)
+    2. ALINKS name + what it is in one line
+       e.g. “My link hub / site is on ALINKS — pro online presence”
+    3. Signup / referral link (tracked if possible)
+    4. Honest tone — no fake “#ad” spam; if paid-in-kind, FTC/ASCI-style
+       disclosure where required: “Partner / discounted with ALINKS”
+
+  Provide ready copy so they do not think:
+    “My new page: …  Built with ALINKS. Creators get Creator pricing:
+     [referral]. Not a shop — just my links & collabs.”
+
+================================================================================
+5. BEST WAY TO MAKE THEM SAY YES (PSYCHOLOGY + UX)
+================================================================================
+
+  DO
+    • Frame as **partnership**, not “work for free”
+    • Show ₹ saved in big numbers next to 1–2 simple duties
+    • Activate site first; promo after (reduce fear)
+    • One checklist, one due date, assets ready
+    • Let them choose channel they already use (IG Story vs YT Community)
+    • Yearly plan = fewer promo events (creators hate monthly content jobs)
+    • Referral bonus on top (they earn if friends sign up) — feels win-win
+
+  DON’T
+    • Demand exclusive content rights or usage of their face forever without
+      separate consent
+    • Require paid ads spend
+    • Force commerce modules
+    • Hide the promo duty after payment (show before accept)
+    • Shame publicly if they miss a post — private dashboard only
+
+  STRIKE LANGUAGE (onboarding)
+    “Creator Partner: up to 70% off your first year.
+     You keep a pro link hub. You mention ALINKS a few times.
+     One checkbox — that’s the deal.”
+
+================================================================================
+6. ENFORCEMENT (FAIR, NOT TOXIC)
+================================================================================
+
+  Status on tenant:
+    partner_tier
+    partner_terms_accepted_at
+    partner_promo_due_by
+    partner_promo_last_fulfilled_at
+    partner_compliance: good | warning | reduced | paused
+
+  Policy:
+    Miss 1 cycle  →  reminder + 7-day grace
+    Miss 2        →  discount steps down one tier next bill
+    Miss ongoing  →  back to list price; site stays (no hostage delete)
+    Fraud (fake screenshot, never published) → revoke Partner discount
+
+  Superadmin can whitelist VIPs (manual partners, higher reach) with custom
+  duties written in notes.
+
+================================================================================
+7. TRACKING (KEEP SIMPLE)
+================================================================================
+
+  Phase 1 (notes / MVP intent):
+    Self-report URL + optional screenshot
+    Manual spot-check Superadmin
+
+  Phase 2:
+    Unique referral codes per creator
+    Count signups attributed → bonus free months
+
+  Do not promise automated IG API verification on day one.
+
+================================================================================
+8. LEGAL / TRUST (LIGHT)
+================================================================================
+
+  Partner terms one-pager:
+    • Discount is conditional on promo duties while Partner active
+    • Creator owns their content; ALINKS may reshare with credit if they
+      opt-in checkbox “ALINKS may repost my mention”
+    • Disclosure if jurisdiction requires
+    • Cancel Partner anytime → discount ends next cycle; data export OK
+    • Not employment; not guaranteed follower growth
+
+  Lawyer review before production terms page (pointer only in notes).
+
+================================================================================
+9. WHAT NOT TO DO
+================================================================================
+
+  • Pay cash to every micro for the same discount (kills margin) — use
+    product discount + promo trade first
+  • Only discount with zero ask (you pay twice: margin + no awareness)
+  • Only heavy contract with big influencers and ignore micros — micros
+    are volume for ALINKS brand
+  • Bundle discount with forced retail/food modules
+
+================================================================================
+10. RECOMMENDED DEFAULT LOCK
+================================================================================
+
+  Primary strike deal for “huge discount”:
+    **Tier B — Creator Launch**
+    50–70% year 1
+    ↔  link hub/bio ALINKS link for term
+    ↔  1 launch post pack within 30 days
+    ↔  1 light reminder every 90 days
+
+  Ongoing after year 1:
+    **Tier A** 30–40% ↔ bio/link-hub mention + light monthly/quarterly
+
+  Free micro:
+    **Tier D** short free window ↔ link + first post, then A or list
+
+  Frontend labels:
+    “Creator Partner” / “Creator pricing” / “Partner duties”
+    Never “à la carte”; never bury the trade.
+
+================================================================================
+CHANGE LOG
+================================================================================
+2026-07-16  Creator Partner trade: discount ↔ promote ALINKS; tier ladder.
+================================================================================

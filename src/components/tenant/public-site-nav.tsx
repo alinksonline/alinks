@@ -88,14 +88,18 @@ export function PublicSiteNav({
   vertical,
   slug,
   path,
+  industryGroup,
+  industryType,
 }: {
   handle: string;
   vertical: string;
   slug: string;
-  /** Extra path segment e.g. "store" | "book" | "checkout" */
+  /** Extra path segment e.g. "store" | "book" | "checkout" | "menu" */
   path?: string;
+  industryGroup?: string | null;
+  industryType?: string | null;
 }) {
-  const items = buildPublicNav(handle, vertical);
+  const items = buildPublicNav(handle, vertical, industryGroup, industryType);
 
   return (
     <nav className="t-bottom-nav" aria-label="Site pages">

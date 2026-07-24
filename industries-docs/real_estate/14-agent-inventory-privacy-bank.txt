@@ -1,0 +1,93 @@
+================================================================================
+14 — PROPERTY-BANK PRIVACY (AGENTS & COMPANIES)
+================================================================================
+Folder: industries-docs/real_estate/
+Related: 02-actor-roles, 04-listings, 06-agent-desk, 15-company-vs-agent-separation
+UI name: “Property-Bank” (not plain “bank”)
+Mental model: private portfolio of sell/resale/rent/lease opportunities
+
+================================================================================
+1. PROBLEM
+================================================================================
+
+  Agents (and sometimes companies) fear that exposing full details of their
+  Property-Bank lets others steal deals (ventures, farm land, plots, flats,
+  villas, gated units). Some users want full public marketing instead.
+
+  Support BOTH cultures.
+
+================================================================================
+2. NAMING
+================================================================================
+
+  Product UI:  Property-Bank
+  Optional subtitle: “Your private portfolio of properties”
+  Avoid bare word “Bank” alone (confuses with finance).
+
+  Applies to:
+    • Agent Property-Bank
+    • Company Property-Bank
+  Separate tenants/sites — see doc 15 (no mixing company ↔ agent accounts).
+
+================================================================================
+3. VISIBILITY MODES (PER LISTING + ACCOUNT DEFAULT)
+================================================================================
+
+  OPEN
+    Full public card as configured (media, locality, description, price mode).
+
+  TEASER (recommended default for protective agents)
+    Public: deal type, property kind, city/zone, size band, price on request
+            or band, limited/watermark media, teaser blurb.
+    Hidden: exact address, survey/plot no., owner contact, exact bargain price,
+            full brochure, internal notes.
+    CTA → lead to THIS agent/company only.
+
+  PRIVATE (Property-Bank only)
+    Not on public mini-site. Internal match + optional expiring private link.
+
+================================================================================
+4. WHO SEES WHAT
+================================================================================
+
+  Public visitor     → only open/teaser cards on THAT site
+  Other agents       → NEVER another tenant’s Property-Bank full detail
+  Company site       → only that company’s Property-Bank
+  Agent site         → only that agent’s Property-Bank
+  Same agency staff  → role: own only vs team Property-Bank
+
+  Same real-world project may appear on MANY agent sites (each agent’s own
+  listing row). Company site may also list it — separate.
+
+================================================================================
+5. DEAL TYPES INSIDE PROPERTY-BANK
+================================================================================
+
+  Every item: sell | resale | rent | lease  (doc 16)
+  Privacy modes apply to all deal types.
+
+================================================================================
+6. PRICE DISPLAY = OWNER’S WISH
+================================================================================
+
+  Company or Agent who owns the listing chooses:
+    hidden | on_request | indicative | price_band
+  Platform does not force one global rule.
+
+================================================================================
+7. HARD RULES
+================================================================================
+
+  1. Property-Bank visibility is owner-controlled; default TEASER for agents.
+  2. Company site ≠ Agent site (doc 15).
+  3. No cross-agent Property-Bank browsing.
+  4. No platform property checkout.
+  5. Same project may exist on many agent sites as separate listings.
+  6. Mode switch does not delete leads/history.
+
+================================================================================
+CHANGE LOG
+================================================================================
+2026-07-16  Original “inventory bank” privacy.
+2026-07-16  Renamed Property-Bank; company/agent separate; deal types link.
+================================================================================

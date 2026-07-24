@@ -1,7 +1,7 @@
 ================================================================================
 01 — DPDP ACT 2023 — ALINKS COMPLIANCE STATUS AUDIT
 ================================================================================
-Audit date: 2026-07-08
+Audit date: 2026-07-08 (refreshed 2026-07-21)
 Product: ALINKS (Vertical SaaS / Business OS for Indian SMBs)
 Law: Digital Personal Data Protection Act, 2023 + Rules (operational framework)
 Disclaimer: Planning audit only — NOT legal advice. Lawyer review required.
@@ -14,14 +14,29 @@ data model: Artix stores TENANT (business owner) data on platform Postgres;
 END-CUSTOMER PII is written to tenant-owned Google Sheets or BYO Supabase.
 
 Legal documents and consent logging are partially implemented in code.
-User rights tooling (delete account, export data, grievance page) is NOT yet
-shipped. Do NOT publicly claim "DPDP compliant" until gaps below are closed
-and a lawyer signs off.
+User rights tooling: delete account, export data, and /grievance routes exist
+in product (guardrails:scan). Cookie banner and appointed grievance officer
+remain gaps. Do NOT publicly claim "DPDP compliant" until lawyer signs off.
 
-Overall readiness (product + ops): ~55%
+Overall readiness (product + ops): ~80%
   Architecture & notice text:     strong
-  User rights in product:       weak
-  Lawyer / grievance officer:   not done
+  User rights in product:       improved (export/delete/withdraw)
+  Cookie essential notice:      shipped + /cookies page (2026-07-24)
+  Lawyer / grievance officer:   not done (external)
+
+2026-07-21 REFRESH
+  [DONE] Delete account flow (guardrails)
+  [DONE] Export data flow (guardrails)
+  [DONE] /grievance route (guardrails)
+  [PARTIAL] Cookie notice still missing
+  [EXTERNAL] Appointed grievance officer still required
+
+2026-07-24 REFRESH
+  [DONE] Cookie notice banner (CookieNotice + localStorage dismiss)
+  [DONE] Q005 re-lock docs: dual rails BYO shop + Artix SaaS billing
+  [DONE] /cookies dedicated notice page
+  [DONE] Withdraw optional consent (Settings → Privacy & consent)
+  Overall readiness (product + ops): ~80%
 
 ================================================================================
 WHAT IS DPDP (QUICK REFERENCE)
@@ -85,31 +100,34 @@ LEGEND: [DONE] [PARTIAL] [MISSING] [EXTERNAL]
           GAP: acceptances logged after OTP + onboarding, not at first checkbox
           GAP: signup responsibility checkboxes not stored as separate doc types
 
-[MISSING] Cookie notice / cookie policy
-          Session cookie (alinks_session), email OTP cookie, Google OAuth state
-          No marketing-site cookie banner; no dedicated /cookies page
+[DONE]    Cookie notice (essential cookies)
+          UI: src/components/legal/cookie-notice.tsx — root layout
+          Page: /cookies — src/app/(marketing)/cookies/page.tsx
+          Dismiss: localStorage alinks_cookie_notice_v1
+          Copy: essential sign-in/security only — not ads
 
 --- USER RIGHTS (DPDP PRINCIPAL RIGHTS) ---
 
-[MISSING] Delete my account (self-service)
-          Baseline Q: Settings → Delete Account — described, not built
-          settings-form.tsx: region + ads only
+[DONE]    Delete my account (self-service)
+          Guardrails confirm delete-account flow present (2026-07-21)
 
-[MISSING] Export my data (self-service)
-          Baseline mentions export — no dashboard download (JSON/CSV)
+[DONE]    Export my data (self-service)
+          Guardrails confirm export data flow present (2026-07-21)
 
-[MISSING] Withdraw consent (self-service)
-          Policy text exists; no UI to withdraw marketing/optional processing
+[DONE]    Withdraw optional consent (self-service)
+          Settings → Privacy & consent → withdrawOptionalConsentAction
+          Clears adsOptIn; logs CONSENT_WITHDRAWAL
+          GAP: no separate marketing email list yet (N/A product-wide)
 
 [PARTIAL] Access / correction requests
           Policy §9 describes rights; no in-app form or ticket workflow
 
-[MISSING] Grievance officer public page
-          Draft: legal/18-DPDP-GRIEVANCE-OFFICER.txt
-          No route: /grievance on marketing site
+[DONE]    Grievance public page
+          Route: /grievance (guardrails 2026-07-21)
+          Draft officer details still need real appointee
 
 [EXTERNAL] Grievance officer appointed
-          plan-tracker.ts: E-03 blocked external
+          plan-tracker / legal external — name a real officer
 
 --- SECURITY ---
 

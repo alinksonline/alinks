@@ -1,0 +1,44 @@
+================================================================================
+13 — BOOKINGS MODULE INTEGRATION MATRIX
+================================================================================
+
+================================================================================
+1. SPINE
+================================================================================
+
+  book.core (services, resources, slots, bookings)
+       ↑
+       ├── book.clinic / professional / legal / venue  (profile packs)
+       ├── book.payments   (deposit / pay-to-confirm)
+       ├── book.reminders  (notifications)
+       ├── book.multilocation (branch_id on resources & bookings)
+       └── google.calendar FREE (tenant Gmail push + busy pull; all industries)
+
+================================================================================
+2. INSTANT RULES
+================================================================================
+
+  Enable payments → existing services get deposit fields; new bookings can require pay
+  Enable reminders → new confirms schedule jobs
+  Enable clinic pack → license gate before public book URL works
+  Enable venue → book UI switches to date/package flow for those resources
+  Enable multi-location → resources/bookings require branch
+  Enable google.calendar (free, no purchase) → OAuth connect; every confirmed
+    booking/catering event syncs; free/busy blocks slots when configured
+  Payment pending → optional tentative event or wait until confirmed (flag)
+
+  Disable core → industry packs cannot accept new public slots
+  Disconnect Google → bookings still work in ALINKS; sync stops
+
+================================================================================
+3. CROSS-INDUSTRY
+================================================================================
+
+  food.catering + book.venue: optional future “event catering” bridge
+  food.dine_in ≠ book.venue (table meal vs hall hire)
+
+================================================================================
+CHANGE LOG
+================================================================================
+2026-07-16  Integration spine for bookings modules.
+================================================================================

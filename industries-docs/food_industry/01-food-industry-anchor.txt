@@ -1,0 +1,441 @@
+================================================================================
+ALINKS — FOOD INDUSTRY ANCHOR SPECIFICATION
+================================================================================
+Status:     PRODUCT ANCHOR (source of truth for food vertical)
+Location:   industries-docs/food_industry/01-food-industry-anchor.txt
+Created:    2026-07-16
+Owner:      Artix / ALINKS product
+Detail docs: same folder 02–14 (modules, inventory, subtypes, integration).
+Scope:      Cloud kitchen, Restaurant, Catering, food modules, pricing layers,
+            Superadmin industry catalog, Billing SKUs, Store/Menu self-awareness.
+NOT scope:  Fashion/general ecommerce SKU variants (Size/Color) as default for
+            food — food uses MENU + modifiers + channels, not clothing inventory.
+            Full POS hardware, Zomato/Swiggy, multi-branch kitchens = later.
+
+Read this file before implementing any food-related feature. Future additions
+must extend this document (CHANGE LOG) rather than inventing conflicting rules.
+
+================================================================================
+1. PRODUCT PRINCIPLE
+================================================================================
+
+Food businesses are a FAMILY of modes that stack — not one flat “restaurant”
+flag. The product must be SELF-AWARE from Superadmin industry type + purchased
+modules.
+
+TWO BILLING LAYERS (never mix in one confusing homepage grid):
+
+  LAYER 1 — WEBSITE PLAN (main marketing site pricing)
+    Mini-site + branding + digital MENU DISPLAY + WhatsApp order.
+    Monthly / yearly. This is the core “easy yes” product for India SMB.
+
+  LAYER 2 — FOOD MODULES (dashboard upgrade / optional site strip)
+    Delivery, Pickup, Restaurant Dine-in, Catering, Kitchen Management.
+    Single module | Combo | All modules (type-aware).
+    Monthly / yearly with charm pricing (see §8).
+
+  LAYER 3 — TYPE / INDUSTRY (identity, not a third price maze)
+    Cloud kitchen | Restaurant | Catering only | hybrids as bundles.
+    Drives defaults, allowed modules, public nav, Store tabs.
+
+Platform Billing (tenant → Artix) sells plans + modules (SKU line items).
+Tenant Checkout (customer → shop) is THEIR Razorpay / COD / WhatsApp —
+ALINKS does not facilitate or settle food order money (same as rest of product).
+
+================================================================================
+2. NAMING (LOCKED)
+================================================================================
+
+  Restaurant Dine-in     Correct name for table + QR ordering.
+                         Do NOT say “in-house” in product UI.
+
+  Cloud kitchen          Online/kitchen-only operations; NO dining floor.
+
+  Catering               Event / bulk / package orders — not table flow.
+
+  Kitchen Management     Cross-cutting ops package (ticket board). Extra cost.
+
+  Menu                   Food catalog (sections, items, modifiers) — not the
+                         same as fashion “Inventory + Size/Color variations”.
+
+  Website plan           Layer 1: site + menu display + WhatsApp.
+
+  Module                 Paid/enabled capability with full lifecycle (§7).
+
+================================================================================
+3. BASE FOOD TYPES (SUPERADMIN INDUSTRY CATALOG)
+================================================================================
+
+Superadmin owns the master list of industries/types (CRUD over time).
+Code today may still use vertical slugs (restaurant, general, …); the long-term
+source of truth is Superadmin industry + commerce profile JSON aligned to this
+doc.
+
+3.1 BASE TYPES
+
+  ID (slug)              Label                    Default intent
+  ---------------------  -----------------------  ------------------------------
+  cloud_kitchen          Cloud kitchen            Menu + online/pickup/delivery
+                                                  channels. NEVER Dine-in.
+  restaurant             Restaurant               Dining floor possible.
+                                                  Dine-in module available.
+  catering_only          Catering only            Event packages / enquiry.
+                                                  No daily table QR.
+  cloud_catering         Cloud + Catering         Cloud kitchen + Catering.
+                                                  NEVER Dine-in.
+  restaurant_full        Restaurant hybrid        Marketing/bundle label for
+                                                  restaurant + multiple modules.
+
+(Exact Superadmin IDs may use prefixes e.g. food.cloud_kitchen — keep stable.)
+
+3.2 HARD RULES
+
+  • Cloud kitchen           → Dine-in FORBIDDEN (no tables, no table QR).
+  • Cloud + Catering        → Dine-in FORBIDDEN.
+  • Restaurant              → may enable Restaurant Dine-in module.
+  • Cloud kitchen CAN buy   → Catering module (yes).
+  • Cloud kitchen CAN buy   → Delivery, Pickup, Kitchen Management.
+  • Catering-only           → no Dine-in; no daily multi-channel menu required
+                              at v1 (packages + enquiry/deposit).
+
+3.3 COMPATIBILITY MATRIX
+
+  Base / combo          Delivery  Pickup  Dine-in  Catering  Kitchen
+  --------------------  --------  ------  -------  --------  -------
+  Cloud kitchen         yes       yes     NO       optional  optional
+  Restaurant            optional  yes     optional optional  optional
+  Cloud + Catering      yes       yes     NO       yes*      optional
+  Restaurant + all      yes       yes     yes      yes       yes
+  Catering only         rare/no   no      NO       yes       optional
+
+  * yes = included in that combo identity or purchased as module.
+
+================================================================================
+4. FOOD MODULES (FIRST-CLASS)
+================================================================================
+
+All of the following are MODULES (including Dine-in). Not buried features.
+
+  MODULE SLUG           Label                     Customer-facing outcome
+  --------------------  ------------------------  ------------------------------
+  food.delivery         Delivery                  Order online → deliver
+  food.pickup           Pickup                    Order online → collect
+  food.dine_in          Restaurant Dine-in        Table QR → order at table
+  food.catering         Catering                  Events / bulk packages
+  food.kitchen          Kitchen Management        Kitchen board / ticket lifecycle
+
+4.1 MODULE NOTES
+
+  Delivery
+    Address, delivery fee/notes, hours. Channel = delivery.
+
+  Pickup
+    Prefer FREE (₹0) with Cloud base or when Delivery is owned — avoid
+    charging a lonely micro-SKU unless product later requires it.
+    Channel = pickup.
+
+  Restaurant Dine-in
+    Tables map, per-table QR → /order?table={n} (or handle-scoped URL).
+    Orders tagged table number. No delivery address.
+    Only available when base type allows Dine-in (Restaurant family).
+    Hero differentiator for restaurants.
+
+  Catering
+    Packages, headcount, event date, venue; enquiry and/or deposit.
+    Separate journey from “2 thalis for table 5”.
+    Purchasable by Cloud kitchen and Restaurant (extra cost when not in base).
+
+  Kitchen Management
+    EXTRA package across food types that generate tickets.
+    Integrates with WHATEVER modules are ON:
+      Dine-in  → show Table N
+      Delivery → show Delivery + address summary
+      Pickup   → show Pickup
+      Catering → show Event / date / pax (or later separate catering queue)
+    v1 board: New → Cooking → Ready → Done/Served/Out; filter by source.
+    Printers, multi-station, recipes = FUTURE (do not block v1).
+
+4.2 “ALL MODULES” MEANS TYPE-AWARE ALL
+
+  Restaurant “all” =
+    Delivery + Pickup + Restaurant Dine-in + Catering + Kitchen
+
+  Cloud kitchen “all” =
+    Delivery + Pickup + Catering + Kitchen
+    (Dine-in NEVER included)
+
+  Single module / Combo / All = purchase shapes at upgrade time (§6).
+
+================================================================================
+5. THREE CUSTOMER JOURNEYS (KEEP SEPARATE UX)
+================================================================================
+
+  A. ONLINE ORDER (Delivery / Pickup)
+     Public Menu/Order → cart → address OR pickup → pay path
+     (WhatsApp on Website plan; richer checkout when Pro + tenant PG).
+
+  B. RESTAURANT DINE-IN
+     Table QR → menu → order tagged with table → kitchen / pay path.
+
+  C. CATERING
+     Packages or quote → date/pax → lead or deposit — not table cart.
+
+  One MENU catalog can feed A/B; C may use catering packages + optional
+  shared items later. Do not merge A/B/C into one ambiguous form.
+
+================================================================================
+6. WEBSITE PLAN VS MODULES (MARKETING + REGISTRATION)
+================================================================================
+
+6.1 MAIN WEBSITE PRICING (LAYER 1) — KEEP SIMPLE
+
+  Sell primarily:
+    • Mini website
+    • Digital menu DISPLAY
+    • Order via WhatsApp (and call/email CTAs as product allows)
+    • Theme, branding, pages limits per plan tier
+
+  Do NOT put every food module into the first pricing grid.
+  Optional homepage strip: “Food add-ons from ₹X/mo — add anytime.”
+
+  This WILL WORK for India SMB: low risk, matches current WhatsApp behaviour,
+  clear upgrade path.
+
+6.2 REGISTRATION (RECOMMENDED LAUNCH PATH)
+
+  1. Choose Website plan (monthly / yearly).
+  2. Choose business type (Cloud kitchen / Restaurant / Catering / …).
+  3. Account created → menu + WhatsApp site works.
+  4. Dashboard: “Grow with modules” → Single | Combo | All (type-aware).
+
+  Power path (later): allow selecting modules at signup once Billing SKUs
+  are stable.
+
+6.3 MODULE PURCHASE SHAPES
+
+  Single   One module at list price.
+  Combo    Defined pairs/triples (e.g. Delivery+Kitchen, Dine-in+Kitchen)
+           ~10–15% off sum.
+  All      Type-aware full stack ~15–25% off sum.
+
+================================================================================
+7. MODULE LIFECYCLE (100% — EACH MODULE)
+================================================================================
+
+  Every module must support:
+
+  1. Discover     Superadmin / Billing / dashboard card: name, price, benefits
+  2. Purchase     Tenant pays Artix (monthly/yearly) → entitlement ON
+  3. Configure    Tables, zones, packages, kitchen board settings
+  4. Operate      Live public + admin flows
+  5. Bill/Renew   Invoice line items; clear SKU on gateway/subscription
+  6. Disable      Flag OFF; hide public surfaces; retain data per policy
+
+  Entitlements example (conceptual):
+
+    modules: [
+      "food.base.restaurant",
+      "food.dine_in",
+      "food.kitchen"
+    ]
+
+  Product gates:
+
+    if has("food.dine_in")  → Tables, QR, dine-in orders
+    if has("food.kitchen")  → Kitchen board; feeds only enabled channels
+    if cloud*               → never show Dine-in purchase or UI
+
+  Platform payment gateway / Billing MUST understand SKUs on sale:
+
+    food.base.cloud
+    food.base.restaurant
+    food.base.catering_only
+    food.delivery
+    food.pickup
+    food.dine_in
+    food.catering
+    food.kitchen
+    (+ bundle SKUs as needed)
+
+================================================================================
+8. PRICING RULES (ANCHOR — TUNE NUMBERS LATER)
+================================================================================
+
+8.1 YEARLY MATH + CHARM PRICING (LOCKED METHOD)
+
+  yearly_raw    = monthly × 12
+  yearly_disc   = yearly_raw × (1 − discount)   // prefer 10% yearly; 5% weak
+  yearly_price  = charm-round to amount ending in 99
+                  e.g. 99, 199, 299, 499, 999, 1999, 2999, 4999, 9999, 19999
+
+  Prefer: do not charge MORE than yearly_disc after charm (round toward deal).
+  Display: “₹499/mo or ₹4,999/year (save ~…)”
+
+8.2 DISCUSSION SWEET SPOTS (₹/MONTH — NOT FINAL LIST PRICE)
+
+  Principle: not too cheap (support dies) / not agency-high (SMB bounces).
+  Rough band for modules: ~₹300–700/mo each.
+
+  Module                 Discussion band (₹/mo)    Notes
+  ---------------------  ------------------------  ---------------------------
+  Delivery               299–399                   Daily channel
+  Pickup                 0 (free w/ Delivery/Cloud)
+  Restaurant Dine-in     499–699                   Hero module
+  Catering               399–599                   Higher ticket, fewer events
+  Kitchen Management     399–499                   Cross food types
+
+  Website plans stay on main site (Basic/Pro style) — separate from modules.
+
+  Bundles: 15–20% off sum of modules; “Restaurant Complete” vs
+  “Cloud + Catering” (no Dine-in).
+
+8.3 PSYCHOLOGY
+
+  • Show à la carte total then bundle savings.
+  • Annual ≈ 2 months free feel via 10% + charm.
+  • Launch promo allowed; avoid permanent ₹99 modules.
+  • Avoid 12 micro-SKUs on homepage.
+
+================================================================================
+9. MENU / STORE SELF-AWARENESS (FOOD VS FASHION)
+================================================================================
+
+  Food industry Store/Menu is NOT default fashion ecommerce:
+
+  Fashion/general shop          Food (this industry)
+  ---------------------------   --------------------------------
+  Inventory, Size/Color vars    Menu sections, items, modifiers
+  Stock SKUs                    Availability / 86, optional stock
+  One cart                      Channels: delivery/pickup/dine-in/catering
+  No tables                     Table map + QR (if Dine-in)
+  No kitchen board              Kitchen package tickets
+
+  Superadmin commerce profile per food type should set:
+    • enable_store_menu
+    • enable_packages_salon (false for pure food)
+    • default_modules / allowed_modules
+    • default_variation_presets (for food: spice level, size plate, pack —
+      not clothing sizes unless they also sell retail goods)
+    • public_nav: Order / Menu / Catering / hide Shop fashion patterns
+
+  When general “Store Inventory | Categories | Variations” is built for
+  ecommerce verticals, FOOD types map to Menu-first IA or a food profile
+  of those tabs — do not force Size/Color UX on thalis.
+
+================================================================================
+10. SUPERADMIN RESPONSIBILITIES
+================================================================================
+
+  Superadmin dashboard must eventually manage:
+
+  1. Industry list (food types): name, slug, active, group “Food”
+  2. Commerce profile flags (allowed modules, default channels, nav)
+  3. Module catalog: SKU, price monthly/yearly charm, active
+  4. Bundles: single / combo / all definitions per base type
+  5. Entitlement view per tenant (what they bought)
+
+  Predefine industries under respective industry category in Superadmin —
+  product self-configures Store, editor, and public site from that catalog.
+
+================================================================================
+11. KITCHEN MANAGEMENT INTEGRATION
+================================================================================
+
+  • Extra paid package; works across food types that create tickets.
+  • Integrates correctly with active food modules (source tags).
+  • Does not invent Dine-in for Cloud kitchen.
+  • Catering tickets may appear on same board v1 or split later — decide in
+    CHANGE LOG when implementing.
+
+================================================================================
+12. WHAT IS EXPLICITLY OUT OF V1 FOOD ANCHOR
+================================================================================
+
+  • Zomato / Swiggy full integration
+  • Hardware KOT printers as required dependency
+  • Multi-branch / multi-kitchen routing
+  • Full accounting POS / GST filing
+  • Ingredient recipe costing
+  • Waiter handheld app (future idea — user will expand later)
+
+  Leave extension slots in modules; do not hard-block future packages.
+
+================================================================================
+13. IMPLEMENTATION ORDER (WHEN BUILD STARTS)
+================================================================================
+
+  1. Freeze Superadmin food types + module SKU list (this file).
+  2. Website plan only on marketing + registration (Layer 1).
+  3. Menu display + WhatsApp on tenant site (self-aware labels by type).
+  4. Module entitlements + Billing line items.
+  5. Delivery / Pickup order flow.
+  6. Restaurant Dine-in: tables + QR.
+  7. Catering module.
+  8. Kitchen Management board consuming enabled channels.
+  9. Combos / All modules purchase UI.
+
+  Do not implement features that violate §3.2 hard rules.
+
+================================================================================
+14. OPEN DECISIONS (TUNE IN CHANGE LOG WHEN CLOSED)
+================================================================================
+
+  [ ] Exact list prices (₹) for website plans and each module
+  [ ] Yearly discount 5% vs 10% (doc recommends 10%)
+  [ ] Pickup always free vs optional paid
+  [ ] Delivery included in Cloud base vs always add-on
+  [ ] Dine-in included in Restaurant base vs always paid module
+  [ ] Kitchen: flat per business vs per outlet
+  [ ] Catering on kitchen board vs separate queue in v1
+  [ ] Exact Superadmin slug strings for industries
+
+================================================================================
+15. QUICK REFERENCE — DO / DON’T
+================================================================================
+
+  DO
+    • Cloud + Catering without Dine-in
+    • Restaurant may stack all modules including Dine-in
+    • Kitchen extra and channel-aware
+    • Website-first pricing on main site; modules as upgrades
+    • Yearly = ×12 − % then charm …99
+    • Full lifecycle + Billing SKUs per module
+    • Call it Restaurant Dine-in
+
+  DON’T
+    • Give Cloud kitchen table QR / Dine-in
+    • Put 20 food SKUs on the first marketing pricing screen
+    • Mix platform module fees with tenant food settlement
+    • Treat food default UX as fashion Size/Color store
+    • Half-ship a module without disable/entitlement path
+
+================================================================================
+CHANGE LOG
+================================================================================
+
+2026-07-16
+  Initial anchor from product discussion:
+  - Website plan (menu + WhatsApp) vs food modules
+  - Modules: Delivery, Pickup, Restaurant Dine-in, Catering, Kitchen
+  - Cloud never Dine-in; Cloud can buy Catering
+  - Single / combo / all modules; monthly/yearly charm pricing
+  - Superadmin industry catalog as self-aware source of truth
+  - Kitchen Management cross-type extra package
+  - Registration path: website first, modules later
+
+2026-07-16 (split)
+  Expanded into per-file pack under industries-docs/food_industry/:
+  00 index, 01 anchor, 02 types, 03 website layer, 04–08 modules,
+  09 menu/catering inventory, 10 subtypes (bar/bistro/…), 11 integration,
+  12 billing, 13 superadmin, 14 registration. integration_setup_docs/24-*.txt
+  points here for ops/Billing/Sheets.
+
+2026-07-16 (delivery ops + growth)
+  04 delivery: riders PT/FT, own vs company vehicle, third-party fulfilment.
+  15 multi-branch: per-branch charge, 5–10% off extra branches.
+  16 coupons: platform vs tenant; Christmas/EOY 40–50%; code pipeline.
+
+
+================================================================================
+END OF FOOD INDUSTRY ANCHOR
+================================================================================

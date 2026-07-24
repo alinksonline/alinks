@@ -1,0 +1,27 @@
+================================================================================
+15 — SUPERADMIN: BOOKINGS INDUSTRY CATALOG
+================================================================================
+
+  IndustryGroup: bookings
+
+  IndustryType {
+    slug, name,
+    family: clinic | professional | legal | venue,
+    required_modules[], allowed_modules[],
+    license_gate: boolean,
+    seed_profile_id, active
+  }
+
+  Superadmin UI target:
+    • CRUD types/subtypes under Bookings
+    • License review queue (clinic) — already partly in product
+    • Module prices + coupons
+    • Bundle definitions
+
+  Align later with code BUSINESS_VERTICALS (clinic, …) via industryId.
+
+================================================================================
+CHANGE LOG
+================================================================================
+2026-07-16  Superadmin shape for bookings.
+================================================================================

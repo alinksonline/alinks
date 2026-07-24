@@ -16,7 +16,7 @@ interface AuthShellProps {
 
 export function AuthShell({ mode, title, subtitle, children, footer }: AuthShellProps) {
   return (
-    <main className="relative min-h-dvh overflow-x-hidden bg-brand-cream">
+    <main className="relative flex flex-col pb-8">
       <div className="pointer-events-none absolute inset-0 bg-premium-radial" />
 
       <header className="relative z-10 border-b border-brand-ink/[0.06] bg-brand-cream/90 backdrop-blur-md">

@@ -1,6 +1,7 @@
 import { a1SheetRange, SHEET_HEADERS, STANDARD_SHEET_TABS } from "./sheet-tabs";
 import { getGoogleAccessToken } from "./google-auth";
 import type { SheetTab, StorageAdapter } from "./types";
+// industry tabs applied at provision time
 
 type SheetsValuesResponse = {
   values?: string[][];
@@ -60,6 +61,11 @@ function mapRowToHeaders(
     // Common aliases
     if (key === "orderId" && headerSet.has("order_id")) out.order_id = value;
     else if (key === "bookingId" && headerSet.has("booking_id")) out.booking_id = value;
+    else if ((key === "customerName" || key === "name") && headerSet.has("name") && !headerSet.has("customer_name")) {
+      out.name = value;
+    } else if ((key === "customerPhone" || key === "phone") && headerSet.has("phone") && !headerSet.has("customer_phone")) {
+      out.phone = value;
+    }
     else if (key === "total" && headerSet.has("total_paise")) {
       out.total_paise = typeof value === "number" ? Math.round(value * 100) : value;
     } else if (key === "price" && headerSet.has("notes")) {
@@ -69,7 +75,14 @@ function mapRowToHeaders(
     else if (key === "paymentMethod" && headerSet.has("payment_method")) out.payment_method = value;
     else if (key === "customerName" && headerSet.has("customer_name")) out.customer_name = value;
     else if (key === "customerPhone" && headerSet.has("customer_phone")) out.customer_phone = value;
+    else if (key === "customerAddress" && headerSet.has("customer_address")) out.customer_address = value;
     else if (key === "packageName" && headerSet.has("package_name")) out.package_name = value;
+    else if (key === "tableLabel" && headerSet.has("table_label")) out.table_label = value;
+    else if (key === "orderCode" && headerSet.has("order_id")) out.order_id = value;
+    else if (key === "paymentMode" && headerSet.has("payment_mode")) out.payment_mode = value;
+    else if (key === "leadType" && headerSet.has("lead_type")) out.lead_type = value;
+    else if (key === "refId" && headerSet.has("ref_id")) out.ref_id = value;
+    else if (key === "refTitle" && headerSet.has("ref_title")) out.ref_title = value;
     else if (key === "slotDate" || key === "slotTime") {
       if (headerSet.has("starts_at")) {
         const prev = String(out.starts_at ?? "");
@@ -116,7 +129,8 @@ function valuesToRows(headers: string[], values: string[][]): Record<string, str
 export class GoogleSheetsAdapter implements StorageAdapter {
   constructor(private spreadsheetId: string) {}
 
-  async ensureTabsAndHeaders(): Promise<void> {
+  async ensureTabsAndHeaders(tabs: readonly SheetTab[] = STANDARD_SHEET_TABS): Promise<void> {
+    const tabList = tabs.length ? tabs : STANDARD_SHEET_TABS;
     const metaRes = await sheetsFetch(`/spreadsheets/${this.spreadsheetId}?fields=sheets.properties.title`);
     const meta = (await metaRes.json()) as {
       sheets?: { properties?: { title?: string } }[];
@@ -131,7 +145,7 @@ export class GoogleSheetsAdapter implements StorageAdapter {
     );
 
     const requests: unknown[] = [];
-    for (const tab of STANDARD_SHEET_TABS) {
+    for (const tab of tabList) {
       if (!existing.has(tab)) {
         requests.push({ addSheet: { properties: { title: tab } } });
       }
@@ -147,7 +161,7 @@ export class GoogleSheetsAdapter implements StorageAdapter {
       }
     }
 
-    for (const tab of STANDARD_SHEET_TABS) {
+    for (const tab of tabList) {
       const headers = SHEET_HEADERS[tab];
       const range = a1SheetRange(tab, "A1:Z1");
       const peek = await sheetsFetch(
@@ -218,14 +232,22 @@ export type ProvisionedWorkbook = {
   spreadsheetUrl: string;
 };
 
-/** Create workbook owned by service account, standard tabs, optional share with tenant email. */
+/** Create workbook owned by service account, industry tabs, optional share with tenant email. */
 export async function provisionTenantWorkbook(params: {
   businessName: string;
   handle: string;
   shareWithEmail?: string;
+  /** Industry group or vertical — selects C2 sheet template tabs. */
+  industryGroup?: string;
+  industryType?: string | null;
 }): Promise<ProvisionedWorkbook> {
+  const { sheetTabsForIndustry } = await import("./industry-sheets");
+  const tabs = params.industryGroup
+    ? sheetTabsForIndustry(params.industryGroup, params.industryType)
+    : STANDARD_SHEET_TABS;
+
   const title = `ALINKS · ${params.businessName} (${params.handle})`;
-  const sheets = STANDARD_SHEET_TABS.map((titleTab, i) => ({
+  const sheets = tabs.map((titleTab, i) => ({
     properties: { title: titleTab, index: i },
   }));
 
@@ -253,7 +275,7 @@ export async function provisionTenantWorkbook(params: {
   }
 
   const adapter = new GoogleSheetsAdapter(created.spreadsheetId);
-  await adapter.ensureTabsAndHeaders();
+  await adapter.ensureTabsAndHeaders(tabs);
 
   if (params.shareWithEmail?.includes("@")) {
     const perm = await driveFetch(`/files/${created.spreadsheetId}/permissions?sendNotificationEmail=true`, {

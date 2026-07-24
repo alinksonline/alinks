@@ -1,0 +1,150 @@
+================================================================================
+09 — MENU INVENTORY, CATEGORIES, MODIFIERS (FOOD “VARIATIONS”)
+================================================================================
+Folder: industries-docs/food_industry/
+Applies to: all food types; channels consume this catalog
+Related: 07 catering inventory; 10 subtype distinctions
+
+================================================================================
+1. MENTAL MODEL
+================================================================================
+
+  Food does NOT default to fashion ecommerce “SKU × Size × Color”.
+
+  FOOD CATALOG
+    Menu sections (categories) → Items → Modifiers / option sets
+    Channel flags: delivery | pickup | dine_in (if allowed)
+    Optional stock / availability (86)
+
+  CATERING CATALOG (module food.catering)
+    Packages + catering categories + event option sets
+    May LINK menu items; not forced 1:1
+
+  Shared: media WebP pipeline, names, prices in paise, active flags.
+
+================================================================================
+2. MENU CATEGORIES (SECTIONS)
+================================================================================
+
+  Examples by subtype (presets Superadmin / onboarding can seed):
+
+  Cloud kitchen / general restaurant
+    Starters | Mains | Breads | Rice | Desserts | Beverages | Combos
+
+  Bar & restaurant
+    Starters | Mains | Bar snacks | Beer | Spirits | Cocktails | Soft drinks
+    (+ age/disclaimer flags where needed)
+
+  Bistro / café
+    Coffee | Tea | Bakery | Breakfast | All-day | Desserts
+
+  Fine dining
+    Degustation | Appetizers | Mains | Sides | Desserts | Wine
+
+  QSR / quick service
+    Combos | Burgers | Sides | Drinks | Desserts
+
+  Categories are ordered, active/inactive, optional image, optional schedule
+  (lunch-only section — future).
+
+================================================================================
+3. MENU ITEMS (INVENTORY ROW)
+================================================================================
+
+  Core fields
+    id, name, description, images[]
+    price, mrp? (optional display)
+    category_id
+    active, sold_out (86)
+    available_for: { delivery, pickup, dine_in }  // dine_in only if type allows
+    prep_minutes? (optional)
+    veg_flag: veg | non_veg | egg | vegan (India-critical)
+    spice_default?
+    sku? (optional for packaged retail side SKUs)
+    stock? (optional; more for grocery-like / packaged)
+    gst_slab? (future / Pro)
+
+  Service-like items (no physical stock)
+    Same row; track_stock=false; duration optional (buffet slot rare)
+
+================================================================================
+4. MODIFIERS = FOOD “VARIATIONS” (REUSABLE LIBRARY)
+================================================================================
+
+  Reusable option sets (like ecommerce variations library, food-shaped):
+
+  PREDEFINED SETS (editable by tenant; Superadmin seeds by subtype)
+
+    Size / plate     Half | Full | Family
+    Spice            Mild | Medium | Hot
+    Cooking          Butter | Olive oil | No onion garlic
+    Add-ons          Extra cheese | Extra shot | Raita
+    Protein          Paneer | Chicken | Mutton
+    Drink size       Regular | Large
+    Alcohol mark     Single | Double | Pitcher   (bar subtype)
+    Crust / base     Thin | Thick               (pizza QSR)
+    Sugar            No sugar | Less | Normal   (café)
+
+  Each set:
+    id, name, required?, multi_select?, options[{ label, price_delta, default }]
+
+  Attach sets to items or to whole categories (e.g. all cocktails get ice preference).
+
+  Instant integration:
+    Cart/order lines store chosen modifiers → Kitchen ticket shows them →
+    same for Delivery / Pickup / Dine-in channels.
+
+================================================================================
+5. CATERING INVENTORY (WHEN food.catering ON)
+================================================================================
+
+  Packages inventory (see 07):
+    categories: Wedding | Corporate | Festival | Tiffin bulk | Custom
+    options: live counter, servers count, veg/non-veg, per-plate tier
+
+  Lifecycle of catering stock:
+    Package active → public list → lead → confirm → optional kitchen produce
+    Disable package → hide; historical leads keep package name snapshot
+
+================================================================================
+6. CHANNEL × INVENTORY
+================================================================================
+
+  Item.available_for.delivery  needs food.delivery (or WA-only soft note)
+  Item.available_for.pickup    needs food.pickup
+  Item.available_for.dine_in   needs food.dine_in AND restaurant-type
+  Cloud type: UI never shows dine_in availability toggle
+
+  Sold out (86):
+    Hides or marks item on ALL enabled channels instantly.
+
+================================================================================
+7. ADMIN IA (STORE / MENU — FOOD PROFILE)
+================================================================================
+
+  Suggested tabs when food industry (not fashion):
+
+    Menu items     (inventory list)
+    Categories     (sections)
+    Modifiers      (reusable variation sets + presets)
+    [if catering]  Catering packages
+    [if dine_in]   Tables & QR   (or under Dine-in settings)
+    [if kitchen]   Kitchen board (ops, not inventory)
+
+  Fashion verticals keep Inventory | Categories | Variations (Size/Color).
+  Superadmin commerce profile chooses which IA.
+
+================================================================================
+8. DATA BOUNDARY
+================================================================================
+
+  Platform DB: menu config, categories, modifier defs, package defs,
+               table defs, order headers needed for app (or refs).
+  Customer PII + full order lines for compliance: tenant Sheets / BYO Supabase
+  per existing ALINKS data rules.
+
+================================================================================
+CHANGE LOG
+================================================================================
+2026-07-16  Menu vs catering inventory; modifiers library; channel flags.
+================================================================================

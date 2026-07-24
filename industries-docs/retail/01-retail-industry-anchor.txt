@@ -1,0 +1,130 @@
+================================================================================
+01 — RETAIL & WHOLESALE INDUSTRY ANCHOR
+================================================================================
+Location: industries-docs/retail/01-retail-industry-anchor.txt
+Created:  2026-07-16
+
+================================================================================
+1. WHAT THIS INDUSTRY IS
+================================================================================
+
+  Tenants sell PHYSICAL (or packaged) PRODUCTS across any category:
+    kitchenware, clothes, fashion, electronics, beauty, toys, hardware,
+    packaged groceries, home, sports — “anything they want”.
+
+  They may sell:
+    • One brand (own brand / single distributor)
+    • Multiple brands (multi-brand store or wholesale market)
+
+  Two commercial modes (diversification spine) — ONBOARDING LABELS FROZEN:
+    Retail only           → end consumers (B2C)
+    Wholesale only        → bulk / other businesses (B2B)
+    Retail + Wholesale    → hybrid (both)
+
+  Catalogue: OPEN — kitchen, clothes, electronics, plumbing, gadgets, mobiles,
+  laptops, toys, plants, herbal, Ayurvedic retail, veggies, and anything legal
+  they name (doc 14). Capability modules + plan CAPS control cost (doc 15).
+
+  Smart application = one product engine with mode-aware pricing, MOQ, catalog
+  presentation, and checkout path — not separate codebases per product type.
+
+================================================================================
+2. HOW WE DIVERSIFY (THE MODEL)
+================================================================================
+
+  Layer A — MARKET ROLE (who the tenant is)
+    retail_shop          neighbourhood / high-street multi-category shop
+    multi_brand_store    curated brands, fashion/lifestyle focus
+    wholesale_market     bulk market / mandi-style / distributor desk
+    brand_dtc            single brand direct-to-consumer
+    hybrid_retail_wholesale  both counters (common in India)
+
+  Layer B — TRADE MODE (how each product or catalog sells)
+    retail_unit          single unit / consumer pack price
+    wholesale_bulk       MOQ + tier prices (10+, 50+, 100+)
+    both                 retail AND wholesale prices on same SKU
+
+  Layer C — BRAND GRAPH
+    Own brand + third-party brands as catalogue attributes
+    Optional “brand pages” on mini-site
+
+  Layer D — FULFILMENT / ORDER PATH
+    WhatsApp order (website plan)
+    Cart + COD / tenant Razorpay (checkout module)
+    Pickup at store / market stall
+    Delivery note (not food kitchen board unless they also buy food modules)
+
+  Diversification = Superadmin type + enabled modes + plan limits + UI seeds
+  — not infinite separate apps.
+
+================================================================================
+3. WHAT ALINKS IS / IS NOT
+================================================================================
+
+  IS
+    • Multi-brand product catalogue + Store inventory
+    • Retail and/or wholesale pricing rules
+    • Categories & variations (size, color, pack, unit)
+    • Mini-site storefront + WhatsApp + optional cart checkout
+    • Leads/enquiries for bulk wholesale
+    • Multi-outlet shops (branch pattern 5–10% off)
+
+  IS NOT
+    • Artix marketplace taking possession of all sellers’ stock (v1)
+    • Payment facilitation of shop GMV by Artix
+    • Full WMS / warehouse robotics
+    • Restaurant dine-in / kitchen (food_industry)
+    • Property sales (real_estate)
+
+================================================================================
+4. MODULES (DIRECTION)
+================================================================================
+
+  rt.storefront        Public product shop (B2C)
+  rt.inventory         Products, stock, SKUs, multi-brand
+  rt.categories        Category tree + filters
+  rt.variations        Reusable option sets (size/color/pack)
+  rt.wholesale         B2B mode: MOQ, tier prices, GSTIN field on order
+  rt.multi_brand       Brand entities + brand pages + filters
+  rt.checkout          Cart + tenant Razorpay/COD (BYO PG)
+  rt.enquiry_bulk      Wholesale enquiry without full cart (optional)
+  rt.delivery          Ship to address (online orders — not shop POS)
+  rt.pickup            Collect at shop (simple address note OK)
+
+  NOT default: multi-outlet / multi-store POS seats.
+  ALINKS is the online mini-site + catalogue, not in-store billing software.
+  One brand shop online is enough even if they have several physical shops
+  offline (optional plain “pickup address” text later — not a paid multi-store).
+
+  Website plan: presence + limited catalogue + WA order
+  Upgrade: full store + wholesale + checkout depth
+
+================================================================================
+5. RELATION TO EXISTING CODE / VERTICALS
+================================================================================
+
+  Code today: ecommerce, kirana, grocery verticals + CatalogProduct
+  This pack UNIFIES them under Retail industry with wholesale diversification.
+  Map:
+    kirana/grocery → retail_shop + optional wholesale + unit fields
+    ecommerce      → multi_brand_store or brand_dtc + checkout
+    general shop   → retail_shop
+
+================================================================================
+6. BILLING LAYERS
+================================================================================
+
+  LAYER 1 — Website plan (main marketing)
+  LAYER 2 — Retail modules (inventory caps, wholesale, multi-brand, checkout)
+  Tenant checkout = customer pays shop (not Artix)
+
+================================================================================
+CHANGE LOG
+================================================================================
+2026-07-16  Retail+wholesale multi-brand anchor; diversification model.
+2026-07-16  Freeze onboarding retail/wholesale/both; open catalogue; module
+            menu + plan caps anti-chaos (docs 14–15).
+2026-07-16  Remove retail multi-outlet module — not in-store POS; one web shop.
+================================================================================
+
+

@@ -1,0 +1,63 @@
+================================================================================
+04 — COURSES, BATCHES, SUBJECTS (OPEN INVENTORY)
+================================================================================
+
+================================================================================
+1. COURSE / PROGRAM / CLASS OFFERING
+================================================================================
+
+  Course {
+    name, description, media[],
+    category_id,                 // open: Maths, Guitar, Python, Classical dance…
+    level?: beginner|intermediate|advanced|any,
+    mode: offline|online|hybrid|async_link,
+    duration_text,               // “3 months” / “12 sessions”
+    fee_display_mode, fee_amount?,
+    youtube_intro_url?,          // embed on course page
+    external_playlist_url?,
+    faculty_ids[],
+    active
+  }
+
+  Categories: OPEN taxonomy — music is one seed pack among many
+    Seeds examples: Academics, Music, Dance, Art, Languages, IT & Coding,
+    Competitive exams, Soft skills, Vocational, Sports coaching (non-gym), Custom
+
+================================================================================
+2. BATCHES (LITE)
+================================================================================
+
+  Batch {
+    course_id, name, schedule_text,   // “Mon–Wed–Fri 6–7pm”
+    start_date?, seats_total?, seats_taken?,
+    mode, branch_id?, active
+  }
+
+  Full attendance ERP Phase 2. V1: display + “Join batch” enquiry/deposit.
+
+================================================================================
+3. FACULTY / TEACHER RESOURCE
+================================================================================
+
+  For institutes: multiple faculty.
+  For independent teacher: single resource = self (auto-created).
+
+  Faculty {
+    name, photo?, bio?, subjects[],
+    youtube_channel_url?,
+    hours, branch_id?,
+    google_calendar_connected?
+  }
+
+================================================================================
+4. VARIATIONS
+================================================================================
+
+  Online vs offline, weekday vs weekend, group vs 1:1, language of instruction,
+  instrument type (for music seed), grade/class level (for school tuition).
+
+================================================================================
+CHANGE LOG
+================================================================================
+2026-07-16  Open subjects; YouTube on course; independent teacher = self faculty.
+================================================================================

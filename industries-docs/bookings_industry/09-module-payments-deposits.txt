@@ -1,0 +1,103 @@
+================================================================================
+09 — MODULE: PAYMENTS / DEPOSITS (book.payments)
+================================================================================
+SKU: book.payments
+Tenant payment gateway (Razorpay BYO etc.) — Artix does not settle client fees.
+
+================================================================================
+1. DEFINITION
+================================================================================
+
+  OPTIONAL paid collection for bookings: consultation fee, token advance, or
+  venue deposit before confirmation.
+
+  FREE BOOKINGS ARE FIRST-CLASS (LOCKED PRODUCT RULE)
+    Tenants MAY use the full bookings module (slots, calendar, Google Calendar,
+    reminders, clinic/lawyer/venue packs) WITHOUT charging their clients at all.
+    Charging clients is an opt-in choice — never required to use bookings.
+
+  Aligns with salon pay-then-book when they WANT pay; free when they do not.
+
+================================================================================
+2. MODES (PER BUSINESS AND/OR PER SERVICE)
+================================================================================
+
+  • free_booking          — DEFAULT. Confirm slot with no client payment.
+                            No tenant Razorpay required for this mode.
+  • pay_to_confirm        — full service price to hold slot (needs tenant PG)
+  • deposit_then_confirm  — partial amount; balance offline/later (needs PG)
+  • pay_at_venue          — book free online; pay at clinic/chamber/hall
+                            (status flag only; no online charge)
+
+  Tenant can:
+    • Run entire practice on free_booking only
+    • Mix: some services free, some paid (e.g. free intro, paid follow-up)
+    • Switch a service from free → paid later without losing calendar data
+
+================================================================================
+3. FREE BOOKING — DETAILED FUNCTIONING
+================================================================================
+
+  Public
+    • Client picks service → slot → contact details → Confirm
+    • No payment step, no card UI
+    • Success: “Booking confirmed” + optional WA message
+
+  Admin
+    • Toggle: “Charge clients for this service” OFF → free_booking
+    • Business default: “All bookings free unless service overrides”
+    • Still see full calendar, no-shows, Google Calendar sync, reminders
+
+  Artix Billing
+    • Tenant may still pay Artix for book.core / industry modules (software)
+    • That is UNRELATED to whether end-clients pay the tenant
+    • free_booking does NOT require book.payments SKU
+
+  When book.payments is not purchased
+    • Only free_booking and pay_at_venue (intent) available
+    • pay_to_confirm / deposit locked with upsell to book.payments
+
+  When book.payments is purchased but tenant chooses free
+    • Allowed — module sits idle until they enable charge on a service
+
+================================================================================
+4. LIFECYCLE
+================================================================================
+
+  Purchase book.payments (optional) → connect tenant PG if charging →
+  set mode per service/package (default free) →
+  if paid mode: payment session → webhook → booking confirmed →
+  if free mode: booking confirmed immediately →
+  disable payments module → all services force free/WA-safe modes
+
+================================================================================
+5. INTEGRATION
+================================================================================
+
+  + all book.* types (clinic, legal, venue, professional)
+  + book.google_calendar: free bookings still sync on confirm
+  + book.reminders: free bookings still get reminders
+  + food modules N/A except future venue+catering deposit bridge
+  Platform Billing separate (tenant pays Artix for software SKUs)
+
+================================================================================
+6. HARD RULES
+================================================================================
+
+  • Never block calendar booking because “payment not configured” if mode is free
+  • Never force deposit on lawyers/clinics by default
+  • Venue may default to deposit in seed profile but tenant can set free enquiry
+  • Client-facing copy: show price only when charge mode is on
+
+================================================================================
+CHANGE LOG
+================================================================================
+2026-07-16  Deposits / pay-to-confirm module.
+2026-07-16  Free bookings first-class; charge clients is opt-in only.
+
+NOTE TO IMPLEMENTERS
+  Default seed for every new service: charge_clients = false (free_booking).
+  Never show a blocking “Connect Razorpay to enable bookings” wall.
+  Razorpay connect only when tenant turns on a paid mode on a service.
+================================================================================
+

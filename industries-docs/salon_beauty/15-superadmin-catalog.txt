@@ -1,0 +1,21 @@
+================================================================================
+15 — SUPERADMIN: SALON & BEAUTY
+================================================================================
+
+  IndustryGroup: salon_beauty
+  Types: salon, beauty, spa_wellness, unisex_salon, makeup_artist
+
+  Flags:
+    use_book_core: true
+    license_gate: false
+    package_limit_tier, staff_limit_tier
+    seed_pack: salon | beauty | spa
+    allow_pay_then_book, allow_retail_products, allow_multilocation
+
+  Maps code verticals salon | beauty.
+
+================================================================================
+CHANGE LOG
+================================================================================
+2026-07-16  Superadmin salon catalog.
+================================================================================

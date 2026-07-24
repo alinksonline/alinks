@@ -1,0 +1,72 @@
+================================================================================
+14 — ONBOARDING LABELS + “SELL ANYTHING” CATALOG FREEDOM
+================================================================================
+Folder: industries-docs/retail/
+Status: LOCKED product direction
+
+================================================================================
+1. ONBOARDING — TRADE MODE (FROZEN LABELS)
+================================================================================
+
+  Question (registration / business setup):
+    “How do you sell?”
+
+  Options (exactly these three — frozen):
+    ○ Retail only          — I sell to end customers
+    ○ Wholesale only       — I sell bulk / to other businesses
+    ○ Retail + Wholesale   — Both (hybrid)
+
+  Internal values:
+    retail_only | wholesale_only | hybrid
+
+  Effects:
+    retail_only     → storefront B2C on; wholesale path off
+    wholesale_only  → wholesale path on; consumer grid de-emphasized
+    hybrid          → both paths; dual prices allowed on products
+
+  Can change later in Settings (with confirmation).
+
+================================================================================
+2. CATALOG FREEDOM — SELL ANYTHING
+================================================================================
+
+  LOCKED: Product categories are OPEN TAXONOMY. Tenant can sell any legal
+  product line they name — not a closed pick-list of “only fashion” or “only
+  kitchen”.
+
+  Examples (non-exhaustive — if they can stock it, they can list it):
+    Electronics, electricals, plumbing, gadgets, mobiles, laptops, accessories,
+    toys, games, kitchenware, home, furniture (as product, not RE),
+    plants, seeds, nursery,
+    herbal, Ayurvedic products (OTC retail — not clinical diagnosis),
+    veggies / produce / grocery packs,
+    fashion, clothes, footwear, beauty,
+    hardware, tools, paints, automotive accessories,
+    books, stationery, sports, pet supplies, …
+    “Whatever they name” via custom categories
+
+  Superadmin may SEED category packs (Fashion, Kirana, Electronics, …) for
+  faster setup — seeds are optional templates, never a hard limit on what
+  they can add.
+
+  Legal / AUP:
+    Prohibited items still blocked by platform AUP (weapons, illegal drugs, etc.)
+    — enforcement policy, not category taxonomy limit.
+
+  NOT for this industry:
+    Restaurant cooked meals / dine-in → food_industry
+    Land/flats as title sale → real_estate
+    Doctor consult slots → bookings_industry
+
+================================================================================
+3. BRANDS
+================================================================================
+
+  Multi-brand still allowed: Samsung + local + house brand under one shop.
+  Single brand DTC also fine (one brand or none).
+
+================================================================================
+CHANGE LOG
+================================================================================
+2026-07-16  Freeze retail/wholesale/both labels; open-ended product catalogue.
+================================================================================

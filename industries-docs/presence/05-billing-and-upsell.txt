@@ -1,0 +1,42 @@
+================================================================================
+05 — BILLING & UPSELL (PRESENCE)
+================================================================================
+Detail: 07-influencer-features-and-discounts.txt
+
+  Primary revenue: website plan (Starter / Pro).
+  Presence is acquisition + creator growth — not module-heavy.
+
+  Caps: pages, gallery images, link buttons, media-kit images — not product SKUs.
+
+  CREATOR / INFLUENCER DISCOUNTS (LOCKED INTENT)
+    Huge discounts = **trade for promoting ALINKS** (Creator Partner).
+    Full deal design: 08-creator-promo-for-discount-deal.txt
+
+    Type influencer_creator + accept Partner terms:
+      • Launch (Tier B): 50–70% off year 1 ↔ link + launch post pack + quarterly light
+      • Ongoing (Tier A): 30–40% ↔ bio/link-hub mention + light promo
+      • Free micro (Tier D): short free window ↔ link + first post
+      • Yearly charm …99 + creator % (Superadmin cap)
+    Applies to: website plan + Presence pro add-ons
+    Does NOT: unlock sales/commerce
+    Business profile / community: milder or list (no deep Partner cuts by default)
+
+  Superadmin:
+    creator_discount_pct_monthly / yearly
+    creator_launch_coupon
+    partner_tier / compliance / promo due dates
+    coupon stack rules + anti-abuse
+
+  Frontend copy:
+    “Creator Partner” / “Creator pricing” / “Partner duties”
+    Never “à la carte” on screens.
+
+  Upsell (optional, industry switch + Select modules pricing):
+    Booking | Retail | Food | RE | Salon | Education | Fitness | Auto
+    Each module priced separately when they enable selling/booking.
+
+  No upsell to finance multi-brand (called off).
+
+  Yearly charm …99 platform-wide.
+
+================================================================================

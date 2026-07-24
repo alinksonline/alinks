@@ -1,0 +1,265 @@
+================================================================================
+26 — GOOGLE INTEGRATIONS FOR TENANTS (CLEAR SETUP GUIDE)
+================================================================================
+Purpose: One easy guide for Artix (platform) + what tenants do in ALINKS.
+Principle: Each tenant uses THEIR own Google account (Gmail / Workspace).
+            ALINKS never becomes owner of their Calendar or personal Drive.
+            Platform holds ONE OAuth app; tenants only click Connect & approve.
+
+Product rules:
+  • Google Calendar sync = FREE for all industries where applicable
+  • Sheets = tenant-owned customer data store (see also 07-google-oauth-sheets.txt)
+  • Tenant does NOT need to create a Google Cloud project or API keys (default path)
+
+Related product docs:
+  industries-docs/bookings_industry/19-module-google-calendar-gmail.txt
+  industries-docs/food_industry/07-module-catering.txt (calendar on events)
+
+================================================================================
+1. MENTAL MODEL (READ FIRST)
+================================================================================
+
+  TWO ROLES
+
+  A) ARTIX / ALINKS (once, platform-wide)
+     • Creates Google Cloud project “ALINKS”
+     • Enables APIs (Sheets, Drive, Calendar, …)
+     • Creates ONE OAuth 2.0 Web Client (Client ID + Secret)
+     • Puts credentials in Vercel env
+     • Builds Dashboard → Integrations UI with clear steps
+
+  B) TENANT (each business, their own Google)
+     • Clicks “Connect Google” in ALINKS
+     • Signs in with THEIR Gmail / Workspace
+     • Approves permissions (Calendar / Sheets as offered)
+     • ALINKS stores encrypted refresh token for THAT tenant only
+     • Data (events, sheets) lives in THE TENANT’s Google account
+
+  This is “individual tenant Google access” via OAuth — not each tenant
+  pasting API keys (too hard for SMBs). Enterprise “BYO OAuth client”
+  can be a later advanced option; default is Connect button.
+
+  NOT THE SAME AS
+  • GOOGLE_SERVICE_ACCOUNT_JSON for some server-side Sheets helpers
+    (platform SA writing into a sheet the tenant shared — see §6)
+  • Superadmin login with Google (platform auth — separate)
+
+================================================================================
+2. PLATFORM SETUP (ARTIX) — DO ONCE
+================================================================================
+
+  Goal: Tenants can complete Connect in under 2 minutes without GCP knowledge.
+
+  2.1 Google Cloud project
+    1. https://console.cloud.google.com
+    2. Project: ALINKS Production (or ALINKS)
+    3. Enable APIs:
+         - Google Calendar API     (bookings, catering events, etc.)
+         - Google Sheets API       (tenant data / orders / appointments)
+         - Google Drive API        (file scope for sheets create/link)
+
+  2.2 OAuth consent screen
+    1. User type: External (or Internal if Workspace-only testing)
+    2. App name: ALINKS
+    3. User support email: [Artix support]
+    4. App logo: ALINKS logo (optional)
+    5. Scopes — request only what the product offers on that Connect button:
+         Calendar:
+           https://www.googleapis.com/auth/calendar.events
+           https://www.googleapis.com/auth/calendar.readonly
+           (or freebusy if sufficient for busy checks)
+         Sheets (if Connect Sheets / data hub):
+           https://www.googleapis.com/auth/spreadsheets
+           https://www.googleapis.com/auth/drive.file
+    6. Publishing status:
+         - Testing: add test Gmail users
+         - Production: verify app when ready for public tenants
+    7. Plain-language scope descriptions for Google’s review (honest copy)
+
+  2.3 OAuth client
+    1. Credentials → OAuth client ID → Web application
+    2. Name: ALINKS Tenant Google
+    3. Authorized JavaScript origins (if needed):
+         https://alinks.online
+         https://app.alinks.online
+         http://localhost:3000
+    4. Authorized redirect URIs (must match code):
+         # Login / Google sign-in
+         https://app.alinks.online/api/auth/google/callback
+         http://localhost:3000/api/auth/google/callback
+         # Tenant Google Calendar Connect (FREE) — live OAuth 2026-07-21
+         https://app.alinks.online/api/integrations/google-calendar/callback
+         http://localhost:3000/api/integrations/google-calendar/callback
+         # Legacy/sheets (if present):
+         https://app.alinks.online/api/integrations/google/callback
+         http://localhost:3000/api/integrations/google/callback
+       rather than many confusing endpoints.
+    5. Copy Client ID + Client Secret
+
+  2.4 Vercel / env (platform secrets — never commit)
+    GOOGLE_CLIENT_ID=...
+    GOOGLE_CLIENT_SECRET=...
+    Optional separate clients later if Google requires split apps.
+    GOOGLE_SERVICE_ACCOUNT_JSON=...  only if using SA sheet path (doc 07)
+
+  2.5 Encryption
+    Encrypt OAuth refresh tokens at rest (same class as payment secrets).
+    Env: e.g. PAYMENTS_ENCRYPTION_KEY or dedicated GOOGLE_TOKEN_ENCRYPTION_KEY
+
+  2.6 Platform checklist (Artix done when)
+    [ ] APIs enabled
+    [ ] Consent screen + scopes
+    [ ] OAuth client + redirects live
+    [ ] Env on Vercel Production + Preview
+    [ ] Connect / Disconnect / Reconnect works on staging Gmail
+    [ ] Error copy for denied / expired token
+    [ ] Legal checkbox: data lives in MY Google account
+
+================================================================================
+3. TENANT EXPERIENCE — MUST BE OBVIOUS (IN-PRODUCT GUIDE)
+================================================================================
+
+  Dashboard → Integrations → Google
+
+  Screen layout (simple):
+
+    ┌─────────────────────────────────────────────────────────┐
+    │  Google                                                 │
+    │  Connect your Gmail or Google Workspace.                │
+    │  Your calendar and sheets stay in YOUR Google account.  │
+    │  Free. No API keys. No Google Cloud setup for you.      │
+    │                                                         │
+    │  [ Connect Google ]                                     │
+    │                                                         │
+    │  What we use (only if you turn them on):                │
+    │  ☑ Google Calendar — bookings & catering events         │
+    │  ☑ Google Sheets — orders / customers (your sheet)      │
+    │                                                         │
+    │  Steps for you:                                         │
+    │  1. Click Connect Google                                │
+    │  2. Choose your Google account                          │
+    │  3. Press Allow                                         │
+    │  4. You’re done — pick calendar / sheet if asked        │
+    └─────────────────────────────────────────────────────────┘
+
+  After connected:
+    Status: Connected as you@gmail.com
+    Calendar: [dropdown Primary / ALINKS]
+    Sheets:   [Create new sheet] [Link existing]
+    [ Disconnect ]  [ Reconnect ]
+
+  Help drawer / “How it works” (3 bullets):
+    1. You use your own Google login — we never see your password.
+    2. Appointments and events can appear on your Google Calendar.
+    3. Customer data can go to a Google Sheet you own (when enabled).
+
+  Errors (human language):
+    • “You cancelled Google sign-in — click Connect again.”
+    • “Access expired — Reconnect Google (takes 10 seconds).”
+    • “Allow Calendar permission so we can add your bookings.”
+
+  Do NOT show tenants:
+    • Client ID / Client Secret
+    • GCP project IDs
+    • Raw scope URLs (unless advanced “Details” collapse)
+
+================================================================================
+4. PER-INTEGRATION BEHAVIOUR (TENANT-OWNED)
+================================================================================
+
+  4.1 Google Calendar (FREE — all applicable industries)
+    • Push: ALINKS booking/catering confirm → event on THEIR calendar
+    • Pull: free/busy → avoid double booking
+    • Clinic/lawyer: per-doctor/advocate calendar optional
+    • Catering: confirmed event dates on calendar
+    • Full product: industries-docs/bookings_industry/19-*.txt
+
+  4.2 Google Sheets (tenant data)
+    • Orders, customers, appointments PII in THEIR sheet
+    • Paths: OAuth create/link sheet AND/OR share sheet with platform SA
+    • See 07-google-oauth-sheets.txt
+    • Data hub UI already points tenants at own Google / Supabase options
+
+  4.3 Future Google pieces (same pattern)
+    • Meet links for online consults
+    • Always: tenant Connect → their account → encrypted token
+
+================================================================================
+5. FLOW DIAGRAM (SIMPLE)
+================================================================================
+
+  Tenant clicks Connect Google
+        → ALINKS redirects to Google OAuth (platform Client ID)
+        → Tenant signs in as you@theirbusiness.com
+        → Tenant Allows Calendar / Sheets scopes
+        → Google redirects to ALINKS callback with code
+        → ALINKS exchanges code → refresh_token
+        → Store encrypted token keyed by business_id (+ resource_id optional)
+        → Tenant lands on Integrations “Connected”
+
+  Later: Booking confirmed
+        → ALINKS uses THAT tenant’s token
+        → Creates event on THEIR Google Calendar only
+
+================================================================================
+6. SERVICE ACCOUNT VS TENANT OAUTH (WHEN TO USE WHICH)
+================================================================================
+
+  Tenant OAuth (preferred for Calendar; good for Sheets)
+    ✓ Individual tenant Google identity
+    ✓ Tenant understands “my Gmail”
+    ✓ Easy Connect button
+
+  Platform service account (existing Sheets path)
+    ✓ Server writes without user present
+    • Tenant must share sheet with SA email as Editor
+    • Document clearly in Data hub: “Share this email: …@….iam.gserviceaccount.com”
+
+  Product should present ONE clear path per feature:
+    Calendar → always Tenant OAuth Connect
+    Sheets → prefer “Connect Google” create sheet; SA share as alternate advanced
+
+================================================================================
+7. SECURITY (PLATFORM)
+================================================================================
+
+  • Never log tokens or authorization codes
+  • Encrypt refresh tokens at rest
+  • Disconnect revokes local tokens; offer Google account permissions link
+  • Scope least privilege
+  • Per-tenant isolation: never use business A token for business B
+  • Staff/superadmin cannot download tenant refresh tokens via UI
+
+================================================================================
+8. ARTIX INTERNAL RUNBOOK (SHORT)
+================================================================================
+
+  New environment (Preview/Prod):
+    1. Confirm GOOGLE_CLIENT_ID / SECRET set
+    2. Redirect URIs include that host
+    3. Smoke test: Connect → create test booking → event appears in test Gmail
+    4. Smoke test: Disconnect → reconnect
+
+  Tenant support script:
+    “Open Dashboard → Integrations → Google → Connect Google → Allow.
+     Use the Gmail you want events on. No API keys needed.”
+
+================================================================================
+9. IMPLEMENTATION CHECKLIST (ENGINEERING)
+================================================================================
+
+  [ ] Single OAuth start URL with purpose=calendar|sheets|both
+  [ ] Callback stores encrypted tokens per business/resource
+  [ ] Integrations page with the copy in §3 (no jargon)
+  [ ] Calendar push/pull (doc 19)
+  [ ] Sheets create/link when product enables
+  [ ] Reauth banner when Google returns invalid_grant
+  [ ] Legal checkbox on first Connect
+  [ ] Env documented in 05-vercel-environment-variables.txt when wired
+
+================================================================================
+CHANGE LOG
+================================================================================
+2026-07-16  Unified tenant Google guide: platform once, tenant Connect only;
+            free Calendar; individual tenant accounts via OAuth.
+================================================================================

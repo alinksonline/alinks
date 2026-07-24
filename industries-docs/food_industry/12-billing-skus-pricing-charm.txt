@@ -1,0 +1,105 @@
+================================================================================
+12 — BILLING SKUs, MODULE OFFERS, YEARLY CHARM PRICING
+================================================================================
+Folder: industries-docs/food_industry/
+See: 03-website-plan-layer.txt, 01-food-industry-anchor.txt §8
+
+================================================================================
+1. TWO PAYMENT WORLDS
+================================================================================
+
+  A. PLATFORM BILLING (tenant → Artix)
+       Website plans + food module SKUs + combos
+       Razorpay (Artix keys) / subscription — gateway must know line items.
+
+  B. TENANT CHECKOUT (customer → shop)
+       Food order payment — tenant Razorpay / COD / WhatsApp
+       ALINKS does not settle shop sales.
+
+================================================================================
+2. SKU CATALOG (CONCEPTUAL)
+================================================================================
+
+  Website (examples — align with main site plans later)
+    plan.website.basic
+    plan.website.pro
+
+  Food bases (optional explicit SKUs if sold separate from website)
+    food.base.cloud
+    food.base.restaurant
+    food.base.catering_only
+
+  Modules
+    food.delivery
+    food.pickup              (often price 0)
+    food.dine_in
+    food.catering
+    food.kitchen
+
+  Bundles
+    food.bundle.cloud_starter
+    food.bundle.cloud_catering
+    food.bundle.restaurant_floor
+    food.bundle.restaurant_complete
+
+  Multi-branch (see 15-multi-branch-pricing.txt)
+    Extra outlets: 5–10% off module seat vs primary branch full price
+    Invoice lines should show branch name + multi_branch discount
+
+  Coupons (see 16-coupon-codes-seasonal-discounts.txt)
+    Platform coupons on plan/module fees (Christmas/EOY up to 40–50%)
+    Tenant order coupons separate (food cart only)
+    Price pipeline: list → multi-branch % → coupon → yearly charm …99
+
+  Entitlements store granted SKUs; product gates on has(sku).
+
+================================================================================
+3. PURCHASE SHAPES (À LA CARTE FIRST — PLATFORM-WIDE)
+================================================================================
+
+  DEFAULT: À LA CARTE — each module priced and sold SEPARATELY.
+  Tenant buys only what they need (see industries-docs/00-MODULE-ALACARTE-PRICING.txt).
+
+  Single module     list monthly/yearly (primary path)
+  Combo             OPTIONAL discount pack (10–15% off sum) — never mandatory
+  All modules       OPTIONAL type-aware bundle (15–25% off); cloud all excludes dine_in
+
+================================================================================
+4. YEARLY CHARM RULE (LOCKED METHOD)
+================================================================================
+
+  yearly_raw   = monthly × 12
+  yearly_disc  = yearly_raw × (1 − d)     // prefer d=0.10 (10%)
+  yearly_price = charm to *99
+                 (99, 199, 299, 499, 999, 1999, 2999, 4999, 9999, 19999, …)
+  Prefer not exceeding yearly_disc after charm.
+
+  Apply to website plans AND modules AND bundle totals.
+
+================================================================================
+5. DISCUSSION PRICE BANDS (₹/MO — NOT FINAL)
+================================================================================
+
+  Delivery           299–399
+  Pickup             0 with cloud/delivery
+  Restaurant Dine-in 499–699
+  Catering           399–599
+  Kitchen            399–499
+
+  Sweet spot: clear ROI, not agency-priced, not throwaway ₹99 forever.
+
+================================================================================
+6. INVOICE EXAMPLE
+================================================================================
+
+  ALINKS Website Pro              ₹X / year
+  Food module: Restaurant Dine-in ₹Y / year
+  Food module: Kitchen            ₹Z / year
+  ----------------------------------------
+  Total                           charm-sum or pre-bundled SKU
+
+================================================================================
+CHANGE LOG
+================================================================================
+2026-07-16  SKUs, charm yearly, dual payment worlds.
+================================================================================

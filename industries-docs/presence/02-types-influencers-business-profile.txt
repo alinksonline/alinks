@@ -1,0 +1,33 @@
+================================================================================
+02 — TYPES: INFLUENCERS & BUSINESS PROFILE SEEKERS
+================================================================================
+
+  SLUG                      Label                         Notes
+  ------------------------  ----------------------------  -------------------
+  influencer_creator        Influencer / creator          FULL creator pack +
+                                                          CREATOR discounts
+  personal_brand            Personal brand / portfolio    Media kit optional;
+                                                          mild discount OK
+  business_profile_only     Business profile only         Brochure site; list
+                                                          or mild promo only
+  community_presence        Community / NGO / club        Contact + about
+  professional_card         Digital visiting card         1-page card mode
+
+  Influencer onboarding copy:
+    “Your professional link hub — collabs & media kit, no shop required.”
+
+  General Presence copy:
+    “I only need an online presence — no selling products or taking bookings
+     on ALINKS (for now).”
+
+  Pricing by type:
+    influencer_creator → Creator pricing (deep discounts — doc 07)
+    others → standard Presence website plan (optional light promo)
+
+  Upgrade prompts (soft, not nagging):
+    “Want to take bookings?” → Salon / Education / Bookings
+    “Want to sell products?” → Retail
+    “Restaurant?” → Food
+    Never push multi-brand insurance (called off)
+
+================================================================================

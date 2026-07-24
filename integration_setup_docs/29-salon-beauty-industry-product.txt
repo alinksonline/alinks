@@ -1,0 +1,27 @@
+================================================================================
+29 — SALON & BEAUTY INDUSTRY (OPS POINTER)
+================================================================================
+Authority: industries-docs/salon_beauty/
+
+Core: packages + staff + calendar; pay-then-book optional (tenant Razorpay).
+Free client booking allowed. Google Calendar FREE.
+Multi-location YES (branches with chairs). Not in-store POS.
+
+Code touchpoints:
+  /editor/packages, /editor/staff, /editor/commerce
+  src/tenant/salon/package-templates.ts
+  alinks-appointments skill
+
+Read:
+  industries-docs/salon_beauty/00-README-INDEX.txt
+  01-salon-beauty-anchor.txt
+  06-module-pay-then-book.txt
+  07-module-free-booking.txt
+
+Google: 26-google-tenant-integrations-guide.txt
+
+================================================================================
+CHANGE LOG
+================================================================================
+2026-07-16  Salon/beauty dedicated pack ops pointer.
+================================================================================

@@ -1,0 +1,8 @@
+================================================================================
+31 — FITNESS INDUSTRY (OPS POINTER)
+================================================================================
+Authority: industries-docs/fitness/
+Modules: memberships, classes lite, PT packages, trainers, trial booking.
+Multi-location YES. Google Calendar FREE. Not medical clinic.
+Read: industries-docs/fitness/00-README-INDEX.txt
+================================================================================

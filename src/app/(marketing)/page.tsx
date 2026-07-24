@@ -7,7 +7,7 @@ import { VerticalsSection } from "@/components/marketing/verticals-section";
 
 export default function MarketingPage() {
   return (
-    <main className="min-w-0 overflow-x-hidden bg-[#050505]">
+    <main className="min-w-0 overflow-x-hidden bg-brand-cream dark:bg-[#050505]">
       <HeroSection />
       <FeaturesSection />
       <VerticalsSection />

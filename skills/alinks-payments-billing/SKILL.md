@@ -7,12 +7,19 @@ description: Use when implementing ALINKS tenant subscriptions, billing plans, t
 
 ## Overview
 
-ALINKS has two payment domains: tenants pay Artix for SaaS subscriptions, and tenant customers may pay through Artix-facilitated commerce flows once legally approved.
+ALINKS has **two payment domains** (Q005 dual rails, re-locked 2026-07):
+
+1. **Platform billing** — Tenant → Artix (SaaS subscriptions, Select modules, AI credits). Artix is merchant of record.
+2. **Tenant storefront** — Customer → shop via **tenant BYO Razorpay keys**. Tenant is seller of record; money settles to their merchant account. Artix does not hold shop GMV.
+
+Optional Artix-facilitated PayFac for shop sales is **parked** until lawyer review (`legal/04` Part III).
 
 ## Source Sections
 
-- Baseline section `4`, `6B`, Q005, Q033-Q039.
-- Legal docs `04-PAYMENT-FACILITATION-ADDENDUM.txt` and `19-SUBSCRIPTION-REFUND-POLICY.txt`.
+- Baseline Q005 (dual rails), Q020 (COD), Q033–Q039.
+- `legal/04-PAYMENT-FACILITATION-ADDENDUM.txt` (Payment Domains Addendum v0.2).
+- `legal/19-SUBSCRIPTION-REFUND-POLICY.txt`.
+- Code: `src/platform/payments/tenant-gateway.ts`, `src/app/actions/commerce.ts`, `src/platform/payments/razorpay.ts`.
 
 ## Subscription Rules
 
@@ -29,13 +36,21 @@ ALINKS has two payment domains: tenants pay Artix for SaaS subscriptions, and te
 - First 100 annual subscribers pay 10 months and get 12.
 - No monthly launch discount.
 
-## Commerce Payment Rules
+## Storefront Payment Rules (BYO)
 
-- Artix-facilitated Razorpay/PhonePe model requires lawyer review.
-- COD defaults on for Indian shops but tenant bears risk.
-- Payment addendum acceptance is required before on-site checkout.
-- Store payment references needed for reconciliation; do not store buyer PII long term in platform DB.
+- Pro (or entitled commerce path) required for on-site online checkout.
+- Tenant connects own Razorpay Key ID + secret; secret encrypted at rest.
+- Log `TENANT_BYO_GATEWAY` acceptance when keys connect.
+- COD defaults on for Indian shops; tenant bears COD risk.
+- Store payment refs (`checkout_sessions`) only — no long-term buyer PII in platform DB.
+- Presence industry: never enable shop cart/checkout.
+
+## Do not
+
+- Treat Artix as seller of shop goods.
+- Use `razorpaySubMerchantId` for live BYO checkout.
+- Ship PayFac/sub-merchant onboarding without reopening Q005 + lawyer.
 
 ## Verification
 
-Test webhook idempotency, plan gates, trial expiry, unpublish behavior, refund policy display, and legal gate blocking.
+Test identity + industry gates on `/api/create-order`, key connect/disconnect, COD path, plan gates, trial expiry/unpublish, and legal evidence logging.

@@ -1,0 +1,23 @@
+================================================================================
+13 — OUT OF SCOPE (RE) — DO NOT “SMART” INTO THESE BY ACCIDENT
+================================================================================
+
+  • Online purchase of land/flat with card/UPI on ALINKS as title transfer
+  • Artix holding buyer funds / escrow as default product
+  • Full RERA filing system
+  • Loan eligibility engines / bank APIs v1
+  • VR tours mandatory (link-out OK)
+  • Agent MLM multi-level commissions engine v1
+  • Forced company↔agent linked accounts or approval graphs in v1
+  • Competing with Magicbricks full classifieds network v1
+    (ALINKS = separate company sites + separate agent sites + Property-Bank,
+     not a global multi-broker portal)
+
+  Smart application = excellent listings + agent multi-company + leads + visits
+  under each brand — not a property stock exchange.
+
+================================================================================
+CHANGE LOG
+================================================================================
+2026-07-16  Explicit non-goals for RE.
+================================================================================

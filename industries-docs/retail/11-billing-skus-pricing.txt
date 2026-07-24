@@ -1,0 +1,39 @@
+================================================================================
+11 — RETAIL BILLING SKUs
+================================================================================
+
+  plan.website.*              ← primary; includes product CAP tier
+  rt.inventory                (often bundled with plan)
+  rt.categories / rt.variations (usually with inventory)
+  rt.storefront
+  rt.wholesale
+  rt.multi_brand
+  rt.checkout (or included in Pro)
+  rt.orders (or with checkout)
+  rt.delivery
+  rt.pickup (free with delivery or small)
+  rt.staff / rt.reports (later)
+
+  Do NOT sell: “Electronics module”, “Ayurveda module” — categories are free-form.
+  Do NOT sell: retail multi-outlet seats (not in-store POS; one web shop).
+
+  PRODUCT CAPS (anti-loss) — see doc 15
+    Starter 25 | Growth 200 | Business 2000 | Custom negotiated
+    Variant SKUs count toward cap (recommended)
+
+  Yearly: ×12 − 5–10% → charm …99
+  Seasonal platform coupons: time-boxed 40–50% on SOFTWARE only
+
+  Discussion bands (₹/mo)
+    wholesale     299–499
+    multi_brand   199–399
+    delivery      299–399
+    cap upgrade   via plan tier primarily
+
+  (No multi-outlet line for retail.)
+
+================================================================================
+CHANGE LOG
+================================================================================
+2026-07-16  Retail software SKUs.
+================================================================================

@@ -1,0 +1,214 @@
+================================================================================
+16 — COUPON CODES & SEASONAL / HOLIDAY DISCOUNTS
+================================================================================
+Folder: industries-docs/food_industry/
+Related: 12-billing-skus-pricing-charm.txt, 15-multi-branch-pricing.txt,
+         04-module-delivery.txt
+
+Purpose: Document HOW coupons and seasonal campaigns function end-to-end —
+         not only “we give 50% at Christmas”.
+
+================================================================================
+1. TWO COUPON WORLDS (DO NOT MIX)
+================================================================================
+
+  A. PLATFORM COUPONS (Artix → tenant Billing)
+       Discount on ALINKS website plans and/or food MODULE fees.
+       Applied at subscribe / renew / upgrade checkout (tenant pays Artix).
+       Examples: Christmas 40–50% off modules, End-of-Year, Thanksgiving-style
+       multi-location promos, launch codes.
+
+  B. TENANT ORDER COUPONS (shop → end customer)
+       Discount on FOOD ORDER cart (menu items).
+       Applied on public order flow; cost borne by restaurant (margin).
+       Examples: “FOOD50” ₹ off first delivery order.
+
+  Gateway / invoices must label which world a code belongs to.
+  Platform coupon NEVER changes customer food item prices unless product
+  explicitly builds a bridge later (not default).
+
+================================================================================
+2. PLATFORM COUPON — DATA MODEL
+================================================================================
+
+  Coupon {
+    id, code,                    // e.g. XMAS2026, EOY50, THXGIVING
+    world: "platform"
+    description,
+    discount_type: percent | fixed_amount
+    discount_value,              // 40–50 for big holidays; smaller otherwise
+    currency: INR
+
+    applies_to: {
+      plan_skus?: string[]       // website plans
+      module_skus?: string[]     // food.delivery, food.dine_in, …
+      bundles?: string[]
+      all_food_modules?: boolean
+      new_subscriptions_only?: boolean
+      upgrades_only?: boolean
+    }
+
+    stacking: {
+      with_multi_branch_discount: stack | exclude | replace
+      // default recommend: stack — multi-branch % first, then coupon on remainder
+      with_other_coupons: false  // one platform code per checkout v1
+    }
+
+    validity: {
+      starts_at, ends_at,
+      max_redemptions_global?,
+      max_redemptions_per_tenant?,
+      min_months_commit?         // e.g. yearly only
+    }
+
+    billing_period: monthly | yearly | both
+    active: boolean
+    created_by_superadmin: true
+  }
+
+  Redemption {
+    coupon_id, tenant_id, business_id?,
+    invoice_id, amount_before, amount_after,
+    redeemed_at
+  }
+
+================================================================================
+3. SEASONAL / HOLIDAY CAMPAIGNS (PLANNED BEHAVIOUR)
+================================================================================
+
+  Campaign examples (Superadmin creates coupons; dates set per year):
+
+  NAME                 TYPICAL DISCOUNT     NOTES
+  -------------------  -------------------  --------------------------------
+  Thanksgiving-style   5–15% or branch push Multi-branch thanks; or free month
+                       (multi-branch already 5–10% structural — campaign can
+                       deepen to “second branch free for 1 month”)
+  Christmas / holidays 40–50%               Overall modules or selected SKUs
+  End of Year          40–50%               New yearly commits; charm after %
+  New Year             20–40%               Shorter window
+  Launch / Diwali etc. configurable         Superadmin only
+
+  FUNCTIONING
+    1. Superadmin creates coupon with window + % + applies_to modules
+    2. Marketing site / dashboard banner: “Use code XMAS2026”
+    3. At Billing checkout, tenant enters code
+    4. System validates window, SKU eligibility, redemption caps
+    5. Price: subtotal → multi-branch adjustments (15) → coupon → yearly charm
+    6. Invoice lines show list, discount, final; gateway metadata stores code
+    7. Entitlements activate as normal after paid
+
+  IMPORTANT
+    40–50% is for CAMPAIGN windows — not permanent list prices.
+    Sweet-spot list prices stay (doc 12); coupons are temporary.
+
+================================================================================
+4. PRICE PIPELINE (PLATFORM CHECKOUT)
+================================================================================
+
+  Step order (locked recommendation):
+
+    1. Resolve cart of SKUs (plan + modules + branches)
+    2. Apply multi-branch structural discount (5–10% on extra branches)
+    3. Apply platform coupon (percent or fixed) if valid
+    4. If yearly: convert with ×12 and yearly % if not already yearly SKUs
+       OR: monthly equivalent then yearly formula (doc 12) — pick one
+       implementation and keep consistent
+    5. Charm-round final payable to …99 where product policy requires
+    6. Charge Artix Razorpay / mark invoice paid
+    7. Write Redemption + grant entitlements
+
+  Display to tenant:
+    List subtotal
+    − Multi-branch discount
+    − Coupon CODE (−50%)
+    = Payable (charm)
+
+================================================================================
+5. TENANT ORDER COUPONS (CUSTOMER FOOD CART)
+================================================================================
+
+  Coupon {
+    world: "tenant_order"
+    business_id,
+    code,
+    discount_type: percent | fixed_amount
+    min_order_amount?,
+    channels?: ["delivery","pickup","dine_in"]  // optional restrict
+    starts_at, ends_at, max_redemptions?,
+    active
+  }
+
+  Functioning:
+    Customer cart → enter code → validate → reduce payable food total
+    Kitchen/order stores coupon_code + discount_amount snapshot
+    Does NOT affect Artix subscription invoice
+
+  Delivery module: can restrict tenant coupons to channel=delivery only.
+
+================================================================================
+6. LIFECYCLE — PLATFORM COUPON
+================================================================================
+
+  1. Superadmin creates campaign coupon
+  2. Optional: publish on marketing site
+  3. Tenant redeems at Billing
+  4. Active subscription carries discount until period ends (or one-shot)
+  5. Expire code at ends_at; block new redemptions
+  6. Report: redemptions, revenue impact
+
+  Subscription renewals:
+    • One-shot coupon: next renew at full list (default)
+    • Recurring coupon: rare; Superadmin flag recurring=true
+
+================================================================================
+7. ABUSE & RULES
+================================================================================
+
+  • One platform coupon per checkout (v1)
+  • Case-insensitive codes; trim spaces
+  • Cannot apply dine_in coupon SKU to cloud tenant (eligibility)
+  • Cannot stack two percent bombs beyond Superadmin max_discount_cap (e.g. 50%)
+  • Audit log every redemption
+
+================================================================================
+8. SUPERADMIN UI (TARGET)
+================================================================================
+
+  Coupons → Platform
+    Create, schedule Christmas/EOY, attach module SKUs, cap 40–50%
+  Coupons → report
+  Setting: max_percent_cap = 50
+  Setting: multi_branch_discount_rate 5–10%
+
+================================================================================
+9. EXAMPLES
+================================================================================
+
+  A. Christmas 50% off all food modules (new yearly)
+     code XMAS50, percent 50, applies_to all_food_modules,
+     billing_period yearly, window Dec 15–Dec 31
+     Delivery ₹349/mo → yearly raw 4188 → −10% yearly policy? 
+     Implementation: either coupon replaces yearly %, or stack — document on
+     coupon. Prefer: holiday coupon is the only % on modules for that cart.
+
+  B. Second branch thanks
+     Structural 10% off branch 2 delivery always (doc 15)
+     Plus code BRANCHTHANKS one month free second branch kitchen seat
+
+  C. Tenant delivery promo
+     code FREEDEL on tenant_order world, free delivery fee on channel delivery
+
+================================================================================
+10. INTEGRATION WITH DELIVERY MODULE
+================================================================================
+
+  • Platform coupon may discount food.delivery SKU purchase
+  • Tenant coupon may zero delivery_fee on Order
+  • Rider assignment unchanged by coupons
+  • Third-party fulfilment cost still tenant’s problem
+
+================================================================================
+CHANGE LOG
+================================================================================
+2026-07-16  Platform vs tenant coupons; seasonal 40–50%; pipeline; abuse rules.
+================================================================================

@@ -1,0 +1,18 @@
+================================================================================
+18 — COUPONS & SEASONAL DISCOUNTS (BOOKINGS)
+================================================================================
+
+  Same dual model as food_industry/16-coupon-codes-seasonal-discounts.txt:
+
+  A. PLATFORM coupons — Artix plan/module fees (Christmas/EOY 40–50% campaigns)
+  B. TENANT coupons — client booking discounts (first consult off, etc.)
+
+  Pipeline: list → multi-location % → platform coupon → yearly charm …99
+
+  applies_to may target book.core, book.clinic, book.venue, etc.
+
+================================================================================
+CHANGE LOG
+================================================================================
+2026-07-16  Coupons for bookings Billing + tenant booking promos.
+================================================================================

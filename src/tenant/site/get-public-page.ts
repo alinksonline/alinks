@@ -1,4 +1,5 @@
 import type { PageContent } from "@/core/types/page";
+import { listEntitledSkus } from "@/platform/billing/entitlements";
 import { getPlatformDb } from "@/platform/db/client";
 import { businesses, pages, tenants } from "@/platform/db/schema";
 import { eq, and } from "drizzle-orm";
@@ -16,6 +17,7 @@ export interface PublicPageData {
     tier: SubscriptionTier;
     theme: Record<string, unknown>;
     branding: Record<string, unknown>;
+    entitledSkus: string[];
   };
 }
 
@@ -42,6 +44,8 @@ export async function getPublicPage(handle: string, slug: string): Promise<Publi
   const page = pageRows[0];
   if (!page || !page.isPublished) return null;
 
+  const entitledSkus = await listEntitledSkus(row.business.id);
+
   return {
     slug: page.slug,
     title: page.title,
@@ -54,6 +58,7 @@ export async function getPublicPage(handle: string, slug: string): Promise<Publi
       tier: row.tier as SubscriptionTier,
       theme: (row.business.theme as Record<string, unknown>) ?? {},
       branding: (row.business.branding as Record<string, unknown>) ?? {},
+      entitledSkus,
     },
   };
 }

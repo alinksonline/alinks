@@ -1,0 +1,17 @@
+================================================================================
+18 — OUT OF SCOPE (SALON V1)
+================================================================================
+
+  • Full salon POS / billing counter / GST invoice suite
+  • Group classes / workshops (Phase 2 per appointments skill)
+  • Medical spa procedures requiring clinic license flow
+  • Marketplace of freelance beauticians with Artix split pay
+  • Inventory ERP for retail products (lite only)
+
+  Smart salon = packages + staff + calendar + optional pay-then-book + WA site.
+
+================================================================================
+CHANGE LOG
+================================================================================
+2026-07-16  Salon non-goals.
+================================================================================

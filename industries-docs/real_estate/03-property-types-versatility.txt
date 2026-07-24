@@ -1,0 +1,65 @@
+================================================================================
+03 — PROPERTY / OFFERING TYPES (VERSATILITY)
+================================================================================
+
+Superadmin subtypes under Real Estate industry group. Each shapes fields & seeds.
+
+================================================================================
+1. BUILDERS
+================================================================================
+
+  Focus: Project → Towers/Phases → Unit types (1/2/3 BHK)
+  Fields: RERA id (optional display), possession, status, amenities, gallery
+  CTA: Enquire, Download brochure (link/file), Schedule visit
+  Not: unit e-commerce checkout
+
+================================================================================
+2. CONSTRUCTION COMPANIES
+================================================================================
+
+  Focus: Portfolio of works, services (turnkey, contracting), B2B enquiry
+  Listings may be “completed projects” case studies more than sellable units
+  CTA: Get quote / Contact
+
+================================================================================
+3. LAND / PLOT SALES
+================================================================================
+
+  Focus: Plot inventory — area, facing, location, survey ref (display)
+  Price: “On request” or indicative (display only)
+  CTA: WhatsApp plot code, call, visit land
+
+================================================================================
+4. VENTURES
+================================================================================
+
+  Focus: Opportunity narrative, partners, investment enquiry (not equity KYC)
+  CTA: Partner / Investor enquiry form
+
+================================================================================
+5. GATED COMMUNITIES
+================================================================================
+
+  Focus: Community brand + internal plots/villas phases
+  Amenities storytelling high
+  CTA: Community visit + plot interest
+
+================================================================================
+6. VILLAS / VILLA PROJECTS
+================================================================================
+
+  Focus: Villa product cards (type, area, bedrooms) as listings
+  Still enquiry-only “sales”
+
+================================================================================
+7. SHARED LISTING KINDS (DATA)
+================================================================================
+
+  project | phase | unit | plot | land_parcel | villa | portfolio_case
+  All map to re.listings inventory (doc 04) with type-specific field sets.
+
+================================================================================
+CHANGE LOG
+================================================================================
+2026-07-16  Versatility map for RE subtypes.
+================================================================================

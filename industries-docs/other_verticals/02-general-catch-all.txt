@@ -1,0 +1,10 @@
+================================================================================
+02 — GENERAL CATCH-ALL
+================================================================================
+
+  Code vertical: general
+  Tenant gets website plan + can enable modules from retail / bookings / etc.
+  based on Superadmin allow-list.
+  Onboarding: “What do you mainly do?” → suggest industry pack switch later.
+
+================================================================================

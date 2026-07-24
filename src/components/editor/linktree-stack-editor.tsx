@@ -234,7 +234,7 @@ export function LinktreeStackEditor({
   const [showGoLiveConfirm, setShowGoLiveConfirm] = useState(false);
   const [goLiveConfirm, setGoLiveConfirm] = useState(false);
 
-  const blocks = content.blocks ?? [];
+  const blocks = useMemo(() => content.blocks ?? [], [content.blocks]);
   const editing = useMemo(() => blocks.find((b) => b.id === editId) ?? null, [blocks, editId]);
   const displayName = profile?.businessName || businessName;
 

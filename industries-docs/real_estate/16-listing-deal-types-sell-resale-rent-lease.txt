@@ -1,0 +1,124 @@
+================================================================================
+16 — DEAL TYPES: SELL · RESALE · RENT · LEASE
+================================================================================
+Folder: industries-docs/real_estate/
+Applies to: Company Property-Bank AND Agent Property-Bank
+Related: 04-listings-inventory-model.txt, 14-agent-inventory-privacy-bank.txt
+
+================================================================================
+1. PRINCIPLE
+================================================================================
+
+  Every listing carries a deal_type. Agents and companies can both offer any
+  mix of Sell / Resale / Rent / Lease (subject to plan limits and law).
+
+  Still NO platform online completion of sale/rent payment for the property
+  asset itself — enquiry / visit / offline paperwork.
+
+================================================================================
+2. DEFINITIONS (PRODUCT + UI COPY)
+================================================================================
+
+  SELL (New / Primary)
+    First sale from developer/builder/land owner path as “new inventory”.
+    Typical: new launch flats, builder plots, villa project primary.
+    UI label: “For sale” + badge “New” optional.
+    Who: builders, companies, agents marketing primary stock.
+
+  RESALE
+    Secondary market — owner already holds title; selling again.
+    Typical: resale flat, resale plot, resale villa in gated community.
+    UI label: “Resale”.
+    Extra fields often: age of property, floor, furnishing, owner type
+    (display only; no owner phone on teaser).
+    Who: agents heavily; companies sometimes for buy-back inventory.
+
+  RENT
+    Short-to-medium residential/commercial let; recurring occupation.
+    UI label: “For rent”.
+    Fields: monthly rent (display mode per wish), deposit note (display),
+    available_from, furnishing, preferred tenant notes (optional).
+    Who: agents + companies (builder rental stock, company staff housing, etc.).
+
+  LEASE
+    Longer-term contractual occupation (often commercial / industrial /
+    farm land / institutional). Distinct from month-to-month “rent” in UI
+    even if law overlaps — product treats as separate deal_type for filters.
+    UI label: “For lease”.
+    Fields: lease_term_years_or_months, lock_in note, rent_escalation note
+    (all display/enquiry — not e-sign lease v1).
+    Who: land companies, commercial agents, ventures.
+
+  SUMMARY TABLE
+    deal_type | Intent                         | Typical duration signal
+    --------- | ------------------------------ | ------------------------
+    sell      | Transfer ownership (primary)   | One-time sale
+    resale    | Transfer ownership (secondary) | One-time sale
+    rent      | Temporary occupation           | Monthly-oriented
+    lease     | Longer contractual occupation  | Multi-month / multi-year
+
+================================================================================
+3. FILTERS & PUBLIC UX
+================================================================================
+
+  Mini-site nav / chips:
+    All | Sale | Resale | Rent | Lease
+  (Sale may group sell+resale with subfilter, or keep separate — prefer separate
+   chips so resale seekers are not lost.)
+
+  Card badges: NEW SALE | RESALE | RENT | LEASE
+
+  Search: city + deal_type + property_kind (plot/flat/villa/land/farm/…)
+
+================================================================================
+4. PRICE DISPLAY (OWNER’S WISH)
+================================================================================
+
+  LOCKED: Company or Agent who owns the listing chooses:
+
+    price_display_mode:
+      hidden           — no number
+      on_request       — “Price on request”
+      indicative       — show number as indicative (not checkout)
+      price_band       — e.g. “₹40–50L” / “₹25k–30k / mo”
+
+  No platform force of “always on request” or “always show price”.
+
+================================================================================
+5. PROPERTY-BANK + DEAL TYPE
+================================================================================
+
+  Each Property-Bank item has deal_type + visibility_mode (open/teaser/private).
+  Teaser still hides sensitive fields regardless of sell/rent/lease.
+
+  Example:
+    Resale flat + teaser → public sees “Resale 2BHK · Whitefield · On request”
+    Full address only after lead to that agent/company.
+
+================================================================================
+6. DATA (CONCEPTUAL)
+================================================================================
+
+  Listing {
+    deal_type: sell | resale | rent | lease
+    property_kind: plot | farm_land | flat | apartment | villa |
+                   gated_unit | commercial | venture_opportunity | other
+    price_display_mode, price_amount?, price_band_text?, price_period?: monthly|total
+    ...
+  }
+
+================================================================================
+7. IMPLEMENTATION NOTES (WHEN BUILDING)
+================================================================================
+
+  • Enum deal_type required on create
+  • Seed filters on RE templates
+  • Agent + company dashboards: tabs or filters by deal_type
+  • Plan limits count listings across all deal types (or separate caps later)
+  • Sheets columns: deal_type, property_kind, price_display_mode
+
+================================================================================
+CHANGE LOG
+================================================================================
+2026-07-16  Sell / Resale / Rent / Lease definitions for company + agent.
+================================================================================

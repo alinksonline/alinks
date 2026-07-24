@@ -1,0 +1,104 @@
+================================================================================
+06 — MODULE: RESTAURANT DINE-IN (food.dine_in)
+================================================================================
+Folder: industries-docs/food_industry/
+SKU: food.dine_in
+Label in product: “Restaurant Dine-in” (never “in-house” in UI)
+Integrates with: kitchen, menu inventory, optional same-menu as delivery/pickup
+
+================================================================================
+1. DEFINITION
+================================================================================
+
+  Guests seated in the restaurant scan a TABLE QR code, open the digital menu,
+  place orders tagged with table number. Core differentiator for Restaurant base.
+  NOT available to Cloud kitchen or Cloud + Catering.
+
+================================================================================
+2. WHO CAN BUY
+================================================================================
+
+  YES: restaurant, restaurant_hybrid
+  NO:  cloud_kitchen, cloud_catering, catering_only
+
+  Hard gate: Superadmin + Billing must refuse food.dine_in on cloud* types.
+
+================================================================================
+3. ENABLES
+================================================================================
+
+  PUBLIC (via QR)
+    • URL scoped to business + table id
+    • Menu browse + cart + place order
+    • Order shows table number (no delivery address)
+    • Optional: call attendant / request bill (v1 or v1.1)
+
+  ADMIN
+    • Floor / table list (name or number)
+    • Generate / download QR per table
+    • Active/inactive tables
+    • Dine-in orders list
+
+  KITCHEN (if food.kitchen ON)
+    • Ticket source=dine_in, table_label=T12
+
+================================================================================
+4. LIFECYCLE (100%)
+================================================================================
+
+  1. Discover     “Table QR ordering for your floor”
+  2. Purchase     SKU food.dine_in (monthly/yearly charm) — only if type allows
+  3. Configure    Create tables → generate QRs → print/place on tables
+  4. Operate      Guests scan → orders flow → staff/kitchen complete
+  5. Integrate    Instant share of menu inventory; items may flag
+                  available_for_dine_in; kitchen gets table-tagged tickets
+  6. Bill/Renew   Platform Billing line item
+  7. Disable      QR URLs show “Dine-in not available”; tables retained
+
+================================================================================
+5. INVENTORY / MENU IMPACT
+================================================================================
+
+  • SAME menu catalog as other restaurant channels (09).
+  • Categories/sections for menu (Starters, Mains, Drinks) — food categories.
+  • Modifiers (spice, add-on cheese) — food “variations” (not Size/Color fashion).
+  • Optional: alcohol items only for bar/restaurant subtypes (10).
+  • Bar vs bistro: same Dine-in module; subtype changes menu defaults & fields.
+
+================================================================================
+6. SEAMLESS INTEGRATION
+================================================================================
+
+  + Delivery/Pickup   Parallel channels; guest at table uses Dine-in only.
+  + Kitchen           Primary consumer of dine-in tickets.
+  + Catering          Separate; banquet hall could later map “table blocks” —
+                      not v1.
+  + Website plan      Menu display helps; QR ordering needs this module.
+
+  Instant integration rule:
+    Enabling Dine-in does NOT require Delivery.
+    Enabling Dine-in DOES require a published menu with at least one sellable item
+    (or empty-state guide).
+
+================================================================================
+7. DATA (CONCEPTUAL)
+================================================================================
+
+  Table { id, label, qr_token, active }
+  Order {
+    channel: "dine_in"
+    table_id, table_label
+    items[], notes, payment_status, customer_phone? optional
+  }
+
+================================================================================
+8. OUT OF SCOPE V1
+================================================================================
+
+  Multi-floor map UI, waiter handheld app, split bill, KOT printers required.
+
+================================================================================
+CHANGE LOG
+================================================================================
+2026-07-16  Renamed to Restaurant Dine-in; cloud forbidden; full lifecycle.
+================================================================================

@@ -9,7 +9,9 @@ import { PublicSiteNav } from "@/components/tenant/public-site-nav";
 import { shouldShowAlinksWatermark } from "@/core/utils/branding";
 import { parseBusinessProfile } from "@/core/types/business-profile";
 import { buildTenantMetadata } from "@/core/utils/tenant-seo";
-import { getSalonPackagesForHandle } from "@/app/actions/salon";
+import { canExposeBooking, CLINIC_GATE_MESSAGE } from "@/core/utils/industry-gates";
+import { isClinicLicenseGated } from "@/core/config/industries";
+import { getBookPageDataAction } from "@/app/actions/salon";
 import { getPublicBusinessByHandle } from "@/tenant/site/get-public-business";
 
 export async function generateMetadata({ params }: { params: { handle: string } }): Promise<Metadata> {
@@ -25,17 +27,100 @@ export async function generateMetadata({ params }: { params: { handle: string } 
   });
 }
 
-export default async function BookPage({ params }: { params: { handle: string } }) {
+export default async function BookPage({
+  params,
+  searchParams,
+}: {
+  params: { handle: string };
+  searchParams?: { booked?: string; mode?: string; paid?: string };
+}) {
   const row = await getPublicBusinessByHandle(params.handle);
   if (!row) notFound();
-  if (row.vertical !== "salon" && row.vertical !== "beauty") notFound();
 
-  const packages = await getSalonPackagesForHandle(params.handle);
-  if (packages.length === 0) notFound();
+  const clinicGated = isClinicLicenseGated(row.industryType, row.vertical);
+  const gateStatus = (row as { verticalGateStatus?: string }).verticalGateStatus;
+  // Site may be published only after gate; still block book if status drifts
+  if (clinicGated && gateStatus && gateStatus !== "approved") {
+    const profile = parseBusinessProfile(row.branding, row.name);
+    const business = { ...row, profile };
+    return (
+      <TenantThemedLayout theme={business.theme}>
+        <SiteHeader business={business} profile={profile} />
+        <main className="mx-auto max-w-app px-3.5 py-10 text-center">
+          <h1 className="t-ink text-xl font-bold">Booking not live yet</h1>
+          <p className="t-muted mt-2 text-sm">{CLINIC_GATE_MESSAGE}</p>
+          <Link href={`/${params.handle}`} className="t-link mt-6 inline-block text-sm font-semibold">
+            ← Home
+          </Link>
+        </main>
+        <TenantFooter
+          business={business}
+          profile={profile}
+          showAlinksBranding={shouldShowAlinksWatermark(business.tier, business.entitledSkus)}
+        />
+      </TenantThemedLayout>
+    );
+  }
+
+  if (
+    !canExposeBooking({
+      vertical: row.vertical,
+      industryGroup: row.industryGroup,
+      industryType: row.industryType,
+      verticalGateStatus: gateStatus,
+    })
+  ) {
+    notFound();
+  }
+
+  const data = await getBookPageDataAction(params.handle);
+  if (!data || data.packages.length === 0) notFound();
 
   const profile = parseBusinessProfile(row.branding, row.name);
   const business = { ...row, profile };
-  const fromPrice = Math.min(...packages.map((p) => p.price));
+  const fromPrice = Math.min(...data.packages.map((p) => p.price));
+  const freeCount = data.packages.filter((p) => (p.paymentMode || "free") !== "pay_then_book").length;
+  const prepaidCount = data.packages.filter((p) => p.paymentMode === "pay_then_book").length;
+  const isVenue = row.industryType === "venue_banquet";
+  const isClinic = clinicGated;
+  const isFitness = row.industryGroup === "fitness";
+  const isAuto = row.industryGroup === "automotive";
+
+  const bookedId = searchParams?.booked;
+  const bookedMode = searchParams?.mode;
+  const paid = searchParams?.paid === "1";
+
+  const heroEyebrow = isAuto
+    ? "Workshop"
+    : isFitness
+      ? "Fitness"
+      : isVenue
+        ? "Venue"
+        : isClinic
+          ? "Clinic"
+          : "Appointments";
+  const heroTitle = bookedId
+    ? "You're booked"
+    : isAuto
+      ? "Book a service"
+      : isFitness
+        ? "Book a class or trial"
+        : isVenue
+          ? "Book a package"
+          : "Book a slot";
+  const heroSub = bookedId
+    ? paid
+      ? "Payment received. See you soon!"
+      : bookedMode === "pay_at_salon"
+        ? "Confirmed — pay when you arrive."
+        : "Your free booking is confirmed."
+    : isAuto
+      ? "Free inspection and service slots without online pay. Pay at workshop when you drop the car."
+      : isFitness
+        ? "Free trials and classes need no online pay. Membership fees can be paid at the gym or later online."
+        : isClinic
+          ? "Pick a service and slot. No diagnosis is stored on ALINKS — patient details go to the clinic’s sheet."
+          : "Free and pay-at-venue/consult packages need no online pay unless marked pay-then-book.";
 
   return (
     <TenantThemedLayout theme={business.theme}>
@@ -46,43 +131,58 @@ export default async function BookPage({ params }: { params: { handle: string } 
           className="text-[10px] font-bold uppercase tracking-[0.18em]"
           style={{ color: "var(--t-primary-text, var(--t-primary))" }}
         >
-          Appointments
+          {heroEyebrow}
         </p>
-        <h1 className="t-ink mt-1.5 text-2xl font-bold tracking-tight">Book a package</h1>
-        <p className="t-muted mt-1.5 max-w-sm text-sm leading-relaxed">
-          Pick a service, choose a slot, and pay to lock it in. Bookings land in the salon&apos;s Google Sheet.
-        </p>
-        <div className="mt-4 flex flex-wrap gap-2">
-          <span className="t-chip t-chip-active">From ₹{fromPrice}</span>
-          <span className="t-chip">{packages.length} packages</span>
-          <span className="t-chip">Pay-then-book</span>
-        </div>
+        <h1 className="t-ink mt-1.5 text-2xl font-bold tracking-tight">{heroTitle}</h1>
+        <p className="t-muted mt-1.5 max-w-sm text-sm leading-relaxed">{heroSub}</p>
+        {!bookedId ? (
+          <div className="mt-4 flex flex-wrap gap-2">
+            <span className="t-chip t-chip-active">From ₹{fromPrice}</span>
+            <span className="t-chip">{data.packages.length} services</span>
+            {freeCount > 0 ? <span className="t-chip">Free book OK</span> : null}
+            {prepaidCount > 0 ? <span className="t-chip">Pay then book</span> : null}
+          </div>
+        ) : null}
       </section>
 
       <main className="mx-auto w-full max-w-app px-3.5 py-5 pb-4">
-        <BookingForm
-          handle={params.handle}
-          packages={packages}
-          onlinePayEnabled={Boolean(business.onlinePayEnabled)}
-        />
-
-        <div className="mt-6 flex flex-wrap items-center justify-center gap-3 text-xs">
-          <Link href={`/${params.handle}/store`} className="t-link font-semibold no-underline">
-            Browse shop
-          </Link>
-          <span className="t-muted">·</span>
-          <Link href={`/${params.handle}`} className="t-link font-semibold no-underline">
-            Back to home
-          </Link>
-        </div>
+        {bookedId ? (
+          <div className="t-card space-y-3 p-5 text-center">
+            <p className="text-sm font-bold">Booking ID</p>
+            <p className="font-mono text-xs break-all text-[var(--t-muted,#64748b)]">{bookedId}</p>
+            <Link href={`/${params.handle}/book`} className="t-btn-primary mt-2">
+              Book another
+            </Link>
+          </div>
+        ) : (
+          <BookingForm
+            handle={params.handle}
+            packages={data.packages}
+            staff={data.staff}
+            onlinePayEnabled={Boolean(business.onlinePayEnabled)}
+          />
+        )}
+        {!bookedId ? (
+          <div className="mt-6 text-center">
+            <Link href={`/${params.handle}`} className="t-link text-xs font-semibold no-underline">
+              Back to home
+            </Link>
+          </div>
+        ) : null}
       </main>
 
       <TenantFooter
         business={business}
         profile={profile}
-        showAlinksBranding={shouldShowAlinksWatermark(business.tier)}
+        showAlinksBranding={shouldShowAlinksWatermark(business.tier, business.entitledSkus)}
       />
-      <PublicSiteNav handle={params.handle} vertical={business.vertical} slug="home" path="book" />
+      <PublicSiteNav
+        handle={params.handle}
+        vertical={business.vertical}
+        industryGroup={business.industryGroup}
+        slug="home"
+        path="book"
+      />
     </TenantThemedLayout>
   );
 }

@@ -1,0 +1,16 @@
+================================================================================
+02 — AUTOMOTIVE TYPES
+================================================================================
+
+  Type                    Primary modules
+  ----------------------  ----------------------------------
+  car_dealer_new          vehicle_listings, leads, test_drive
+  used_car_dealer         vehicle_listings (+ teaser privacy), leads
+  two_wheeler_dealer      vehicle_listings, leads
+  service_workshop        service_packages, service_booking
+  car_detailing           service_packages, service_booking
+  spare_parts_shop        parts_retail, delivery?, wholesale?
+  driving_school          demo/lesson slots (booking)
+  fleet_b2b               enquiry B2B, wholesale parts optional
+
+================================================================================

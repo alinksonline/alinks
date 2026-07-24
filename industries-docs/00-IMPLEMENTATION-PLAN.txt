@@ -1,0 +1,424 @@
+================================================================================
+ALINKS — INDUSTRIES IMPLEMENTATION PLAN
+================================================================================
+Location: industries-docs/00-IMPLEMENTATION-PLAN.txt
+Created:  2026-07-16
+Status:   PLAN (notes → code order)
+Authority: industries-docs/* product specs + integration_setup_docs/24–33
+Frontend language: never “à la carte” — use “Select modules” / “Modules” /
+                   “Creator Partner” / “Creator pricing”
+
+This plan turns the industry notes into a build order. It does not replace
+per-folder anchors; it sequences work, shared engines, and MVP cuts.
+
+================================================================================
+0. HOW TO USE THIS PLAN
+================================================================================
+
+  For each ticket:
+    1. Read the industry 00-README-INDEX + named module doc
+    2. Tag work: now | next | later | external
+    3. Ship behind entitlements: has(moduleSku) + industry allows
+    4. Update CHANGE LOG in the source doc when behaviour diverges
+
+  Definition of “industry MVP shipped”:
+    • Tenant can pick industry type on onboarding
+    • Website plan works (Layer 1) for that industry
+    • At least one core paid or free module path works end-to-end
+    • Editor nav hides disallowed commerce
+    • Superadmin can enable/disable industry + module SKUs + prices
+    • Public site does not expose blocked flows (e.g. Presence cart)
+
+================================================================================
+1. HARD RULES (ALL PHASES)
+================================================================================
+
+  PLATFORM
+    • Platform Postgres (Drizzle + DATABASE_URL) for config, billing, entitlements
+    • Tenant operational data: Sheets default; BYO Supabase optional later
+    • No secrets in git; Vercel/env for production
+
+  PRODUCT
+    • Website-first: Layer 1 site sells before complex ops modules
+    • Modules priced separately (Select modules); bundles optional only
+    • Google Calendar = FREE where events apply (tenant Gmail OAuth Connect)
+    • Education video embeds = YouTube only
+    • Presence = NO sales on ALINKS; Creator Partner = discount ↔ promote
+    • Finance multi-brand insurance/loans = CALLED OFF (do not build)
+    • Pharmacy = Phase 2 thin / gated later (other_verticals)
+    • Retail: no multi-outlet POS seats product
+    • RE: no property title checkout / escrow as default
+    • Cloud kitchen: never dine-in / table QR
+
+  BILLING SPLIT
+    Platform Billing = tenant → Artix (website + modules)
+    Tenant Checkout  = customer → shop (BYO Razorpay etc.) when commerce on
+
+================================================================================
+2. SHARED FOUNDATION (BUILD FIRST — BLOCKS ALL INDUSTRIES)
+================================================================================
+Phase code: F0
+Priority: NOW
+
+  F0.1 Industry registry
+    IndustryGroup enum + types (from each pack’s superadmin catalog)
+    Map legacy BusinessVertical → new groups where needed
+    Flags per industry: commerce_modules_allowed, booking_modules_allowed,
+                        sales_enabled, license_gates (clinic/pharmacy)
+
+  F0.2 Module catalog + entitlements
+    Table/config: module SKU, name, industry_allowlist[], monthly/yearly price,
+                  charm99 yearly helper, optional bundle SKUs
+    Tenant entitlements: has(sku), enable/disable one without cancelling others
+    Caps: products, packages, staff, gallery, links, listings (plan or module)
+
+  F0.3 Onboarding + registration upsell
+    Pick industry → type → website plan → Select modules (allowed only)
+    Soft upsell copy per industry docs (food 14, bookings 16, salon 16, …)
+    Presence: Creator Partner terms checkbox when deep discount
+
+  F0.4 Superadmin industry catalog
+    CRUD prices, enable industry, coupons, creator discount fields
+    Partner compliance fields (presence 06, 08)
+
+  F0.5 Website plan Layer 1 (shared)
+    Branding, theme, pages (≤5), SEO/OG, publish gate, WhatsApp/call CTAs
+    Industry templates (starter pages/blocks) without full ops
+
+  F0.6 Public site + editor gating
+    editorLinksForVertical / industry-aware nav
+    API guards: create-order blocked if !commerce; bookings blocked if !booking
+
+  F0.7 Google tenant Connect (free Calendar)
+    OAuth app platform-side; tenant Connect UX (integration_setup_docs/26)
+    Free for applicable industries; no paid module SKU
+
+  F0.8 Shared engines (stubs → full)
+    Catalog engine     → retail, food menu, salon retail add-on, auto parts
+    Appointments engine → salon, bookings, fitness, education slots, auto service
+    Leads/forms engine  → RE, presence collab, auto enquiry, education enquiry
+    Orders/checkout     → retail, food (tenant PG); never Presence
+    Kitchen/tickets     → food only (later)
+
+  Exit F0: one “general/presence” tenant + website plan live; module SKUs
+           exist in Superadmin even if most industries still locked off.
+
+================================================================================
+3. IMPLEMENTATION WAVES (INDUSTRY ORDER)
+================================================================================
+
+  Principle: ship acquisition + shared engines early; heavy ops later.
+  Do not implement all 129 docs in parallel.
+
+--------------------------------------------------------------------------------
+WAVE 1 — ACQUISITION + CORE ENGINES          Priority: NOW
+--------------------------------------------------------------------------------
+  Goal: Paying website tenants + creator growth + first service vertical.
+
+  W1.A  PRESENCE  (industries-docs/presence/)
+    Why first: no commerce risk; Creator Partner acquisition; simple entitlements
+    MVP:
+      pr.presence_core, pr.link_stack, pr.gallery, pr.contact, pr.share_kit
+      Hide Store/Checkout/Packages completely
+      Creator Partner terms + discount ladder (docs 07–08) — even if promo
+        compliance is manual Superadmin at first
+    Next:
+      pr.media_kit, pr.social_proof, pr.highlights, pr.analytics_lite
+      Partner promo checklist + self-report URL
+    Later:
+      Referral codes, automated compliance scoring
+    Docs: 01–08, ops 33
+    DoD: influencer can publish link hub + collab form; commerce APIs 403
+
+  W1.B  APPOINTMENTS CORE (shared) + SALON_BEAUTY MVP
+    Why: reuses engine for bookings/fitness/edu; high India demand
+    Shared:
+      book.appointments_core — slots, resources, calendar UI, free client book
+      Google Calendar free sync when connected
+    Salon MVP (salon_beauty/):
+      Packages list, free booking, staff roster light, website Layer 1
+    Next:
+      pay_then_book + tenant PG checkout, reminders/no-show
+    Later:
+      retail add-on products, multi-location salons
+    Docs: salon 01–10, 14–16; bookings 04, 19; ops 29
+    DoD: customer books free slot; tenant sees appointment in dashboard
+
+  W1.C  FOOD — Layer 1 + light channels
+    Why: huge market; start website + WA, not full kitchen day one
+    MVP:
+      Website + menu display + WhatsApp order CTA
+      Types: cloud / restaurant / catering compatibility flags (no dine-in on cloud)
+    Next:
+      food.pickup, food.delivery (order list + status; riders later)
+      food.catering enquiry
+    Later:
+      food.dine_in, food.kitchen, multi-branch, coupons, rider modes
+    Docs: food 01–05, 07, 09–14; ops 24
+    DoD: restaurant publishes menu; WA deep-link works; cloud cannot enable dine-in
+
+  W1.D  RETAIL — storefront MVP
+    Why: catalog engine shared with food modifiers later
+    MVP:
+      Multi-brand optional tags, categories, product list, storefront page
+      Trade mode: retail only first
+      Checkout: WA order or simple COD path if Pro commerce already exists
+    Next:
+      Tenant PG checkout, stock flags, variations
+    Later:
+      wholesale B2B (MOQ), marketplace multi-brand advanced
+    Explicit NOT: multi-outlet POS, multi-vendor split settlement
+    Docs: retail 01–05, 08–09, 13–15; ops 28
+    DoD: shop lists products; customer can enquire/order without POS
+
+--------------------------------------------------------------------------------
+WAVE 2 — BOOKINGS DEPTH + RE + EDUCATION     Priority: NEXT
+--------------------------------------------------------------------------------
+
+  W2.A  BOOKINGS INDUSTRY pack
+    Extend appointments core:
+      professional consult, lawyers light, venue/banquet (resource = hall)
+      deposits / pay-to-confirm (tenant PG)
+      reminders/no-show module
+    Clinic: license gate + superadmin approval before publish (legal)
+    Multi-branch later
+    Docs: bookings 01–16, 19; ops 25
+    DoD: consult books; clinic blocked until gate approved
+
+  W2.B  REAL ESTATE
+    MVP:
+      Property-Bank listings: sell / resale / rent / lease
+      Visibility: open / teaser / private
+      Lead capture + WA; company site ≠ agent site separation
+    Next:
+      site-visit booking (reuse appointments), agent desk, project showcase
+    NOT: online title purchase, escrow default, MLM commissions
+    Docs: re 01–16; ops 27
+    DoD: agent publishes listings with privacy; lead form → Sheet
+
+  W2.C  EDUCATION
+    MVP:
+      Courses catalogue, enquiry, website Layer 1
+      YouTube-only embeds on site
+    Next:
+      slots for tuition (appointments), fees_pay module, indie teacher path
+    Later:
+      live batch management complexity
+    Docs: education 01–10; ops 30
+    DoD: course page + YT embed + enquiry; no non-YouTube video host
+
+  W2.D  FITNESS
+    MVP:
+      Packages/classes catalogue + free book class slot
+    Next:
+      pay for package, PT roster
+    Docs: fitness 01–06; ops 31
+    DoD: gym class bookable; packages displayed
+
+--------------------------------------------------------------------------------
+WAVE 3 — AUTOMOTIVE + FOOD OPS + HARDENING   Priority: LATER (post soft launch)
+--------------------------------------------------------------------------------
+
+  W3.A  AUTOMOTIVE
+    Dealer: vehicle inventory + enquiry (no forced checkout of cars)
+    Workshop: service booking (appointments)
+    Parts: retail-like catalogue optional
+    Docs: automotive 01–06; ops 32
+
+  W3.B  FOOD full ops
+    Kitchen tickets, dine-in QR, delivery riders PT/FT, multi-branch fees,
+    seasonal coupons (food 15–16)
+
+  W3.C  Cross-industry polish
+    Seasonal platform coupons on Select modules cart
+    Bundle optional discounts
+    Industry switch / upgrade flows (presence → salon/retail)
+    Analytics lite expansion
+    Creator Partner referral Phase 2
+
+  W3.D  PARKED
+    Pharmacy OTC thin (other_verticals/01) — Phase 4 roadmap alignment
+    Finance insurance/loans — NEVER (03-CALLED-OFF)
+    general catch-all → route to Presence
+
+================================================================================
+4. CROSS-CUTTING WORKSTREAMS (PARALLEL TO WAVES)
+================================================================================
+
+  C1 Billing / Select modules UI
+    Checkout lines: Website plan + selected module SKUs
+    Yearly charm …99; Superadmin list prices
+    Creator Partner discount application (presence only)
+
+  C2 Tenant storage
+    Sheet templates per industry (orders, bookings, leads, patients)
+    Retry queue, Redis cache as existing architecture
+
+  C3 Legal / publish gates
+    Clinic license, pharmacy OTC, tenant ToS acceptance
+    Presence commerce hard-block
+
+  C4 Templates & public site
+    Per-industry starter themes/blocks (presence link-card, salon book, food menu)
+    Mobile-first, 5-page rule
+
+  C5 Tap & Blast / share
+    Presence share_kit first; product share for retail/salon later
+
+  C6 Google
+    Calendar free; Sheets for leads/orders; Connect guide for tenants
+
+  C7 Payments
+    Platform subscription (Razorpay for Artix) when ready — external partner
+    Tenant BYO PG for customer checkout — primary model
+
+================================================================================
+5. DEPENDENCY GRAPH (SIMPLIFIED)
+================================================================================
+
+  F0 registry + entitlements + website Layer 1
+       │
+       ├─► W1.A Presence ─────────────────────────────► Creator Partner
+       │
+       ├─► Appointments engine ─┬─► W1.B Salon
+       │                        ├─► W2.A Bookings / clinic gate
+       │                        ├─► W2.C Education slots
+       │                        ├─► W2.D Fitness
+       │                        └─► W3.A Auto workshop
+       │
+       ├─► Catalog engine ─┬─► W1.C Food menu
+       │                   ├─► W1.D Retail
+       │                   └─► W3.A Auto parts
+       │
+       └─► Leads engine ───┬─► W2.B RE
+                           └─► Presence collab / auto enquiry
+
+  Orders/checkout engine depends on catalog + tenant PG; never mounts on Presence.
+
+================================================================================
+6. MVP CUTS (WHAT TO SKIP IN V1 PER INDUSTRY)
+================================================================================
+
+  Presence     Skip auto IG verification; referral Phase 2
+  Salon        Skip multi-location, retail add-on shelf
+  Food         Skip kitchen, dine-in QR, multi-branch, rider payroll
+  Retail       Skip wholesale MOQ, marketplace split, POS
+  Bookings     Skip multi-branch; clinic full EMR; banquet complex catering ops
+  RE           Skip RERA filing, loans, VR mandatory, MLM
+  Education    Skip non-YouTube video, full LMS
+  Fitness      Skip full member CRM
+  Automotive   Skip full dealer DMS / OEM integrations
+  Pharmacy     Skip entire vertical until Phase 2/4
+  Finance      Skip forever (called off)
+
+================================================================================
+7. SUPERADMIN CHECKLIST (EVERY INDUSTRY SHIP)
+================================================================================
+
+  [ ] Industry group + types visible
+  [ ] Module SKUs with monthly + yearly charm prices
+  [ ] Industry allowlist on each SKU
+  [ ] Caps configurable
+  [ ] Coupons can target website plan and/or module SKUs
+  [ ] Presence: creator_discount_* + partner compliance fields
+  [ ] Gates: clinic / pharmacy flags
+  [ ] Disable industry without breaking existing tenants (grandfather)
+
+================================================================================
+8. TESTING MATRIX (MIN PER WAVE)
+================================================================================
+
+  Onboarding: each type can register and land correct editor nav
+  Entitlement: disabled module hidden + API denied
+  Public: happy path CTA (book / WA / collab / lead)
+  Negative: Presence cannot checkout; cloud cannot dine-in; clinic unpublished
+            without gate; education rejects non-YouTube embed host
+  Billing: Select modules sum; Creator discount only on Partner tenants
+  Google: Calendar connect optional; failure does not block publish
+
+================================================================================
+9. MAPPING TO LAUNCH ROADMAP PHASES
+================================================================================
+
+  Launch roadmap (skills)     This industries plan
+  -------------------------   ----------------------------------
+  Phase 0 foundation          F0 partial (DB, auth, shell) already
+  Phase 1 soft beta           F0 complete + W1.A Presence + website
+                              + maybe W1.B free book salon light
+  Phase 2 Pro commerce        W1.C/D food+retail storefront, salon pay,
+                              appointments, Sheets pipe
+  Phase 3 India launch        W2 bookings clinic gate, RE, education,
+                              coupons, polish
+  Phase 4 growth              W3 automotive, food ops depth, pharmacy thin
+
+  External blockers (legal, Razorpay partner, GST, DPDP officer) can delay
+  paid public launch but should not block building Presence + free booking
+  behind feature flags.
+
+================================================================================
+10. SUGGESTED SPRINT SLICES (EXAMPLE)
+================================================================================
+
+  Sprint A: F0.1–F0.6 industry registry, entitlements, website gating, Presence MVP
+  Sprint B: Creator Partner billing fields + share_kit; appointments core stub
+  Sprint C: Salon free book + packages display; Google Calendar Connect free
+  Sprint D: Food menu Layer 1 + type compatibility; retail product list
+  Sprint E: Food pickup/delivery orders; retail checkout path
+  Sprint F: Salon pay-then-book; bookings consult
+  Sprint G: RE Property-Bank + leads
+  Sprint H: Education + fitness MVP
+  Sprint I: Automotive + food kitchen/dine-in
+  Sprint J: Coupons, bundles UI, industry upgrade, Creator referral
+
+  Adjust length to team size; keep order of dependencies.
+
+================================================================================
+11. DOC INDEX → BUILD OWNERSHIP
+================================================================================
+
+  industries-docs/00-MODULE-ALACARTE-PRICING.txt  → C1 billing model
+  food_industry/*        → W1.C, W3.B     ops 24
+  bookings_industry/*    → W1.B engine, W2.A   ops 25
+  real_estate/*          → W2.B           ops 27
+  retail/*               → W1.D           ops 28
+  salon_beauty/*         → W1.B           ops 29
+  education/*            → W2.C           ops 30
+  fitness/*              → W2.D           ops 31
+  automotive/*           → W3.A           ops 32
+  presence/*             → W1.A           ops 33
+  other_verticals/*      → parked / off
+
+================================================================================
+12. SUCCESS METRICS (PRODUCT)
+================================================================================
+
+  Wave 1: N Presence publishes; N free salon books; N food menus live
+  Wave 2: N RE leads; N education enquiries; clinic gate works
+  Wave 3: Module attach rate (Select modules); Creator Partner promo fulfill %
+  Platform: website plan conversion; yearly charm uptake; churn on modules
+
+================================================================================
+13. IMPLEMENTATION STATUS (2026-07-21 CODE)
+================================================================================
+
+  F0 registry / entitlements / Select modules / Superadmin  → SHIPPED (code)
+  W1.A Presence + Creator Partner + studio + promo checklist → SHIPPED
+  W1.B Salon appointments + pay-then-book path             → SHIPPED (MVP)
+  W1.C Food menu Layer 1 + ops channels SKUs               → SHIPPED (MVP)
+  W1.D Retail storefront                                   → SHIPPED (MVP)
+  W2 Bookings / RE / Education / Fitness / Auto            → SHIPPED (MVP slices)
+  Google Calendar free live OAuth path                     → SHIPPED
+  create-order industry identity gate                      → SHIPPED
+
+  NOT DONE (external or deep ops):
+    Lawyer / GST / payment partner production / Supabase partner commercial
+    Cookie banner; appointed grievance officer
+    Full kitchen board / multi-branch / rider payroll / wholesale MOQ columns
+
+================================================================================
+CHANGE LOG
+================================================================================
+2026-07-16  Initial industries implementation plan (F0 + waves 1–3).
+2026-07-21  Status section — MVP waves largely in code; external still open.
+================================================================================
+

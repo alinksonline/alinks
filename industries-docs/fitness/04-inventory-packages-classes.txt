@@ -1,0 +1,13 @@
+================================================================================
+04 — FITNESS “INVENTORY”
+================================================================================
+
+  MembershipPlan { name, duration_days/months, price_display, perks[], active }
+  ClassType { name, duration, level, trainer_ids[], schedule_text }
+  PTPackage { name, sessions_count, price, duration_per_session, trainer_ids[] }
+  Trainer { name, specialties[], hours, branch_id?, gcal? }
+
+  Categories: Strength, Cardio, Yoga, Dance, Combat, Kids, …
+  Open taxonomy + seeds.
+
+================================================================================

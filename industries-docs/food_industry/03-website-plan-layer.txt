@@ -1,0 +1,66 @@
+================================================================================
+03 — LAYER 1: WEBSITE PLAN (MENU DISPLAY + WHATSAPP)
+================================================================================
+Folder: industries-docs/food_industry/
+See also: 12-billing-skus-pricing-charm.txt, 14-registration-upsell-flow.txt
+
+================================================================================
+1. WHAT THE MAIN WEBSITE SELLS
+================================================================================
+
+  Website plan (Basic / Pro / …) includes roughly:
+
+    • ALINKS mini-site (pages, theme, branding)
+    • Digital MENU display (browse items / sections)
+    • WhatsApp (and call/email) CTAs — “Order on WhatsApp”
+    • Business type self-awareness (labels, nav)
+    • NOT full Delivery ops, Dine-in QR stack, Catering CRM, Kitchen board
+
+  One-line pitch:
+    “Your restaurant or kitchen website with digital menu.
+     Customers browse and order on WhatsApp.”
+
+================================================================================
+2. WHY THIS WORKS
+================================================================================
+
+  • Matches how Indian SMBs already sell (WhatsApp).
+  • Low commitment vs full POS / multi-module stack.
+  • Clear upgrade path into food modules.
+  • Marketing page stays simple (no 20 SKU grid).
+
+================================================================================
+3. WHAT IT IS NOT
+================================================================================
+
+  • Not Swiggy/Zomato.
+  • Not full table QR system (that is food.dine_in module).
+  • Not kitchen ticket board (food.kitchen).
+  • Not multi-channel order routing.
+
+================================================================================
+4. RELATION TO MODULES
+================================================================================
+
+  After website plan is active:
+    Dashboard → “Grow with modules” → single / combo / all.
+
+  Industry type still set at registration so menu fields and future modules
+  know Cloud vs Restaurant vs Catering.
+
+================================================================================
+5. LIFECYCLE (WEBSITE PLAN)
+================================================================================
+
+  Discover → marketing plans page
+  Purchase → register / Billing (monthly or yearly charm)
+  Configure → menu items, hours, WhatsApp number, publish
+  Operate → public menu + WA deep link
+  Renew / upgrade → add food modules
+  Suspend → unpublish / plan past_due rules (platform-wide)
+
+================================================================================
+CHANGE LOG
+================================================================================
+2026-07-16  Website-first layer locked for launch messaging.
+================================================================================

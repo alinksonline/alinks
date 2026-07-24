@@ -1,0 +1,25 @@
+================================================================================
+28 — RETAIL & WHOLESALE INDUSTRY (OPS POINTER)
+================================================================================
+Authority: industries-docs/retail/
+
+Diversification: Retail only | Wholesale only | Retail + Wholesale (frozen labels).
+Catalogue: open taxonomy — any legal product category.
+Modules: inventory, delivery, wholesale, multi-brand, checkout, … (doc 15).
+No retail multi-outlet POS seats — ALINKS is not in-store billing software.
+Caps: 25 / 200 / 2000 products by plan — primary anti-loss control.
+Checkout: tenant Razorpay/COD — not Artix GMV.
+No per-category paid modules (avoid chaos).
+
+Read:
+  industries-docs/retail/00-README-INDEX.txt
+  01-retail-industry-anchor.txt
+  02-diversification-retail-vs-wholesale.txt
+  14-onboarding-trade-mode-and-catalog-freedom.txt
+  15-management-modules-and-plan-caps.txt
+
+================================================================================
+CHANGE LOG
+================================================================================
+2026-07-16  Initial retail ops pointer.
+================================================================================

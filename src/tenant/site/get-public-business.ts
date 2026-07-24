@@ -1,16 +1,26 @@
 import type { SubscriptionTier } from "@/core/config/tiers";
 import type { Business, BusinessVertical } from "@/core/types/tenant";
+import { listEntitledSkus } from "@/platform/billing/entitlements";
 import { getPlatformDb } from "@/platform/db/client";
 import { businesses, tenants } from "@/platform/db/schema";
 import { eq } from "drizzle-orm";
 
-function toBusiness(row: typeof businesses.$inferSelect, tier: SubscriptionTier): Business {
+async function toBusiness(
+  row: typeof businesses.$inferSelect,
+  tier: SubscriptionTier,
+): Promise<Business> {
+  const entitledSkus = await listEntitledSkus(row.id);
   return {
     id: row.id,
     tenantId: row.tenantId,
     handle: row.handle,
     name: row.name,
     vertical: row.vertical as BusinessVertical,
+    industryGroup: row.industryGroup,
+    industryType: row.industryType,
+    tradeMode: row.tradeMode,
+    verticalGateStatus: row.verticalGateStatus,
+    creatorPartnerTier: row.creatorPartnerTier,
     tier,
     isPublished: row.isPublished,
     checkoutMode: row.checkoutMode as "lite" | "pro",
@@ -21,6 +31,7 @@ function toBusiness(row: typeof businesses.$inferSelect, tier: SubscriptionTier)
     customDomainVerified: row.customDomainVerified,
     theme: (row.theme as Business["theme"]) ?? null,
     branding: (row.branding as Business["branding"]) ?? null,
+    entitledSkus,
   };
 }
 

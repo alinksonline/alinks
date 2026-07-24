@@ -31,7 +31,9 @@ export type BlockType =
   | "hours"
   | "gallery"
   | "cta"
-  | "link";
+  | "link"
+  /** YouTube-only embed (education / free site capability) */
+  | "youtube";
 
 export type ServiceItem = {
   name: string;
@@ -61,6 +63,8 @@ export type BlockData = {
   href?: string;
   buttonLabel?: string;
   imageUrl?: string;
+  /** youtube block — full URL; video id derived at render */
+  youtubeUrl?: string;
   /** Link button visual style (thickness, fill, corners, border, icon) */
   linkStyle?: LinkButtonStyle;
   /** Card widgets: styling + layout (Highlights, Text, Services, …) */
@@ -119,4 +123,14 @@ export interface BrandingConfig {
 
 export type { BusinessProfile, SocialHandles } from "./business-profile";
 
-export type SiteTemplateId = "general" | "salon" | "ecommerce";
+export type SiteTemplateId =
+  | "general"
+  | "salon"
+  | "ecommerce"
+  | "presence"
+  | "food"
+  | "bookings"
+  | "real_estate"
+  | "education"
+  | "fitness"
+  | "automotive";

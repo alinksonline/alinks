@@ -1,0 +1,60 @@
+================================================================================
+04 — MODULE: PACKAGES (sb.packages)
+================================================================================
+SKU: sb.packages
+Code today: editor /editor/packages, salon package templates
+
+================================================================================
+1. DEFINITION
+================================================================================
+
+  Sellable service packages: name, description, price, durationMinutes,
+  category (salon|beauty), image, isActive.
+
+  Package is the primary “product” of salon commerce — not fashion SKUs.
+
+================================================================================
+2. LIFECYCLE (100%)
+================================================================================
+
+  1. Discover     Packages editor / onboarding seeds
+  2. Create       From templates or blank
+  3. Configure    Price, duration, staff who can perform, buffer after
+  4. Publish      isActive → public book menu
+  5. Book         Client selects package first
+  6. Archive      isActive false; past bookings keep package name snapshot
+  7. Cap          Plan max packages (see 14)
+
+================================================================================
+3. FIELDS
+================================================================================
+
+  name, description, price (display + pay amount if pay-then-book),
+  durationMinutes, category, imageUrl?,
+  staff_ids[] or skill tags,
+  buffer_after_min?,
+  charge_mode: free | pay_then_book | pay_at_salon,
+  isActive
+
+================================================================================
+4. SEEDS
+================================================================================
+
+  Use package-templates.ts style seeds (haircut, spa, bridal, mani-pedi, …)
+  Separate seed packs for salon vs beauty vs spa.
+
+================================================================================
+5. INTEGRATION
+================================================================================
+
+  + staff (who can do package)
+  + calendar (duration drives slot length)
+  + pay_then_book (price charged before slot)
+  + free_booking (no charge)
+  + retail (product upsell after service — later)
+
+================================================================================
+CHANGE LOG
+================================================================================
+2026-07-16  Packages module deep-dive.
+================================================================================

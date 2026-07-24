@@ -38,7 +38,8 @@ const VERTICAL_TEMPLATE: Record<string, SiteTemplateId> = {
   kirana: "ecommerce",
   clinic: "general",
   pharmacy: "general",
-  restaurant: "general",
+  restaurant: "food",
+  presence: "presence",
 };
 
 export async function completeSignupAction(input: SignupPayload) {
@@ -105,10 +106,16 @@ export async function completeSignupAction(input: SignupPayload) {
 
   const templateId = VERTICAL_TEMPLATE[input.vertical] ?? input.templateId ?? "general";
 
+  const { defaultIndustryType, resolveIndustryGroup } = await import("@/core/config/industries");
+  const industryGroup = resolveIndustryGroup(input.vertical);
+  const industryType = defaultIndustryType(input.vertical);
+
   const onboard = await completeOnboardingForTenant(auth.userId, {
     businessName,
     handle,
     vertical: input.vertical,
+    industryGroup,
+    industryType,
     templateId,
     businessPurpose: purpose,
     acceptTos: input.acceptTos,

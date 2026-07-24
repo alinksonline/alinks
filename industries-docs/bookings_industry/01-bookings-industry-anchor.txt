@@ -1,0 +1,141 @@
+================================================================================
+ALINKS — BOOKINGS INDUSTRY ANCHOR SPECIFICATION
+================================================================================
+Status:     PRODUCT ANCHOR
+Location:   industries-docs/bookings_industry/01-bookings-industry-anchor.txt
+Created:    2026-07-16
+Scope:      Clinics → consultations → lawyers → function/banquet hall bookings
+            + shared slots engine, modules, Superadmin types, Billing.
+NOT scope:  Food delivery/kitchen (see food_industry/), fashion inventory,
+            full legal practice management, full hospital HIS, EMR diagnostics.
+
+Read before building any booking/reservation feature for these verticals.
+Update CHANGE LOG when decisions change.
+
+================================================================================
+1. PRODUCT PRINCIPLE
+================================================================================
+
+  ONE booking engine, MANY industry profiles.
+
+  Bookings industry family covers time-and-resource reservation:
+    • People resources (doctor, lawyer, consultant, therapist)
+    • Space resources (clinic room, consultation room, banquet hall, lawn)
+    • Service packages (consultation type, hall package, ceremony slot)
+
+  SELF-AWARE from Superadmin industry type + purchased modules
+  (same pattern as food_industry).
+
+  BILLING LAYERS
+    LAYER 1 — Website plan: mini-site, services list, Book CTA, WhatsApp
+    LAYER 2 — Booking modules: core calendar, clinic pack, legal pack,
+              venue pack, deposits, reminders, multi-location
+    LAYER 3 — Industry type / subtype: fields, compliance, seeds
+
+  Platform Billing = Artix SKUs (plans/modules).
+  Tenant Checkout = client pays professional/venue (tenant Razorpay/COD/WA).
+
+================================================================================
+2. BASE TYPES (LOCKED STARTERS)
+================================================================================
+
+  SLUG                    LABEL                         Primary resource
+  ----------------------  ----------------------------  ------------------
+  clinic_healthcare       Clinic / healthcare           Doctor / room
+  professional_consult    Professional consultation     Consultant
+  legal_lawyers           Lawyers / legal consult       Advocate
+  venue_banquet           Function / banquet hall       Hall / lawn / date
+  (salon_beauty)          Uses same engine              Staff / chair
+                          Full pack: industries-docs/salon_beauty/
+
+  Spectrum user named:
+    Clinics → Consultations → Lawyers → Function/Banquet hall bookings
+  All covered under this pack.
+
+================================================================================
+3. MODULES (FIRST-CLASS)
+================================================================================
+
+  book.core              Appointments core (slots, calendar, services)
+  book.clinic            Clinic/healthcare compliance + patient fields
+  book.professional      Professional consult packaging
+  book.legal             Lawyer consult + engagement-lite rules
+  book.venue             Banquet / function hall date capacity packages
+  book.payments          Optional deposits / pay-to-confirm (tenant PG)
+                         FREE client bookings always allowed without this
+  book.reminders         SMS/email/WA reminders + no-show policy tools
+  book.multilocation     Extra branches/clinics/halls (5–10% off extra)
+  google.calendar        FREE platform capability (not a paid module):
+                         tenant Gmail/Workspace → Google Calendar sync
+                         (push + pull busy; see 19-*.txt). All industries
+                         where events apply — including food catering.
+
+  Website plan alone = catalogue + “Book on WhatsApp” / simple enquiry.
+  book.core unlocks real slot booking on ALINKS.
+  Google Calendar is free once they have events to sync.
+
+================================================================================
+4. HARD RULES
+================================================================================
+
+  • No long-term patient/client case files on platform Postgres.
+  • Clinic live booking requires license gate (regulated).
+  • No online diagnosis / Rx selling in MVP.
+  • Lawyer module = consultation booking, not court case CMS v1.
+  • Venue module = hall reservation; food catering for events may link
+    later to food_industry catering module — separate purchase.
+  • Cloud restaurant dine-in QR is FOOD not BOOKINGS venue.
+  • FREE CLIENT BOOKINGS: tenants may use full bookings (slots, calendar,
+    Google Calendar, reminders) without charging end-clients. Charging is
+    opt-in via book.payments / per-service toggle — never required.
+  • GOOGLE CALENDAR SYNC: free for all applicable industries (bookings +
+    catering + any scheduled work). Never an extra-cost add-on.
+
+================================================================================
+5. SHARED VS DISTINCT
+================================================================================
+
+  SHARED ENGINE
+    Services/resources, availability, slots, buffers, blackouts,
+    booking status: requested → confirmed → completed → cancelled/no_show
+
+  DISTINCT BY TYPE
+    Clinic: license, patient tab, visit reason (no diagnosis storage)
+    Lawyer: consult type, duration, confidentiality notice
+    Consult: generic professional
+    Venue: date-first, package (half-day/full-day), guest capacity, deposit
+
+================================================================================
+6. RELATION TO EXISTING CODE / SKILLS
+================================================================================
+
+  alinks-appointments skill already describes salon + clinic launch shape.
+  These docs EXPAND the family to lawyers + banquet halls and module Billing.
+  Implementation should extend one engine, not fork four calendars.
+
+================================================================================
+7. IMPLEMENTATION ORDER (WHEN BUILD STARTS)
+================================================================================
+
+  1. book.core slots + services + staff/resource
+  2. Website Book page + WhatsApp fallback
+  3. book.clinic license gate + patient sheet tabs
+  4. book.professional
+  5. book.legal notices + consult types
+  6. book.venue date/package capacity
+  7. book.payments deposits
+  8. book.reminders
+  9. book.multilocation + coupons (shared with food patterns)
+  10. book.google_calendar (tenant Gmail OAuth + push/pull)
+
+================================================================================
+CHANGE LOG
+================================================================================
+2026-07-16  Initial bookings industry anchor (clinic→venue spectrum).
+2026-07-16  Google Calendar / tenant Gmail integration module added (doc 19).
+2026-07-16  Free client bookings first-class; charging optional (doc 09).
+2026-07-16  Google Calendar free for all industries (incl. catering); not a paid SKU.
+================================================================================
+
+
+

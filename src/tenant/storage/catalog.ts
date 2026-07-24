@@ -1,7 +1,7 @@
+import { and, asc, eq } from "drizzle-orm";
 import type { CatalogProduct } from "@/core/types/commerce";
 import { getPlatformDb } from "@/platform/db/client";
-import { businesses } from "@/platform/db/schema";
-import { eq } from "drizzle-orm";
+import { businesses, storeProducts } from "@/platform/db/schema";
 import { getStorageAdapter } from "./get-adapter";
 
 const FALLBACK_PRODUCTS: CatalogProduct[] = [
@@ -10,7 +10,35 @@ const FALLBACK_PRODUCTS: CatalogProduct[] = [
   { id: "3", name: "Consultation", price: 299, category: "services" },
 ];
 
+function mapPlatformRow(row: typeof storeProducts.$inferSelect): CatalogProduct {
+  return {
+    id: row.id,
+    name: row.name,
+    price: row.price,
+    mrp: row.mrp ?? undefined,
+    imageUrl: row.imageUrl ?? undefined,
+    category: row.category,
+    brand: row.brand ?? undefined,
+    description: row.description ?? undefined,
+    stock: row.stock ?? undefined,
+    sku: row.sku ?? undefined,
+  };
+}
+
+/** Platform store_products first (retail MVP), then Sheets Products, then demo fallback. */
 export async function getCatalogForBusiness(businessId: string): Promise<CatalogProduct[]> {
+  const db = getPlatformDb();
+  if (db) {
+    const platformRows = await db
+      .select()
+      .from(storeProducts)
+      .where(and(eq(storeProducts.businessId, businessId), eq(storeProducts.isActive, true)))
+      .orderBy(asc(storeProducts.sortOrder), asc(storeProducts.name));
+    if (platformRows.length > 0) {
+      return platformRows.map(mapPlatformRow);
+    }
+  }
+
   const adapter = await getStorageAdapter(businessId);
   const rows = await adapter.readRows("Products");
   if (rows.length === 0) return FALLBACK_PRODUCTS;
@@ -22,6 +50,8 @@ export async function getCatalogForBusiness(businessId: string): Promise<Catalog
     mrp: row.mrp ? Number(row.mrp) : undefined,
     imageUrl: row.imageUrl ? String(row.imageUrl) : undefined,
     category: row.category ? String(row.category) : undefined,
+    brand: row.brand ? String(row.brand) : undefined,
+    description: row.description ? String(row.description) : undefined,
     stock: row.stock ? Number(row.stock) : undefined,
     sku: row.sku ? String(row.sku) : undefined,
   }));
@@ -47,6 +77,7 @@ export async function seedCatalogProducts(businessId: string, products: CatalogP
       price: p.price,
       mrp: p.mrp ?? p.price,
       category: p.category ?? "general",
+      brand: p.brand ?? "",
       stock: p.stock ?? 100,
       sku: p.sku ?? p.id,
     });

@@ -1,0 +1,88 @@
+================================================================================
+08 — MODULE: FUNCTION / BANQUET HALL (book.venue)
+================================================================================
+SKU: book.venue
+For: banquet halls, marriage lawns, party plots, conference halls, community
+     function spaces. Date-first + package + capacity.
+
+================================================================================
+1. DEFINITION
+================================================================================
+
+  Space reservation engine: pick venue unit (hall/lawn) → date → package
+  (slot: morning/evening/full day) → guest count → enquiry or paid hold.
+  Distinct from restaurant Dine-in QR (food_industry) and from 30-min doctor slots.
+
+================================================================================
+2. WHO CAN BUY
+================================================================================
+
+  venue_banquet base type (primary).
+  Optional add-on for hotels/clubs that also have a hall (if Superadmin allows).
+
+================================================================================
+3. ENABLES
+================================================================================
+
+  PUBLIC
+    • Browse halls/packages, check date availability, request booking / pay deposit
+    • Guest capacity validation
+  ADMIN
+    • Halls/spaces as resources with capacity
+    • Packages: Half day | Full day | Hourly (optional)
+    • Blackout dates (booked/maintenance)
+    • Optional add-ons: décor, DJ, catering handoff note
+  CATERING LINK (OPTIONAL LATER)
+    • Deep link or module bridge to food_industry catering — separate purchase
+    • v1: notes field “preferred caterer” only
+
+================================================================================
+4. LIFECYCLE (100%)
+================================================================================
+
+  1. Discover     “Book your function hall online”
+  2. Purchase     book.venue (+ book.core)
+  3. Configure    Halls, packages, capacity, deposits rules
+  4. Operate      Calendar of dates; confirm holds; collect deposits
+  5. Integrate    payments, reminders, multi-hall locations
+  6. Bill/Renew   Artix module fee
+  7. Disable      Public → enquiry/WA only
+
+================================================================================
+5. INVENTORY / CATALOGUE
+================================================================================
+
+  Hall / Space {
+    name, capacity_min, capacity_max, amenities[], images[], active
+  }
+  Package {
+    name, duration_type: half_day|full_day|hours,
+    price, deposit_amount?, included_amenities[]
+  }
+  Categories: Indoor | Outdoor | Banquet | Conference | Lawn
+  Variations: Veg-only event flag, parking packages, extra hours
+  “Stock” = date availability (one primary booking per package slot/day
+            unless multi-event policy)
+
+================================================================================
+6. INTEGRATION
+================================================================================
+
+  + book.core        calendar/blackouts primitives
+  + book.payments    deposit / balance notes
+  + book.reminders   event reminders to host
+  + book.multilocation multiple halls/properties
+  + food.catering    optional future bridge (not required)
+  ≠ food.dine_in     restaurant table QR is not hall booking
+
+================================================================================
+7. BOOKING STATUS (VENUE)
+================================================================================
+
+  enquiry → hold → deposit_paid → confirmed → completed | cancelled
+
+================================================================================
+CHANGE LOG
+================================================================================
+2026-07-16  Banquet/function hall module.
+================================================================================

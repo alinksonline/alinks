@@ -1,0 +1,33 @@
+================================================================================
+10 — MODULE: REMINDERS & NO-SHOW TOOLS (book.reminders)
+================================================================================
+SKU: book.reminders
+
+================================================================================
+1. DEFINITION
+================================================================================
+
+  Automated reminders (SMS/email/WhatsApp where integrated) before appointment
+  or event; optional no-show marking and simple policy text.
+
+================================================================================
+2. LIFECYCLE
+================================================================================
+
+  Purchase → configure channels + timing (24h / 2h) →
+  on booking confirm schedule jobs → send → log →
+  staff can mark no_show → disable stops new schedules
+
+================================================================================
+3. INTEGRATION
+================================================================================
+
+  Listens to booking status from book.core + industry packs.
+  Uses MSG91/Resend/etc. per integration_setup_docs when wired.
+  Venue: remind host 7 days + 1 day before function.
+
+================================================================================
+CHANGE LOG
+================================================================================
+2026-07-16  Reminders module.
+================================================================================

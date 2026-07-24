@@ -1,0 +1,21 @@
+================================================================================
+04 — AUTOMOTIVE INVENTORY
+================================================================================
+
+  VehicleListing {
+    make, model, year, variant, fuel, km?,
+    deal_intent: sell|resale (used),
+    price_display_mode: on_request|indicative|hidden,
+    visibility: open|teaser|private,  // used-car brokers
+    media[], status: available|sold|reserved_offline
+  }
+
+  ServicePackage {
+    name, durationMinutes, price, vehicle_types[], active
+  }
+
+  PartProduct → retail product model (brand, SKU, stock, variations)
+
+  Categories: open (sedan, SUV, spare-engine-oil, accessories, …)
+
+================================================================================

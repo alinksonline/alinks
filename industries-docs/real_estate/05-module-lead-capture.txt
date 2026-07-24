@@ -1,0 +1,54 @@
+================================================================================
+05 — MODULE: LEAD CAPTURE & CRM-LITE (re.leads)
+================================================================================
+SKU: re.leads (or included with website RE plan — pricing TBD)
+
+================================================================================
+1. DEFINITION
+================================================================================
+
+  Capture and manage enquiries from mini-site CTAs. This is the “sale motion”
+  on ALINKS for RE — not payment.
+
+================================================================================
+2. SOURCES
+================================================================================
+
+  WhatsApp deep link (prefilled project/plot code)
+  Click-to-call
+  Enquiry form (name, phone, project interest, message)
+  Site visit request (→ re.site_visit)
+
+================================================================================
+3. LEAD LIFECYCLE
+================================================================================
+
+  new → contacted → site_visit_scheduled → negotiation → won | lost | junk
+
+  Assignment:
+    Company site → company staff only
+    Agent site → that agent only
+    No auto-share agent lead to company (sites separate — doc 15)
+
+================================================================================
+4. NO PAYMENT
+================================================================================
+
+  Lead never creates a property purchase order on platform.
+  Optional note field: “token paid offline” for CRM only.
+
+================================================================================
+5. INTEGRATION
+================================================================================
+
+  + listings (which project)
+  + agent_desk (attribution)
+  + site_visit (booking)
+  + Google Calendar free for visits
+  + Sheets write for PII
+
+================================================================================
+CHANGE LOG
+================================================================================
+2026-07-16  Lead CRM-lite for RE.
+================================================================================

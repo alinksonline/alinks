@@ -5,6 +5,7 @@ import { resolveBlockWithProfile } from "@/core/utils/resolve-block-profile";
 import { whatsappUrl } from "@/core/utils/business-profile";
 import { resolveSectionCardCss } from "@/core/utils/section-style";
 import { LinkButton } from "./link-button";
+import { YoutubeEmbed } from "./youtube-embed";
 
 function CardShell({
   sectionCss,
@@ -251,6 +252,27 @@ export function BlockRenderer({
               </p>
             ) : null}
           </div>
+        </CardShell>
+      );
+    }
+
+    case "youtube": {
+      const url = data.youtubeUrl || data.href || "";
+      return (
+        <CardShell sectionCss={sectionCss}>
+          <h2 style={sectionCss.title}>{block.title || "Video"}</h2>
+          {block.body ? (
+            <p className="mb-2 text-xs leading-relaxed" style={sectionCss.body}>
+              {block.body}
+            </p>
+          ) : null}
+          {url ? (
+            <YoutubeEmbed url={url} title={block.title || "YouTube"} />
+          ) : (
+            <p className="text-[11px]" style={sectionCss.body}>
+              Add a YouTube URL in the editor (YouTube only).
+            </p>
+          )}
         </CardShell>
       );
     }

@@ -1,0 +1,42 @@
+================================================================================
+ALINKS AUDIT — FOLLOW-UP 2026-07-21
+================================================================================
+Supersedes open HIGH items from 2026-07-16 where closed in code.
+
+CLOSED THIS SESSION
+  [x] create-order requires handle|businessId + industry gate (already on branch)
+  [x] Google Calendar live OAuth path (start + callback + encrypted refresh + push)
+  [x] Stub Connect retained for local/dev
+  [x] web.remove_watermark honored on public pages via entitledSkus
+  [x] Presence studio: media kit, social proof, highlights (editor + public)
+  [x] Creator Partner dashboard: duties checklist + mark promo posted
+  [x] Module catalog stubs → shipped for presence creator + domain + watermark
+  [x] DPDP audit refreshed (delete/export/grievance)
+  [x] Google integration guide redirect URIs updated
+
+CLOSED 2026-07-24
+  [x] Marketing polish — terminal/architecture/stack panels removed; light+dark theme
+  [x] Cookie notice banner (essential cookies)
+  [x] /cookies page + Privacy § cookies + footer link
+  [x] Withdraw optional consent (Settings + CONSENT_WITHDRAWAL log)
+  [x] Q005 re-lock — dual rails: Artix SaaS billing + tenant BYO storefront Razorpay
+  [x] legal/04 rewritten as Payment Domains Addendum (BYO default; PayFac parked)
+  [x] TENANT_BYO_GATEWAY logged on Razorpay connect
+  [x] Industry smoke matrix tests + npm run smoke
+  [x] Presence / Creator Partner / Calendar extras included for ship
+
+STILL EXTERNAL (cannot close in code alone)
+  [ ] Lawyer review of legal docs (incl. Q005 dual-rail wording)
+  [ ] Appointed DPDP grievance officer (real person)
+  [ ] Artix Razorpay live keys for PLATFORM subscription billing
+  [ ] Supabase partner commercial (Isabel) — waiting
+  [ ] Entity / GST
+  [ ] Full kitchen/dine-in ops depth, wholesale MOQ columns, food riders
+  [ ] Migrate + deploy all envs (ops)
+
+VERIFY
+  npm test && npm run typecheck && npm run guardrails:scan && npm run smoke && npm run build
+
+VERIFY
+  npm test && npm run typecheck && npm run guardrails:scan && npm run build
+================================================================================

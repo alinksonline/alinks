@@ -1,0 +1,23 @@
+================================================================================
+02 — TYPES: SALON VS BEAUTY VS SPA
+================================================================================
+
+  SLUG           Label              Seed focus
+  -------------  -----------------  --------------------------------
+  salon          Hair salon         Haircut, color, spa hair, beard
+  beauty         Beauty parlour     Facial, waxing, makeup, nails
+  spa_wellness   Spa / wellness     Massage, body (non-medical claims)
+  unisex_salon   Unisex             Mixed hair + beauty seeds
+  makeup_artist  Makeup (studio)    Bridal/party packages; often single staff
+
+  Code verticals today: salon | beauty — map spa/unisex/makeup as subtypes
+  under Superadmin later.
+
+  Module allow: all sb.* for all subtypes.
+  Spa: stronger disclaimer seed; no clinical diagnosis.
+
+================================================================================
+CHANGE LOG
+================================================================================
+2026-07-16  Salon/beauty/spa subtypes.
+================================================================================

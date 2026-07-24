@@ -1,0 +1,51 @@
+================================================================================
+06 — INTEGRATION / BILLING / SUPERADMIN (EDUCATION EXPANDED)
+================================================================================
+
+================================================================================
+1. INTEGRATION
+================================================================================
+
+  courses + faculty → demo / live tuition slots
+  youtube media → course & tutorials pages (FREE)
+  fees_pay → tenant PG when charging
+  confirmed slot → Google Calendar FREE
+  leads → tenant Sheets
+  multilocation → multi-center institutes
+
+  Reuse: book.core for slots; do not fork calendar.
+
+================================================================================
+2. SUPERADMIN
+================================================================================
+
+  IndustryGroup: education
+  Types: school, college, coaching_institute, tuition_center,
+         music_arts_school, skill_academy, independent_teacher,
+         online_tutor_creator, hybrid_institute
+  Seed packs: music_arts, academics, it_skills, languages, vocational, …
+  Caps: courses, faculty, video embeds, centers
+  flags: allow_live_online, allow_fees_pay, youtube_free: true
+
+================================================================================
+3. BILLING
+================================================================================
+
+  plan.website.* + edu.* modules
+  edu.media_youtube price = 0 (included)
+  google.calendar = FREE
+  Yearly charm …99
+  Teacher Starter plan affordable for side income
+
+================================================================================
+4. OUT OF SCOPE V1
+================================================================================
+
+  Full LMS hosting, proctored exams, degree certificates, attendance ERP,
+  built-in live classroom SFU/WebRTC
+
+================================================================================
+CHANGE LOG
+================================================================================
+2026-07-16  Expanded Superadmin types; YouTube free; live tuition.
+================================================================================

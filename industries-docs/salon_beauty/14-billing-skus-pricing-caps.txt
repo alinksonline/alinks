@@ -1,0 +1,32 @@
+================================================================================
+14 — SALON BILLING SKUs + CAPS
+================================================================================
+
+  plan.website.*
+  sb.packages / sb.staff / sb.calendar (often bundled as Salon Pro)
+  sb.pay_then_book (or with Pro)
+  sb.checkout_connect (setup, not GMV)
+  sb.reminders
+  sb.retail_products (optional; own product cap)
+  sb.multilocation — YES for salons (extra branch 5–10% off)
+    Unlike retail web shop: each branch has chairs, staff, calendar
+
+  google.calendar FREE
+
+  CAPS (tune in Superadmin)
+    Packages: Starter 15 | Growth 50 | Pro 150
+    Staff:    Starter 3  | Growth 10 | Pro 30
+    Bookings volume: soft; storage on tenant Sheets
+
+  Yearly: ×12 − 5–10% → charm …99
+
+  Discussion bands (₹/mo)
+    Salon calendar pack  399–699
+    Extra branch         list × 0.9–0.95
+    Retail add-on        199–399
+
+================================================================================
+CHANGE LOG
+================================================================================
+2026-07-16  Salon SKUs + caps; multi-location kept for real branches.
+================================================================================

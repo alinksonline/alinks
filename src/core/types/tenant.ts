@@ -10,6 +10,8 @@ export const BUSINESS_VERTICALS = [
   "clinic",
   "pharmacy",
   "general",
+  /** Presence / profile — no sales on ALINKS */
+  "presence",
 ] as const;
 
 export type BusinessVertical = (typeof BUSINESS_VERTICALS)[number];
@@ -33,6 +35,14 @@ export interface Business {
   handle: string;
   name: string;
   vertical: BusinessVertical;
+  /** Industry group (presence, salon_beauty, …) — falls back from vertical when missing. */
+  industryGroup?: string;
+  industryType?: string;
+  /** retail | wholesale | both */
+  tradeMode?: string;
+  /** Clinic/pharmacy regulated gate: approved | pending | pending_review | rejected */
+  verticalGateStatus?: string;
+  creatorPartnerTier?: string | null;
   tier: SubscriptionTier;
   isPublished: boolean;
   checkoutMode?: "lite" | "pro";
@@ -47,4 +57,6 @@ export interface Business {
   /** Tenant mini-site theme (colors, mode, radius, font) */
   theme?: ThemeConfig | Record<string, unknown> | null;
   branding?: Record<string, unknown> | null;
+  /** Active module SKUs when loaded */
+  entitledSkus?: string[];
 }

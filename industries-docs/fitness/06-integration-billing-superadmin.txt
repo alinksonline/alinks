@@ -1,0 +1,16 @@
+================================================================================
+06 — FITNESS INTEGRATION / SUPERADMIN
+================================================================================
+
+  trial/PT → book.core profile
+  fees → tenant Razorpay
+  multilocation → branch calendars
+  retail merch → retail lite
+
+  Superadmin IndustryGroup: fitness
+  SKUs: fit.*; google.calendar FREE
+  Multi-location YES (physical gyms)
+
+  Out of scope: biometric access control, full diet clinical plans
+
+================================================================================

@@ -1,0 +1,220 @@
+================================================================================
+04 — MODULE: DELIVERY (food.delivery)
+================================================================================
+Folder: industries-docs/food_industry/
+SKU: food.delivery
+Integrates with: pickup, catering (bulk drop), kitchen, menu inventory,
+                 multi-branch (15), coupons (16)
+
+================================================================================
+1. DEFINITION
+================================================================================
+
+  Channel for online orders delivered to a customer address.
+  Requires digital menu (Layer 1 / shared menu inventory — doc 09).
+
+  Fulfilment of the last mile is the TENANT’s responsibility. ALINKS provides
+  software: order capture, assignment, status, and reporting — not Artix-owned
+  riders as a default marketplace (unless a future Artix logistics product).
+
+  Available to: cloud_kitchen, restaurant, cloud_catering.
+  Rare for catering_only (event logistics → catering module).
+  Compatible with Dine-in on restaurant only (parallel channel, not mixed cart).
+
+================================================================================
+2. WHO CAN BUY
+================================================================================
+
+  YES: cloud_kitchen, restaurant, cloud_catering
+  NO / rare: catering_only
+  Per-branch: each branch that offers delivery needs entitlement (see §9 + doc 15)
+
+================================================================================
+3. DELIVERY FULFILMENT MODELS (TENANT CONFIG)
+================================================================================
+
+  A restaurant / cloud kitchen chooses HOW orders leave the kitchen. Modes can
+  combine (e.g. own riders by day, third-party overflow at night).
+
+  3.1 OWN FLEET — STAFFING
+    employment_type:
+      • part_time     — shifts, peak-only
+      • full_time     — rostered daily
+    (Future: contract / gig-tagged without full HR — still “own fleet”.)
+
+  3.2 OWN FLEET — VEHICLE
+    vehicle_source:
+      • rider_owned       — rider uses personal bike/scooter/car
+      • company_provided  — restaurant provides vehicle
+    vehicle_type (optional): bike | scooter | cycle | car | other
+
+  3.3 THIRD-PARTY DELIVERY
+    provider_mode: third_party
+    Examples (config labels, not deep API v1):
+      • Local courier partner
+      • Aggregator handoff (Swiggy/Zomato-style — integration later)
+      • “Call rider service” manual
+    Fields: partner_name, contact, notes, external_ref (optional)
+    Order is marked fulfilment=third_party; ALINKS does not pay the partner —
+    tenant settles outside or via their own accounts.
+
+  3.4 HYBRID
+    default_mode = own_fleet | third_party
+    rules (v1 simple):
+      • Prefer own fleet if any rider status=available
+      • Else overflow to third_party
+    Manual assign always allowed by manager.
+
+================================================================================
+4. RIDER LIFECYCLE (OWN FLEET)
+================================================================================
+
+  Discover     Delivery module ON → “Riders” admin section appears
+  Onboard      Add rider: name, phone, employment_type, vehicle_source/type,
+               branch_ids[] (multi-branch: which outlets they serve)
+  Activate     status: invited → active | suspended
+  Roster       Optional shifts (v1: available flag now / offline)
+  Assign       Order → assign_rider_id (or auto if rules exist)
+  Deliver      Status: assigned → picked_up → out_for_delivery → delivered
+               | failed | returned
+  Pay          Rider payout is OUT OF SCOPE for Artix settlement v1
+               (tenant pays riders; optional future tip field on order)
+  Offboard     status=inactive; historical orders keep rider name snapshot
+
+  DATA (conceptual)
+    Rider {
+      id, business_id, branch_ids[],
+      name, phone,
+      employment_type: part_time | full_time,
+      vehicle_source: rider_owned | company_provided,
+      vehicle_type?,
+      status: active | offline | suspended | inactive,
+      notes?
+    }
+
+================================================================================
+5. ORDER × FULFILMENT LIFECYCLE
+================================================================================
+
+  1. Customer places delivery order (address, fee, items)
+  2. Order status: placed → confirmed (kitchen / accept)
+  3. Fulfilment choice:
+       a) Assign own rider (part/full time, any vehicle model)
+       b) Hand to third_party (partner name + ref)
+  4. Kitchen (if food.kitchen): ticket source=delivery + address
+  5. Out for delivery → delivered (or failed)
+  6. Customer payment: tenant Checkout (Razorpay/COD/WA) — not Artix
+
+  Instant integration:
+    • Menu inventory channel flag available_for_delivery
+    • Kitchen ticket auto if kitchen module ON
+    • Branch_id on order when multi-branch ON (doc 15)
+    • Coupon applied at cart if valid for delivery channel (doc 16)
+
+================================================================================
+6. MODULE LIFECYCLE (food.delivery SKU — 100%)
+================================================================================
+
+  1. Discover     “Accept delivery orders on your site”
+  2. Purchase     Billing food.delivery (+ per branch if multi-branch, doc 15)
+  3. Configure    Hours, fee, radius/notes, fulfilment modes, riders/partners
+  4. Operate      Orders + assignment + status
+  5. Integrate    Menu, kitchen, pickup channel twin, coupons, branches
+  6. Bill/Renew   Artix line item(s); branch line items if applicable
+  7. Disable      Hide public delivery; keep history; riders retained inactive
+
+================================================================================
+7. ADMIN SURFACES
+================================================================================
+
+  Delivery settings   fee, hours, area notes, default fulfilment mode
+  Riders              CRUD, employment, vehicle, branch scope, online toggle
+  Third-party         partner list / default partner
+  Orders → Delivery   filter; assign rider or partner; status updates
+  Reports (later)     deliveries/day, rider load, third-party share %
+
+================================================================================
+8. PUBLIC
+================================================================================
+
+  • Address capture, delivery fee, ETA text
+  • Channel tag delivery
+  • No rider phone exposure required v1 (privacy)
+
+================================================================================
+9. MULTI-BRANCH (SUMMARY — FULL DOC 15)
+================================================================================
+
+  Food industry may have multiple branches/outlets.
+  Each branch that runs delivery is billable for delivery capability.
+  Additional branches: NOT full price — 5% to 10% off that branch’s module
+  fee (Thanks-giving style multi-location discount — see 15).
+  Order and rider always carry branch_id when multi-branch enabled.
+
+================================================================================
+10. COUPONS & SEASONAL DISCOUNTS (SUMMARY — FULL DOC 16)
+================================================================================
+
+  Platform (Artix) and/or tenant promos via coupon codes:
+    • End of year, Christmas, Thanksgiving-style campaigns
+    • Overall 40–50% possible on platform module fees (Artix coupons)
+    • Tenant may also run food-order coupons on cart (tenant promo)
+  Delivery channel can be included/excluded in coupon rules.
+
+================================================================================
+11. INVENTORY / MENU IMPACT
+================================================================================
+
+  • SAME menu inventory as other food channels (09)
+  • available_for_delivery per item
+  • Stock decrement on confirm if tracking — shared with pickup
+  • 86 fans out to all channels
+
+================================================================================
+12. SEAMLESS INTEGRATION
+================================================================================
+
+  + Pickup      Same cart UX; channel = delivery | pickup
+  + Dine-in     Separate; no address; restaurant only
+  + Catering    Not daily delivery cart; optional event delivery note on lead
+  + Kitchen     source=delivery + address on ticket
+  + Branches    Order/rider scoped to branch
+  + Coupons     Platform fee coupons vs order-value coupons (16)
+
+================================================================================
+13. DATA (CONCEPTUAL)
+================================================================================
+
+  Order {
+    channel: "delivery"
+    branch_id?
+    address, fee, items[], payment_status, customer_*
+    fulfilment_mode: own_fleet | third_party
+    rider_id? | third_party_partner_id? | external_ref?
+    delivery_status: …
+    coupon_code? (order-level tenant promo)
+  }
+  DeliverySettings {
+    branch_id?, fee_paise, hours, notes,
+    default_fulfilment_mode, overflow_to_third_party: boolean
+  }
+  Rider { … §4 }
+  ThirdPartyPartner { id, name, phone?, notes? }
+
+================================================================================
+14. OUT OF SCOPE / LATER
+================================================================================
+
+  • Artix-operated national rider marketplace
+  • Live GPS map tracking v1
+  • Deep Swiggy/Zomato API sync v1
+  • Automated rider payroll
+  • Multi-zone polygon geo-fence (simple radius/notes first)
+
+================================================================================
+CHANGE LOG
+================================================================================
+2026-07-16  Initial module lifecycle.
+2026-07-16  Riders (PT/FT, own vs company vehicle), third-party fulfilment,
+            multi-branch fee pointer, coupon/seasonal pointer, full ops detail.
+================================================================================

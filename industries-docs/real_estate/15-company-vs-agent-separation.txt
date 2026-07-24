@@ -1,0 +1,83 @@
+================================================================================
+15 — COMPANY SITE VS AGENT SITE (STRICT SEPARATION)
+================================================================================
+Folder: industries-docs/real_estate/
+Related: 02-actor-roles, 06-agent-desk, 14-property-bank-privacy
+
+================================================================================
+1. LOCKED DECISION
+================================================================================
+
+  Company website and Agent website are SEPARATE products / tenants.
+  Do NOT mix them into one shared mini-site or one login graph that blurs brands.
+
+  • Company tenant  → alinks site for Builder / Construction / Land co / Gated / Villa brand
+  • Agent tenant    → alinks site for Agent / Agency brand
+  • No “company approves every agent link” workflow required for v1
+  • No forced channel-partner invite system in v1
+
+  Agents may still *describe* or *promote* projects/companies as listings in their
+  own Property-Bank (with their visibility rules). That is agent-owned catalogue
+  content — not a live multi-tenant join into the company account.
+
+================================================================================
+2. WHAT “SEPARATE” MEANS IN PRODUCT
+================================================================================
+
+  Accounts
+    Separate signup, separate billing, separate dashboard, separate handle/domain.
+
+  Inventory
+    Company Property-Bank = only what the company added.
+    Agent Property-Bank = only what the agent added (including listings that
+    *refer to* a builder/project name as text/metadata).
+
+  Leads
+    Company site leads → company only.
+    Agent site leads → agent only.
+    No automatic lead push from agent → company in v1 (optional later module).
+
+  Staff
+    Company sales executives ≠ agents.
+    Agency staff work under agent tenant only.
+
+================================================================================
+3. SAME PROJECT ON MANY AGENT SITES
+================================================================================
+
+  YES — allowed and expected.
+
+  Multiple agents can each hold a listing card for the “same” real-world project
+  (e.g. same gated community name) in their own Property-Banks.
+
+  Why:
+    Real market: many brokers market the same project independently.
+    Separation model: each agent owns their listing row and their leads.
+
+  Product does NOT require a single shared Project master ID across agents in v1.
+  Optional later: “verified project catalog” dedupe — not required for launch.
+
+  Company site may also list the official project; that is independent of agents.
+
+================================================================================
+4. WHAT WE EXPLICITLY DO NOT BUILD (V1)
+================================================================================
+
+  • Company “approve agent” gate before agent can mention a project
+  • Shared inventory sync company ↔ agent
+  • Automatic commission split engine between company and agent
+  • Single website that switches “company mode / agent mode” for one tenant
+
+================================================================================
+5. FUTURE (OPTIONAL — NOT DEFAULT)
+================================================================================
+
+  If market demands: “Authorized partner” badge with company invite — separate
+  paid module, never forced into base separation model.
+
+================================================================================
+CHANGE LOG
+================================================================================
+2026-07-16  Strict company/agent site separation; multi-agent same project OK;
+            no company approval of agent links required.
+================================================================================

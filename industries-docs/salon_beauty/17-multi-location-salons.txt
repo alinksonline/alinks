@@ -1,0 +1,20 @@
+================================================================================
+17 — MULTI-LOCATION SALONS (YES — UNLIKE RETAIL WEB-ONLY)
+================================================================================
+
+  Salons with 2+ branches need separate staff hours and calendars.
+  This IS in scope (physical chairs), unlike retail multi-outlet POS.
+
+  Rules (same pattern as food multi-branch / bookings multi-clinic):
+    Primary branch full price
+    Extra branches 5–10% off module/seat
+    Staff, packages availability, bookings carry branch_id
+    Public: pick branch then book
+
+  Not in-store POS billing — still online booking + optional pay-then-book.
+
+================================================================================
+CHANGE LOG
+================================================================================
+2026-07-16  Multi-location justified for salon branches.
+================================================================================

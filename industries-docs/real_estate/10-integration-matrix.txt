@@ -1,0 +1,31 @@
+================================================================================
+10 — RE MODULE INTEGRATION MATRIX
+================================================================================
+
+  re.listings ← core catalogue
+       ↑
+       ├── re.project_showcase (presentation)
+       ├── re.leads (all CTAs)
+       ├── re.agent_desk (multi-company feed + lead attribution)
+       ├── re.staff_sales (company desk)
+       ├── re.site_visit (slots + calendar free)
+       └── re.multilocation
+
+  Instant rules
+    New listing live → only on THAT tenant’s site (company OR agent)
+      if visibility open/teaser; private stays off public site
+    Same real-world project may exist as separate listings on many agent sites
+    New enquiry → lead only to site owner (company staff OR that agent)
+    Teaser → full detail only to listing owner; never other agents
+    Site visit → Google Calendar free; pin optional until unlock
+    Agent/company default privacy seed → teaser for protective profiles (doc 14)
+    Plan listing cap enforced on create (doc 11)
+
+  Never integrates to
+    Property payment checkout, food kitchen, clinic license (unless hybrid tenant)
+
+================================================================================
+CHANGE LOG
+================================================================================
+2026-07-16  RE integration spine.
+================================================================================

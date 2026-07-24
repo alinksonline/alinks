@@ -1,0 +1,15 @@
+================================================================================
+10 — REMINDERS & NO-SHOW (sb.reminders)
+================================================================================
+
+  Same pattern as book.reminders:
+    Schedule 24h / 2h before appointment (SMS/email/WA when integrated)
+    Staff marks no_show; policy text on public book page optional
+
+  Works for free and paid bookings.
+
+================================================================================
+CHANGE LOG
+================================================================================
+2026-07-16  Salon reminders.
+================================================================================

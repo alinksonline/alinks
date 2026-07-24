@@ -6,13 +6,13 @@ GOAL
   Store code, enable CI, trigger Vercel auto-deploy on push to main.
 
 REPO
-  https://github.com/artixforcoding/alinks
+  https://github.com/alinksonline/alinks
 
 --------------------------------------------------------------------------------
 STEP 1 — INITIAL SETUP (already done)
 --------------------------------------------------------------------------------
   git init
-  git remote add origin https://github.com/artixforcoding/alinks.git
+  git remote add origin https://github.com/alinksonline/alinks.git
   git branch -M main
   git push -u origin main
 

@@ -12,7 +12,7 @@ export default async function BusinessProfilePage() {
 
   return (
     <>
-      <EditorNav active="/editor/business" vertical={business.vertical} />
+      <EditorNav active="/editor/business" vertical={business.vertical} industryGroup={business.industryGroup} />
       <PageShell className="py-4">
         <h1 className="text-lg font-bold tracking-tight text-brand-ink">Business profile</h1>
         <p className="mt-1 text-xs text-brand-ink/45">

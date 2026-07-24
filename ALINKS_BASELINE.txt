@@ -2656,12 +2656,16 @@ Q004 | Artix legal entity status?
      | Status: LOCKED (session 14) | Answer: per Benjamin
 
 Q005 | Tenant payments: own PG vs Artix-facilitated?
-     | LOCKED (revised session 15): ARTIX-AFFILIATED PAYMENTS ONLY
-     | Tenants do NOT bring own Razorpay — they onboard via ALINKS payment stack
-     | Artix becomes partner/affiliate: Razorpay + PhonePe (+ GPay via UPI rails)
-     | Customers pay: Razorpay checkout, PhonePe PG, Google Pay/UPI, cards, COD
-     | Status: LOCKED — legal review REQUIRED (PayFac / marketplace rules)
-     | Answer: per Benjamin — affiliate model, tenants integrate only through Artix
+     | LOCKED (revised 2026-07 — product + code): SPLIT PAYMENT DOMAINS
+     | A) PLATFORM BILLING (tenant → Artix SaaS): Artix Razorpay / future PhonePe
+     |    Subscriptions, trials, module SKUs, credit packs — Artix merchant of record
+     | B) TENANT STOREFRONT (customer → shop): TENANT BYO RAZORPAY KEYS
+     |    Tenant pastes own Key ID + secret (encrypted at rest); money settles to THEIR account
+     |    COD remains default-on (Q020); online checkout requires Pro + connected keys
+     |    Artix does NOT route customer GMV, does NOT hold sub-merchant settlement for shop sales
+     | SUPERSEDES session-15 "no own Razorpay" for storefront only
+     | Partner/PayFac path may return later as optional Artix-facilitated add-on (lawyer first)
+     | Status: LOCKED 2026-07 | Answer: dual rails — SaaS Artix PG · shop BYO tenant PG
 
 Q006 | Tech stack — Python vs Next.js? PostgreSQL required.
      | LOCKED: Next.js 14+ App Router (TypeScript) — NOT Python for main platform
@@ -2971,9 +2975,10 @@ NEXT PHASE: BUILD (Section 9B roadmap) + external actions (lawyer, Razorpay, Pvt
 (pending)   | Supabase add-on INR pricing                     | —                      | —
 (pending)   | Supabase partner program application            | —                      | —
 (pending)   | Pricing INR                                   | —                      | —
-2026-07-03  | Q005: Artix affiliate PG stack (RZP+PhonePe+UPI)| Not tenant own Razorpay| Benjamin
-(pending)   | Razorpay + PhonePe partner applications         | Phase 0 action         | Benjamin
-(pending)   | Lawyer PayFac / 194-O / TCS review              | Before Pro checkout    | —
+2026-07-03  | Q005 (session 15): Artix affiliate PG only     | Superseded 2026-07     | Benjamin
+2026-07     | Q005 RE-LOCK: dual rails — Artix SaaS + BYO shop| Code: tenant-gateway   | Benjamin
+(pending)   | Artix Razorpay keys for PLATFORM billing only   | SaaS subscriptions     | Benjamin
+(pending)   | Optional later: Artix-facilitated shop PayFac   | Lawyer first if revived| —
 2026-07-03  | Q006: Next.js + PG + Drizzle + Redis + R2      | Not Python MVP         | Benjamin
 2026-07-03  | Q007/Q008 locked — founder does not handle manually| Auto UX + retry queue| Benjamin
 2026-07-03  | Q010: BYO Supabase + Artix partner/OAuth connector | Tenant owns DB       | Benjamin
@@ -3085,10 +3090,10 @@ Session 14:
   - Beta build OK as proprietor; public launch needs Pvt Ltd + company Razorpay
 
 Session 15:
-  - Q005 LOCKED (revised): Artix affiliate/partner model — NOT tenant own Razorpay
-  - Tenants onboard KYC through ALINKS; sub-merchant via Razorpay + PhonePe partners
-  - GPay = UPI rail inside checkout (not separate affiliate)
-  - Apply Razorpay Partner + PhonePe Partner programs; legal review for PayFac/TCS/TDS
+  - Q005 originally locked: Artix affiliate/partner model — NOT tenant own Razorpay
+  - SUPERSEDED 2026-07: dual rails (see Q005 RE-LOCK) — shop = tenant BYO Razorpay;
+    platform SaaS billing remains Artix merchant of record
+  - Optional future: Artix-facilitated shop PayFac only after lawyer review
 
 Session 16:
   - Q006 LOCKED: Next.js monolith (TypeScript), NOT Python for main platform

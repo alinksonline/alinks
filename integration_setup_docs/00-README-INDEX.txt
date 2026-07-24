@@ -3,7 +3,7 @@ ALINKS — INTEGRATION SETUP DOCS (INDEX)
 ================================================================================
 Folder: integration_setup_docs/
 Purpose: Step-by-step setup for every external service ALINKS uses or will use.
-Repo:    https://github.com/artixforcoding/alinks
+Repo:    https://github.com/alinksonline/alinks
 Live:    https://alinks.online  (Vercel + Cloudflare DNS)
 
 Read docs in this order for first launch:
@@ -37,6 +37,28 @@ Phase 2+:
   17-tenant-custom-domains.txt
   21-msg91-transactional-sms.txt
 
+Product industries (not infra — product source of truth):
+  ../industries-docs/food_industry/00-README-INDEX.txt
+  ../industries-docs/bookings_industry/00-README-INDEX.txt
+  ../industries-docs/real_estate/00-README-INDEX.txt
+  ../industries-docs/retail/00-README-INDEX.txt
+  ../industries-docs/salon_beauty/00-README-INDEX.txt
+  ../industries-docs/education/00-README-INDEX.txt
+  ../industries-docs/fitness/00-README-INDEX.txt
+  ../industries-docs/automotive/00-README-INDEX.txt
+  ../industries-docs/other_verticals/00-README-INDEX.txt
+  ../industries-docs/presence/00-README-INDEX.txt
+  24-food-industry-product-modules.txt      → food modules ops pointer
+  25-bookings-industry-product-modules.txt  → clinics/lawyers/venues ops pointer
+  26-google-tenant-integrations-guide.txt   → tenant Google (Calendar/Sheets) easy setup
+  27-real-estate-industry-product.txt       → RE listings/agents (no platform sales)
+  28-retail-industry-product.txt            → retail + wholesale multi-brand
+  29-salon-beauty-industry-product.txt      → salon packages, staff, pay-then-book
+  30-education-industry-product.txt         → education / coaching
+  31-fitness-industry-product.txt           → gym / fitness / yoga
+  32-automotive-industry-product.txt        → auto dealers / workshop / parts
+  33-presence-industry-product.txt          → influencers / profile only (no sales)
+
 Phase 4:
   11-supabase-tenant-byo.txt
 
@@ -64,14 +86,14 @@ Never commit: API tokens, DATABASE_URL, Razorpay secrets, Google client secrets.
 ================================================================================
 CURRENT PROJECT IDS (reference)
 ================================================================================
-GitHub repo:        artixforcoding/alinks
+GitHub repo:        alinksonline/alinks
 Vercel team:        alinks  (team_onaRSq57MqAHQouPfMRgo3Kl)
 Vercel project:     alinks  (prj_nAiPyAuTSJ2fNmxfoaLgB0CxkeLy)
 Cloudflare zone:    alinks.online  (c57f835d0f4b0730f6c7ea98ff0d70e7)
 Domain registrar:   Hostinger (nameservers → Cloudflare)
 
 ================================================================================
-DOC LIST (24 files)
+DOC LIST
 ================================================================================
   00-README-INDEX.txt
   01-github.txt
@@ -97,6 +119,18 @@ DOC LIST (24 files)
   21-msg91-transactional-sms.txt
   22-razorpay-phonepe-apply-now-checklist.txt
   23-coderabbit.txt
+  24-food-industry-product-modules.txt   → food product modules (see industries-docs)
+  25-bookings-industry-product-modules.txt → bookings: clinic/legal/venue (see industries-docs)
+  26-google-tenant-integrations-guide.txt  → Google Connect for tenants (Calendar/Sheets)
+  27-real-estate-industry-product.txt      → real estate product (no online property sales)
+  28-retail-industry-product.txt           → retail/wholesale multi-brand store
+  29-salon-beauty-industry-product.txt     → salon/beauty packages + pay-then-book
+  30-education-industry-product.txt        → education industry
+  31-fitness-industry-product.txt          → fitness industry
+  32-automotive-industry-product.txt       → automotive industry
+  33-presence-industry-product.txt         → presence / influencers (no sales)
+
+
 
 Also see: LOCAL_DEV_SETUP.txt (repo root) for condensed local Postgres options.
 

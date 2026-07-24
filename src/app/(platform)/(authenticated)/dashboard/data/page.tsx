@@ -7,6 +7,7 @@ import { requireBusiness } from "@/platform/business/require-business";
 import { getPlatformDb } from "@/platform/db/client";
 import { supabaseConnectors } from "@/platform/db/schema";
 import { getServiceAccountEmail, isGoogleSheetsConfigured } from "@/tenant/storage/google-auth";
+import { SheetTemplatePanel } from "./sheet-template-panel";
 import { SupabaseDataSection } from "./supabase-data-section";
 
 /**
@@ -53,6 +54,11 @@ export default async function DataPage() {
       </div>
 
       <div className="mt-6 space-y-4">
+        <SheetTemplatePanel
+          industryGroup={business.industryGroup || business.vertical}
+          industryType={business.industryType}
+        />
+
         <OrdersSheetForm
           businessId={business.id}
           spreadsheetId={business.googleSpreadsheetId ?? ""}

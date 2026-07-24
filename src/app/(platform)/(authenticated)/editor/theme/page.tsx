@@ -18,7 +18,7 @@ export default async function ThemeEditorPage() {
 
   return (
     <>
-      <EditorNav active="/editor/theme" vertical={business.vertical} />
+      <EditorNav active="/editor/theme" vertical={business.vertical} industryGroup={business.industryGroup} />
       <PageShell className="py-3">
         <h1 className="text-base font-bold tracking-tight text-brand-ink">Theme</h1>
         <p className="mt-0.5 text-[11px] text-brand-muted">

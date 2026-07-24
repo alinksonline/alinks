@@ -1,0 +1,87 @@
+================================================================================
+04 — MODULE: APPOINTMENTS CORE (book.core)
+================================================================================
+SKU: book.core
+Spine for all bookings types. Industry packs add fields/compliance on top.
+
+================================================================================
+1. DEFINITION
+================================================================================
+
+  Calendar + services + resources (people or rooms) + slot booking + status.
+  MVP: 1:1 slots (group classes later). Shared by clinic, consult, lawyer, venue
+  (venue extends with date/package capacity in book.venue).
+
+================================================================================
+2. WHO CAN BUY
+================================================================================
+
+  All bookings base types. Usually first paid ops module after website plan.
+
+================================================================================
+3. ENABLES
+================================================================================
+
+  PUBLIC
+    • Book page: pick service → resource (optional) → date/slot → details
+    • Free by default: confirm without payment (see book.payments)
+    • Status confirmation page / WA handoff if desired
+
+  ADMIN
+    • Services catalogue
+    • Resources (staff/doctors/rooms) + weekly hours + blackouts
+    • Booking list, confirm/cancel
+    • Buffers between slots, slot length per service
+    • Per service: charge clients? OFF = free booking (default)
+
+================================================================================
+4. LIFECYCLE (100%)
+================================================================================
+
+  1. Discover     “Online appointment booking”
+  2. Purchase     SKU book.core
+  3. Configure    Services, resources, hours, buffers
+  4. Operate      Accept bookings; manage calendar
+  5. Integrate    Feeds payments, reminders, industry packs, kitchen N/A
+  6. Bill/Renew   Artix subscription line
+  7. Disable      Public book → WA fallback; history kept
+
+================================================================================
+5. INVENTORY / CATALOGUE (SHARED CONCEPT)
+================================================================================
+
+  Service { name, duration_min, price?, resource_type, active }
+  Resource { name, type: person|room|hall, services[], hours }
+  Slot capacity: 1 for classic appointment; venue overrides in book.venue
+
+  Categories: service categories (e.g. General / Specialty) — doc 11.
+
+================================================================================
+6. INTEGRATION
+================================================================================
+
+  + clinic/legal/professional/venue packs → extra fields + gates
+  + payments → pay-to-confirm / deposit before slot hold firms
+  + reminders → schedule messages on confirm
+  + multilocation → resource belongs to branch
+  + google.calendar (FREE) → push on confirm; pull busy into slots (doc 19)
+
+
+================================================================================
+7. DATA (CONCEPTUAL)
+================================================================================
+
+  Booking {
+    id, business_id, branch_id?,
+    service_id, resource_id?,
+    start_at, end_at, status,
+    client_name, client_phone, client_email?,
+    notes?, channel: web|wa|admin
+  }
+  → client PII ultimately tenant storage (Sheets/Supabase)
+
+================================================================================
+CHANGE LOG
+================================================================================
+2026-07-16  Core appointments module.
+================================================================================

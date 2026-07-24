@@ -4,8 +4,13 @@ import { eq } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
 import type { CartItem } from "@/core/types/commerce";
 import type { SubscriptionTier } from "@/core/config/tiers";
+import {
+  canAcceptOrders,
+  PRESENCE_BLOCKED_API_MESSAGE,
+} from "@/core/utils/industry-gates";
 import { canUseProCheckout } from "@/core/utils/tier-gates";
 import { getSession } from "@/platform/auth/session";
+import { listEntitledSkus } from "@/platform/billing/entitlements";
 import { assertBusinessOwnership } from "@/platform/business/require-business";
 import { getPlatformDb } from "@/platform/db/client";
 import { businesses, checkoutSessions, tenants } from "@/platform/db/schema";
@@ -16,6 +21,8 @@ import {
   businessHasOnlinePay,
   getTenantRazorpayCredentials,
 } from "@/platform/payments/tenant-gateway";
+import { LEGAL_DOC_TYPES } from "@/core/constants/legal";
+import { recordLegalAcceptance } from "@/platform/legal/acceptances";
 import { writeToTenantStorage } from "@/tenant/storage/write-service";
 import crypto from "crypto";
 
@@ -64,6 +71,16 @@ export async function connectTenantRazorpayAction(
         updatedAt: new Date(),
       })
       .where(eq(businesses.id, businessId));
+
+    try {
+      await recordLegalAcceptance({
+        tenantId: session.userId,
+        docType: LEGAL_DOC_TYPES.TENANT_BYO_GATEWAY,
+        metadata: { businessId, keyIdPrefix: id.slice(0, 12), model: "byo_razorpay" },
+      });
+    } catch {
+      /* non-blocking evidence log */
+    }
 
     revalidatePath("/editor/commerce");
     return { success: true as const };
@@ -169,6 +186,19 @@ export async function createCheckoutSessionAction(input: {
 
     const row = rows[0];
     if (!row || !row.business.isPublished) return { success: false as const, error: "Store not found" };
+
+    const entitledSkus = await listEntitledSkus(row.business.id);
+    if (
+      !canAcceptOrders({
+        vertical: row.business.vertical,
+        industryGroup: row.business.industryGroup,
+        industryType: row.business.industryType,
+        entitledSkus,
+      })
+    ) {
+      return { success: false as const, error: PRESENCE_BLOCKED_API_MESSAGE };
+    }
+
     if (!canUseProCheckout(row.tier as SubscriptionTier, row.business.checkoutMode)) {
       return { success: false as const, error: "Pro checkout not enabled" };
     }

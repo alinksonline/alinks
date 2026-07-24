@@ -1,0 +1,142 @@
+================================================================================
+01 — REAL ESTATE INDUSTRY ANCHOR (DESIGN)
+================================================================================
+Location: industries-docs/real_estate/01-real-estate-anchor.txt
+Created:  2026-07-16
+Status:   PRODUCT DESIGN ANCHOR
+
+================================================================================
+1. WHAT ALINKS IS (AND IS NOT) FOR REAL ESTATE
+================================================================================
+
+  ALINKS IS
+    • Mobile-first mini-sites for builders, construction brands, land sellers,
+      ventures, gated communities, villa projects
+    • Property / project / plot LISTINGS (catalogue & storytelling)
+    • Agent network: one agent, many companies/projects to promote
+    • Direct company sales desk: staff sell their own inventory
+    • Lead capture: WhatsApp, call, enquiry form, “Schedule site visit”
+    • CRM-lite for leads (status: new → contacted → visit → negotiation → won/lost)
+    • Optional site-visit booking (calendar slots — free client booking mode)
+
+  ALINKS IS NOT
+    • Online property marketplace checkout (no pay-for-deed on platform)
+    • Platform sales facilitation / escrow of land money
+    • RERA registration portal or title registry
+    • Full ERP for construction accounting
+
+  WHY NO ONLINE SALES
+    Property purchase is high-ticket, regulated, offline paper + bank.
+    Product trust = enquiry quality, not fake “Buy ₹48L now” cart.
+    Same philosophy as “no Artix settlement of shop GMV” — here even stronger.
+
+================================================================================
+2. VERSATILITY — WHO USES IT
+================================================================================
+
+  A. BUILDERS
+     Multi-tower / multi-phase projects, brochures, unit types, status
+     (under construction / ready), floor plans, amenity storytelling.
+
+  B. CONSTRUCTION COMPANIES
+     Portfolio of completed + ongoing works, B2B enquiry, tender interest,
+     less “plot inventory”, more capability + project gallery.
+
+  C. LAND / PLOT SALES
+     Survey numbers, area (sq yd / acre), location pins, price on request
+     or indicative price (display only — not cart).
+
+  D. VENTURES / JOINT DEVELOPMENT
+     Project brand, partners, opportunity overview, investor/partner enquiry.
+
+  E. GATED COMMUNITIES
+     Community brand, plots/villas inside, amenities, phase-wise availability.
+
+  F. VILLAS / VILLA PROJECTS
+     Individual villa SKUs as listings (type, bhk, area), still enquiry-only.
+
+  Same “Real Estate” industry family; Superadmin subtypes + modules shape UI.
+
+================================================================================
+3. TWO SELLER PATHS (CORE DESIGN)
+================================================================================
+
+  PATH 1 — COMPANY (SEPARATE SITE)
+    Tenant = Builder / Construction / Land / Venture / Gated / Villa brand.
+    Property-Bank = their listings only (sell/resale/rent/lease).
+    Staff = company sales team.
+    Leads = company only.
+    Website = company brand only.
+
+  PATH 2 — AGENT (SEPARATE SITE — NOT MIXED WITH COMPANY ACCOUNT)
+    Tenant = Agent / Agency brand — fully separate signup, billing, handle.
+    Property-Bank = agent’s own portfolio (may market many builders’ projects
+    as their listings; same real-world project may appear on many agent sites).
+    No company-approval link required in v1 (doc 15).
+    Leads = agent only.
+    Website = agent brand only.
+
+  PROPERTY-BANK PRIVACY (doc 14)
+    UI name: Property-Bank.
+    Modes: OPEN | TEASER (default for protective agents) | PRIVATE.
+    Full detail not exposed to other agents; price display = owner’s wish.
+
+  DEAL TYPES (doc 16) — both company and agent:
+    Sell | Resale | Rent | Lease
+
+  PLAN LIMITS (doc 11)
+    e.g. 10 / 50 / 200 projects or listings by plan tier.
+
+================================================================================
+4. MODULES (DISCUSSION → LOCKED DIRECTION)
+================================================================================
+
+  re.listings          Property-Bank catalogue (core RE; sell/resale/rent/lease)
+  re.leads             Enquiry CRM-lite
+  re.agent_desk        Agent tenant workspace + agent mini-site features
+  re.project_showcase  Rich builder/gated/villa storytelling (company sites)
+  re.site_visit        Visit booking (slots; free for visitors by default)
+  re.staff_sales       Company sales team roles
+  re.multilocation     Multiple sites/offices (5–10% off extra — same pattern)
+
+  Website plan (Layer 1): brand site + featured projects + WA/call CTAs.
+  No “property cart / checkout” module — ever as default RE commerce.
+
+================================================================================
+5. RELATION TO OTHER INDUSTRIES
+================================================================================
+
+  book.core / site_visit
+    Optional reuse of bookings engine for “Schedule visit” only.
+  food / banquet
+    Event halls are bookings_industry venue — not RE land sales.
+  Google Calendar (FREE)
+    Site visits, agent meetings → tenant Gmail calendar.
+
+================================================================================
+6. BILLING LAYERS (SAME PHILOSOPHY AS FOOD/BOOKINGS)
+================================================================================
+
+  LAYER 1 — Website plan (marketing site): presence + listings display + WA
+  LAYER 2 — RE modules (agent desk, CRM depth, multi-project limits)
+  NEVER — take % of property sale on platform as default product
+
+================================================================================
+7. SUCCESS METRICS (PRODUCT)
+================================================================================
+
+  • Lead volume & quality (contact rate)
+  • Time-to-first listing for builder
+  • Agent can attach 2+ companies without confusion
+  • Zero accidental “buy property online” UX
+
+================================================================================
+CHANGE LOG
+================================================================================
+2026-07-16  Initial RE design: no platform sales; builders + multi-company agents.
+2026-07-16  Agent inventory bank privacy: open / teaser / private (doc 14).
+2026-07-16  Company≠agent sites; multi-agent same project; plan limits;
+            price = owner wish; Property-Bank; sell/resale/rent/lease (docs 14–16).
+================================================================================
+
+

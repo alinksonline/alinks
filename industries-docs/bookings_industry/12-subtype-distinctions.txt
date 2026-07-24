@@ -1,0 +1,48 @@
+================================================================================
+12 — BOOKINGS SUBTYPE DISTINCTIONS
+================================================================================
+
+================================================================================
+1. CLINIC FAMILY
+================================================================================
+
+  general_clinic, dental, dermatology, physio, diagnostic_consult_only
+  Shared: book.clinic + license patterns
+  Diff: seeded specialties and service names
+
+================================================================================
+2. PROFESSIONAL CONSULT
+================================================================================
+
+  career_coach, business_consultant, tutor, wellness_coach (non-medical)
+  Shared: book.professional
+  Diff: seed services; wellness must not claim medical treatment
+
+================================================================================
+3. LEGAL
+================================================================================
+
+  sole_advocate, law_firm_multi
+  Shared: book.legal disclaimers
+  Diff: multi-lawyer resources for firms
+
+================================================================================
+4. VENUE
+================================================================================
+
+  banquet_hall, marriage_lawn, party_plot, conference_hall, community_hall
+  Shared: book.venue date/package model
+  Diff: capacity defaults, package seeds, outdoor weather notes
+
+================================================================================
+5. ADJACENT (ENGINE SHARED, OTHER DOC PACKS)
+================================================================================
+
+  salon_beauty — packages + staff; appointments skill
+  Not banquet; not clinic license
+
+================================================================================
+CHANGE LOG
+================================================================================
+2026-07-16  Subtypes for clinic/consult/legal/venue.
+================================================================================

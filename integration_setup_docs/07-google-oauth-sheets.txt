@@ -6,6 +6,10 @@ GOAL
   Tenants connect THEIR Google account so customer/order/booking PII
   writes to THEIR Google Sheet — never platform Postgres.
 
+MASTER EASY GUIDE (platform + tenant UX)
+  → 26-google-tenant-integrations-guide.txt
+  Read that first for Connect-button model (no tenant API keys / no tenant GCP).
+
 WHEN TO SET UP
   Phase 1+ after signup and dashboard shell work.
   NOT required for landing page or phone OTP login.
@@ -18,6 +22,8 @@ STEP 1 — GOOGLE CLOUD PROJECT
   3. APIs & Services → Enable:
        - Google Sheets API
        - Google Drive API
+       - Google Calendar API   ← bookings industry (tenant calendar sync)
+                                 see industries-docs/bookings_industry/19-module-google-calendar-gmail.txt
 
 --------------------------------------------------------------------------------
 STEP 2 — OAUTH CONSENT SCREEN
@@ -26,9 +32,13 @@ STEP 2 — OAUTH CONSENT SCREEN
   2. User Type: External (or Internal if Workspace only)
   3. App name: ALINKS
   4. Support email: artixforcoding@gmail.com
-  5. Scopes (minimum):
+  5. Scopes (minimum for Sheets):
        https://www.googleapis.com/auth/spreadsheets
        https://www.googleapis.com/auth/drive.file
+     Bookings Google Calendar (tenant connect — add when implementing):
+       https://www.googleapis.com/auth/calendar.events
+       https://www.googleapis.com/auth/calendar.readonly
+       (or freebusy) — details: industries-docs/bookings_industry/19-module-google-calendar-gmail.txt
   6. Test users: add your Gmail while in Testing mode
 
 --------------------------------------------------------------------------------

@@ -126,7 +126,8 @@ export function WidgetEditSheet({
                 block.type === "whatsapp" ||
                 block.type === "contact" ||
                 block.type === "services" ||
-                block.type === "gallery") && (
+                block.type === "gallery" ||
+                block.type === "youtube") && (
                 <label className="block space-y-1">
                   <span className="text-[11px] font-semibold text-brand-muted">
                     {block.type === "features" ? "Highlights text" : "Description"}
@@ -142,6 +143,23 @@ export function WidgetEditSheet({
                         : undefined
                     }
                   />
+                </label>
+              )}
+
+              {block.type === "youtube" && (
+                <label className="block space-y-1">
+                  <span className="text-[11px] font-semibold text-brand-muted">
+                    YouTube URL only
+                  </span>
+                  <input
+                    className="premium-input font-mono text-sm"
+                    value={data.youtubeUrl ?? ""}
+                    onChange={(e) => setData({ youtubeUrl: e.target.value })}
+                    placeholder="https://www.youtube.com/watch?v=…"
+                  />
+                  <span className="text-[10px] text-brand-muted">
+                    No Vimeo, Drive, or video file uploads
+                  </span>
                 </label>
               )}
 

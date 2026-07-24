@@ -1,0 +1,68 @@
+================================================================================
+11 — RE BILLING SKUs + LISTING LIMITS
+================================================================================
+
+================================================================================
+1. NO PROPERTY GMV
+================================================================================
+
+  Software fees only. Never % of plot/flat sale on platform as default product.
+
+================================================================================
+2. SKUs
+================================================================================
+
+  plan.website.*           Layer 1 mini-site
+  re.listings              Property-Bank catalogue (company or agent)
+  re.leads                 CRM-lite
+  re.agent_desk            Agent tenant workspace + site features
+  re.project_showcase      Rich project storytelling
+  re.site_visit            Visit scheduling
+  re.staff_sales           Company sales roles
+  re.multilocation         Extra offices/sites (5–10% off extra)
+
+  google.calendar          FREE
+
+================================================================================
+3. LISTING / PROJECT LIMITS BY PLAN (LOCKED DIRECTION)
+================================================================================
+
+  Yes — enforce caps. Example tiers (tune numbers in Superadmin):
+
+    Plan tier        Max projects*    Max listings (Property-Bank items)
+    ---------------  ---------------  ---------------------------------
+    Starter          10               25
+    Growth           50               100
+    Pro              200              500
+    Enterprise       custom           custom
+
+  * Project = grouped builder project; standalone plots still count as listings.
+  Caps apply per tenant (company OR agent separately — not shared).
+  Soft upsell when nearing limit.
+
+  Alternate simple model (if preferred at implement):
+    Starter 10 listings | Growth 50 | Pro 200
+    (projects unlimited but listings capped)
+
+  Superadmin must configure final numbers; doc locks THAT we have plan limits.
+
+================================================================================
+4. YEARLY CHARM
+================================================================================
+
+  monthly × 12 − 5–10% → amount ending …99
+
+================================================================================
+5. DISCUSSION SOFTWARE BANDS (₹/MO)
+================================================================================
+
+  agent_desk      399–699
+  listings depth  299–599
+  site_visit      149–299
+  leads           199–399
+
+================================================================================
+CHANGE LOG
+================================================================================
+2026-07-16  RE software SKUs; plan listing limits 10/50/200 direction.
+================================================================================

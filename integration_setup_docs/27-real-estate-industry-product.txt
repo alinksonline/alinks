@@ -1,0 +1,30 @@
+================================================================================
+27 — REAL ESTATE INDUSTRY (OPS POINTER)
+================================================================================
+Authority: industries-docs/real_estate/ (source of truth)
+
+LOCKED
+  No online/platform property sales. Leads + listings only.
+  Company site and Agent site are SEPARATE (no mix, no approval graph v1).
+  Same project may appear on many agent sites.
+  Property-Bank privacy: open / teaser / private.
+  Deal types: sell | resale | rent | lease.
+  Price display = listing owner’s wish.
+  Plan listing limits (e.g. 10 / 50 / 200).
+  Google Calendar free for site visits.
+
+Read:
+  industries-docs/real_estate/00-README-INDEX.txt
+  01-real-estate-anchor.txt
+  14-agent-inventory-privacy-bank.txt   (Property-Bank)
+  15-company-vs-agent-separation.txt
+  16-listing-deal-types-sell-resale-rent-lease.txt
+
+Google Connect:
+  26-google-tenant-integrations-guide.txt
+
+================================================================================
+CHANGE LOG
+================================================================================
+2026-07-16  Initial RE ops pointer.
+================================================================================

@@ -1,0 +1,20 @@
+================================================================================
+03 — LAYER 1: WEBSITE PLAN (SALON/BEAUTY)
+================================================================================
+
+  Marketing site sells:
+    Mini-site, branding, theme, package menu display, Book / WhatsApp CTA
+
+  Does not require pay-then-book or full staff calendar until modules/plan unlock.
+
+  Pitch:
+    “Your salon website. Clients see packages and book on WhatsApp or online.”
+
+  Upsell:
+    Full calendar + staff + pay-then-book + reminders + multi-branch
+
+================================================================================
+CHANGE LOG
+================================================================================
+2026-07-16  Website-first salon.
+================================================================================

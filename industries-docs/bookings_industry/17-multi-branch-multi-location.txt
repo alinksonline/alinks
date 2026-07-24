@@ -1,0 +1,20 @@
+================================================================================
+17 — MULTI-LOCATION (CLINICS, CHAMBERS, HALLS)
+================================================================================
+
+  Same pattern as food_industry/15-multi-branch-pricing.txt:
+
+  • Primary location full price
+  • Extra locations 5–10% off module/location seat
+  • Resources and bookings carry location_id
+  • Clinic: multi-clinic doctors may work multi-location
+  • Lawyer: multi-chamber
+  • Venue: multi-property halls
+
+  Seasonal coupons stack per doc 18 / food doc 16 pattern.
+
+================================================================================
+CHANGE LOG
+================================================================================
+2026-07-16  Multi-location for bookings.
+================================================================================

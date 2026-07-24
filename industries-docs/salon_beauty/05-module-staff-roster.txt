@@ -1,0 +1,51 @@
+================================================================================
+05 — MODULE: STAFF ROSTER (sb.staff)
+================================================================================
+SKU: sb.staff
+Code today: editor /editor/staff
+
+================================================================================
+1. DEFINITION
+================================================================================
+
+  People resources: stylists, beauticians, makeup artists.
+  Each has hours, skills/packages they perform, optional photo, active flag.
+
+================================================================================
+2. LIFECYCLE
+================================================================================
+
+  Add staff → set weekly hours + leaves → link packages →
+  appear in public “choose expert” → assign bookings →
+  deactivate (hide future; keep history)
+
+================================================================================
+3. FIELDS
+================================================================================
+
+  name, role_title, phone?, photo?,
+  package_ids[] or skill tags,
+  weekly_hours, blackout_dates[],
+  google_calendar_connection? (FREE per staff — bookings doc 19),
+  branch_id? if multilocation,
+  active
+
+================================================================================
+4. PUBLIC UX
+================================================================================
+
+  Optional: any available staff vs pick stylist
+  If pick stylist → only their free slots
+
+================================================================================
+5. INTEGRATION
+================================================================================
+
+  + packages, calendar, pay_then_book, reminders, Google Calendar free
+  + multilocation: staff belongs to branch
+
+================================================================================
+CHANGE LOG
+================================================================================
+2026-07-16  Staff roster module.
+================================================================================

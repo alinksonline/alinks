@@ -1,0 +1,56 @@
+================================================================================
+03 — MULTI-BRAND CATALOGUE
+================================================================================
+
+================================================================================
+1. DEFINITION
+================================================================================
+
+  One ALINKS shop/market can sell products under many brand names
+  (Nike + local + own label) without being a multi-vendor marketplace.
+
+  Brand is a catalogue dimension owned by the tenant — not separate Stripe
+  accounts per brand in v1.
+
+================================================================================
+2. DATA
+================================================================================
+
+  Brand {
+    id, name, logo?, description?, sort_order, active
+  }
+
+  Product {
+    brand_id?,   // optional; “Unbranded” / house brand allowed
+    ...
+  }
+
+  Public: filter by brand; optional /brands/{slug} page if rt.multi_brand ON
+
+================================================================================
+3. LIFECYCLE
+================================================================================
+
+  Create brands → assign products → publish filters →
+  optional brand spotlight on home → archive brand (hide, keep history)
+
+================================================================================
+4. WHOLESALE + MULTI-BRAND
+================================================================================
+
+  Wholesale buyers often order by brand pack.
+  Filters: Brand + category + MOQ available
+  Rate list export later (PDF/Sheet) — not required v1
+
+================================================================================
+5. NOT MULTI-VENDOR
+================================================================================
+
+  All brands under ONE seller tenant = one checkout, one Razorpay, one P&L.
+  True multi-vendor mall (many sellers, split settlement) = future / out of scope.
+
+================================================================================
+CHANGE LOG
+================================================================================
+2026-07-16  Multi-brand under single tenant.
+================================================================================

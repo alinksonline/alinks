@@ -1,0 +1,278 @@
+================================================================================
+19 — GOOGLE CALENDAR (TENANT GMAIL) — FREE PLATFORM CAPABILITY
+================================================================================
+Folder: industries-docs/bookings_industry/
+Capability ID: google.calendar (NOT a paid SKU)
+Pricing: FREE — no extra cost for any plan/module (LOCKED)
+Applies to: ALL industries where date/time events exist (see §3)
+Integrates with: book.core + all booking packs; food catering events;
+                 food delivery ops calendars (optional); any future industry
+                 with appointments, reservations, or scheduled events
+Related setup: integration_setup_docs/26-google-tenant-integrations-guide.txt
+               (primary — Artix once + tenant Connect, no tenant API keys)
+               integration_setup_docs/07-google-oauth-sheets.txt (scopes/API enable)
+               integration_setup_docs/25-bookings-industry-product-modules.txt
+               industries-docs/food_industry/07-module-catering.txt
+
+SETUP MODEL (LOCKED)
+  Artix configures ONE Google OAuth app on the platform.
+  Each tenant connects THEIR own Gmail/Workspace with a single “Connect Google”
+  button — they never create API keys or a Google Cloud project.
+  See 26-google-tenant-integrations-guide.txt for full steps + in-product copy.
+
+================================================================================
+1. DEFINITION
+================================================================================
+
+  Tenants connect THEIR Google account (Gmail / Google Workspace) so ALINKS
+  scheduled events sync with THEIR Google Calendar — at no extra charge.
+
+  • Calendar is tenant-owned — events live in their Google account.
+  • ALINKS is system of record; Google Calendar is the day-view convenience.
+  • Not Artix’s calendar; not a shared Artix Gmail.
+  • FREE for everyone — not sold as an add-on module.
+
+  Works for: clinics, lawyers, consultants, venue/banquet halls, salons,
+  catering (event dates), and any other industry with bookable/scheduled work.
+
+================================================================================
+2. WHY IT MATTERS
+================================================================================
+
+  • Doctors/lawyers already live in Google Calendar.
+  • Avoid double-booking personal meetings vs ALINKS appointments.
+  • Banquet managers see holds alongside other events.
+  • Instant trust: “it shows up in my Gmail calendar.”
+
+================================================================================
+3. WHO GETS IT (FREE — ALL APPLICABLE INDUSTRIES)
+================================================================================
+
+  Included at no extra cost for every tenant where it applies — not a paid SKU.
+
+  BOOKINGS INDUSTRY
+    clinic_healthcare, professional_consult, legal_lawyers, venue_banquet,
+    salon (shared engine) — after they have bookings/events to sync.
+
+  FOOD INDUSTRY
+    catering / cloud+catering — event dates, production days, deliveries of
+    large orders onto calendar (see food_industry catering + optional ops).
+    Restaurant/cloud daily orders: optional “busy block” or shift calendar later;
+    catering is the primary food use case for Calendar.
+
+  OTHER / FUTURE INDUSTRIES
+    Any type with appointments, site visits, installations, classes — enable
+    the same Connect Google Calendar integration; still free.
+
+  Requires: tenant OAuth to Google with Calendar scopes (user action, $0).
+  Multi-resource: each doctor/lawyer may connect own calendar OR business
+  uses one shared calendar per branch (config choice).
+
+================================================================================
+4. SYNC MODES
+================================================================================
+
+  A. PUSH (ALINKS → Google) — MVP required
+     On booking confirm → create/update Google Calendar event
+     On cancel/reschedule → update/delete event
+     Event title/body from service + client first name (privacy-aware)
+
+  B. PULL / BUSY BLOCKS (Google → ALINKS) — strongly recommended v1.1
+     Read free/busy or events → block ALINKS slots when Google shows busy
+     Prevents double-booking personal appointments
+
+  C. TWO-WAY full edit from Google — later (conflict resolution hard)
+
+  Default product: PUSH + free/busy PULL.
+
+================================================================================
+5. OAUTH & SCOPES (TENANT CONNECT)
+================================================================================
+
+  Distinct from platform service-account Sheets writes where used.
+  Tenant “Connect Google Calendar” OAuth (user consent):
+
+  Minimum scopes (refine at implement):
+    • openid email profile (identity)
+    • https://www.googleapis.com/auth/calendar.events
+      (create/update/delete events on calendars user can write)
+    • https://www.googleapis.com/auth/calendar.readonly
+      OR calendar.freebusy for busy checks
+    Avoid full calendar ownership unless needed.
+
+  Optional later: Drive.file only if attaching files — not required for calendar.
+
+  Token storage:
+    • Refresh token encrypted at rest (platform secret box / PAYMENTS-style
+      encryption pattern)
+    • Per business_id and/or per resource_id (doctor’s own Gmail)
+    • Never log tokens; never commit to git
+
+  Disconnect:
+    • Revoke token, stop sync, keep ALINKS bookings
+
+  Google Cloud project:
+    • Enable Google Calendar API
+    • OAuth consent screen: ALINKS
+    • Redirect: https://alinks.online/api/integrations/google-calendar/callback
+      (+ localhost for dev)
+    • May share GCP project with Sheets OAuth or separate client — document in
+      integration_setup_docs when implementing
+
+================================================================================
+6. EVENT MAPPING (ALINKS BOOKING → GOOGLE EVENT)
+================================================================================
+
+  Google Event {
+    summary:     "{Service name} — {Client first name or 'Client'}"
+    description: ALINKS ref id, service, channel, notes (no full medical record)
+    start/end:   booking start_at / end_at (timezone = business/branch TZ)
+    location:    branch address or "Online" / meet link field
+    attendees:   optional client email if provided + tenant opted in
+    extendedProperties.private.alinks_booking_id
+  }
+
+  Clinic: do NOT put diagnosis or sensitive clinical data in description.
+  Lawyer: do NOT put case strategy; consult type only.
+  Venue:  hall name + package + guest count OK.
+
+  Privacy default: minimal client PII on Google event (phone optional flag).
+
+================================================================================
+7. LIFECYCLE (100%)
+================================================================================
+
+  1. Discover     “Sync to your Google Calendar (Gmail) — free”
+  2. Purchase     NONE — included free; no Billing line item
+  3. Connect      OAuth with tenant Gmail / Workspace
+  4. Configure    Choose calendar (primary or named “ALINKS”),
+                  timezone, privacy flags, per-resource vs business calendar
+  5. Operate      Auto push on confirm/cancel/reschedule; pull busy for slots
+  6. Integrate    Instant with bookings + catering events + any scheduled type
+  7. Health       Token refresh; on revoke show “Reconnect Google”
+  8. Disconnect   Stop sync; optional delete future ALINKS-created events only
+  9. “Disable”    Tenant turns off sync in settings only — not a paid cancel
+
+================================================================================
+8. SEAMLESS INTEGRATION WITH OTHER BOOKING MODULES
+================================================================================
+
+  book.core
+    Every confirmed booking → calendar event; cancelled → remove/cancel event
+
+  book.clinic
+    Resource = doctor; prefer doctor’s connected calendar if multi-doctor
+    License gate unchanged; calendar is operational only
+
+  book.professional / book.legal
+    Same push/pull; legal disclaimer not pasted into Google description by default
+
+  book.venue
+    Date package → multi-hour or all-day event on venue calendar
+    Capacity still enforced in ALINKS, not in Google
+
+  book.payments
+    Free bookings (default): push on confirm immediately (no payment step)
+    Paid modes: push only after pay-to-confirm succeeds (status=confirmed)
+    Pending payment → no event OR “tentative” event (product flag)
+
+  book.reminders
+    Independent of Google’s own reminders; both may fire (tenant can disable one)
+
+  book.multilocation
+    Calendar selection per branch OR single brand calendar with location field
+
+  food.catering (and cloud + catering)
+    Confirmed catering event / production day → Google Calendar event
+    Lead-only (not confirmed) → no push unless tenant enables “tentative leads”
+    FREE — same capability, no catering-specific calendar fee
+
+  food.delivery / restaurant ops (optional later)
+    Optional shift or “delivery window” calendars — still free if offered
+
+  food.dine_in
+    Not a Google Calendar product focus (table QR meals); staff shifts optional
+
+  Instant rule:
+    Connecting Google Calendar does not create bookings by itself.
+    Any confirmed Booking or Catering event automatically syncs if connected.
+    Available free wherever ALINKS has a scheduled event type.
+
+================================================================================
+9. FAILURE & EDGE CASES
+================================================================================
+
+  • Token expired → queue reconnect; do not fail customer booking confirm
+    (booking stays in ALINKS; sync retries)
+  • Google API quota → exponential backoff queue
+  • Conflict on free/busy → slot marked unavailable in ALINKS book UI
+  • Manual edit in Google → v1 do not overwrite ALINKS source of truth
+    (document: ALINKS is system of record for client bookings)
+  • Two resources same Google account → use separate calendars or event titles
+
+================================================================================
+10. ADMIN UI (TARGET)
+================================================================================
+
+  Settings → Integrations → Google Calendar
+    [Connect Gmail] [Disconnect] [Choose calendar]
+    Toggle: Block slots when Google busy
+    Toggle: Add client as attendee
+    Toggle: Sync only confirmed (not pending payment)
+  Per doctor/lawyer: “Connect my calendar”
+
+================================================================================
+11. DATA (CONCEPTUAL)
+================================================================================
+
+  GoogleCalendarConnection {
+    business_id, resource_id?,
+    google_email, calendar_id,
+    refresh_token_enc, scopes[],
+    sync_push: true, sync_pull_busy: true,
+    connected_at, status: active|needs_reauth|revoked
+  }
+
+  Booking {
+    google_event_id?, google_sync_status?, google_synced_at?
+  }
+
+================================================================================
+12. BILLING (LOCKED: FREE)
+================================================================================
+
+  • No SKU charge. No monthly/yearly line for Google Calendar.
+  • Do NOT list book.google_calendar as a paid module on marketing or Billing.
+  • Capability flag: google.calendar_available = true for all applicable tenants
+    (or simply always show Connect when product surface has events).
+  • Multi-location / multi-doctor: still free; multiple OAuth connections allowed
+    per product limits (abuse caps only, not pricing).
+
+================================================================================
+13. SECURITY & COMPLIANCE
+================================================================================
+
+  • Encrypt tokens; least scopes; disconnect path
+  • DPDP: client data on Google is tenant’s Google account — tenant is
+    responsible for their Google Workspace policies
+  • ALINKS ToS: sync is optional convenience; ALINKS remains booking record
+  • No storing Google password — OAuth only
+
+================================================================================
+14. IMPLEMENTATION ORDER
+================================================================================
+
+  1. OAuth connect + store refresh token
+  2. Push create/update/delete on booking lifecycle
+  3. Free/busy pull into slot engine
+  4. Per-resource calendars
+  5. Retry queue + reauth UX
+  6. Optional: Google Meet link generation for online consults
+
+================================================================================
+CHANGE LOG
+================================================================================
+2026-07-16  Tenant Gmail/Google Calendar integration module specified.
+2026-07-16  FREE for all applicable industries including catering; not a paid SKU.
+================================================================================
+

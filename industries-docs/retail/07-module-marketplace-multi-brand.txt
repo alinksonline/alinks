@@ -1,0 +1,19 @@
+================================================================================
+07 — MODULE: MULTI-BRAND (rt.multi_brand)
+================================================================================
+SKU: rt.multi_brand
+
+  Brand entities, logos, brand pages, filter-by-brand.
+  Single seller, many brands — NOT multi-vendor split payments.
+
+Lifecycle: create brands → tag products → publish brand nav → archive brands
+
+Note on naming “marketplace”:
+  Marketing may say “your multi-brand market” meaning catalogue richness.
+  Engineering must not implement multi-seller settlement under this SKU.
+
+================================================================================
+CHANGE LOG
+================================================================================
+2026-07-16  Multi-brand (single tenant) module.
+================================================================================

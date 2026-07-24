@@ -1,0 +1,69 @@
+================================================================================
+09 — LIVE ONLINE TUITIONS & CLASS SLOTS
+================================================================================
+
+================================================================================
+1. UNDERSTANDING
+================================================================================
+
+  Teachers offer live sessions:
+    • 1:1 online tuition (maths, music instrument, language, coding, …)
+    • Small group online class
+    • Demo/trial online
+  Offline home/center slots use same engine with mode=offline.
+
+  ALINKS schedules the SLOT; live video runs on Meet / Zoom / YouTube Live /
+  custom URL — not a built-in video classroom v1.
+
+================================================================================
+2. FLOW
+================================================================================
+
+  1. Teacher sets availability (hours) + services (e.g. “Guitar 1:1 45 min”)
+  2. Student picks service → online → date/slot
+  3. Free confirm OR pay_then_book (tenant PG)
+  4. On confirm:
+       - Booking stored
+       - meeting_url attached (static teacher room OR generated Meet later)
+       - Google Calendar FREE event for teacher (+ student if email shared)
+       - Reminder with join link
+  5. After session: mark complete / no_show
+
+================================================================================
+3. FIELDS
+================================================================================
+
+  Service: mode online|offline|hybrid, duration, price, charge_mode
+  Booking: meeting_url?, meeting_provider?: meet|zoom|youtube_live|other
+  Teacher default_meeting_url for all online sessions
+
+================================================================================
+4. RECURRING (PHASED)
+================================================================================
+
+  v1: single slots
+  v1.1: “Weekly pack” = N single slots or recurring rule (keep simple)
+
+================================================================================
+5. INTEGRATION
+================================================================================
+
+  book.core / edu.live_tuition_slots
+  free booking default
+  fees_pay optional
+  google.calendar FREE
+  YouTube: async tutorials separate from live slot (doc 08)
+
+================================================================================
+6. HARD RULES
+================================================================================
+
+  • Free online demo allowed without PG
+  • Join link preferably revealed after confirm (reduce link abuse)
+  • No Artix-hosted WebRTC requirement for launch
+
+================================================================================
+CHANGE LOG
+================================================================================
+2026-07-16  Live online tuition slots design.
+================================================================================

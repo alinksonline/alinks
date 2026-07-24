@@ -1,0 +1,39 @@
+================================================================================
+07 — FREE CLIENT BOOKING (DEFAULT-FRIENDLY)
+================================================================================
+Not a paid SKU — product rule (same philosophy as bookings_industry free booking).
+
+================================================================================
+1. RULE (LOCKED)
+================================================================================
+
+  Salon/beauty tenants MAY offer packages with ZERO online charge to clients.
+  Full calendar + staff + Google Calendar still work.
+  Connecting Razorpay is NOT required to go live on booking.
+
+================================================================================
+2. FLOW
+================================================================================
+
+  Package → staff → slot → client details → Confirm immediately
+  payment_mode = free, payment_status = none
+
+================================================================================
+3. MIXED MENU
+================================================================================
+
+  Some packages free (threading), some pay_then_book (bridal), some pay_at_salon.
+
+================================================================================
+4. HARD RULES
+================================================================================
+
+  • Never block “Enable booking” behind payment gateway
+  • Default new package: free or pay_at_salon (not forced prepaid)
+  • Artix may still charge tenant for software plan/modules
+
+================================================================================
+CHANGE LOG
+================================================================================
+2026-07-16  Free client booking for salon.
+================================================================================

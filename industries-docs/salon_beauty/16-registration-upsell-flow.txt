@@ -1,0 +1,18 @@
+================================================================================
+16 — REGISTRATION & UPSELL (SALON/BEAUTY)
+================================================================================
+
+  1. Website plan
+  2. Type: Salon | Beauty | Spa | Unisex | Makeup
+  3. Seed packages + add first staff
+  4. Publish site: packages + Book/WA
+  5. Enable calendar booking (free client booking OK)
+  6. Optional: connect Razorpay → pay-then-book on premium packages
+  7. Optional: Google Calendar FREE per staff
+  8. Optional: second branch, retail products, reminders
+
+================================================================================
+CHANGE LOG
+================================================================================
+2026-07-16  Salon registration path.
+================================================================================

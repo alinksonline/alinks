@@ -1,0 +1,25 @@
+================================================================================
+12 — SUPERADMIN: REAL ESTATE CATALOG
+================================================================================
+
+  IndustryGroup: real_estate
+
+  Types / subtypes:
+    builder, construction_company, land_plot_sales, venture,
+    gated_community, villa_project, real_estate_agent, agency
+
+  Flags:
+    max_projects / max_listings by plan (e.g. 10 / 50 / 200)
+    require_rera_display_field (market policy)
+    default_cta: whatsapp | call | form
+    default_visibility_seed: teaser | open (agents default teaser)
+    deal_types_enabled: sell, resale, rent, lease
+
+  No flag for “enable property checkout”.
+  No required company↔agent link approval graph (sites stay separate).
+
+================================================================================
+CHANGE LOG
+================================================================================
+2026-07-16  Superadmin RE types.
+================================================================================

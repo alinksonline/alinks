@@ -1,8 +1,11 @@
 import { headers } from "next/headers";
 import { redirect } from "next/navigation";
+import { AnalyticsBeacon } from "@/components/tenant/analytics-beacon";
+import { ANALYTICS_LITE_SKU } from "@/core/config/analytics";
+import type { SubscriptionTier } from "@/core/config/tiers";
+import { hasModule } from "@/platform/billing/entitlements";
 import { getBusinessRowByHandle } from "@/tenant/site/get-public-business";
 import { assertSubdomainAccess } from "@/tenant/site/subdomain-gate";
-import type { SubscriptionTier } from "@/core/config/tiers";
 
 export default async function TenantSiteLayout({
   children,
@@ -13,15 +16,27 @@ export default async function TenantSiteLayout({
 }) {
   const h = headers();
   const urlMode = h.get("x-alinks-url-mode");
-  if (urlMode !== "subdomain") return children;
 
   const row = await getBusinessRowByHandle(params.handle);
-  if (!row) return children;
+  let analyticsEnabled = false;
 
-  const gate = assertSubdomainAccess(row.tier as SubscriptionTier, urlMode);
-  if (!gate.allowed) {
-    redirect(`/${params.handle}`);
+  if (row?.business?.isPublished) {
+    analyticsEnabled = await hasModule(row.business.id, ANALYTICS_LITE_SKU);
   }
 
-  return children;
+  if (urlMode === "subdomain") {
+    if (row) {
+      const gate = assertSubdomainAccess(row.tier as SubscriptionTier, urlMode);
+      if (!gate.allowed) {
+        redirect(`/${params.handle}`);
+      }
+    }
+  }
+
+  return (
+    <>
+      {children}
+      <AnalyticsBeacon handle={params.handle} enabled={analyticsEnabled} />
+    </>
+  );
 }

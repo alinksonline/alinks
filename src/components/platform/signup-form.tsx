@@ -23,12 +23,21 @@ import { cn } from "@/core/utils/cn";
 import { tenDigitMobileError } from "@/core/utils/phone";
 
 const VERTICALS: { id: string; label: string; note?: string }[] = [
+  {
+    id: "presence",
+    label: "Presence / influencer / profile",
+    note: "Link hub & collabs — no selling on ALINKS",
+  },
   { id: "salon", label: "Salon & beauty" },
   { id: "kirana", label: "Kirana / grocery shop" },
   { id: "ecommerce", label: "Retail / ecommerce" },
   { id: "clinic", label: "Clinic / doctor (license required to publish)" },
   { id: "pharmacy", label: "Pharmacy (Phase 2 — license required)" },
-  { id: "restaurant", label: "Restaurant / food" },
+  {
+    id: "restaurant",
+    label: "Restaurant / food / cloud kitchen",
+    note: "Menu + WhatsApp · cloud types never get table QR",
+  },
   { id: "general", label: "Other local business" },
 ];
 
@@ -46,7 +55,7 @@ export function SignupForm({ authMode, otpMode, widgetConfig }: SignupFormProps)
   const [email, setEmail] = useState("");
   const [businessName, setBusinessName] = useState("");
   const [handle, setHandle] = useState("");
-  const [vertical, setVertical] = useState("salon");
+  const [vertical, setVertical] = useState("presence");
   const [businessPurpose, setBusinessPurpose] = useState("");
   const [otp, setOtp] = useState("");
   const [acceptTos, setAcceptTos] = useState(false);
@@ -172,7 +181,13 @@ export function SignupForm({ authMode, otpMode, widgetConfig }: SignupFormProps)
           handle: suggestedHandle,
           vertical,
           businessPurpose: businessPurpose.trim(),
-          templateId: (vertical === "salon" ? "salon" : vertical === "kirana" || vertical === "ecommerce" ? "ecommerce" : "general") as SiteTemplateId,
+          templateId: (vertical === "presence"
+            ? "presence"
+            : vertical === "salon"
+              ? "salon"
+              : vertical === "kirana" || vertical === "ecommerce"
+                ? "ecommerce"
+                : "general") as SiteTemplateId,
           acceptTos,
           acceptPrivacy,
           acceptAup,

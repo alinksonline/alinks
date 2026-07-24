@@ -51,7 +51,7 @@ export default async function EditorPageSlug({ params }: { params: { slug: strin
 
   return (
     <>
-      <EditorNav active="/editor" vertical={business.vertical} />
+      <EditorNav active="/editor" vertical={business.vertical} industryGroup={business.industryGroup} />
       <PageShell className="px-3 py-3">
         <LinktreeStackEditor
           businessId={business.id}
