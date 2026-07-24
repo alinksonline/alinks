@@ -10,7 +10,7 @@ FILE
   .github/workflows/ci.yml
 
 VIEW RUNS
-  https://github.com/artixforcoding/alinks/actions
+  https://github.com/alinksonline/alinks/actions
 
 --------------------------------------------------------------------------------
 WHAT CI RUNS
@@ -37,7 +37,7 @@ WHAT CI RUNS
 --------------------------------------------------------------------------------
 STEP 1 — ENABLE ACTIONS (default on public repos)
 --------------------------------------------------------------------------------
-  GitHub → artixforcoding/alinks → Settings → Actions → General
+  GitHub → alinksonline/alinks → Settings → Actions → General
   Allow: "Allow all actions and reusable workflows"
 
 --------------------------------------------------------------------------------
@@ -95,7 +95,7 @@ STEP 5 — OPTIONAL: MIGRATION JOB (future)
 --------------------------------------------------------------------------------
 STEP 6 — DEPENDABOT (recommended)
 --------------------------------------------------------------------------------
-  GitHub → artixforcoding/alinks → Settings → Code security
+  GitHub → alinksonline/alinks → Settings → Code security
   Enable:
     - Dependabot alerts
     - Dependabot security updates

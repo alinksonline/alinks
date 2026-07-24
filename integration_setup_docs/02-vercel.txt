@@ -16,7 +16,7 @@ STEP 1 — CONNECT GITHUB
 --------------------------------------------------------------------------------
   1. Log in: https://vercel.com  (artixforcoding account)
   2. Add New → Project → Import Git Repository
-  3. Select: artixforcoding/alinks
+  3. Select: alinksonline/alinks
   4. Framework: Next.js (auto-detected)
   5. Deploy
 

@@ -7,7 +7,7 @@ GOAL
   reviews via CodeRabbit CLI.
 
 REPO
-  https://github.com/artixforcoding/alinks
+  https://github.com/alinksonline/alinks
 
 NOT PART OF ALINKS RUNTIME
   CodeRabbit does NOT run inside Next.js/Vercel. It reviews code via:
@@ -138,7 +138,7 @@ TROUBLESHOOTING
 ================================================================================
   | Symptom                    | Fix                                        |
   |----------------------------|--------------------------------------------|
-  | No PR review               | Install GitHub App on artixforcoding/alinks|
+  | No PR review               | Install GitHub App on alinksonline/alinks|
   | User API key rejected      | Create Agentic API key in dashboard        |
   | CLI auth fails             | coderabbit doctor; re-run auth login       |
   | Rate limited               | Upgrade plan or enable usage-based add-on  |
@@ -154,7 +154,7 @@ SECURITY
 ================================================================================
 VERIFY
 ================================================================================
-  [x] GitHub App installed on artixforcoding/alinks (coderabbitai[bot] on PR #1)
+  [x] GitHub App installed on alinksonline/alinks (coderabbitai[bot] on PR #1)
   [x] .coderabbit.yaml in repo (merge to main for OSS config to apply)
   [ ] CODERABBIT_API_KEY = Agentic key in .env + GitHub Actions secret
   [ ] coderabbit auth status shows authenticated
@@ -179,7 +179,7 @@ ALINKS DEV WORKFLOW (USE THIS EVERY PR)
     npm run review:uncommitted → working tree only
     npm run review:doctor     → CLI health check
 
-  Live PR: https://github.com/artixforcoding/alinks/pull/1
+  Live PR: https://github.com/alinksonline/alinks/pull/1
 
 ================================================================================
 ONE-TIME: AGENTIC API KEY (for local + CI CLI)
@@ -190,7 +190,7 @@ ONE-TIME: AGENTIC API KEY (for local + CI CLI)
   2. Enable Usage-based Add-on if prompted
   3. Generate **Agentic API key** (not User API key)
   4. Local:  ALINKS/.env → CODERABBIT_API_KEY=cr-...
-  5. GitHub: artixforcoding/alinks → Settings → Secrets → CODERABBIT_API_KEY
+  5. GitHub: alinksonline/alinks → Settings → Secrets → CODERABBIT_API_KEY
   6. Test:   npm run review:doctor && npm run review
 
   GitHub App reviews work WITHOUT this key. CLI is optional but useful pre-push.

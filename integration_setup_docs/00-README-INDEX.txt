@@ -3,7 +3,7 @@ ALINKS — INTEGRATION SETUP DOCS (INDEX)
 ================================================================================
 Folder: integration_setup_docs/
 Purpose: Step-by-step setup for every external service ALINKS uses or will use.
-Repo:    https://github.com/artixforcoding/alinks
+Repo:    https://github.com/alinksonline/alinks
 Live:    https://alinks.online  (Vercel + Cloudflare DNS)
 
 Read docs in this order for first launch:
@@ -86,7 +86,7 @@ Never commit: API tokens, DATABASE_URL, Razorpay secrets, Google client secrets.
 ================================================================================
 CURRENT PROJECT IDS (reference)
 ================================================================================
-GitHub repo:        artixforcoding/alinks
+GitHub repo:        alinksonline/alinks
 Vercel team:        alinks  (team_onaRSq57MqAHQouPfMRgo3Kl)
 Vercel project:     alinks  (prj_nAiPyAuTSJ2fNmxfoaLgB0CxkeLy)
 Cloudflare zone:    alinks.online  (c57f835d0f4b0730f6c7ea98ff0d70e7)

@@ -1,6 +1,6 @@
 ---
 name: alinks-coderabbit
-description: Use when running CodeRabbit PR reviews, local CLI review (npm run review), configuring .coderabbit.yaml, Agentic API keys, GitHub App setup, or fixing CodeRabbit auth/CLI errors on artixforcoding/alinks.
+description: Use when running CodeRabbit PR reviews, local CLI review (npm run review), configuring .coderabbit.yaml, Agentic API keys, GitHub App setup, or fixing CodeRabbit auth/CLI errors on alinksonline/alinks.
 ---
 
 # ALINKS CodeRabbit
@@ -21,7 +21,7 @@ CodeRabbit reviews ALINKS code **outside** the Next.js runtime — via GitHub Ap
 
 | Mode | Needs API key? | How |
 |------|----------------|-----|
-| GitHub App | No | Install on `artixforcoding/alinks`; auto-reviews PRs |
+| GitHub App | No | Install on `alinksonline/alinks`; auto-reviews PRs |
 | CLI (local/CI) | Yes — **Agentic** key | `npm run review`, `coderabbit review --agent` |
 
 **Critical:** CLI rejects **User API keys**. Create an **Agentic API key** at https://app.coderabbit.ai/settings/api-keys (may need Usage-based Add-on).
@@ -79,7 +79,7 @@ When asked to review before push:
 
 | Symptom | Fix |
 |---------|-----|
-| No PR review | Install GitHub App on `artixforcoding/alinks` |
+| No PR review | Install GitHub App on `alinksonline/alinks` |
 | "User API keys not supported" | Create **Agentic** key, update `.env` |
 | CLI auth fails | `npm run review:doctor`; re-run auth login |
 | Key exposed | Rotate at dashboard; update `.env` + GitHub secret |
@@ -92,7 +92,7 @@ When asked to review before push:
 
 ## Verify Checklist
 
-- [x] GitHub App on `artixforcoding/alinks`
+- [x] GitHub App on `alinksonline/alinks`
 - [x] `.coderabbit.yaml` in repo
 - [ ] Agentic key in `.env` (for CLI)
 - [ ] `npm run review:doctor` passes

@@ -7,7 +7,7 @@ description: Use when deploying ALINKS, configuring Vercel, Cloudflare DNS, GitH
 
 ## Overview
 
-ALINKS deploys as Next.js on **Vercel**, DNS on **Cloudflare**, source on **GitHub** (`artixforcoding/alinks`). Every push to `main` auto-deploys production at https://alinks.online. Start with the integration index, then the specific doc for the task.
+ALINKS deploys as Next.js on **Vercel**, DNS on **Cloudflare**, source on **GitHub** (`alinksonline/alinks`). Every push to `main` auto-deploys production at https://alinks.online. Start with the integration index, then the specific doc for the task.
 
 ## Source Files (read first)
 
@@ -25,7 +25,7 @@ ALINKS deploys as Next.js on **Vercel**, DNS on **Cloudflare**, source on **GitH
 
 | Service | Value |
 |---------|-------|
-| GitHub | `artixforcoding/alinks` |
+| GitHub | `alinksonline/alinks` |
 | Vercel team/project | `alinks` / `alinks` |
 | Production URL | https://alinks.online |
 | Cloudflare zone | `alinks.online` |
