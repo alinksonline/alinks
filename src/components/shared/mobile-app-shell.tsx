@@ -4,8 +4,8 @@ import { cn } from "@/core/utils/cn";
 export type MobileShellVariant = "marketing" | "platform" | "tenant";
 
 const shellInner: Record<MobileShellVariant, string> = {
-  /* Marketing landing is a locked dark premium surface (not user-theme driven). */
-  marketing: "alinks-chrome dark bg-[#050505] text-brand-cream",
+  /* Marketing landing follows the global theme. */
+  marketing: "alinks-chrome bg-brand-surface text-brand-ink dark:bg-[#050505] dark:text-brand-cream",
   /* Platform chrome follows theme tokens via .dark on <html>. */
   platform: "alinks-chrome bg-brand-cream",
   /* Tenant public mini-sites keep their own light Linktree cards */
@@ -31,10 +31,10 @@ export function MobileAppShell({
   framed = true,
 }: MobileAppShellProps) {
   const isMarketing = variant === "marketing";
-  /* Marketing forces a dark device bezel so the premium landing never sits on a light frame. */
+  /* Marketing frame dynamically switches based on theme. */
   const frameClass = cn(
     "mobile-app-frame min-w-0",
-    isMarketing && "dark bg-black",
+    isMarketing && "bg-brand-surface dark:bg-black",
     className,
   );
 

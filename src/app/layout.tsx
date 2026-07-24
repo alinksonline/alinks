@@ -1,5 +1,6 @@
 import type { Metadata, Viewport } from "next";
 import type { ReactNode } from "react";
+import { CookieNotice } from "@/components/legal/cookie-notice";
 import { ThemeProvider } from "@/components/shared/theme-provider";
 import { ThemeScript } from "@/components/shared/theme-script";
 import "./globals.css";
@@ -39,7 +40,10 @@ export default function RootLayout({ children }: { children: ReactNode }) {
     <html lang="en" suppressHydrationWarning>
       <body className="min-w-0 overflow-x-hidden antialiased">
         <ThemeScript />
-        <ThemeProvider>{children}</ThemeProvider>
+        <ThemeProvider>
+          {children}
+          <CookieNotice />
+        </ThemeProvider>
       </body>
     </html>
   );

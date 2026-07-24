@@ -83,11 +83,16 @@ Related product docs:
          https://alinks.online
          https://app.alinks.online
          http://localhost:3000
-    4. Authorized redirect URIs (exact paths to implement):
-         https://alinks.online/api/integrations/google/callback
+    4. Authorized redirect URIs (must match code):
+         # Login / Google sign-in
+         https://app.alinks.online/api/auth/google/callback
+         http://localhost:3000/api/auth/google/callback
+         # Tenant Google Calendar Connect (FREE) — live OAuth 2026-07-21
+         https://app.alinks.online/api/integrations/google-calendar/callback
+         http://localhost:3000/api/integrations/google-calendar/callback
+         # Legacy/sheets (if present):
          https://app.alinks.online/api/integrations/google/callback
          http://localhost:3000/api/integrations/google/callback
-       Prefer ONE callback that accepts ?purpose=calendar|sheets|both
        rather than many confusing endpoints.
     5. Copy Client ID + Client Secret
 

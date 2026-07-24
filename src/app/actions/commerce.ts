@@ -21,6 +21,8 @@ import {
   businessHasOnlinePay,
   getTenantRazorpayCredentials,
 } from "@/platform/payments/tenant-gateway";
+import { LEGAL_DOC_TYPES } from "@/core/constants/legal";
+import { recordLegalAcceptance } from "@/platform/legal/acceptances";
 import { writeToTenantStorage } from "@/tenant/storage/write-service";
 import crypto from "crypto";
 
@@ -69,6 +71,16 @@ export async function connectTenantRazorpayAction(
         updatedAt: new Date(),
       })
       .where(eq(businesses.id, businessId));
+
+    try {
+      await recordLegalAcceptance({
+        tenantId: session.userId,
+        docType: LEGAL_DOC_TYPES.TENANT_BYO_GATEWAY,
+        metadata: { businessId, keyIdPrefix: id.slice(0, 12), model: "byo_razorpay" },
+      });
+    } catch {
+      /* non-blocking evidence log */
+    }
 
     revalidatePath("/editor/commerce");
     return { success: true as const };

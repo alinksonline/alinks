@@ -107,7 +107,7 @@ export default async function FoodMenuPage({
       <TenantFooter
         business={business}
         profile={profile}
-        showAlinksBranding={shouldShowAlinksWatermark(business.tier)}
+        showAlinksBranding={shouldShowAlinksWatermark(business.tier, business.entitledSkus)}
       />
       <PublicSiteNav
         handle={params.handle}

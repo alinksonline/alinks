@@ -72,7 +72,8 @@ describe("select modules quote", () => {
     const quote = buildSelectModulesQuote({
       tier: "basic",
       cycle: "monthly",
-      selectedSkus: ["pr.media_kit", "web.remove_watermark"],
+      // media_kit is included in Presence website — paid creator-eligible: analytics + watermark
+      selectedSkus: ["pr.analytics_lite", "web.remove_watermark"],
       catalog: MODULE_CATALOG as unknown as Parameters<typeof buildSelectModulesQuote>[0]["catalog"],
       creator: { partnerTier: "A", industryGroup: "presence" },
     });
@@ -82,9 +83,9 @@ describe("select modules quote", () => {
     expect(planLine?.discountPct).toBe(35);
     expect(planLine?.monthly).toBe(applyPctOff(599, 35));
 
-    const media = quote.lines.find((l) => l.sku === "pr.media_kit");
-    expect(media?.discountPct).toBe(35);
-    expect(media?.monthly).toBe(applyPctOff(199, 35));
+    const analytics = quote.lines.find((l) => l.sku === "pr.analytics_lite");
+    expect(analytics?.discountPct).toBe(35);
+    expect(analytics?.monthly).toBe(applyPctOff(149, 35));
 
     const watermark = quote.lines.find((l) => l.sku === "web.remove_watermark");
     expect(watermark?.discountPct).toBe(35);

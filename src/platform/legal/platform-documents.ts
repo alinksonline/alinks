@@ -12,8 +12,8 @@ export type LegalDocumentSection = {
 };
 
 export type PlatformLegalDocument = {
-  id: "tos" | "privacy" | "aup" | "grievance";
-  slug: "/terms" | "/privacy" | "/aup" | "/grievance";
+  id: "tos" | "privacy" | "aup" | "grievance" | "cookies";
+  slug: "/terms" | "/privacy" | "/aup" | "/grievance" | "/cookies";
   title: string;
   checkboxLabel: string;
   subtitle: string;
@@ -46,7 +46,7 @@ export const PLATFORM_LEGAL_DOCS: Record<PlatformLegalDocument["id"], PlatformLe
         blocks: [
           {
             type: "paragraph",
-            text: "By creating an account, accessing the dashboard, or using ALINKS, you agree to these Terms of Service, our Privacy Policy, Acceptable Use Policy, and any addenda you accept (including the Payment Facilitation Addendum if you enable payments). If you do not agree, do not use the Platform.",
+            text: "By creating an account, accessing the dashboard, or using ALINKS, you agree to these Terms of Service, our Privacy Policy, Acceptable Use Policy, and any addenda you accept. If you enable on-site customer checkout, you connect your own payment gateway and remain seller of record. If you do not agree, do not use the Platform.",
           },
         ],
       },
@@ -56,7 +56,7 @@ export const PLATFORM_LEGAL_DOCS: Record<PlatformLegalDocument["id"], PlatformLe
         blocks: [
           {
             type: "paragraph",
-            text: "ALINKS is a software-as-a-service (SaaS) platform that provides tools to create and host a mobile-first mini-website (up to 5 pages), product catalog, booking, and optional checkout features, plus integration with third-party services such as Google Sheets, Supabase (bring-your-own), and payment gateways via Artix partners.",
+            text: "ALINKS is a software-as-a-service (SaaS) platform that provides tools to create and host a mobile-first mini-website (up to 5 pages), product catalog, booking, and optional checkout features, plus integration with third-party services such as Google Sheets, Supabase (bring-your-own), and tenant-owned payment gateways (e.g. Razorpay API keys for shop sales).",
           },
           {
             type: "paragraph",
@@ -196,7 +196,7 @@ export const PLATFORM_LEGAL_DOCS: Record<PlatformLegalDocument["id"], PlatformLe
         blocks: [
           {
             type: "paragraph",
-            text: "If you enable checkout, you also accept the Payment Facilitation Addendum. You are seller of record. Artix facilitates payment routing only.",
+            text: "If you enable on-site checkout, you connect your own payment gateway (e.g. Razorpay API keys). You are seller of record; customer payments settle to your merchant account. Artix does not hold or route shop GMV. Platform subscription fees (your ALINKS plan) are billed separately by Artix. COD, refunds, and chargebacks on shop sales are between you and your customers/gateway.",
           },
         ],
       },
@@ -296,7 +296,7 @@ export const PLATFORM_LEGAL_DOCS: Record<PlatformLegalDocument["id"], PlatformLe
               "Technical: IP address, device, browser, session logs, security logs",
               "Platform use: pages edited, products added, feature usage, AI credit balance",
               "OAuth tokens: encrypted Google/Supabase connection tokens (not sheet content)",
-              "KYC (Pro payments): PAN, bank details — submitted to payment partners via Artix wizard; purpose-limited",
+              "Gateway keys (optional): encrypted tenant Razorpay secret for BYO shop checkout — never logged in plain text",
               "Legal acceptances: which documents you agreed to, version, timestamp, IP",
             ],
           },
@@ -311,7 +311,7 @@ export const PLATFORM_LEGAL_DOCS: Record<PlatformLegalDocument["id"], PlatformLe
             items: [
               "Customer names, phones, orders, appointments, patient details (permanent storage)",
               "Full contents of your Google Sheets or Supabase tables",
-              "Card numbers (payments via hosted payment gateway checkout only)",
+              "Card numbers (payments via tenant-hosted Razorpay checkout only)",
               "Clinical diagnoses or medical records",
             ],
           },
@@ -329,9 +329,9 @@ export const PLATFORM_LEGAL_DOCS: Record<PlatformLegalDocument["id"], PlatformLe
             type: "bullets",
             items: [
               "Provide and improve ALINKS services",
-              "Billing and subscription management",
+              "Billing and subscription management (Artix SaaS fees)",
               "Authentication and security",
-              "Payment facilitation onboarding (sub-merchant KYC to partners)",
+              "Optional storefront checkout integration using your own payment gateway keys",
               "Support and abuse prevention",
               "Legal compliance and dispute resolution",
               "Aggregated analytics (no customer PII)",
@@ -363,13 +363,23 @@ export const PLATFORM_LEGAL_DOCS: Record<PlatformLegalDocument["id"], PlatformLe
             type: "table",
             headers: ["Recipient", "Purpose"],
             rows: [
-              ["Razorpay / PhonePe", "Subscription + sub-merchant KYC"],
+              ["Razorpay", "Artix SaaS subscription billing; your merchant account for shop sales if you connect keys"],
               ["Google", "OAuth, Sheets API (your account)"],
               ["Supabase", "OAuth connect (your project)"],
               ["Cloudflare / Vercel", "Hosting, CDN"],
-              ["MSG91 / SMS", "OTP, notifications (if enabled)"],
+              ["MSG91 / SMS / Resend", "OTP, notifications (if enabled)"],
               ["OpenRouter / Perplexity", "ALINKS AI generation (tenant content)"],
             ],
+          },
+        ],
+      },
+      {
+        id: "cookies",
+        title: "6A. Cookies & similar technologies",
+        blocks: [
+          {
+            type: "paragraph",
+            text: "We use essential cookies and similar storage for sign-in sessions, security (OTP/OAuth state), and theme preference. We do not use third-party advertising cookies on the ALINKS marketing site. See the dedicated Cookie Notice at /cookies.",
           },
         ],
       },
@@ -619,6 +629,7 @@ export const PLATFORM_LEGAL_DOCS: Record<PlatformLegalDocument["id"], PlatformLe
             type: "bullets",
             items: [
               "Export your account data: Dashboard → Settings → Export my data",
+              "Withdraw optional consent (e.g. publisher ads): Dashboard → Settings → Privacy & consent",
               "Delete your account: Dashboard → Settings → Delete account",
               "Response time: within [X] days per applicable rules [lawyer to set]",
             ],
@@ -632,6 +643,93 @@ export const PLATFORM_LEGAL_DOCS: Record<PlatformLegalDocument["id"], PlatformLe
           {
             type: "paragraph",
             text: "If your complaint is about a specific shop, salon, or clinic on ALINKS, contact that business directly. Artix does not control customer data stored in tenant Google Sheets or tenant-owned Supabase projects.",
+          },
+        ],
+      },
+    ],
+  },
+  cookies: {
+    id: "cookies",
+    slug: "/cookies",
+    title: "ALINKS Cookie Notice",
+    checkboxLabel: "Cookie Notice",
+    subtitle: "Essential cookies and local storage used by ALINKS — no ad trackers by default.",
+    draftNotice: DRAFT_NOTICE,
+    meta: [
+      `Version: ${LEGAL_DOC_VERSION}`,
+      "Data Fiduciary: Artix / Artix Private Limited",
+      "Product: ALINKS",
+      "Related: Privacy Policy (/privacy)",
+    ],
+    sections: [
+      {
+        id: "summary",
+        title: "1. Summary",
+        blocks: [
+          {
+            type: "paragraph",
+            text: "ALINKS uses a small set of essential cookies and browser storage so you can sign in securely, complete OTP/OAuth flows, and remember dashboard preferences. We do not run third-party advertising cookies on alinks.online by default.",
+          },
+        ],
+      },
+      {
+        id: "what-we-use",
+        title: "2. What we use",
+        blocks: [
+          {
+            type: "table",
+            headers: ["Name / type", "Purpose"],
+            rows: [
+              ["Session cookie (HTTP-only)", "Keep you signed in to the dashboard after OTP or Google login"],
+              ["Email OTP cookie", "Short-lived verification of email OTP challenge"],
+              ["OAuth state cookies", "CSRF protection for Google / Calendar connect"],
+              ["Coming-soon preview cookie", "Optional bypass of marketing coming-soon gate for previewers"],
+              ["Theme preference (localStorage)", "Remember light/dark dashboard preference"],
+              ["Cookie notice dismiss (localStorage)", "Remember that you closed the essential-cookies banner"],
+            ],
+          },
+        ],
+      },
+      {
+        id: "not-used",
+        title: "3. What we do not use by default",
+        blocks: [
+          {
+            type: "bullets",
+            items: [
+              "Third-party ad networks or retargeting pixels on the marketing site",
+              "Cross-site tracking cookies for selling audience data",
+              "Non-essential analytics cookies that require separate marketing consent",
+            ],
+          },
+          {
+            type: "paragraph",
+            text: "Public mini-site analytics (if enabled) are aggregated page/link counts without visitor PII. Optional publisher ad slots on tenant sites are controlled by the tenant ads opt-in preference.",
+          },
+        ],
+      },
+      {
+        id: "control",
+        title: "4. Your controls",
+        blocks: [
+          {
+            type: "bullets",
+            items: [
+              "Browser settings: clear cookies and site data at any time (you will need to sign in again)",
+              "Dashboard → Settings: withdraw optional publisher ads consent",
+              "Dashboard → Settings → Delete account: removes platform account data per Privacy Policy",
+              "Contact: privacy@alinks.online or /grievance for further requests",
+            ],
+          },
+        ],
+      },
+      {
+        id: "updates",
+        title: "5. Updates",
+        blocks: [
+          {
+            type: "paragraph",
+            text: "If we introduce non-essential cookies (e.g. optional analytics tools), we will update this notice and request additional consent where required by law. Lawyer review required before public launch claims.",
           },
         ],
       },

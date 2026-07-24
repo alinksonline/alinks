@@ -46,6 +46,15 @@ const ALL_LINKS: NavLink[] = [
     match: (p) => p.startsWith("/editor/branding"),
   },
   {
+    href: "/editor/presence",
+    label: "Presence",
+    match: (p) => p.startsWith("/editor/presence"),
+    show: (g) => {
+      const group = (g.industryGroup || g.vertical || "").toLowerCase();
+      return group === "presence" || g.vertical === "presence" || g.vertical === "general";
+    },
+  },
+  {
     href: "/editor/menu",
     label: "Menu",
     match: (p) => p.startsWith("/editor/menu"),

@@ -84,6 +84,10 @@ const PRESENCE_CORE_SKUS = [
   "pr.gallery",
   "pr.contact",
   "pr.share_kit",
+  /** Creator-strong — included on Presence website path (still no sales) */
+  "pr.media_kit",
+  "pr.social_proof",
+  "pr.highlights",
 ] as const;
 
 export const INDUSTRY_REGISTRY: Record<IndustryGroup, IndustryGroupDef> = {

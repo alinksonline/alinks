@@ -42,8 +42,12 @@ export const businesses = pgTable("businesses", {
   codEnabled: boolean("cod_enabled").notNull().default(true),
   customDomainVerified: boolean("custom_domain_verified").notNull().default(false),
   domainVerifyToken: varchar("domain_verify_token", { length: 64 }),
+  /**
+   * Reserved for optional future Artix-facilitated PayFac / linked accounts (Q005 optional path).
+   * Current storefront path uses BYO keys below — do not use this column for live shop checkout.
+   */
   razorpaySubMerchantId: varchar("razorpay_sub_merchant_id", { length: 64 }),
-  /** Tenant's own Razorpay Key ID (public) — BYO gateway, not Artix facilitation */
+  /** Tenant's own Razorpay Key ID (public) — BYO storefront gateway (Q005 dual rail) */
   razorpayKeyId: varchar("razorpay_key_id", { length: 64 }),
   /** AES-GCM encrypted Key Secret — never sent to the browser */
   razorpayKeySecretEnc: text("razorpay_key_secret_enc"),

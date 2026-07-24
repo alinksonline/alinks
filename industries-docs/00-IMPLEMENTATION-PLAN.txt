@@ -398,7 +398,27 @@ WAVE 3 — AUTOMOTIVE + FOOD OPS + HARDENING   Priority: LATER (post soft launch
   Platform: website plan conversion; yearly charm uptake; churn on modules
 
 ================================================================================
+13. IMPLEMENTATION STATUS (2026-07-21 CODE)
+================================================================================
+
+  F0 registry / entitlements / Select modules / Superadmin  → SHIPPED (code)
+  W1.A Presence + Creator Partner + studio + promo checklist → SHIPPED
+  W1.B Salon appointments + pay-then-book path             → SHIPPED (MVP)
+  W1.C Food menu Layer 1 + ops channels SKUs               → SHIPPED (MVP)
+  W1.D Retail storefront                                   → SHIPPED (MVP)
+  W2 Bookings / RE / Education / Fitness / Auto            → SHIPPED (MVP slices)
+  Google Calendar free live OAuth path                     → SHIPPED
+  create-order industry identity gate                      → SHIPPED
+
+  NOT DONE (external or deep ops):
+    Lawyer / GST / payment partner production / Supabase partner commercial
+    Cookie banner; appointed grievance officer
+    Full kitchen board / multi-branch / rider payroll / wholesale MOQ columns
+
+================================================================================
 CHANGE LOG
 ================================================================================
 2026-07-16  Initial industries implementation plan (F0 + waves 1–3).
+2026-07-21  Status section — MVP waves largely in code; external still open.
 ================================================================================
+

@@ -90,8 +90,11 @@ fi
 
 # --- DPDP P0 routes (heuristic) ---
 [[ -f src/app/\(marketing\)/grievance/page.tsx ]] && ok "/grievance route exists" || warn "Missing /grievance page (DPDP P0)"
+[[ -f src/app/\(marketing\)/cookies/page.tsx ]] && ok "/cookies route exists" || warn "Missing /cookies page (DPDP cookie notice)"
+grep -rq 'CookieNotice\|cookie-notice' src/app src/components 2>/dev/null && ok "Cookie notice component present" || warn "Missing cookie notice banner"
 grep -rq 'deleteAccountAction\|Delete my account' src/app 2>/dev/null && ok "Delete account flow present" || warn "Missing delete account flow (DPDP P0)"
 grep -rq 'exportTenantData\|Export my data' src/app 2>/dev/null && ok "Export data flow present" || warn "Missing export data flow (DPDP P0)"
+grep -rq 'withdrawOptionalConsentAction\|Withdraw optional consent' src/app 2>/dev/null && ok "Withdraw consent flow present" || warn "Missing withdraw optional consent (DPDP)"
 
 # --- Auth readiness module ---
 [[ -f src/platform/auth/readiness.ts ]] && ok "Auth readiness helper present" || note "Auth readiness helper missing"

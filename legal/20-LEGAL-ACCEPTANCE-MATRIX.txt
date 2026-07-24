@@ -36,6 +36,9 @@ DOC_TYPE ENUM
   CUSTOMER_SALON_BOOKING
   CUSTOMER_CLINIC_BOOKING
   CUSTOMER_COD
+  CONSENT_WITHDRAWAL        -- optional processing withdrawn (ads)
+  TENANT_BYO_GATEWAY        -- connected own Razorpay for shop sales
+  CREATOR_PARTNER
 
 PUBLISH GATE (tenant mini-site public)
 ---------------------------------------
@@ -49,7 +52,15 @@ REQUIRED before publish = TRUE:
 OPTIONAL / SECTOR:
   - PHARMACY_LICENCE_CHECKBOX + verify APPROVED → pharmacy vertical
   - CLINIC_LICENCE_CHECKBOX + verify APPROVED → clinic booking live
-  - PAYMENT_ADDENDUM → checkout enabled
+  - PAYMENT_ADDENDUM → reserved if Artix-facilitated shop PayFac is revived
+  - TENANT_BYO_GATEWAY (product ack) → enable online checkout with own Razorpay
+    (Q005 re-lock 2026-07: customer money settles to tenant account; not Artix GMV)
+
+Q005 PAYMENT DOMAINS (2026-07)
+------------------------------
+  PLATFORM BILLING (tenant → Artix): Artix Razorpay — subscriptions / modules
+  TENANT STOREFRONT (customer → shop): tenant BYO Razorpay keys (encrypted secret)
+  COD: default ON (Q020); tenant liability for COD disputes
 
 CUSTOMER FLOW
 -------------

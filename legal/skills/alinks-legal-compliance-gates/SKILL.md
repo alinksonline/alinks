@@ -35,7 +35,8 @@ Sector gates:
 - Clinic and doctor booking requires license on file plus approval.
 - Pharmacy is Phase 2, OTC only, drug license mandatory.
 - Grocery and fresh vegetables use fields, ToS, and honor system; do not block solely for FSSAI absence.
-- Payment addendum is required before on-site checkout.
+- Tenant BYO gateway acknowledgment (connect keys) before online shop checkout.
+- Optional Artix PayFac addendum only if that path is revived (parked).
 
 ## Logging
 

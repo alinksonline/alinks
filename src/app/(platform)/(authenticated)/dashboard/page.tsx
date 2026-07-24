@@ -187,13 +187,31 @@ export default async function DashboardPage() {
           : "Sheets or Supabase for orders",
     },
     { href: "/dashboard/domain", label: "Custom domain", desc: "Connect your URL" },
+    ...(presence
+      ? [
+          {
+            href: "/editor/presence",
+            label: "Presence studio",
+            desc: "Media kit, social proof, highlights",
+          },
+          ...(business.creatorPartnerTier
+            ? [
+                {
+                  href: "/dashboard/creator-partner",
+                  label: "Creator Partner",
+                  desc: "Promo duties & discount checklist",
+                },
+              ]
+            : []),
+        ]
+      : []),
     { href: "/dashboard/ai", label: "ALINKS AI", desc: "SEO & captions" },
     {
       href: "/billing",
       label: "Billing",
       desc: presence
         ? "You pay ALINKS · plan, Creator pricing"
-        : "You pay ALINKS · plan, trial, upgrade",
+        : "You pay ALINKS · plan, Select modules",
     },
     { href: "/dashboard/settings", label: "Settings", desc: "App prefs & account" },
   ];

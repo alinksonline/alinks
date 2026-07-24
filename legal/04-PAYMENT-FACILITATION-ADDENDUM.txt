@@ -1,68 +1,113 @@
 ================================================================================
-ALINKS PAYMENT FACILITATION ADDENDUM
+ALINKS PAYMENT DOMAINS ADDENDUM
+(formerly: Payment Facilitation Addendum — Q005 re-lock 2026-07)
 ================================================================================
-DRAFT v0.1 — LAWYER + CA REVIEW REQUIRED (RBI / GST / 194-O)
-Applies when Tenant enables Pro checkout (Razorpay / PhonePe via Artix partner)
-Incorporated by reference into Platform Terms of Service
+DRAFT v0.2 — LAWYER + CA REVIEW REQUIRED
+Incorporated by reference into Platform Terms of Service when relevant
+================================================================================
+
+LOCKED PRODUCT MODEL (Q005 dual rails — 2026-07)
+------------------------------------------------
+  A) PLATFORM BILLING (tenant → Artix)
+     Artix is merchant of record for SaaS subscriptions, modules, and credit packs.
+     Charged via Artix payment account (Razorpay or future PhonePe).
+
+  B) TENANT STOREFRONT (customer → shop)
+     DEFAULT: TENANT BRING-YOUR-OWN (BYO) payment gateway keys (e.g. Razorpay).
+     Tenant pastes Key ID + secret (secret encrypted at rest by ALINKS).
+     Customer payments settle to TENANT merchant account. Artix does NOT hold GMV,
+     does NOT route settlement, and is NOT seller of record for shop sales.
+
+  C) OPTIONAL FUTURE (not default)
+     Artix-facilitated PayFac / linked sub-merchant onboarding MAY return only after
+     lawyer + RBI/GST/194-O review. Until then, do not enable platform facilitation
+     for shop GMV. Column razorpay_sub_merchant_id is reserved only for that future path.
+
+================================================================================
+PART I — TENANT BYO GATEWAY (CURRENT DEFAULT FOR SHOP CHECKOUT)
 ================================================================================
 
 1. ROLE OF PARTIES
-  (a) Tenant is the SELLER OF RECORD for all goods and services sold on mini-site
-  (b) Artix provides payment facilitation technology connecting Tenant to licensed
-      payment partners (Razorpay, PhonePe Payment Gateway)
-  (c) Artix is NOT a bank, payment aggregator (unless separately licensed), or
-      seller of Tenant's products
-  (d) Settlement of customer payments goes to Tenant's designated bank account
-      via partner settlement APIs (Razorpay Route / PhonePe partner rules)
+  (a) Tenant is the SELLER OF RECORD for all goods and services sold on the mini-site
+  (b) Tenant is the merchant of record with their payment gateway (Razorpay etc.)
+  (c) Artix provides software that creates orders and verifies payments using
+      Tenant-supplied API credentials; Artix is NOT a bank, PA (unless separately
+      licensed), or co-seller of Tenant products
+  (d) Settlement, refunds, chargebacks, and KYC for shop sales are between Tenant
+      and their payment gateway — not Artix
 
 2. TENANT OBLIGATIONS
-  (a) Provide accurate KYC: PAN, bank account, business proof, GSTIN if registered
-  (b) Comply with RBI, PG, and NPCI rules applicable to merchants
-  (c) Handle refunds, chargebacks, and customer payment disputes
-  (d) Not use checkout for illegal goods, money laundering, or prohibited categories
-  (e) Display accurate prices, MRP, taxes as applicable
-  (f) Maintain records of sales for GST and income tax
+  (a) Maintain a valid merchant account with a licensed payment gateway
+  (b) Provide accurate API keys; revoke keys when disconnecting ALINKS checkout
+  (c) Comply with RBI, PG, NPCI, and tax rules applicable to merchants
+  (d) Handle refunds, chargebacks, and customer payment disputes
+  (e) Not use checkout for illegal goods, money laundering, or prohibited categories
+  (f) Display accurate prices, MRP, taxes as applicable
+  (g) Maintain sales records for GST and income tax
 
 3. ARTIX OBLIGATIONS
-  (a) Provide checkout UI integrating partner PGs
-  (b) Submit Tenant KYC to partners for sub-merchant / linked account onboarding
-  (c) Route webhooks to record orders in Tenant's Google Sheet / Supabase
-  (d) Do not store card numbers; use hosted checkout / tokenization only
+  (a) Provide checkout UI and server-side order/verify using Tenant credentials
+  (b) Encrypt Tenant gateway secrets at rest; never expose secrets to the browser
+  (c) Write order/payment refs to Tenant storage (Sheets / BYO Supabase) per adapters
+  (d) Do not store card numbers; use hosted gateway checkout / tokenization only
 
 4. FEES
-  (a) Payment gateway fees (~2% + GST) deducted by partner from settlement
-  (b) ALINKS subscription fee is separate (SaaS billing to Artix)
-  (c) Artix platform transaction fee: [0% at launch — LAWYER/CA TO CONFIRM IF ADDED]
-  (d) Artix may earn partner referral commission from PGs (does not increase Tenant PG fee)
+  (a) Payment gateway fees: charged by Tenant's PG under Tenant's merchant contract
+  (b) ALINKS subscription / module fees: separate SaaS billing to Artix (Part II)
+  (c) Artix does not deduct GMV or take a share of shop settlement under BYO model
 
 5. COD (CASH ON DELIVERY)
   (a) Tenant may enable COD; no PG involved for COD collection
   (b) COD risk (fake orders, non-payment, cash handling) is 100% Tenant liability
-  (c) Tenant must publish COD terms in their customer T&C
+  (c) Tenant must publish COD terms in their customer T&C (Q020)
 
 6. CHARGEBACKS & REFUNDS
-  Tenant is responsible for resolving chargebacks. Artix may suspend checkout on
-  excessive chargeback rates. Refund policy is Tenant's — see Tenant T&C templates.
+  Tenant resolves chargebacks with their PG. Artix may suspend platform checkout
+  features for abuse. Refund policy is Tenant's — see Tenant T&C templates.
 
 7. DATA
-  Minimal payment metadata (payment_id, amount, status) may be cached ephemerally
-  for order confirmation. Full payment records: partner dashboard + Tenant Sheet.
-  DPDP: purpose limitation for KYC data collected for onboarding.
+  Minimal payment metadata (payment_id, amount, status) may be stored as platform
+  checkout session refs. Full payment records: Tenant PG dashboard + Tenant Sheet.
+  DPDP: Tenant is fiduciary for end-customer order data in their storage.
 
-8. SUSPENSION
-Artix or partners may suspend payment capability for fraud, KYC failure, or breach.
-
-9. TAX (CA TO CONFIRM)
-  - GST on Tenant's sales: Tenant's responsibility
-  - TCS under GST (marketplace): [IF APPLICABLE — CA]
-  - Section 194-O TDS (e-commerce operator): [IF ARTIX IS ECO — CA + LAWYER]
-  - GST on Artix SaaS subscription: Artix invoices Tenant separately
-
-10. ACKNOWLEDGMENT
-By enabling payments, Tenant accepts this Addendum and authorizes Artix to share
-KYC with payment partners for onboarding.
+8. ACKNOWLEDGMENT (BYO)
+  By connecting API keys and enabling online checkout, Tenant confirms:
+  (i) keys belong to their merchant account; (ii) customer money settles to them;
+  (iii) Artix is not facilitating settlement of shop GMV.
 
 ================================================================================
-[LAWYER: Confirm partner umbrella exemption vs PA license; PCI-DSS scope;
-         settlement timeline disclosures; PhonePe/Razorpay branding requirements]
+PART II — PLATFORM SAAS BILLING (TENANT → ARTIX)
+================================================================================
+
+1. Artix bills Tenants for ALINKS subscriptions, Select modules, and AI credit packs.
+2. Artix is merchant of record for those platform fees only.
+3. Refund/cancellation of subscriptions: see legal/19-SUBSCRIPTION-REFUND-POLICY.txt.
+4. Failure to pay SaaS fees may unpublish sites per Q035 after trial/paid grace rules.
+
+================================================================================
+PART III — OPTIONAL FUTURE ARTIX-FACILITATED SHOP PAYMENTS (PARKED)
+================================================================================
+
+IF and only if Artix later offers partner/sub-merchant onboarding for shop sales:
+
+1. ROLE OF PARTIES (future)
+  (a) Tenant remains seller of record for goods/services
+  (b) Artix may facilitate onboarding to licensed partners (Razorpay Route / PhonePe)
+  (c) Settlement to Tenant bank via partner APIs under partner rules
+  (d) Separate lawyer confirmation required: PA license exemption, TCS, 194-O, GST
+
+2. TENANT OBLIGATIONS (future)
+  (a) KYC: PAN, bank, business proof, GSTIN if registered
+  (b) Accept a then-current Payment Facilitation Addendum version
+
+3. TAX (CA TO CONFIRM IF REVIVED)
+  - GST on Tenant sales: Tenant
+  - Marketplace TCS / 194-O: only if Artix is an e-commerce operator for GMV
+  - GST on Artix SaaS: Artix invoices Tenant separately
+
+DO NOT implement Part III product flows without lawyer sign-off and Q005 re-open.
+
+================================================================================
+[LAWYER: Confirm BYO dual-rail wording; confirm Part III remains parked;
+         PCI-DSS scope for key storage; settlement disclosures if PayFac revived]
 ================================================================================

@@ -1,6 +1,6 @@
 "use server";
 
-import { ANALYTICS_DASHBOARD_DAYS, ANALYTICS_LITE_SKU } from "@/core/config/analytics";
+import { ANALYTICS_DASHBOARD_DAYS } from "@/core/config/analytics";
 import { getSession } from "@/platform/auth/session";
 import {
   businessHasAnalyticsLite,
@@ -32,5 +32,3 @@ export async function getAnalyticsDashboardAction(
     return { success: false, error: e instanceof Error ? e.message : "Failed" };
   }
 }
-
-export { ANALYTICS_LITE_SKU };

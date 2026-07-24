@@ -14,10 +14,14 @@ import { parseThemeConfig, resolveTenantTheme } from "@/core/utils/tenant-theme"
 import { resolveHeroPresentation } from "@/core/utils/hero-style";
 import { BlockRenderer } from "./block-renderer";
 import { PublicSiteNav } from "./public-site-nav";
+import { PresenceExtrasPublic } from "./presence-extras-public";
+import { readPresenceExtrasFromBranding } from "@/core/types/presence-extras";
 
 /** Public mini-site page — themed layout base + Linktree-style stack. */
 export function PublicPageView({ data }: { data: PublicPageData }) {
   const profile = parseBusinessProfile(data.business.branding, data.business.name);
+  const presenceExtras = readPresenceExtrasFromBranding(data.business.branding);
+  const skus = data.business.entitledSkus ?? [];
   const business: Business = {
     id: data.business.id,
     tenantId: "",
@@ -106,10 +110,22 @@ export function PublicPageView({ data }: { data: PublicPageData }) {
         </div>
       </main>
 
+      {data.slug === "home" || data.slug === "about" || data.slug === "media" ? (
+        <PresenceExtrasPublic
+          extras={presenceExtras}
+          showMediaKit={skus.includes("pr.media_kit")}
+          showSocialProof={skus.includes("pr.social_proof")}
+          showHighlights={skus.includes("pr.highlights")}
+        />
+      ) : null}
+
       <TenantFooter
         business={business}
         profile={profile}
-        showAlinksBranding={shouldShowAlinksWatermark(data.business.tier)}
+        showAlinksBranding={shouldShowAlinksWatermark(
+          data.business.tier,
+          data.business.entitledSkus,
+        )}
       />
       <PublicSiteNav
         handle={data.business.handle}

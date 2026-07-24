@@ -74,7 +74,7 @@ export default async function CoursesPage({ params }: { params: { handle: string
       <TenantFooter
         business={business}
         profile={profile}
-        showAlinksBranding={shouldShowAlinksWatermark(business.tier)}
+        showAlinksBranding={shouldShowAlinksWatermark(business.tier, business.entitledSkus)}
       />
       <PublicSiteNav
         handle={params.handle}

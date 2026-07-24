@@ -30,7 +30,7 @@ FILE INDEX
 01  Platform Terms of Service (Tenant Agreement)
 02  Platform Privacy Policy (DPDP-aligned draft)
 03  End-User Notice (footer / short notice)
-04  Payment Facilitation Addendum (Razorpay/PhonePe partner model)
+04  Payment Domains Addendum (BYO shop + Artix SaaS; PayFac parked — Q005 2026-07)
 05  Acceptable Use Policy
 06  Data & Storage Addendum (Google Sheets / Supabase BYO)
 07  Tenant Privacy Policy Template

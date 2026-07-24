@@ -7,9 +7,11 @@ import {
   exportTenantDataAction,
   updateAdsOptInAction,
   updateRegionAction,
+  withdrawOptionalConsentAction,
 } from "@/app/actions/settings";
 import { SettingsSection } from "@/components/platform/settings-section";
 import { Button } from "@/components/ui/button";
+import Link from "next/link";
 
 const REGIONS = [
   { code: "IN", label: "India" },
@@ -122,7 +124,51 @@ export function SettingsForm({ region, adsOptIn }: { region: string; adsOptIn: b
       </SettingsSection>
 
       <SettingsSection
-        step="06 · Danger zone"
+        step="06 · Privacy"
+        title="Privacy & consent"
+        description="Withdraw optional processing (publisher ads). Account, security, and billing processing continue until you delete your account."
+      >
+        <p className="text-sm text-brand-ink/70">
+          Current publisher ads opt-in:{" "}
+          <span className="font-semibold text-brand-ink">{optIn ? "On" : "Off"}</span>
+        </p>
+        <Button
+          type="button"
+          variant="secondary"
+          disabled={isPending || !optIn}
+          onClick={() =>
+            startTransition(async () => {
+              const r = await withdrawOptionalConsentAction();
+              if (!r.success) {
+                setMessage(r.error ?? "Could not withdraw consent");
+                return;
+              }
+              setOptIn(false);
+              setMessage("Optional consent withdrawn. Publisher ads are off.");
+            })
+          }
+        >
+          Withdraw optional consent
+        </Button>
+        <p className="text-[12px] leading-relaxed text-brand-muted">
+          For access/correction requests or other rights, see{" "}
+          <Link href="/grievance" className="font-semibold text-brand-turquoise underline">
+            Grievance
+          </Link>
+          ,{" "}
+          <Link href="/privacy" className="font-semibold text-brand-turquoise underline">
+            Privacy
+          </Link>
+          , and{" "}
+          <Link href="/cookies" className="font-semibold text-brand-turquoise underline">
+            Cookies
+          </Link>
+          .
+        </p>
+      </SettingsSection>
+
+      <SettingsSection
+        step="07 · Danger zone"
         title="Delete account"
         description="Permanently remove your ALINKS account and site config on our platform. Customer data in your own Sheet is not deleted by Artix."
         variant="danger"

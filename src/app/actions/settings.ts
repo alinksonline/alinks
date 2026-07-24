@@ -1,12 +1,15 @@
 "use server";
 
 import { eq } from "drizzle-orm";
+import { headers } from "next/headers";
 import { revalidatePath } from "next/cache";
 import type { AppLocale } from "@/core/i18n/messages";
 import { SUPPORTED_LOCALES } from "@/core/i18n/messages";
+import { LEGAL_DOC_TYPES } from "@/core/constants/legal";
 import { destroySession, getSession } from "@/platform/auth/session";
 import { getPlatformDb } from "@/platform/db/client";
 import { businesses, tenants } from "@/platform/db/schema";
+import { recordLegalAcceptance } from "@/platform/legal/acceptances";
 
 const REGIONS = ["IN", "SG", "AE"] as const;
 
@@ -83,6 +86,7 @@ export async function exportTenantDataAction() {
       status: tenant.status,
       locale: tenant.locale,
       region: tenant.region,
+      adsOptIn: tenant.adsOptIn,
       trialEndsAt: tenant.trialEndsAt,
       createdAt: tenant.createdAt,
     },
@@ -92,6 +96,44 @@ export async function exportTenantDataAction() {
   };
 
   return { success: true as const, json: JSON.stringify(payload, null, 2) };
+}
+
+/**
+ * Withdraw optional platform processing (publisher ads).
+ * Required platform processing (account, security, billing) continues until delete.
+ * Logs CONSENT_WITHDRAWAL for evidence.
+ */
+export async function withdrawOptionalConsentAction() {
+  const session = await getSession();
+  if (!session) return { success: false as const, error: "Unauthorized" };
+
+  const db = getPlatformDb();
+  if (!db) return { success: false as const, error: "Database not connected" };
+
+  await db
+    .update(tenants)
+    .set({ adsOptIn: false, updatedAt: new Date() })
+    .where(eq(tenants.id, session.userId));
+
+  const h = headers();
+  try {
+    await recordLegalAcceptance({
+      tenantId: session.userId,
+      docType: LEGAL_DOC_TYPES.CONSENT_WITHDRAWAL,
+      ipAddress: h.get("x-forwarded-for")?.split(",")[0]?.trim() ?? h.get("x-real-ip") ?? undefined,
+      userAgent: h.get("user-agent") ?? undefined,
+      metadata: {
+        scope: "optional_processing",
+        cleared: ["adsOptIn"],
+        note: "Essential account processing continues until account deletion",
+      },
+    });
+  } catch {
+    /* still succeed preference change if log fails */
+  }
+
+  revalidatePath("/dashboard/settings");
+  return { success: true as const };
 }
 
 export async function deleteAccountAction(confirmText: string) {

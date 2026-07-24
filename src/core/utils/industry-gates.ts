@@ -57,7 +57,16 @@ export function canExposeStorefront(input: IndustryGateInput): boolean {
   if (!commerceAllowed(input) || !salesEnabled(input)) return false;
   if (isPresence(input)) return false;
   const g = resolveGroup(input);
+  // Book/lead verticals — no product cart (use book / listings / courses)
   if (g === "bookings" || g === "real_estate" || g === "education" || g === "fitness") {
+    return false;
+  }
+  // Salon packages use /book — product storefront only with retail add-on later
+  if (g === "salon_beauty") {
+    return false;
+  }
+  // Food uses /menu (WhatsApp/channels) — not retail cart at Layer 1
+  if (g === "food") {
     return false;
   }
   // Automotive: only spare-parts type uses product storefront
@@ -69,7 +78,8 @@ export function canExposeStorefront(input: IndustryGateInput): boolean {
     }
     return true;
   }
-  return true;
+  // Retail / general ecommerce path
+  return g === "retail" || g === "general";
 }
 
 /**
