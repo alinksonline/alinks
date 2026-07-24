@@ -3,6 +3,7 @@
 import { useState, useTransition } from "react";
 import { setCustomDomainAction, verifyCustomDomainAction } from "@/app/actions/domain";
 import { Button } from "@/components/ui/button";
+import { toast } from "@/components/ui/toast";
 
 export function DomainWizard({
   businessId,
@@ -40,9 +41,9 @@ export function DomainWizard({
               setTxt(result.txtRecord);
               setCname(result.cnameRecord);
               setToken(result.txtRecord.value);
-              setMessage("Add DNS records below, then verify.");
+              setMessage("Add DNS records below, then verify."); toast.info("Add DNS records below, then verify.");
             } else {
-              setMessage(result.error);
+              { setMessage(result.error ?? ""); toast.error(result.error ?? "Failed"); }
             }
           })
         }
@@ -79,7 +80,7 @@ export function DomainWizard({
             onClick={() =>
               startTransition(async () => {
                 const result = await verifyCustomDomainAction(businessId, token);
-                setMessage(result.success ? `Verified: ${result.domain}` : result.error);
+                if (result.success) { setMessage(`Verified: ${result.domain}`); toast.success(`Verified: ${result.domain}`); } else { { const __e = result.error ?? "Failed"; setMessage(__e); toast.error(__e); } toast.error(result.error ?? "Failed"); }
               })
             }
           >

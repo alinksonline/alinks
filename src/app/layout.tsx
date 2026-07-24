@@ -3,6 +3,7 @@ import type { ReactNode } from "react";
 import { CookieNotice } from "@/components/legal/cookie-notice";
 import { ThemeProvider } from "@/components/shared/theme-provider";
 import { ThemeScript } from "@/components/shared/theme-script";
+import { ToastProvider } from "@/components/ui/toast";
 import "./globals.css";
 
 export const metadata: Metadata = {
@@ -41,8 +42,10 @@ export default function RootLayout({ children }: { children: ReactNode }) {
       <body className="min-w-0 overflow-x-hidden antialiased">
         <ThemeScript />
         <ThemeProvider>
-          {children}
-          <CookieNotice />
+          <ToastProvider>
+            {children}
+            <CookieNotice />
+          </ToastProvider>
         </ThemeProvider>
       </body>
     </html>

@@ -3,6 +3,7 @@
 import { useState, useTransition } from "react";
 import { submitClinicLicenseAction } from "@/app/actions/clinic";
 import { Button } from "@/components/ui/button";
+import { toast } from "@/components/ui/toast";
 
 export function ClinicForm({ businessId }: { businessId: string }) {
   const [licenseNumber, setLicenseNumber] = useState("");

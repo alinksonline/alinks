@@ -10,6 +10,7 @@ import {
   updateMenuItemAction,
 } from "@/app/actions/food";
 import { Button } from "@/components/ui/button";
+import { toast } from "@/components/ui/toast";
 
 type Item = {
   id: string;
@@ -85,11 +86,11 @@ export function MenuEditorPanel({
               isVeg,
             });
             if (!r.success) {
-              setMessage(r.error ?? "Failed");
+              { const __e = r.error ?? "Failed"; setMessage(__e); toast.error(__e); }
               return;
             }
             setName("");
-            setMessage("Item added");
+            setMessage("Item added"); toast.success("Item added");
             router.refresh();
           });
         }}

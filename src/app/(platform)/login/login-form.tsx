@@ -14,6 +14,7 @@ import {
 import { GoogleSignInButton } from "@/components/platform/google-sign-in-button";
 import { useMsg91OtpWidget } from "@/platform/sms/use-msg91-otp-widget";
 import { Button } from "@/components/ui/button";
+import { toast } from "@/components/ui/toast";
 import { TenDigitPhoneInput } from "@/components/ui/ten-digit-phone-input";
 import { cn } from "@/core/utils/cn";
 import { isValidEmail } from "@/core/utils/email";
@@ -66,13 +67,16 @@ export function LoginForm({
 
     if (usesEmail) {
       if (!isValidEmail(email)) {
-        setError("Enter a valid email address");
+        const msg = "Enter a valid email address";
+        setError(msg);
+        toast.error(msg);
         return;
       }
     } else {
       const phoneError = tenDigitMobileError(phone);
       if (phoneError) {
         setError(phoneError);
+        toast.error(phoneError);
         return;
       }
     }
@@ -82,25 +86,34 @@ export function LoginForm({
         if (usesEmail) {
           const result = await sendEmailOtpAction(email);
           if (!result.success) {
-            setError(result.error ?? "Could not send code");
+            const msg = result.error ?? "Could not send code";
+            setError(msg);
+            toast.error(msg);
             return;
           }
         } else if (otpMode === "msg91-widget") {
           if (!msg91Widget.ready) {
-            setError(msg91Widget.initError ?? "MSG91 widget is still loading");
+            const msg = msg91Widget.initError ?? "MSG91 widget is still loading";
+            setError(msg);
+            toast.error(msg);
             return;
           }
           await msg91Widget.sendOtp(phone);
         } else {
           const result = await sendOtpAction(phone);
           if (!result.success) {
-            setError(result.error ?? "Could not send OTP");
+            const msg = result.error ?? "Could not send OTP";
+            setError(msg);
+            toast.error(msg);
             return;
           }
         }
         setStep("otp");
+        toast.success("Code sent", usesEmail ? "Check your email inbox." : "Check your SMS.");
       } catch (e) {
-        setError(e instanceof Error ? e.message : "Could not send code");
+        const msg = e instanceof Error ? e.message : "Could not send code";
+        setError(msg);
+        toast.error(msg);
       }
     });
   };
@@ -117,13 +130,18 @@ export function LoginForm({
               ? await verifyWidgetAccessTokenAction(await msg91Widget.verifyOtp(otp), phone)
               : await verifyOtpAction(phone, otp);
         if (!result.success) {
-          setError(result.error ?? "Login failed");
+          const msg = result.error ?? "Login failed";
+          setError(msg);
+          toast.error(msg);
           return;
         }
+        toast.success("Signed in");
         router.push(result.role === "superadmin" ? "/superadmin" : redirectTo);
         router.refresh();
       } catch (e) {
-        setError(e instanceof Error ? e.message : "Login failed");
+        const msg = e instanceof Error ? e.message : "Login failed";
+        setError(msg);
+        toast.error(msg);
       }
     });
   };

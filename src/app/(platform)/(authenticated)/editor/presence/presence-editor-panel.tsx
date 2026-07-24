@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { savePresenceExtrasAction } from "@/app/actions/presence";
 import type { PresenceExtras } from "@/core/types/presence-extras";
 import { Button } from "@/components/ui/button";
+import { toast } from "@/components/ui/toast";
 
 export function PresenceEditorPanel({
   businessId,
@@ -17,7 +18,6 @@ export function PresenceEditorPanel({
 }) {
   const router = useRouter();
   const [extras, setExtras] = useState(initial);
-  const [message, setMessage] = useState<string | null>(null);
   const [isPending, startTransition] = useTransition();
 
   function setMediaKit(field: keyof PresenceExtras["mediaKit"], value: string) {
@@ -146,14 +146,14 @@ export function PresenceEditorPanel({
         onClick={() =>
           startTransition(async () => {
             const res = await savePresenceExtrasAction(businessId, extras);
-            setMessage(res.success ? "Saved." : (res.error ?? "Failed"));
+            if (res.success) toast.success("Presence studio saved");
+            else toast.error(res.error ?? "Failed to save");
             router.refresh();
           })
         }
       >
         Save presence studio
       </Button>
-      {message ? <p className="text-sm text-brand-ink">{message}</p> : null}
     </div>
   );
 }

@@ -11,6 +11,7 @@ import {
   updateTradeModeAction,
 } from "@/app/actions/retail";
 import { Button } from "@/components/ui/button";
+import { toast } from "@/components/ui/toast";
 
 type Product = {
   id: string;
@@ -84,15 +85,16 @@ export function ProductsEditorPanel({
                 startTransition(async () => {
                   const r = await updateTradeModeAction(businessId, value);
                   if (!r.success) {
-                    setMessage(r.error ?? "Failed");
+                    { const __e = r.error ?? "Failed"; setMessage(__e); toast.error(__e); }
                     return;
                   }
                   setTradeMode(value);
-                  setMessage(
+                  const ok =
                     value === "retail"
                       ? "Retail only — public shop shows unit prices."
-                      : "Saved. Wholesale / hybrid storefront UI comes next; products still sell retail on site.",
-                  );
+                      : "Saved. Wholesale / hybrid storefront UI comes next; products still sell retail on site.";
+                  setMessage(ok);
+                  toast.success(ok);
                 })
               }
             >
@@ -113,7 +115,15 @@ export function ProductsEditorPanel({
             onClick={() =>
               startTransition(async () => {
                 const r = await seedRetailProductsAction(businessId);
-                setMessage(r.success ? (r.seeded ? "Catalog loaded" : "Already has products") : r.error ?? "Failed");
+                if (r.success) {
+                  const ok = r.seeded ? "Catalog loaded" : "Already has products";
+                  setMessage(ok);
+                  toast.success(ok);
+                } else {
+                  const err = r.error ?? "Failed";
+                  setMessage(err);
+                  toast.error(err);
+                }
                 router.refresh();
               })
             }
@@ -136,11 +146,11 @@ export function ProductsEditorPanel({
               brand: brand || undefined,
             });
             if (!r.success) {
-              setMessage(r.error ?? "Failed");
+              { const __e = r.error ?? "Failed"; setMessage(__e); toast.error(__e); }
               return;
             }
             setName("");
-            setMessage("Product added");
+            setMessage("Product added"); toast.success("Product added");
             router.refresh();
           });
         }}

@@ -4,6 +4,7 @@ import { useState, useTransition } from "react";
 import { provisionGoogleSheetAction } from "@/app/actions/business";
 import { SettingsSection } from "@/components/platform/settings-section";
 import { Button } from "@/components/ui/button";
+import { toast } from "@/components/ui/toast";
 import { cn } from "@/core/utils/cn";
 
 /**
@@ -70,12 +71,12 @@ export function OrdersSheetForm({
           startTransition(async () => {
             const result = await provisionGoogleSheetAction(businessId, acceptData);
             if (!result.success) {
-              setMessage(result.error ?? "Could not create sheet");
+              { const __e = result.error ?? "Could not create sheet"; setMessage(__e); toast.error(__e); }
               setMessageOk(false);
               return;
             }
             setSheetUrl(result.spreadsheetUrl);
-            setMessage("Google Sheet created and connected.");
+            setMessage("Google Sheet created and connected."); toast.success("Google Sheet created and connected.");
             setMessageOk(true);
           })
         }

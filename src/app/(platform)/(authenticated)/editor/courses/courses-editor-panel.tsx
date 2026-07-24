@@ -10,6 +10,7 @@ import {
   updateCourseAction,
 } from "@/app/actions/education";
 import { Button } from "@/components/ui/button";
+import { toast } from "@/components/ui/toast";
 
 type Course = {
   id: string;
@@ -81,12 +82,12 @@ export function CoursesEditorPanel({
               youtubeUrl: youtubeUrl || undefined,
             });
             if (!r.success) {
-              setMessage(r.error ?? "Failed");
+              { const __e = r.error ?? "Failed"; setMessage(__e); toast.error(__e); }
               return;
             }
             setTitle("");
             setYoutubeUrl("");
-            setMessage("Course added");
+            setMessage("Course added"); toast.success("Course added");
             router.refresh();
           });
         }}

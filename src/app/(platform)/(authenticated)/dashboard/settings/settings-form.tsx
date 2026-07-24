@@ -11,6 +11,7 @@ import {
 } from "@/app/actions/settings";
 import { SettingsSection } from "@/components/platform/settings-section";
 import { Button } from "@/components/ui/button";
+import { toast } from "@/components/ui/toast";
 import Link from "next/link";
 
 const REGIONS = [
@@ -25,7 +26,6 @@ export function SettingsForm({ region, adsOptIn }: { region: string; adsOptIn: b
   const [selectedRegion, setSelectedRegion] = useState(region);
   const [optIn, setOptIn] = useState(adsOptIn);
   const [deleteConfirm, setDeleteConfirm] = useState("");
-  const [message, setMessage] = useState("");
   const [isPending, startTransition] = useTransition();
 
   return (
@@ -41,7 +41,8 @@ export function SettingsForm({ region, adsOptIn }: { region: string; adsOptIn: b
             e.preventDefault();
             startTransition(async () => {
               const r = await updateRegionAction(selectedRegion);
-              setMessage(r.success ? "Region saved." : r.error ?? "");
+              if (r.success) toast.success("Region saved");
+              else toast.error(r.error ?? "Could not save region");
             });
           }}
         >
@@ -73,7 +74,8 @@ export function SettingsForm({ region, adsOptIn }: { region: string; adsOptIn: b
             e.preventDefault();
             startTransition(async () => {
               const r = await updateAdsOptInAction(optIn);
-              setMessage(r.success ? "Ads preference saved." : r.error ?? "");
+              if (r.success) toast.success("Ads preference saved");
+              else toast.error(r.error ?? "Could not save preference");
             });
           }}
         >
@@ -105,7 +107,7 @@ export function SettingsForm({ region, adsOptIn }: { region: string; adsOptIn: b
             startTransition(async () => {
               const r = await exportTenantDataAction();
               if (!r.success || !r.json) {
-                setMessage(r.error ?? "Export failed");
+                toast.error(r.error ?? "Export failed");
                 return;
               }
               const blob = new Blob([r.json], { type: "application/json" });
@@ -115,7 +117,7 @@ export function SettingsForm({ region, adsOptIn }: { region: string; adsOptIn: b
               a.download = `alinks-export-${new Date().toISOString().slice(0, 10)}.json`;
               a.click();
               URL.revokeObjectURL(url);
-              setMessage("Export downloaded.");
+              toast.success("Export downloaded");
             })
           }
         >
@@ -140,11 +142,11 @@ export function SettingsForm({ region, adsOptIn }: { region: string; adsOptIn: b
             startTransition(async () => {
               const r = await withdrawOptionalConsentAction();
               if (!r.success) {
-                setMessage(r.error ?? "Could not withdraw consent");
+                toast.error(r.error ?? "Could not withdraw consent");
                 return;
               }
               setOptIn(false);
-              setMessage("Optional consent withdrawn. Publisher ads are off.");
+              toast.success("Optional consent withdrawn", "Publisher ads are off.");
             })
           }
         >
@@ -192,9 +194,10 @@ export function SettingsForm({ region, adsOptIn }: { region: string; adsOptIn: b
             startTransition(async () => {
               const r = await deleteAccountAction(deleteConfirm);
               if (!r.success) {
-                setMessage(r.error ?? "Could not delete account");
+                toast.error(r.error ?? "Could not delete account");
                 return;
               }
+              toast.info("Account deleted");
               router.push("/login");
               router.refresh();
             })
@@ -203,12 +206,6 @@ export function SettingsForm({ region, adsOptIn }: { region: string; adsOptIn: b
           {isPending ? "Deleting…" : "Delete my account"}
         </Button>
       </SettingsSection>
-
-      {message ? (
-        <p className="rounded-xl border border-brand-ink/10 bg-brand-mist/50 px-3 py-2 text-sm text-brand-ink" role="status">
-          {message}
-        </p>
-      ) : null}
     </>
   );
 }

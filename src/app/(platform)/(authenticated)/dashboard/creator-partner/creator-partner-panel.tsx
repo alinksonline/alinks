@@ -4,6 +4,7 @@ import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { markCreatorPromoPostedAction } from "@/app/actions/presence";
 import { Button } from "@/components/ui/button";
+import { toast } from "@/components/ui/toast";
 
 export function CreatorPartnerPanel({
   businessId,

@@ -3,6 +3,7 @@
 import { useEffect, useMemo, useState, useTransition } from "react";
 import { updateThemeAction } from "@/app/actions/business";
 import { Button } from "@/components/ui/button";
+import { toast } from "@/components/ui/toast";
 import type { ThemeConfig } from "@/core/types/page";
 import {
   allTenantGoogleFontsHref,
@@ -23,7 +24,6 @@ const PREVIEW_FONT_LINK_ID = "alinks-theme-preview-fonts";
 
 export function ThemeForm({ businessId, initialTheme }: { businessId: string; initialTheme: ThemeConfig }) {
   const [theme, setTheme] = useState<ThemeConfig>(initialTheme);
-  const [message, setMessage] = useState("");
   const [fontsReady, setFontsReady] = useState(false);
   const [isPending, startTransition] = useTransition();
   const onPrimary = contrastOn(theme.primaryColor);
@@ -79,7 +79,8 @@ export function ThemeForm({ businessId, initialTheme }: { businessId: string; in
         e.preventDefault();
         startTransition(async () => {
           const r = await updateThemeAction(businessId, theme);
-          setMessage(r.success ? "Theme applied to your public site" : r.error ?? "Save failed");
+          if (r.success) toast.success("Theme applied to your public site");
+          else toast.error(r.error ?? "Save failed");
         });
       }}
     >
@@ -249,7 +250,6 @@ export function ThemeForm({ businessId, initialTheme }: { businessId: string; in
         </div>
       </div>
 
-      {message && <p className="text-xs text-brand-muted">{message}</p>}
 
       <div className="editor-sticky-actions">
         <Button type="submit" className="w-full" disabled={isPending}>

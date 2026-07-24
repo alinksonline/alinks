@@ -9,6 +9,7 @@ import {
   updateFoodChannelsAction,
 } from "@/app/actions/food-ops";
 import { Button } from "@/components/ui/button";
+import { toast } from "@/components/ui/toast";
 
 type Table = { id: string; label: string; code: string; isActive: boolean };
 
@@ -139,7 +140,7 @@ export function FoodChannelsPanel({
                 pickupInstructions: pickupInstr,
                 deliveryInstructions: deliveryInstr,
               });
-              setMessage(r.success ? "Channels saved" : r.error ?? "Failed");
+              if (r.success) { setMessage("Channels saved"); toast.success("Channels saved"); toast.success("Channels saved"); } else { const __e = r.error ?? "Failed"; setMessage(__e); toast.error(__e); }
               router.refresh();
             })
           }
@@ -160,7 +161,7 @@ export function FoodChannelsPanel({
               startTransition(async () => {
                 const r = await addFoodTableAction(businessId, tableLabel);
                 if (!r.success) {
-                  setMessage(r.error ?? "Failed");
+                  { const __e = r.error ?? "Failed"; setMessage(__e); toast.error(__e); }
                   return;
                 }
                 setTableLabel("");

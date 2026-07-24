@@ -4,6 +4,7 @@ import { useState, useTransition } from "react";
 import Link from "next/link";
 import { seedSalonPackagesAction, updateSalonPackageAction } from "@/app/actions/salon";
 import { Button } from "@/components/ui/button";
+import { toast } from "@/components/ui/toast";
 import type { PackagePaymentMode } from "@/tenant/appointments/service";
 
 type Pkg = {
@@ -47,7 +48,7 @@ export function PackagesPanel({
         paymentMode,
       });
       if (!res.success) {
-        setMessage(res.error ?? "Could not update");
+        { const __e = res.error ?? "Could not update"; setMessage(__e); toast.error(__e); }
         return;
       }
       setPackages((list) => list.map((p) => (p.id === pkg.id ? { ...p, paymentMode } : p)));
@@ -64,7 +65,7 @@ export function PackagesPanel({
         isActive: next,
       });
       if (!res.success) {
-        setMessage(res.error ?? "Could not update");
+        { const __e = res.error ?? "Could not update"; setMessage(__e); toast.error(__e); }
         return;
       }
       setPackages((list) => list.map((p) => (p.id === pkg.id ? { ...p, isActive: next } : p)));

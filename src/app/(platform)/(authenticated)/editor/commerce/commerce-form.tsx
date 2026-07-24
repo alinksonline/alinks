@@ -9,6 +9,7 @@ import {
   updateCodSettingAction,
 } from "@/app/actions/commerce";
 import { Button } from "@/components/ui/button";
+import { toast } from "@/components/ui/toast";
 import { cn } from "@/core/utils/cn";
 
 /**
@@ -52,6 +53,8 @@ export function CommerceForm({
   function flash(text: string, ok = false) {
     setMessage(text);
     setMessageOk(ok);
+    if (ok) toast.success(text);
+    else toast.error(text);
   }
 
   return (

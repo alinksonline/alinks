@@ -11,6 +11,7 @@ import {
   type VehicleVisibility,
 } from "@/app/actions/automotive";
 import { Button } from "@/components/ui/button";
+import { toast } from "@/components/ui/toast";
 
 type Vehicle = {
   id: string;
@@ -65,11 +66,11 @@ export function VehiclesEditorPanel({
               priceLabel: priceLabel || undefined,
             });
             if (!r.success) {
-              setMessage(r.error ?? "Failed");
+              { const __e = r.error ?? "Failed"; setMessage(__e); toast.error(__e); }
               return;
             }
             setTitle("");
-            setMessage("Vehicle added");
+            setMessage("Vehicle added"); toast.success("Vehicle added");
             router.refresh();
           });
         }}

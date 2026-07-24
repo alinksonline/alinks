@@ -3,6 +3,7 @@
 import { useState, useTransition } from "react";
 import { updateBrandingAction } from "@/app/actions/business";
 import { Button } from "@/components/ui/button";
+import { toast } from "@/components/ui/toast";
 import { ImageField } from "@/components/shared/image-field";
 import {
   parseBusinessProfile,
@@ -25,7 +26,6 @@ export function BrandingForm({
   const [branding, setBranding] = useState<BusinessProfile>(() =>
     toProfile(initial, initial.businessName || ""),
   );
-  const [message, setMessage] = useState("");
   const [isPending, startTransition] = useTransition();
   const hasLogo = Boolean(branding.logoUrl?.trim());
 
@@ -55,7 +55,8 @@ export function BrandingForm({
             socials: branding.socials,
           };
           const r = await updateBrandingAction(businessId, payload);
-          setMessage(r.success ? "Branding saved" : r.error ?? "Save failed");
+          if (r.success) toast.success("Branding saved");
+          else toast.error(r.error ?? "Save failed");
         });
       }}
     >
@@ -170,7 +171,6 @@ export function BrandingForm({
         and store in cloud media for your account.
       </p>
 
-      {message && <p className="text-sm text-brand-ink/70">{message}</p>}
 
       <div className="editor-sticky-actions">
         <Button type="submit" className="w-full" disabled={isPending}>

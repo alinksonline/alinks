@@ -4,6 +4,7 @@ import { useState, useTransition } from "react";
 import { connectGoogleSheetAction } from "@/app/actions/business";
 import { SettingsSection } from "@/components/platform/settings-section";
 import { Button } from "@/components/ui/button";
+import { toast } from "@/components/ui/toast";
 import { cn } from "@/core/utils/cn";
 
 /**
@@ -68,18 +69,22 @@ export function OwnGoogleSheetForm({
             if (!acceptData) {
               setMessage("Confirm ownership first");
               setMessageOk(false);
+              toast.warning("Confirm ownership first");
               return;
             }
             const result = await connectGoogleSheetAction(businessId, sheetId);
             if (!result.success) {
-              setMessage(result.error ?? "Connect failed");
+              const msg = result.error ?? "Connect failed";
+              setMessage(msg);
               setMessageOk(false);
+              toast.error(msg);
               return;
             }
             setSheetId(result.spreadsheetId);
             setSheetUrl(result.spreadsheetUrl);
             setMessage("Your Google Sheet is linked.");
             setMessageOk(true);
+            toast.success("Google Sheet linked");
           });
         }}
       >
