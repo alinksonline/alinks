@@ -24,6 +24,7 @@ import {
 import { LEGAL_DOC_TYPES } from "@/core/constants/legal";
 import { recordLegalAcceptance } from "@/platform/legal/acceptances";
 import { writeToTenantStorage } from "@/tenant/storage/write-service";
+import { cartRequiresAddress } from "@/core/utils/order-fulfillment";
 import crypto from "crypto";
 
 async function requireSession() {
@@ -145,6 +146,31 @@ export async function enableProCheckoutAction(businessId: string, acknowledgeOwn
   }
 }
 
+export async function updateOrderPolicyAction(
+  businessId: string,
+  policy: { customerCancelOrders: boolean; customerModifyOrders: boolean },
+) {
+  try {
+    const session = await requireSession();
+    await assertBusinessOwnership(businessId, session.userId);
+    const db = getPlatformDb();
+    if (!db) return { success: false as const, error: "Database not connected" };
+
+    await db
+      .update(businesses)
+      .set({
+        customerCancelOrders: policy.customerCancelOrders,
+        customerModifyOrders: policy.customerModifyOrders,
+        updatedAt: new Date(),
+      })
+      .where(eq(businesses.id, businessId));
+    revalidatePath("/editor/commerce");
+    return { success: true as const };
+  } catch (e) {
+    return { success: false as const, error: e instanceof Error ? e.message : "Update failed" };
+  }
+}
+
 export async function updateCodSettingAction(businessId: string, codEnabled: boolean) {
   try {
     const session = await requireSession();
@@ -206,6 +232,20 @@ export async function createCheckoutSessionAction(input: {
       return { success: false as const, error: "COD is disabled for this store" };
     }
 
+    const phone = input.customerPhone.replace(/\D/g, "").slice(-10);
+    if (phone.length !== 10) {
+      return { success: false as const, error: "Enter a 10-digit mobile number" };
+    }
+    if (!input.customerName.trim()) {
+      return { success: false as const, error: "Enter your name" };
+    }
+    if (cartRequiresAddress(input.items) && !(input.customerAddress ?? "").trim()) {
+      return {
+        success: false as const,
+        error: "Delivery address is required for physical items and doorstep services",
+      };
+    }
+
     const total = input.items.reduce((sum, i) => sum + i.price * i.qty, 0);
     if (total <= 0) return { success: false as const, error: "Cart is empty" };
 
@@ -220,9 +260,10 @@ export async function createCheckoutSessionAction(input: {
         total,
         paymentMethod: "cod",
         paymentStatus: "cod_pending",
-        customerName: input.customerName,
-        customerPhone: input.customerPhone,
-        customerAddress: input.customerAddress ?? "",
+        orderStatus: "placed",
+        customerName: input.customerName.trim(),
+        customerPhone: phone,
+        customerAddress: (input.customerAddress ?? "").trim(),
         items: JSON.stringify(input.items),
         createdAt: new Date().toISOString(),
       });
@@ -272,9 +313,9 @@ export async function createCheckoutSessionAction(input: {
         orderId,
         items: input.items,
         total,
-        customerName: input.customerName,
-        customerPhone: input.customerPhone,
-        customerAddress: input.customerAddress ?? "",
+        customerName: input.customerName.trim(),
+        customerPhone: phone,
+        customerAddress: (input.customerAddress ?? "").trim(),
       },
     };
   } catch (e) {

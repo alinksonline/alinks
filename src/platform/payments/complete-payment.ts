@@ -37,6 +37,7 @@ export async function completeStorePayment(input: {
     total: input.pendingOrder.total,
     paymentMethod: input.paymentMethod,
     paymentStatus: "paid",
+    orderStatus: "placed",
     customerName: input.pendingOrder.customerName,
     customerPhone: input.pendingOrder.customerPhone,
     customerAddress: input.pendingOrder.customerAddress,

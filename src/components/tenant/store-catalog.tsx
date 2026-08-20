@@ -77,7 +77,7 @@ export function StoreCatalog({
   if (!products.length) {
     return (
       <div className="t-card mt-4 px-4 py-10 text-center">
-        <p className="t-ink text-sm font-semibold">No products listed yet</p>
+        <p className="t-ink text-sm font-semibold">Nothing listed here yet</p>
         <p className="t-muted mt-1 text-xs">Check back soon or message the shop on WhatsApp.</p>
       </div>
     );
@@ -279,6 +279,8 @@ export function StoreCatalog({
                   name: i.name,
                   price: i.price,
                   qty: i.qty,
+                  productType: i.productType ?? "physical",
+                  deliveryMode: i.deliveryMode ?? "location",
                 })),
               ),
             )}`}

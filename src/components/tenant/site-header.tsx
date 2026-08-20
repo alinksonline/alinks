@@ -55,6 +55,12 @@ export function SiteHeader({
         </Link>
 
         <div className="flex shrink-0 items-center gap-1.5">
+          <Link
+            href={`/${business.handle}/account`}
+            className="rounded-full border border-[var(--t-border)] px-3 py-1.5 text-[11px] font-bold t-ink"
+          >
+            Account
+          </Link>
           {isSalon ? (
             <Link
               href={`/${business.handle}/book`}

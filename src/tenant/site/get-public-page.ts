@@ -18,6 +18,7 @@ export interface PublicPageData {
     theme: Record<string, unknown>;
     branding: Record<string, unknown>;
     entitledSkus: string[];
+    catalogMode?: "products" | "services" | "both";
   };
 }
 
@@ -59,6 +60,7 @@ export async function getPublicPage(handle: string, slug: string): Promise<Publi
       theme: (row.business.theme as Record<string, unknown>) ?? {},
       branding: (row.business.branding as Record<string, unknown>) ?? {},
       entitledSkus,
+      catalogMode: (row.business.catalogMode as "products" | "services" | "both") ?? "both",
     },
   };
 }

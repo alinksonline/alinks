@@ -78,6 +78,8 @@ export async function addStoreProductAction(input: {
   description?: string;
   mrp?: number;
   stock?: number;
+  productType?: "physical" | "service";
+  deliveryMode?: "doorstep" | "location";
 }) {
   try {
     const session = await getSession();
@@ -116,6 +118,8 @@ export async function addStoreProductAction(input: {
       category: input.category.trim() || "General",
       brand: input.brand?.trim() || null,
       stock: input.stock ?? null,
+      productType: input.productType === "service" ? "service" : "physical",
+      deliveryMode: input.deliveryMode === "doorstep" ? "doorstep" : "location",
       isActive: true,
       sortOrder: 100,
     });
@@ -134,6 +138,8 @@ export async function updateStoreProductAction(input: {
   price?: number;
   name?: string;
   stock?: number | null;
+  productType?: "physical" | "service";
+  deliveryMode?: "doorstep" | "location";
 }) {
   try {
     const session = await getSession();
@@ -161,6 +167,8 @@ export async function updateStoreProductAction(input: {
         price: input.price ?? row.price,
         name: input.name?.trim() || row.name,
         stock: input.stock === undefined ? row.stock : input.stock,
+        productType: input.productType ?? row.productType,
+        deliveryMode: input.deliveryMode ?? row.deliveryMode,
         updatedAt: new Date(),
       })
       .where(eq(storeProducts.id, input.productId));

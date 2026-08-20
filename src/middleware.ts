@@ -45,6 +45,14 @@ function isAllowedThroughGate(req: NextRequest): boolean {
   return false;
 }
 
+/** IP/preview gates must not be CDN-cached — a HIT of /coming-soon would lock the owner out. */
+function withComingSoonCache(res: NextResponse): NextResponse {
+  res.headers.set("Cache-Control", "private, no-store, no-cache, must-revalidate");
+  res.headers.set("CDN-Cache-Control", "no-store");
+  res.headers.set("Vercel-CDN-Cache-Control", "no-store");
+  return res;
+}
+
 export function middleware(req: NextRequest) {
   const host = req.headers.get("host") ?? "";
   const pathname = req.nextUrl.pathname;
@@ -62,6 +70,7 @@ export function middleware(req: NextRequest) {
   const hostname = host.replace(/:\d+$/, "");
   const isDev = process.env.NODE_ENV === "development";
   const { marketing, root } = marketingHostsFromEnv();
+  let comingSoonBypass = false;
 
   // —— Coming soon gate (marketing apex only) ——
   if (
@@ -83,7 +92,7 @@ export function middleware(req: NextRequest) {
         path: "/",
         maxAge: 60 * 60 * 24 * 30, // 30 days
       });
-      return res;
+      return withComingSoonCache(res);
     }
 
     const allowed = isAllowedThroughGate(req);
@@ -91,8 +100,11 @@ export function middleware(req: NextRequest) {
       const url = req.nextUrl.clone();
       url.pathname = COMING_SOON_PATH;
       url.search = "";
-      return NextResponse.rewrite(url, { request: { headers: requestHeaders } });
+      return withComingSoonCache(
+        NextResponse.rewrite(url, { request: { headers: requestHeaders } }),
+      );
     }
+    comingSoonBypass = true;
   }
 
   if (isDev && hostname === "localhost") {
@@ -117,5 +129,6 @@ export function middleware(req: NextRequest) {
     return NextResponse.rewrite(new URL("/custom", req.url), { request: { headers: requestHeaders } });
   }
 
-  return NextResponse.next({ request: { headers: requestHeaders } });
+  const next = NextResponse.next({ request: { headers: requestHeaders } });
+  return comingSoonBypass ? withComingSoonCache(next) : next;
 }

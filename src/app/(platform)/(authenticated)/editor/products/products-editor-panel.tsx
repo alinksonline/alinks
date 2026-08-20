@@ -23,6 +23,8 @@ type Product = {
   brand: string | null;
   stock: number | null;
   isActive: boolean;
+  productType?: "physical" | "service" | string;
+  deliveryMode?: "doorstep" | "location" | string;
 };
 
 export function ProductsEditorPanel({
@@ -43,18 +45,31 @@ export function ProductsEditorPanel({
   const [category, setCategory] = useState("General");
   const [brand, setBrand] = useState("");
   const [price, setPrice] = useState(199);
+  const [productType, setProductType] = useState<"physical" | "service">("physical");
+  const [deliveryMode, setDeliveryMode] = useState<"doorstep" | "location">("location");
   const [message, setMessage] = useState<string | null>(null);
+  const [kindFilter, setKindFilter] = useState<"all" | "physical" | "service">("all");
   const [isPending, startTransition] = useTransition();
+  const visible = products.filter((p) =>
+    kindFilter === "all" ? true : kindFilter === "service" ? p.productType === "service" : p.productType !== "service",
+  );
 
   return (
     <div className="mt-5 space-y-5">
       <div className="flex flex-wrap gap-2 text-xs">
         <Link
-          href={`/${handle}/store`}
+          href={`/${handle}/products`}
           target="_blank"
           className="rounded-full bg-brand-mist px-3 py-1 font-semibold"
         >
-          Public shop ↗
+          Public products ↗
+        </Link>
+        <Link
+          href={`/${handle}/service-shop`}
+          target="_blank"
+          className="rounded-full bg-brand-mist px-3 py-1 font-semibold"
+        >
+          Public services ↗
         </Link>
         <Link href="/editor/commerce" className="rounded-full bg-brand-mist px-3 py-1 font-semibold">
           Checkout (COD / Razorpay)
@@ -144,6 +159,8 @@ export function ProductsEditorPanel({
               price,
               category,
               brand: brand || undefined,
+              productType,
+              deliveryMode: productType === "service" ? deliveryMode : "location",
             });
             if (!r.success) {
               { const __e = r.error ?? "Failed"; setMessage(__e); toast.error(__e); }
@@ -184,6 +201,48 @@ export function ProductsEditorPanel({
           value={price}
           onChange={(e) => setPrice(Number(e.target.value))}
         />
+        <div className="flex flex-wrap gap-1.5">
+          {(
+            [
+              ["physical", "Physical item"],
+              ["service", "Service"],
+            ] as const
+          ).map(([value, label]) => (
+            <button
+              key={value}
+              type="button"
+              className={`rounded-full px-2.5 py-1 text-[11px] font-semibold ${
+                productType === value ? "bg-brand-ink text-brand-cream" : "bg-brand-mist text-brand-muted"
+              }`}
+              onClick={() => setProductType(value)}
+            >
+              {label}
+            </button>
+          ))}
+        </div>
+        {productType === "service" ? (
+          <div className="flex flex-wrap gap-1.5">
+            {(
+              [
+                ["location", "At my shop — no address"],
+                ["doorstep", "At customer door — address required"],
+              ] as const
+            ).map(([value, label]) => (
+              <button
+                key={value}
+                type="button"
+                className={`rounded-full px-2.5 py-1 text-[11px] font-semibold ${
+                  deliveryMode === value ? "bg-brand-ink text-brand-cream" : "bg-brand-mist text-brand-muted"
+                }`}
+                onClick={() => setDeliveryMode(value)}
+              >
+                {label}
+              </button>
+            ))}
+          </div>
+        ) : (
+          <p className="text-[11px] text-brand-muted">Physical items always need a delivery address at checkout.</p>
+        )}
         <Button type="submit" disabled={isPending || !name.trim()}>
           Add product
         </Button>
@@ -191,8 +250,29 @@ export function ProductsEditorPanel({
 
       {message ? <p className="text-sm text-brand-ink">{message}</p> : null}
 
+      <div className="flex flex-wrap gap-1.5">
+        {(
+          [
+            ["all", "All"],
+            ["physical", "Products"],
+            ["service", "Services"],
+          ] as const
+        ).map(([value, label]) => (
+          <button
+            key={value}
+            type="button"
+            className={`rounded-full px-2.5 py-1 text-[11px] font-semibold ${
+              kindFilter === value ? "bg-brand-ink text-brand-cream" : "bg-brand-mist text-brand-muted"
+            }`}
+            onClick={() => setKindFilter(value)}
+          >
+            {label}
+          </button>
+        ))}
+      </div>
+
       <ul className="space-y-2">
-        {products.map((p) => (
+        {visible.map((p) => (
           <li key={p.id} className="premium-card flex items-start justify-between gap-2 px-3 py-2.5">
             <div className="min-w-0">
               <p className="text-sm font-semibold">
@@ -206,6 +286,12 @@ export function ProductsEditorPanel({
                 {p.mrp ? ` · MRP ₹${p.mrp}` : ""} · {p.category}
                 {p.brand ? ` · ${p.brand}` : ""}
                 {p.stock != null ? ` · stock ${p.stock}` : ""}
+                {" · "}
+                {p.productType === "service"
+                  ? p.deliveryMode === "doorstep"
+                    ? "Doorstep service"
+                    : "Service at shop"
+                  : "Physical item"}
               </p>
             </div>
             <div className="flex shrink-0 flex-col gap-1">

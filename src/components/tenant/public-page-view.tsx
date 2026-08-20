@@ -131,6 +131,7 @@ export function PublicPageView({ data }: { data: PublicPageData }) {
         handle={data.business.handle}
         vertical={data.business.vertical}
         slug={data.slug}
+        catalogMode={data.business.catalogMode ?? "both"}
       />
     </TenantThemedLayout>
   );

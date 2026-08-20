@@ -47,6 +47,13 @@ export interface Business {
   isPublished: boolean;
   checkoutMode?: "lite" | "pro";
   codEnabled?: boolean;
+  customerCancelOrders?: boolean;
+  customerModifyOrders?: boolean;
+  /** products | services | both */
+  catalogMode?: "products" | "services" | "both";
+  /** manual | third_party */
+  deliveryOps?: "manual" | "third_party";
+  deliveryPartnerName?: string | null;
   /** Tenant connected their own Razorpay (public flag only — never secrets) */
   onlinePayEnabled?: boolean;
   googleSpreadsheetId?: string | null;

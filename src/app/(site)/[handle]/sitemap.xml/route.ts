@@ -19,6 +19,9 @@ export async function GET(_req: Request, { params }: { params: { handle: string 
   const urls = [
     base,
     `${base}/store`,
+    `${base}/products`,
+    `${base}/service-shop`,
+    `${base}/account`,
     `${base}/book`,
     ...slugs.filter((p) => p.isPublished).map((p) => `${base}/${p.slug}`),
   ];

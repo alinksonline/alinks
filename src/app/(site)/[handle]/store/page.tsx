@@ -1,15 +1,18 @@
 import type { Metadata } from "next";
-import { notFound } from "next/navigation";
+import { notFound, redirect } from "next/navigation";
 import Link from "next/link";
 import { SiteHeader } from "@/components/tenant/site-header";
 import { TenantFooter } from "@/components/tenant/tenant-footer";
 import { TenantThemedLayout } from "@/components/tenant/tenant-themed-layout";
-import { StoreCatalog } from "@/components/tenant/store-catalog";
 import { PublicSiteNav } from "@/components/tenant/public-site-nav";
 import { shouldShowAlinksWatermark } from "@/core/utils/branding";
-import { canUseProCheckout } from "@/core/utils/tier-gates";
+import { splitCatalog } from "@/core/utils/catalog-kind";
+import {
+  catalogModeShowsProducts,
+  catalogModeShowsServices,
+  normalizeCatalogMode,
+} from "@/core/utils/catalog-mode";
 import { parseBusinessProfile } from "@/core/types/business-profile";
-import type { Business } from "@/core/types/tenant";
 import { getPublicBusinessByHandle } from "@/tenant/site/get-public-business";
 import { getCatalogByHandle } from "@/tenant/storage/catalog";
 
@@ -22,7 +25,7 @@ export async function generateMetadata({ params }: { params: { handle: string } 
     name: business.name,
     branding: business.branding,
     title: `${business.name} — Shop`,
-    description: `Order from ${business.name} on ALINKS`,
+    description: `Products and services from ${business.name}`,
     path: `/${params.handle}/store`,
   });
 }
@@ -31,15 +34,12 @@ export default async function StorePage({ params }: { params: { handle: string }
   const row = await getPublicBusinessByHandle(params.handle);
   if (!row) notFound();
 
-  // Food Layer 1 uses /menu (WhatsApp), not retail store cart
   const { resolveIndustryGroup } = await import("@/core/config/industries");
   const group = resolveIndustryGroup(row.industryGroup || row.vertical);
   if (group === "food" || row.vertical === "restaurant") {
-    const { redirect } = await import("next/navigation");
     redirect(`/${params.handle}/menu`);
   }
 
-  // Presence and non-commerce industries: no storefront
   const { canExposeStorefront } = await import("@/core/utils/industry-gates");
   const { listEntitledSkus } = await import("@/platform/billing/entitlements");
   const entitledSkus = await listEntitledSkus(row.id);
@@ -54,57 +54,43 @@ export default async function StorePage({ params }: { params: { handle: string }
     notFound();
   }
 
-  const products = await getCatalogByHandle(params.handle);
+  const catalogMode = normalizeCatalogMode(row.catalogMode);
+  if (catalogMode === "products") redirect(`/${params.handle}/products`);
+  if (catalogMode === "services") redirect(`/${params.handle}/service-shop`);
+
+  const { physical, services } = splitCatalog(await getCatalogByHandle(params.handle));
+  if (physical.length > 0 && services.length === 0 && catalogModeShowsProducts(catalogMode)) {
+    redirect(`/${params.handle}/products`);
+  }
+  if (services.length > 0 && physical.length === 0 && catalogModeShowsServices(catalogMode)) {
+    redirect(`/${params.handle}/service-shop`);
+  }
+
   const profile = parseBusinessProfile(row.branding, row.name);
-  const business: Business = { ...row, profile };
-  const proCheckout = canUseProCheckout(business.tier, business.checkoutMode ?? "lite");
-  const isSalon = business.vertical === "salon" || business.vertical === "beauty";
-  const tradeMode = (row as { tradeMode?: string }).tradeMode ?? "retail";
-  const brands = new Set(products.map((p) => p.brand).filter(Boolean));
+  const business = { ...row, profile };
 
   return (
     <TenantThemedLayout theme={business.theme}>
       <SiteHeader business={business} profile={profile} />
-
       <section className="t-page-hero">
-        <p
-          className="text-[10px] font-bold uppercase tracking-[0.18em]"
-          style={{ color: "var(--t-primary-text, var(--t-primary))" }}
-        >
-          Storefront
-        </p>
-        <h1 className="t-ink mt-1.5 text-2xl font-bold tracking-tight">Shop</h1>
+        <h1 className="t-ink text-2xl font-bold tracking-tight">Shop</h1>
         <p className="t-muted mt-1.5 max-w-sm text-sm leading-relaxed">
-          {proCheckout
-            ? "Add items to cart — checkout with UPI, card, or COD (money goes to the shop)."
-            : "Browse products and order on WhatsApp. No multi-outlet POS — one online shop."}
+          Products and services are separate. Pick what you need.
         </p>
-        <div className="mt-4 flex flex-wrap gap-2">
-          <span className="t-chip t-chip-active">{products.length} products</span>
-          {brands.size > 0 ? <span className="t-chip">{brands.size} brands</span> : null}
-          <span className="t-chip">{proCheckout ? "Cart + COD" : "WhatsApp order"}</span>
-        </div>
       </section>
-
-      <main className="mx-auto max-w-app px-3.5 py-4 pb-4">
-        <StoreCatalog
-          business={business}
-          products={products}
-          proCheckout={proCheckout}
-          tradeMode={tradeMode}
-        />
-        {isSalon ? (
-          <div className="mt-6 text-center">
-            <Link
-              href={`/${params.handle}/book`}
-              className="t-btn-primary mx-auto !w-auto !px-6"
-            >
-              Book a package instead
-            </Link>
-          </div>
-        ) : null}
+      <main className="mx-auto grid max-w-app gap-3 px-3.5 py-5 pb-4">
+        <Link href={`/${params.handle}/products`} className="t-card p-4">
+          <p className="t-ink text-sm font-bold">Products</p>
+          <p className="t-muted mt-1 text-xs">Physical items · {physical.length} listed</p>
+        </Link>
+        <Link href={`/${params.handle}/service-shop`} className="t-card p-4">
+          <p className="t-ink text-sm font-bold">Services</p>
+          <p className="t-muted mt-1 text-xs">Work we do for you · {services.length} listed</p>
+        </Link>
+        <Link href={`/${params.handle}/account`} className="t-link text-center text-xs font-semibold">
+          Client login / my orders →
+        </Link>
       </main>
-
       <TenantFooter
         business={business}
         profile={profile}
@@ -116,6 +102,7 @@ export default async function StorePage({ params }: { params: { handle: string }
         industryGroup={business.industryGroup}
         slug="home"
         path="store"
+        catalogMode={catalogMode}
       />
     </TenantThemedLayout>
   );

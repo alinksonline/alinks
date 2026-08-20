@@ -10,6 +10,8 @@ import { destroySession, getSession } from "@/platform/auth/session";
 import { getPlatformDb } from "@/platform/db/client";
 import { businesses, tenants } from "@/platform/db/schema";
 import { recordLegalAcceptance } from "@/platform/legal/acceptances";
+import { getBusinessForTenant } from "@/platform/business/require-business";
+import { normalizeCatalogMode } from "@/core/utils/catalog-mode";
 
 const REGIONS = ["IN", "SG", "AE"] as const;
 
@@ -38,6 +40,37 @@ export async function updateRegionAction(region: string) {
 
   await db.update(tenants).set({ region, updatedAt: new Date() }).where(eq(tenants.id, session.userId));
   revalidatePath("/dashboard/settings");
+  return { success: true as const };
+}
+
+export async function updateShopCatalogSettingsAction(input: {
+  catalogMode: string;
+  deliveryOps: "manual" | "third_party";
+  deliveryPartnerName?: string;
+}) {
+  const session = await getSession();
+  if (!session) return { success: false as const, error: "Unauthorized" };
+  const business = await getBusinessForTenant(session.userId);
+  if (!business) return { success: false as const, error: "No business yet" };
+
+  const db = getPlatformDb();
+  if (!db) return { success: false as const, error: "Database not connected" };
+
+  const catalogMode = normalizeCatalogMode(input.catalogMode);
+  const deliveryOps = input.deliveryOps === "third_party" ? "third_party" : "manual";
+  const deliveryPartnerName =
+    deliveryOps === "third_party" ? (input.deliveryPartnerName ?? "").trim().slice(0, 80) || null : null;
+
+  await db
+    .update(businesses)
+    .set({ catalogMode, deliveryOps, deliveryPartnerName, updatedAt: new Date() })
+    .where(eq(businesses.id, business.id));
+
+  revalidatePath("/dashboard/settings");
+  revalidatePath("/dashboard");
+  revalidatePath(`/${business.handle}/products`);
+  revalidatePath(`/${business.handle}/service-shop`);
+  revalidatePath(`/${business.handle}/store`);
   return { success: true as const };
 }
 

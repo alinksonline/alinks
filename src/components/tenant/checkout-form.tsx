@@ -1,10 +1,12 @@
 "use client";
 
-import { useState, useTransition } from "react";
+import { useRef, useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import type { CartItem } from "@/core/types/commerce";
 import { createCheckoutSessionAction } from "@/app/actions/commerce";
 import { openRazorpayCheckout, verifyPaymentViaApi } from "@/lib/razorpay-checkout";
+import { cartFulfillmentSummary, cartRequiresAddress } from "@/core/utils/order-fulfillment";
+import { saveLocalOrder, stashCheckoutCart } from "@/components/tenant/local-orders";
 
 export function CheckoutForm({
   handle,
@@ -29,12 +31,29 @@ export function CheckoutForm({
   const [acceptTerms, setAcceptTerms] = useState(false);
   const [message, setMessage] = useState("");
   const [messageTone, setMessageTone] = useState<"error" | "success" | "info">("info");
+  const paymentSettled = useRef(false);
 
   const total = items.reduce((s, i) => s + i.price * i.qty, 0);
+  const fulfillment = cartFulfillmentSummary(items);
+  const requiresAddress = cartRequiresAddress(items);
 
   function setStatus(text: string, tone: "error" | "success" | "info" = "info") {
     setMessage(text);
     setMessageTone(tone);
+  }
+
+  function persistOrder(orderId: string, method: string, status: string) {
+    saveLocalOrder(handle, {
+      orderId,
+      date: new Date().toISOString(),
+      items,
+      total,
+      method,
+      status,
+      customerName: name,
+      customerPhone: phone,
+      customerAddress: requiresAddress ? address : "",
+    });
   }
 
   return (
@@ -49,7 +68,7 @@ export function CheckoutForm({
             paymentMethod: method,
             customerName: name,
             customerPhone: phone,
-            customerAddress: address,
+            customerAddress: requiresAddress ? address : undefined,
             acceptCheckoutTerms: acceptTerms,
           });
 
@@ -59,8 +78,8 @@ export function CheckoutForm({
           }
 
           if (result.paymentMethod === "cod") {
-            setStatus(`Order placed! COD order ${result.orderId}`, "success");
-            router.push(`/${handle}/store`);
+            persistOrder(result.orderId, "cod", "placed");
+            router.push(`/${handle}/checkout/success?orderId=${encodeURIComponent(result.orderId)}`);
             return;
           }
 
@@ -69,6 +88,8 @@ export function CheckoutForm({
             return;
           }
 
+          stashCheckoutCart(handle, items);
+          paymentSettled.current = false;
           try {
             await openRazorpayCheckout({
               keyId: result.razorpayKeyId,
@@ -77,9 +98,24 @@ export function CheckoutForm({
               name: result.businessName ?? "ALINKS Store",
               description: `Order ${result.orderId}`,
               prefill: { name, contact: phone },
-              onDismiss: () => setStatus("Payment cancelled.", "info"),
-              onFailure: (err) => setStatus(err, "error"),
+              onDismiss: () => {
+                if (paymentSettled.current) return;
+                paymentSettled.current = true;
+                persistOrder(result.orderId, method, "declined");
+                router.push(
+                  `/${handle}/checkout/declined?reason=cancelled&orderId=${encodeURIComponent(result.orderId)}`,
+                );
+              },
+              onFailure: (err) => {
+                if (paymentSettled.current) return;
+                paymentSettled.current = true;
+                persistOrder(result.orderId, method, "declined");
+                router.push(
+                  `/${handle}/checkout/declined?reason=failed&orderId=${encodeURIComponent(result.orderId)}&msg=${encodeURIComponent(err)}`,
+                );
+              },
               onSuccess: async (payment) => {
+                paymentSettled.current = true;
                 const verified = await verifyPaymentViaApi({
                   razorpay_order_id: payment.razorpay_order_id,
                   razorpay_payment_id: payment.razorpay_payment_id,
@@ -90,12 +126,17 @@ export function CheckoutForm({
                 });
 
                 if (!verified.success) {
-                  setStatus(verified.error ?? "Payment verification failed", "error");
+                  persistOrder(result.orderId, method, "declined");
+                  router.push(
+                    `/${handle}/checkout/declined?reason=failed&orderId=${encodeURIComponent(result.orderId)}&msg=${encodeURIComponent(verified.error ?? "Payment declined")}`,
+                  );
                   return;
                 }
 
-                setStatus(`Payment successful! Order ${verified.orderId ?? result.orderId} saved.`, "success");
-                router.push(`/${handle}/store`);
+                persistOrder(verified.orderId ?? result.orderId, method, "placed");
+                router.push(
+                  `/${handle}/checkout/success?orderId=${encodeURIComponent(verified.orderId ?? result.orderId)}`,
+                );
               },
             });
           } catch (err) {
@@ -110,6 +151,13 @@ export function CheckoutForm({
           <div key={i.productId} className="flex justify-between gap-2 text-sm">
             <span className="t-ink">
               {i.name} × {i.qty}
+              <span className="t-muted mt-0.5 block text-[10px] font-medium uppercase tracking-wide">
+                {i.productType === "service"
+                  ? i.deliveryMode === "doorstep"
+                    ? "Doorstep service"
+                    : "At the shop"
+                  : "Physical item"}
+              </span>
             </span>
             <span className="t-muted">₹{i.price * i.qty}</span>
           </div>
@@ -148,18 +196,31 @@ export function CheckoutForm({
             required
           />
         </div>
-        <div className="t-input-group">
-          <label className="t-label" htmlFor="checkout-address">
-            Address (optional)
-          </label>
-          <input
-            id="checkout-address"
-            className="t-input"
-            placeholder="Delivery address"
-            value={address}
-            onChange={(e) => setAddress(e.target.value)}
-          />
-        </div>
+        {requiresAddress ? (
+          <div className="t-input-group">
+            <label className="t-label" htmlFor="checkout-address">
+              Address <span className="text-red-500">*</span>
+            </label>
+            <textarea
+              id="checkout-address"
+              className="t-input min-h-[4.5rem]"
+              placeholder="House / street / area / pincode"
+              value={address}
+              onChange={(e) => setAddress(e.target.value)}
+              required
+            />
+            <p className="t-muted mt-1 text-[11px] leading-relaxed">
+              Needed because this order includes
+              {fulfillment.physicalCount ? " a physical item" : ""}
+              {fulfillment.physicalCount && fulfillment.doorstepServiceCount ? " or" : ""}
+              {fulfillment.doorstepServiceCount ? " a doorstep service" : ""}.
+            </p>
+          </div>
+        ) : (
+          <p className="t-muted text-[11px] leading-relaxed">
+            This is a service at the shop — no delivery address needed.
+          </p>
+        )}
       </div>
 
       <div>

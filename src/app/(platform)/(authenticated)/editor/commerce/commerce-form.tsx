@@ -7,6 +7,7 @@ import {
   disconnectTenantRazorpayAction,
   enableProCheckoutAction,
   updateCodSettingAction,
+  updateOrderPolicyAction,
 } from "@/app/actions/commerce";
 import { Button } from "@/components/ui/button";
 import { toast } from "@/components/ui/toast";
@@ -25,6 +26,8 @@ export function CommerceForm({
   vertical = "general",
   razorpayConnected,
   razorpayKeyId,
+  customerCancelOrders = true,
+  customerModifyOrders = false,
 }: {
   businessId: string;
   spreadsheetId: string;
@@ -34,8 +37,12 @@ export function CommerceForm({
   vertical?: string;
   razorpayConnected: boolean;
   razorpayKeyId: string | null;
+  customerCancelOrders?: boolean;
+  customerModifyOrders?: boolean;
 }) {
   const [cod, setCod] = useState(codEnabled);
+  const [allowCancel, setAllowCancel] = useState(customerCancelOrders);
+  const [allowModify, setAllowModify] = useState(customerModifyOrders);
   const [acceptOwn, setAcceptOwn] = useState(false);
   const [keyId, setKeyId] = useState("");
   const [keySecret, setKeySecret] = useState("");
@@ -285,6 +292,80 @@ export function CommerceForm({
           </button>
         ) : null}
       </section>
+
+      {isPro && proCheckoutOn ? (
+        <section className="premium-card space-y-3 p-4">
+          <div>
+            <h2 className="text-sm font-bold text-brand-ink">3. After the order</h2>
+            <p className="mt-0.5 text-[11px] leading-snug text-brand-muted">
+              Let buyers cancel or change an order from My orders. Turn these off to keep WhatsApp-only
+              changes.
+            </p>
+          </div>
+          {(
+            [
+              [
+                "cancel",
+                "Allow cancel",
+                "Customer can cancel a placed order from the shop site",
+                allowCancel,
+                () => {
+                  const next = !allowCancel;
+                  setAllowCancel(next);
+                  startTransition(async () => {
+                    const r = await updateOrderPolicyAction(businessId, {
+                      customerCancelOrders: next,
+                      customerModifyOrders: allowModify,
+                    });
+                    flash(r.success ? (next ? "Cancel allowed." : "Cancel turned off.") : r.error ?? "Failed", r.success);
+                  });
+                },
+              ],
+              [
+                "modify",
+                "Allow modify",
+                "Customer can change quantity or address after placing",
+                allowModify,
+                () => {
+                  const next = !allowModify;
+                  setAllowModify(next);
+                  startTransition(async () => {
+                    const r = await updateOrderPolicyAction(businessId, {
+                      customerCancelOrders: allowCancel,
+                      customerModifyOrders: next,
+                    });
+                    flash(r.success ? (next ? "Modify allowed." : "Modify turned off.") : r.error ?? "Failed", r.success);
+                  });
+                },
+              ],
+            ] as const
+          ).map(([id, title, hint, on, toggle]) => (
+            <button
+              key={id}
+              type="button"
+              disabled={isPending}
+              onClick={toggle}
+              className={cn(
+                "flex w-full items-center justify-between gap-3 rounded-xl border px-3 py-3 text-left",
+                on ? "border-brand-turquoise/40 bg-brand-turquoise/10" : "border-brand-ink/10 bg-brand-mist/40",
+              )}
+            >
+              <div>
+                <p className="text-sm font-bold text-brand-ink">{title}</p>
+                <p className="mt-0.5 text-[11px] text-brand-muted">{hint}</p>
+              </div>
+              <span
+                className={cn(
+                  "flex h-7 w-12 shrink-0 items-center rounded-full p-0.5",
+                  on ? "bg-brand-turquoise" : "bg-brand-ink/20",
+                )}
+              >
+                <span className={cn("h-6 w-6 rounded-full bg-white shadow", on ? "translate-x-5" : "translate-x-0")} />
+              </span>
+            </button>
+          ))}
+        </section>
+      ) : null}
 
       {message ? (
         <p

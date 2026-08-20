@@ -58,6 +58,8 @@ export default async function CommerceEditorPage() {
             vertical={business.vertical}
             razorpayConnected={gateway.connected}
             razorpayKeyId={gateway.keyId}
+            customerCancelOrders={business.customerCancelOrders ?? true}
+            customerModifyOrders={business.customerModifyOrders ?? false}
           />
         </div>
       </PageShell>

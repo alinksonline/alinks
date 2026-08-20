@@ -90,6 +90,7 @@ export function PublicSiteNav({
   path,
   industryGroup,
   industryType,
+  catalogMode = "both",
 }: {
   handle: string;
   vertical: string;
@@ -98,8 +99,9 @@ export function PublicSiteNav({
   path?: string;
   industryGroup?: string | null;
   industryType?: string | null;
+  catalogMode?: "products" | "services" | "both";
 }) {
-  const items = buildPublicNav(handle, vertical, industryGroup, industryType);
+  const items = buildPublicNav(handle, vertical, industryGroup, industryType, catalogMode);
 
   return (
     <nav className="t-bottom-nav" aria-label="Site pages">

@@ -10,13 +10,15 @@ export type PublicNavItem = {
 };
 
 /**
- * Single clear public navigation — never both "Services" and "Shop".
+ * Retail/general shops show Products and Services as separate catalog tabs.
+ * Salon/clinic keep CMS Services + Book. Presence/food/RE stay specialized.
  */
 export function buildPublicNav(
   handle: string,
   vertical: string,
   industryGroup?: string | null,
   industryType?: string | null,
+  catalogMode: "products" | "services" | "both" = "both",
 ): PublicNavItem[] {
   const v = vertical as BusinessVertical | string;
   const group = resolveIndustryGroup(industryGroup || v);
@@ -111,20 +113,25 @@ export function buildPublicNav(
   const serviceVerticals = new Set(["salon", "beauty", "pharmacy"]);
   const bookVerticals = new Set(["salon", "beauty"]);
 
-  const items: PublicNavItem[] = [
-    { key: "home", label: "Home", href: `/${handle}`, icon: "home" },
-    { key: "about", label: "About", href: `/${handle}/about`, icon: "about" },
-  ];
+  const items: PublicNavItem[] = [{ key: "home", label: "Home", href: `/${handle}`, icon: "home" }];
 
   if (serviceVerticals.has(v)) {
     items.push({ key: "services", label: "Services", href: `/${handle}/services`, icon: "services" });
     if (bookVerticals.has(v)) {
       items.push({ key: "book", label: "Book", href: `/${handle}/book`, icon: "book" });
     }
-  } else if (shopVerticals.has(v) || group === "retail") {
-    items.push({ key: "shop", label: "Shop", href: `/${handle}/store`, icon: "shop" });
-  } else if (group === "general") {
-    items.push({ key: "shop", label: "Shop", href: `/${handle}/store`, icon: "shop" });
+  } else if (shopVerticals.has(v) || group === "retail" || group === "general") {
+    if (catalogMode !== "services") {
+      items.push({ key: "shop", label: "Products", href: `/${handle}/products`, icon: "shop" });
+    }
+    if (catalogMode !== "products") {
+      items.push({
+        key: "services",
+        label: "Services",
+        href: `/${handle}/service-shop`,
+        icon: "services",
+      });
+    }
   } else {
     items.push({ key: "services", label: "Services", href: `/${handle}/services`, icon: "services" });
   }
@@ -139,16 +146,18 @@ export function isPublicNavActive(item: PublicNavItem, slug: string, path?: stri
   if (item.key === "shop") {
     return (
       path === "store" ||
+      path === "products" ||
       path === "menu" ||
       path === "listings" ||
       path === "vehicles" ||
       slug === "store" ||
+      slug === "products" ||
       slug === "menu" ||
       slug === "listings" ||
       slug === "vehicles"
     );
   }
-  if (item.key === "services" && (path === "courses" || slug === "courses")) {
+  if (item.key === "services" && (path === "courses" || slug === "courses" || path === "service-shop")) {
     return true;
   }
   if (item.key === "book") return path === "book" || slug === "book";

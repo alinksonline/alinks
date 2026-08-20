@@ -34,6 +34,15 @@ export default async function DashboardPage() {
     industryGroup: business.industryGroup,
   });
 
+  const shopAdmin = showCommerce
+    ? [
+        { href: "/dashboard/orders", label: "Orders", desc: "Status · delivery" },
+        { href: "/dashboard/clients", label: "Clients", desc: "People who ordered" },
+        { href: "/editor/products", label: "Catalog", desc: "Products & services" },
+        { href: "/dashboard/settings", label: "Shop pages", desc: "Show Products, Services, or both" },
+      ]
+    : [];
+
   const quickLinks = [
     { href: "/editor", label: "Website builder", desc: "Pages, theme, branding" },
     { href: "/editor/publish", label: "Go live", desc: "Publish, republish, unpublish" },
@@ -85,8 +94,18 @@ export default async function DashboardPage() {
       ? [
           {
             href: "/editor/products",
-            label: "Products",
-            desc: "Catalog · brands · storefront",
+            label: "Products & services",
+            desc: "Physical catalog and service catalog",
+          },
+          {
+            href: "/dashboard/orders",
+            label: "Customer orders",
+            desc: "Placed, cancelled, COD, paid",
+          },
+          {
+            href: "/dashboard/clients",
+            label: "Clients",
+            desc: "People who ordered from you",
           },
         ]
       : []),
@@ -236,6 +255,24 @@ export default async function DashboardPage() {
           isPublished={business.isPublished}
         />
       </div>
+
+      {shopAdmin.length > 0 ? (
+        <div className="mt-5">
+          <p className="text-[10px] font-bold uppercase tracking-wider text-brand-muted">Shop admin</p>
+          <div className="mt-2 grid grid-cols-2 gap-2">
+            {shopAdmin.map((item) => (
+              <Link
+                key={item.href}
+                href={item.href}
+                className="premium-card px-3 py-3 transition active:scale-[0.99]"
+              >
+                <p className="text-xs font-semibold text-brand-ink">{item.label}</p>
+                <p className="mt-0.5 text-[11px] text-brand-muted">{item.desc}</p>
+              </Link>
+            ))}
+          </div>
+        </div>
+      ) : null}
 
       <div className="mt-5 space-y-2">
         {quickLinks.map((item) => (

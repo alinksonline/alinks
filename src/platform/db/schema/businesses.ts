@@ -40,6 +40,15 @@ export const businesses = pgTable("businesses", {
   themeMode: varchar("theme_mode", { length: 20 }).notNull().default("system"),
   checkoutMode: varchar("checkout_mode", { length: 20 }).notNull().default("lite"),
   codEnabled: boolean("cod_enabled").notNull().default(true),
+  /** Buyer can cancel a placed order from My Orders */
+  customerCancelOrders: boolean("customer_cancel_orders").notNull().default(true),
+  /** Buyer can change qty/address after placing, if the shop allows */
+  customerModifyOrders: boolean("customer_modify_orders").notNull().default(false),
+  /** products | services | both — public Products / Services pages */
+  catalogMode: varchar("catalog_mode", { length: 20 }).notNull().default("both"),
+  /** manual | third_party — how the shop updates delivery */
+  deliveryOps: varchar("delivery_ops", { length: 20 }).notNull().default("manual"),
+  deliveryPartnerName: varchar("delivery_partner_name", { length: 80 }),
   customDomainVerified: boolean("custom_domain_verified").notNull().default(false),
   domainVerifyToken: varchar("domain_verify_token", { length: 64 }),
   /**

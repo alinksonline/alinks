@@ -21,12 +21,14 @@ const bodySchema = z.object({
           name: z.string(),
           price: z.number(),
           qty: z.number(),
+          productType: z.enum(["physical", "service"]).optional(),
+          deliveryMode: z.enum(["doorstep", "location"]).optional(),
         }),
       ),
       total: z.number(),
       customerName: z.string(),
       customerPhone: z.string(),
-      customerAddress: z.string(),
+      customerAddress: z.string().optional().default(""),
     })
     .optional(),
   pendingBooking: z

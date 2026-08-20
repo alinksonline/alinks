@@ -7,9 +7,12 @@ import { ThemeSettings } from "@/components/shared/theme-settings";
 import type { AppLocale } from "@/core/i18n/messages";
 import { t } from "@/core/i18n/messages";
 import { requireAuth } from "@/platform/auth/session";
+import { getBusinessForTenant } from "@/platform/business/require-business";
 import { getPlatformDb } from "@/platform/db/client";
 import { tenants } from "@/platform/db/schema";
+import { normalizeCatalogMode } from "@/core/utils/catalog-mode";
 import { SettingsForm } from "./settings-form";
+import { ShopPagesForm } from "./shop-pages-form";
 
 /**
  * Account prefs only.
@@ -24,6 +27,7 @@ export default async function SettingsPage() {
     ? (await db.select().from(tenants).where(eq(tenants.id, session.userId)).limit(1))[0]
     : null;
   const locale = (tenant?.locale ?? "en") as AppLocale;
+  const business = await getBusinessForTenant(session.userId);
 
   return (
     <PageShell maxWidth="md" className="py-6 pb-12">
@@ -53,6 +57,20 @@ export default async function SettingsPage() {
         >
           <LocaleSwitcher locale={locale} />
         </SettingsSection>
+
+        {business ? (
+          <SettingsSection
+            step="00 · Your shop"
+            title="Products, services, delivery"
+            description="Turn Products and/or Services on for your public site. Set how you update delivery — this is your shop, not the ALINKS platform."
+          >
+            <ShopPagesForm
+              catalogMode={normalizeCatalogMode(business.catalogMode)}
+              deliveryOps={business.deliveryOps === "third_party" ? "third_party" : "manual"}
+              deliveryPartnerName={business.deliveryPartnerName ?? ""}
+            />
+          </SettingsSection>
+        ) : null}
 
         <SettingsForm region={tenant?.region ?? "IN"} adsOptIn={tenant?.adsOptIn ?? false} />
       </div>

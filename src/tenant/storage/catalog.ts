@@ -22,6 +22,8 @@ function mapPlatformRow(row: typeof storeProducts.$inferSelect): CatalogProduct 
     description: row.description ?? undefined,
     stock: row.stock ?? undefined,
     sku: row.sku ?? undefined,
+    productType: row.productType === "service" ? "service" : "physical",
+    deliveryMode: row.deliveryMode === "doorstep" ? "doorstep" : "location",
   };
 }
 
@@ -54,6 +56,8 @@ export async function getCatalogForBusiness(businessId: string): Promise<Catalog
     description: row.description ? String(row.description) : undefined,
     stock: row.stock ? Number(row.stock) : undefined,
     sku: row.sku ? String(row.sku) : undefined,
+    productType: row.type ? (String(row.type).toLowerCase() as any) : undefined,
+    deliveryMode: row.delivery_mode ? (String(row.delivery_mode).toLowerCase() as any) : undefined,
   }));
 }
 
@@ -80,6 +84,8 @@ export async function seedCatalogProducts(businessId: string, products: CatalogP
       brand: p.brand ?? "",
       stock: p.stock ?? 100,
       sku: p.sku ?? p.id,
+      type: p.productType ?? "physical",
+      delivery_mode: p.deliveryMode ?? "doorstep",
     });
   }
 }

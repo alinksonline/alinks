@@ -10,6 +10,8 @@ export interface CatalogProduct {
   description?: string;
   stock?: number;
   sku?: string;
+  productType?: "physical" | "service";
+  deliveryMode?: "doorstep" | "location";
 }
 
 export interface CartItem {
@@ -17,7 +19,17 @@ export interface CartItem {
   name: string;
   price: number;
   qty: number;
+  productType?: "physical" | "service";
+  deliveryMode?: "doorstep" | "location";
 }
+
+export type OrderLifecycleStatus =
+  | "placed"
+  | "paid"
+  | "cod_pending"
+  | "declined"
+  | "cancelled"
+  | "modified";
 
 export interface OrderPayload {
   orderId: string;
@@ -25,7 +37,8 @@ export interface OrderPayload {
   items: CartItem[];
   total: number;
   paymentMethod: "upi" | "card" | "cod";
-  paymentStatus: "pending" | "paid" | "cod_pending";
+  paymentStatus: "pending" | "paid" | "cod_pending" | "declined";
+  orderStatus?: OrderLifecycleStatus;
   customerName: string;
   customerPhone: string;
   customerAddress?: string;

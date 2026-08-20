@@ -2,18 +2,20 @@ import { describe, expect, it } from "vitest";
 import { buildPublicNav, isPublicNavActive } from "./public-nav";
 
 describe("buildPublicNav", () => {
-  it("never shows both Services and Shop", () => {
-    for (const v of ["general", "ecommerce", "salon", "clinic", "kirana"]) {
-      const labels = buildPublicNav("demo", v).map((i) => i.label);
-      const hasServices = labels.includes("Services");
-      const hasShop = labels.includes("Shop");
-      expect(hasServices && hasShop).toBe(false);
-    }
+  it("salon does not show a Products shop tab", () => {
+    const labels = buildPublicNav("demo", "salon").map((i) => i.label);
+    expect(labels).toContain("Services");
+    expect(labels).not.toContain("Products");
+    expect(labels).not.toContain("Shop");
   });
 
-  it("uses Services for salon and Shop for ecommerce", () => {
+  it("uses Services for salon and Products + Services for ecommerce", () => {
     expect(buildPublicNav("x", "salon").some((i) => i.label === "Services")).toBe(true);
-    expect(buildPublicNav("x", "ecommerce").some((i) => i.label === "Shop")).toBe(true);
+    const ecom = buildPublicNav("x", "ecommerce");
+    expect(ecom.some((i) => i.label === "Products")).toBe(true);
+    expect(ecom.some((i) => i.label === "Services")).toBe(true);
+    expect(ecom.find((i) => i.label === "Products")?.href).toBe("/x/products");
+    expect(ecom.find((i) => i.label === "Services")?.href).toBe("/x/service-shop");
   });
 
   it("adds Book for salon, beauty, and clinic", () => {
@@ -42,10 +44,19 @@ describe("buildPublicNav", () => {
     expect(items.some((i) => i.label === "Shop")).toBe(false);
   });
 
-  it("Retail uses Shop storefront", () => {
+  it("Retail uses standalone Products and Services catalogs", () => {
     const items = buildPublicNav("myshop", "ecommerce", "retail");
-    expect(items.some((i) => i.label === "Shop")).toBe(true);
-    expect(items.find((i) => i.label === "Shop")?.href).toBe("/myshop/store");
+    expect(items.find((i) => i.label === "Products")?.href).toBe("/myshop/products");
+    expect(items.find((i) => i.label === "Services")?.href).toBe("/myshop/service-shop");
+  });
+
+  it("hides Products or Services when catalogMode is one-sided", () => {
+    const productsOnly = buildPublicNav("myshop", "ecommerce", "retail", null, "products");
+    expect(productsOnly.some((i) => i.label === "Products")).toBe(true);
+    expect(productsOnly.some((i) => i.label === "Services")).toBe(false);
+    const servicesOnly = buildPublicNav("myshop", "ecommerce", "retail", null, "services");
+    expect(servicesOnly.some((i) => i.label === "Products")).toBe(false);
+    expect(servicesOnly.some((i) => i.label === "Services")).toBe(true);
   });
 
   it("Bookings industry has Book tab", () => {

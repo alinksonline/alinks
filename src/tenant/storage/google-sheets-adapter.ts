@@ -76,6 +76,11 @@ function mapRowToHeaders(
     else if (key === "customerName" && headerSet.has("customer_name")) out.customer_name = value;
     else if (key === "customerPhone" && headerSet.has("customer_phone")) out.customer_phone = value;
     else if (key === "customerAddress" && headerSet.has("customer_address")) out.customer_address = value;
+    else if (key === "orderStatus" && headerSet.has("status")) out.status = value;
+    else if (key === "deliveryStatus" && headerSet.has("delivery_status")) out.delivery_status = value;
+    else if (key === "deliveryPartner" && headerSet.has("delivery_partner")) out.delivery_partner = value;
+    else if (key === "trackingId" && headerSet.has("tracking_id")) out.tracking_id = value;
+    else if (key === "trackingUrl" && headerSet.has("tracking_url")) out.tracking_url = value;
     else if (key === "packageName" && headerSet.has("package_name")) out.package_name = value;
     else if (key === "tableLabel" && headerSet.has("table_label")) out.table_label = value;
     else if (key === "orderCode" && headerSet.has("order_id")) out.order_id = value;

@@ -21,6 +21,10 @@ export const storeProducts = pgTable("store_products", {
   sku: varchar("sku", { length: 64 }),
   stock: integer("stock"),
   imageUrl: text("image_url"),
+  /** physical = goods to deliver; service = work, address depends on deliveryMode */
+  productType: varchar("product_type", { length: 20 }).notNull().default("physical"),
+  /** doorstep = come to customer; location = at the shop (no address) */
+  deliveryMode: varchar("delivery_mode", { length: 20 }).notNull().default("location"),
   isActive: boolean("is_active").notNull().default(true),
   sortOrder: integer("sort_order").notNull().default(0),
   createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
