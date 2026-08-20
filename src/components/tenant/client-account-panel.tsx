@@ -112,7 +112,6 @@ export function ClientAccountPanel({
         {sent ? "Verify and open my orders" : "Send login code"}
       </button>
       {message ? <p className="t-muted text-xs">{message}</p> : null}
-      {step === "code" ? null : null}
     </div>
   );
 }

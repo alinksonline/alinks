@@ -67,44 +67,25 @@ export function OrderHistory({
       customerName: o.customerName ?? "",
       customerPhone: o.customerPhone ?? phone,
       customerAddress: o.customerAddress ?? "",
+      deliveryStatus: "pending",
       canCancel: allowCancel && o.status !== "cancelled" && o.status !== "declined",
       canModify: allowModify && o.status !== "cancelled" && o.status !== "declined",
     }));
 
   return (
     <div className="space-y-5">
-      <form
-        className="t-card space-y-2 p-4"
-        onSubmit={(e) => {
-          e.preventDefault();
-          startTransition(async () => {
-            const r = await lookupOrdersByPhoneAction(handle, phone);
-            if (!r.success) {
-              setMessage(r.error);
-              return;
-            }
-            setLookedUp(r.orders);
-            setMessage(r.orders.length ? "" : "No orders for this number at this shop.");
-          });
-        }}
-      >
-        <p className="t-ink text-sm font-semibold">Find orders by phone</p>
-        <p className="t-muted text-[11px] leading-relaxed">
-          Use the mobile number you entered at checkout.
-        </p>
-        <div className="flex gap-2">
-          <input
-            className="t-input flex-1"
-            inputMode="numeric"
-            placeholder="10-digit mobile"
-            value={phone}
-            onChange={(e) => setPhone(e.target.value.replace(/\D/g, "").slice(0, 10))}
-          />
-          <button type="submit" className="t-btn-primary !min-h-10 !w-auto px-4 text-xs" disabled={isPending}>
-            Find
-          </button>
+      {lockedPhone ? null : (
+        <div className="t-card space-y-2 p-4">
+          <p className="t-ink text-sm font-semibold">Shop orders</p>
+          <p className="t-muted text-[11px] leading-relaxed">
+            Log in with the mobile used at checkout to see orders stored by this shop. This device still
+            shows local receipts below.
+          </p>
+          <Link href={`/${handle}/account`} className="t-btn-primary !min-h-10 inline-flex w-auto px-4 text-xs">
+            Log in to this shop
+          </Link>
         </div>
-      </form>
+      )}
 
       {display.length === 0 ? (
         <div className="t-card px-4 py-12 text-center">

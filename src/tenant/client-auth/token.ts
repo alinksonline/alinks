@@ -43,11 +43,10 @@ export function encodeClientOtp(handle: string, phone: string, codeHash: string,
   return `${payload}|${sign(payload, secret)}`;
 }
 
-export function verifyClientOtpBlob(
+export function verifyClientOtpChallenge(
   raw: string | undefined,
   handle: string,
   phone: string,
-  codeHash: string,
   secret: string,
 ): boolean {
   if (!raw) return false;
@@ -62,7 +61,19 @@ export function verifyClientOtpBlob(
     return false;
   }
   if (h !== handle || p !== phone) return false;
-  if (Date.now() > Number(expStr)) return false;
+  return Date.now() <= Number(expStr);
+}
+
+export function verifyClientOtpBlob(
+  raw: string | undefined,
+  handle: string,
+  phone: string,
+  codeHash: string,
+  secret: string,
+): boolean {
+  if (!verifyClientOtpChallenge(raw, handle, phone, secret)) return false;
+  const parts = raw!.split("|");
+  const storedHash = parts[2];
   try {
     return timingSafeEqual(Buffer.from(storedHash), Buffer.from(codeHash));
   } catch {

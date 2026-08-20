@@ -3,6 +3,7 @@ import {
   cartRequiresAddress,
   fulfillmentLabel,
   itemRequiresAddress,
+  resolveCartAgainstCatalog,
 } from "./order-fulfillment";
 
 describe("order fulfillment address rules", () => {
@@ -40,5 +41,25 @@ describe("order fulfillment address rules", () => {
     expect(fulfillmentLabel({ productType: "service", deliveryMode: "location" })).toMatch(
       /at the shop/i,
     );
+  });
+
+  it("resolves cart lines from catalog prices and types", () => {
+    const catalog = [
+      {
+        id: "p1",
+        name: "Shirt",
+        price: 500,
+        productType: "physical" as const,
+        deliveryMode: "doorstep" as const,
+      },
+    ];
+    const resolved = resolveCartAgainstCatalog(
+      [{ productId: "p1", name: "hack", price: 1, qty: 2, productType: "service", deliveryMode: "location" }],
+      catalog,
+    );
+    expect(resolved).toEqual([
+      { productId: "p1", name: "Shirt", price: 500, qty: 2, productType: "physical", deliveryMode: "doorstep" },
+    ]);
+    expect(resolveCartAgainstCatalog([{ productId: "nope", name: "x", price: 1, qty: 1 }], catalog)).toBeNull();
   });
 });

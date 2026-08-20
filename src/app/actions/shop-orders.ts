@@ -12,6 +12,7 @@ export type ShopOrderRow = {
   customerName: string;
   customerPhone: string;
   customerAddress: string;
+  itemsJson: string;
   itemsLabel: string;
   total: number;
   paymentMethod: string;
@@ -67,6 +68,7 @@ export async function listShopOrdersAction(businessId: string, phoneFilter?: str
         customerName: str(row, "customerName", "customer_name", "name"),
         customerPhone: str(row, "customerPhone", "customer_phone", "phone").replace(/\D/g, "").slice(-10),
         customerAddress: str(row, "customerAddress", "customer_address"),
+        itemsJson: str(row, "items", "items_json"),
         itemsLabel: parseItemsLabel(str(row, "items", "items_json")),
         total: Number(row.total ?? (row.total_paise ? Number(row.total_paise) / 100 : 0)),
         paymentMethod: str(row, "paymentMethod", "payment_method"),
@@ -147,7 +149,7 @@ export async function updateShopOrderDeliveryAction(input: {
       customerName: found.customerName,
       customerPhone: found.customerPhone,
       customerAddress: found.customerAddress,
-      items: found.itemsLabel,
+      items: found.itemsJson,
       deliveryStatus: input.deliveryStatus,
       deliveryPartner: (input.deliveryPartner ?? found.deliveryPartner).trim(),
       trackingId: (input.trackingId ?? "").trim(),

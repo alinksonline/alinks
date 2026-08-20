@@ -1,6 +1,12 @@
 import { createHash } from "crypto";
 import { describe, expect, it } from "vitest";
-import { decodeClientSession, encodeClientSession, encodeClientOtp, verifyClientOtpBlob } from "./token";
+import {
+  decodeClientSession,
+  encodeClientSession,
+  encodeClientOtp,
+  verifyClientOtpBlob,
+  verifyClientOtpChallenge,
+} from "./token";
 
 describe("client session token", () => {
   it("round-trips a shop-scoped phone session", () => {
@@ -15,5 +21,11 @@ describe("client session token", () => {
     const blob = encodeClientOtp("myshop", "9876543210", hash, "secret");
     expect(verifyClientOtpBlob(blob, "myshop", "9876543210", hash, "secret")).toBe(true);
     expect(verifyClientOtpBlob(blob, "myshop", "9876543210", hash, "nope")).toBe(false);
+  });
+
+  it("binds an MSG91 challenge to handle+phone without storing the SMS code", () => {
+    const blob = encodeClientOtp("myshop", "9876543210", "msg91-pending", "secret");
+    expect(verifyClientOtpChallenge(blob, "myshop", "9876543210", "secret")).toBe(true);
+    expect(verifyClientOtpChallenge(blob, "myshop", "1111111111", "secret")).toBe(false);
   });
 });

@@ -9,6 +9,8 @@ import { shouldShowAlinksWatermark } from "@/core/utils/branding";
 import { buildTenantMetadata } from "@/core/utils/tenant-seo";
 import { getPublicBusinessByHandle } from "@/tenant/site/get-public-business";
 import { OrderHistory } from "@/components/tenant/order-history";
+import { getShopClient } from "@/app/actions/client-auth";
+import { normalizeCatalogMode } from "@/core/utils/catalog-mode";
 
 export async function generateMetadata({ params }: { params: { handle: string } }): Promise<Metadata> {
   const business = await getPublicBusinessByHandle(params.handle);
@@ -33,6 +35,7 @@ export default async function OrdersPage({
 
   const profile = parseBusinessProfile(row.branding, row.name);
   const business = { ...row, profile };
+  const client = await getShopClient(params.handle);
 
   return (
     <TenantThemedLayout theme={business.theme}>
@@ -51,6 +54,7 @@ export default async function OrdersPage({
           businessPhone={profile.phone || profile.whatsapp || ""}
           allowCancel={Boolean(row.customerCancelOrders ?? true)}
           allowModify={Boolean(row.customerModifyOrders)}
+          lockedPhone={client?.phone ?? null}
         />
       </main>
 
@@ -59,7 +63,14 @@ export default async function OrdersPage({
         profile={profile}
         showAlinksBranding={shouldShowAlinksWatermark(business.tier, business.entitledSkus)}
       />
-      <PublicSiteNav handle={params.handle} vertical={business.vertical} slug="home" path="orders" />
+      <PublicSiteNav
+        handle={params.handle}
+        vertical={business.vertical}
+        industryGroup={business.industryGroup}
+        slug="home"
+        path="orders"
+        catalogMode={normalizeCatalogMode(row.catalogMode)}
+      />
     </TenantThemedLayout>
   );
 }

@@ -130,6 +130,12 @@ function valuesToRows(headers: string[], values: string[][]): Record<string, str
   });
 }
 
+function headersFromFirstRow(first: string[] | undefined, fallback: string[]): string[] {
+  if (!first?.length) return fallback;
+  const live = first.map((h) => String(h).trim()).filter((h) => h.length > 0);
+  return live.length ? live : fallback;
+}
+
 /** Live Google Sheets adapter — end-customer PII only (never platform Postgres). */
 export class GoogleSheetsAdapter implements StorageAdapter {
   constructor(private spreadsheetId: string) {}
@@ -173,14 +179,18 @@ export class GoogleSheetsAdapter implements StorageAdapter {
         `/spreadsheets/${this.spreadsheetId}/values/${encodeURIComponent(range)}`,
       );
       const peekData = (await peek.json()) as SheetsValuesResponse;
-      const first = peekData.values?.[0];
-      if (first && first.length > 0) continue;
+      const first = peekData.values?.[0] ?? [];
+      const live = first.map((h) => String(h).trim());
+      const have = new Set(live.filter(Boolean));
+      const missing = headers.filter((h) => !have.has(h));
+      const next = !have.size ? headers : missing.length ? [...first.map(String), ...missing] : null;
+      if (!next) continue;
 
       const write = await sheetsFetch(
         `/spreadsheets/${this.spreadsheetId}/values/${encodeURIComponent(range)}?valueInputOption=RAW`,
         {
           method: "PUT",
-          body: JSON.stringify({ values: [headers] }),
+          body: JSON.stringify({ values: [next] }),
         },
       );
       if (!write.ok) {
@@ -188,6 +198,15 @@ export class GoogleSheetsAdapter implements StorageAdapter {
         throw new Error(err.error?.message ?? `Failed to write headers for ${tab}`);
       }
     }
+  }
+
+  private async liveHeaders(tab: SheetTab): Promise<string[]> {
+    const range = a1SheetRange(tab, "A1:Z1");
+    const peek = await sheetsFetch(
+      `/spreadsheets/${this.spreadsheetId}/values/${encodeURIComponent(range)}`,
+    );
+    const peekData = (await peek.json()) as SheetsValuesResponse;
+    return headersFromFirstRow(peekData.values?.[0], SHEET_HEADERS[tab]);
   }
 
   async readRows(tab: SheetTab): Promise<Record<string, string | number | boolean>[]> {
@@ -202,12 +221,12 @@ export class GoogleSheetsAdapter implements StorageAdapter {
     }
     const values = data.values ?? [];
     if (values.length <= 1) return [];
-    // Skip header row
-    return valuesToRows(headers, values.slice(1));
+    const liveHeaders = headersFromFirstRow(values[0], headers);
+    return valuesToRows(liveHeaders, values.slice(1));
   }
 
   async appendRow(tab: SheetTab, row: Record<string, string | number | boolean>): Promise<void> {
-    const headers = SHEET_HEADERS[tab];
+    const headers = await this.liveHeaders(tab);
     const normalized = mapRowToHeaders(headers, row);
     if (tab === "Activity Log" && !normalized.at) {
       normalized.at = new Date().toISOString();

@@ -7,6 +7,7 @@ import { getPlatformDb } from "@/platform/db/client";
 import { businesses } from "@/platform/db/schema";
 import { getStorageAdapter } from "@/tenant/storage/get-adapter";
 import { writeToTenantStorage } from "@/tenant/storage/write-service";
+import { getShopClient } from "@/app/actions/client-auth";
 
 export type PublicOrder = {
   orderId: string;
@@ -19,6 +20,7 @@ export type PublicOrder = {
   customerName: string;
   customerPhone: string;
   customerAddress: string;
+  deliveryStatus: string;
   canCancel: boolean;
   canModify: boolean;
 };
@@ -64,6 +66,7 @@ function mapRow(row: Record<string, string | number | boolean>): Omit<PublicOrde
     customerName: asString(row, "customerName", "customer_name", "name"),
     customerPhone: digits(asString(row, "customerPhone", "customer_phone", "phone")),
     customerAddress: asString(row, "customerAddress", "customer_address"),
+    deliveryStatus: asString(row, "deliveryStatus", "delivery_status") || "pending",
   };
 }
 
@@ -86,11 +89,20 @@ async function loadBusiness(handle: string) {
   return row ?? null;
 }
 
+function orderClosed(order: { orderStatus: string; paymentStatus: string; deliveryStatus: string }): boolean {
+  return (
+    order.orderStatus === "cancelled" ||
+    order.paymentStatus === "declined" ||
+    order.deliveryStatus === "delivered" ||
+    order.deliveryStatus === "out_for_delivery"
+  );
+}
+
 function withPolicy(
   order: Omit<PublicOrder, "canCancel" | "canModify">,
   biz: { customerCancelOrders: boolean; customerModifyOrders: boolean },
 ): PublicOrder {
-  const closed = order.orderStatus === "cancelled" || order.paymentStatus === "declined";
+  const closed = orderClosed(order);
   return {
     ...order,
     canCancel: Boolean(biz.customerCancelOrders) && !closed,
@@ -98,11 +110,19 @@ function withPolicy(
   };
 }
 
+async function requireShopPhone(handle: string): Promise<{ phone: string } | { error: string }> {
+  const client = await getShopClient(handle);
+  if (!client) return { error: "Log in with the mobile number used at checkout" };
+  return { phone: client.phone };
+}
+
 export async function lookupOrdersByPhoneAction(handle: string, phone: string) {
   try {
-    const digitsPhone = digits(phone);
-    if (digitsPhone.length !== 10) {
-      return { success: false as const, error: "Enter the 10-digit number used at checkout" };
+    const session = await requireShopPhone(handle);
+    if ("error" in session) return { success: false as const, error: session.error };
+    const digitsPhone = session.phone;
+    if (digits(phone) && digits(phone) !== digitsPhone) {
+      return { success: false as const, error: "Use the logged-in mobile number" };
     }
     const biz = await loadBusiness(handle);
     if (!biz?.isPublished) return { success: false as const, error: "Store not found" };
@@ -125,7 +145,9 @@ export async function cancelCustomerOrderAction(input: {
   phone: string;
 }) {
   try {
-    const digitsPhone = digits(input.phone);
+    const session = await requireShopPhone(input.handle);
+    if ("error" in session) return { success: false as const, error: session.error };
+    const digitsPhone = session.phone;
     const biz = await loadBusiness(input.handle);
     if (!biz?.isPublished) return { success: false as const, error: "Store not found" };
     if (!biz.customerCancelOrders) {
@@ -137,8 +159,8 @@ export async function cancelCustomerOrderAction(input: {
       (r) => r.orderId === input.orderId && r.customerPhone === digitsPhone,
     );
     if (!found) return { success: false as const, error: "Order not found for this phone number" };
-    if (found.orderStatus === "cancelled") {
-      return { success: false as const, error: "This order is already cancelled" };
+    if (orderClosed(found)) {
+      return { success: false as const, error: "This order can no longer be cancelled" };
     }
 
     await writeToTenantStorage(biz.id, "Orders", {
@@ -169,17 +191,13 @@ export async function modifyCustomerOrderAction(input: {
   customerAddress?: string;
 }) {
   try {
-    const digitsPhone = digits(input.phone);
+    const session = await requireShopPhone(input.handle);
+    if ("error" in session) return { success: false as const, error: session.error };
+    const digitsPhone = session.phone;
     const biz = await loadBusiness(input.handle);
     if (!biz?.isPublished) return { success: false as const, error: "Store not found" };
     if (!biz.customerModifyOrders) {
       return { success: false as const, error: "This shop does not allow online changes" };
-    }
-
-    const items = input.items.filter((i) => i.qty > 0);
-    if (items.length === 0) return { success: false as const, error: "Keep at least one item, or cancel the order" };
-    if (cartRequiresAddress(items) && !(input.customerAddress ?? "").trim()) {
-      return { success: false as const, error: "Address is required for this order" };
     }
 
     const adapter = await getStorageAdapter(biz.id);
@@ -187,8 +205,24 @@ export async function modifyCustomerOrderAction(input: {
       (r) => r.orderId === input.orderId && r.customerPhone === digitsPhone,
     );
     if (!found) return { success: false as const, error: "Order not found for this phone number" };
-    if (found.orderStatus === "cancelled") {
-      return { success: false as const, error: "Cancelled orders cannot be changed" };
+    if (orderClosed(found)) {
+      return { success: false as const, error: "This order can no longer be changed" };
+    }
+
+    const original = new Map(found.items.map((item) => [item.productId, item]));
+    const items: CartItem[] = [];
+    for (const line of input.items) {
+      const qty = Math.floor(Number(line.qty) || 0);
+      if (qty <= 0) continue;
+      const source = original.get(line.productId);
+      if (!source) {
+        return { success: false as const, error: "You can only change quantities on items already in this order" };
+      }
+      items.push({ ...source, qty: Math.min(qty, 99) });
+    }
+    if (items.length === 0) return { success: false as const, error: "Keep at least one item, or cancel the order" };
+    if (cartRequiresAddress(items) && !(input.customerAddress ?? found.customerAddress).trim()) {
+      return { success: false as const, error: "Address is required for this order" };
     }
 
     const total = items.reduce((s, i) => s + i.price * i.qty, 0);

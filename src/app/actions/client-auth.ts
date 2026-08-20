@@ -1,6 +1,5 @@
 "use server";
 
-import { createHash, randomInt } from "crypto";
 import { cookies } from "next/headers";
 import { eq } from "drizzle-orm";
 import { getEnv } from "@/core/config/env";
@@ -8,14 +7,14 @@ import { requireTenDigitMobile, tenDigitMobileError } from "@/core/utils/phone";
 import { getPlatformDb } from "@/platform/db/client";
 import { businesses } from "@/platform/db/schema";
 import { canSendOtp, recordOtpSend } from "@/platform/auth/otp-rate-limit";
-import { sendLoginOtp } from "@/platform/sms/msg91";
+import { sendLoginOtp, verifyLoginOtp } from "@/platform/sms/msg91";
 import {
   CLIENT_OTP_MAX_AGE,
   CLIENT_SESSION_MAX_AGE,
   decodeClientSession,
   encodeClientOtp,
   encodeClientSession,
-  verifyClientOtpBlob,
+  verifyClientOtpChallenge,
 } from "@/tenant/client-auth/token";
 
 const SESSION_COOKIE = "alinks_client";
@@ -62,10 +61,12 @@ export async function requestShopClientOtpAction(handle: string, phoneInput: str
     const gate = canSendOtp(`client:${handle}:${phone}`);
     if (!gate.ok) return { success: false as const, error: `Wait ${gate.waitSeconds}s before another code` };
 
-    const code = String(randomInt(100_000, 999_999));
-    const codeHash = createHash("sha256").update(code).digest("hex");
-    cookies().set(OTP_COOKIE, encodeClientOtp(handle, phone, codeHash, secret()), cookieOpts(CLIENT_OTP_MAX_AGE));
     recordOtpSend(`client:${handle}:${phone}`);
+    cookies().set(
+      OTP_COOKIE,
+      encodeClientOtp(handle, phone, "msg91-pending", secret()),
+      cookieOpts(CLIENT_OTP_MAX_AGE),
+    );
 
     const sms = await sendLoginOtp(phone);
     if (sms.ok) return { success: true as const, delivery: "sms" as const };
@@ -73,6 +74,7 @@ export async function requestShopClientOtpAction(handle: string, phoneInput: str
     if (process.env.NODE_ENV !== "production") {
       return { success: true as const, delivery: "dev" as const };
     }
+    cookies().delete(OTP_COOKIE);
     return { success: false as const, error: sms.error ?? "Could not send OTP" };
   } catch (e) {
     return { success: false as const, error: e instanceof Error ? e.message : "Could not send code" };
@@ -85,14 +87,16 @@ export async function verifyShopClientOtpAction(handle: string, phoneInput: stri
     const phone = requireTenDigitMobile(phoneInput);
     const code = codeInput.replace(/\D/g, "");
     const env = getEnv();
-    const codeHash = createHash("sha256").update(code).digest("hex");
     const blob = cookies().get(OTP_COOKIE)?.value;
-    const otpOk = verifyClientOtpBlob(blob, handle, phone, codeHash, secret());
+    if (!verifyClientOtpChallenge(blob, handle, phone, secret())) {
+      return { success: false as const, error: "Request a new code for this mobile" };
+    }
+    const smsOk = (await verifyLoginOtp(phone, code)).ok;
     const devOk =
       process.env.NODE_ENV !== "production" &&
       Boolean(env.DEV_OTP) &&
       code === env.DEV_OTP.replace(/\D/g, "");
-    if (!otpOk && !devOk) return { success: false as const, error: "Invalid or expired code" };
+    if (!smsOk && !devOk) return { success: false as const, error: "Invalid or expired code" };
 
     cookies().set(SESSION_COOKIE, encodeClientSession(handle, phone, secret()), cookieOpts(CLIENT_SESSION_MAX_AGE));
     cookies().delete(OTP_COOKIE);

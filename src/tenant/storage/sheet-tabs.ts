@@ -31,11 +31,11 @@ export const SHEET_HEADERS: Record<SheetTab, string[]> = {
     "payment_method",
     "payment_status",
     "status",
+    "notes",
     "delivery_status",
     "delivery_partner",
     "tracking_id",
     "tracking_url",
-    "notes",
   ],
   Appointments: [
     "booking_id",
@@ -53,7 +53,7 @@ export const SHEET_HEADERS: Record<SheetTab, string[]> = {
   ],
   Customers: ["customer_id", "name", "phone", "email", "source", "created_at", "notes"],
   Patients: ["patient_id", "name", "phone", "created_at", "notes"],
-  Products: ["product_id", "name", "price_paise", "category", "brand", "stock", "sku", "type", "delivery_mode", "updated_at"],
+  Products: ["product_id", "name", "price_paise", "category", "brand", "stock", "sku", "updated_at", "type", "delivery_mode"],
   Leads: [
     "lead_id",
     "created_at",

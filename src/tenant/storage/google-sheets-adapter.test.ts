@@ -21,4 +21,13 @@ describe("sheet tabs", () => {
     expect(a1SheetRange("Activity Log", "A1")).toBe("'Activity Log'!A1");
     expect(a1SheetRange("Orders", "A:Z")).toBe("Orders!A:Z");
   });
+
+  it("appends new order and product columns at the end so existing workbooks stay aligned", () => {
+    const orders = SHEET_HEADERS.Orders;
+    expect(orders.indexOf("notes")).toBeLessThan(orders.indexOf("delivery_status"));
+    expect(orders[orders.length - 1]).toBe("tracking_url");
+    const products = SHEET_HEADERS.Products;
+    expect(products.indexOf("updated_at")).toBeLessThan(products.indexOf("type"));
+    expect(products[products.length - 1]).toBe("delivery_mode");
+  });
 });

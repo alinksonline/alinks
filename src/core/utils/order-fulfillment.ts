@@ -1,4 +1,4 @@
-import type { CartItem } from "@/core/types/commerce";
+import type { CartItem, CatalogProduct } from "@/core/types/commerce";
 
 export type ProductKind = "physical" | "service";
 export type ServicePlace = "doorstep" | "location";
@@ -17,6 +17,30 @@ export function cartRequiresAddress(
   items: Array<{ productType?: string | null; deliveryMode?: string | null }>,
 ): boolean {
   return items.some(itemRequiresAddress);
+}
+
+/** Copy catalog price/type onto cart lines. Returns null if any productId is unknown. */
+export function resolveCartAgainstCatalog(
+  items: CartItem[],
+  catalog: CatalogProduct[],
+): CartItem[] | null {
+  const byId = new Map(catalog.map((p) => [p.id, p]));
+  const out: CartItem[] = [];
+  for (const item of items) {
+    const qty = Math.floor(Number(item.qty) || 0);
+    if (qty <= 0) continue;
+    const product = byId.get(item.productId);
+    if (!product) return null;
+    out.push({
+      productId: product.id,
+      name: product.name,
+      price: product.price,
+      qty: Math.min(qty, 99),
+      productType: product.productType,
+      deliveryMode: product.deliveryMode,
+    });
+  }
+  return out;
 }
 
 export function normalizeProductKind(value: string | null | undefined): ProductKind {

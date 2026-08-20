@@ -24,7 +24,8 @@ import {
 import { LEGAL_DOC_TYPES } from "@/core/constants/legal";
 import { recordLegalAcceptance } from "@/platform/legal/acceptances";
 import { writeToTenantStorage } from "@/tenant/storage/write-service";
-import { cartRequiresAddress } from "@/core/utils/order-fulfillment";
+import { getCatalogForBusiness } from "@/tenant/storage/catalog";
+import { cartRequiresAddress, resolveCartAgainstCatalog } from "@/core/utils/order-fulfillment";
 import crypto from "crypto";
 
 async function requireSession() {
@@ -239,14 +240,20 @@ export async function createCheckoutSessionAction(input: {
     if (!input.customerName.trim()) {
       return { success: false as const, error: "Enter your name" };
     }
-    if (cartRequiresAddress(input.items) && !(input.customerAddress ?? "").trim()) {
+
+    const catalog = await getCatalogForBusiness(row.business.id);
+    const items = resolveCartAgainstCatalog(input.items, catalog);
+    if (!items || items.length === 0) {
+      return { success: false as const, error: "Cart has unknown items. Refresh the shop and try again." };
+    }
+    if (cartRequiresAddress(items) && !(input.customerAddress ?? "").trim()) {
       return {
         success: false as const,
         error: "Delivery address is required for physical items and doorstep services",
       };
     }
 
-    const total = input.items.reduce((sum, i) => sum + i.price * i.qty, 0);
+    const total = items.reduce((sum, i) => sum + i.price * i.qty, 0);
     if (total <= 0) return { success: false as const, error: "Cart is empty" };
 
     const orderId = crypto.randomUUID();
@@ -264,7 +271,7 @@ export async function createCheckoutSessionAction(input: {
         customerName: input.customerName.trim(),
         customerPhone: phone,
         customerAddress: (input.customerAddress ?? "").trim(),
-        items: JSON.stringify(input.items),
+        items: JSON.stringify(items),
         createdAt: new Date().toISOString(),
       });
 
@@ -311,7 +318,7 @@ export async function createCheckoutSessionAction(input: {
       pendingOrder: {
         businessId: row.business.id,
         orderId,
-        items: input.items,
+        items,
         total,
         customerName: input.customerName.trim(),
         customerPhone: phone,
